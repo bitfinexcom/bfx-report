@@ -1,0 +1,10 @@
+app:
+  port: 31339
+  cors:
+    enable: true
+    whitelist: null # array
+
+log:
+  label: :app-prod
+  pathError: logs/error.log
+  pathExcLogger: 'logs/exceptions-logger.log'

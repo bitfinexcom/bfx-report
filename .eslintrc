@@ -1,0 +1,49 @@
+{
+  "env": {
+    "commonjs": true,
+    "mocha": true,
+    "node": true,
+    "es6": true
+  },
+  "ecmaFeatures": {
+    "arrowFunctions": true,
+    "blockBindings": true,
+    "classes": true,
+    "defaultParameters": true,
+    "destructuring": true,
+    "forOf": true,
+    "generators": true,
+    "modules": true,
+    "objectLiteralComputedProperties": true,
+    "objectLiteralDuplicateProperties": true,
+    "objectLiteralShorthandMethods": true,
+    "objectLiteralShorthandProperties": true,
+    "regexUFlag": true,
+    "regexYFlag": true,
+    "restParams": true,
+    "spread": true,
+    "superInFunctions": true,
+    "templateStrings": true,
+    "unicodeCodePointEscapes": true,
+    "globalReturn": true
+  },
+  "globals": {
+    "_": false,
+    "angular": false,
+    "mocks": false,
+    "console": false,
+    "inject": true,
+    "module": true,
+    "window": false,
+    "expect": true,
+    "require": true,
+    "onPrepare": true,
+    "onComplete": true,
+    "browser": true,
+    "jasmine": true,
+    "sinon": true,
+    "beforeEach": true,
+    "afterEach": true,
+    "schema": true
+  }
+}
