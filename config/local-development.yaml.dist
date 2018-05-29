@@ -3,3 +3,6 @@ app:
   cors:
     enable: true
     whitelist: null # array
+
+grenacheClient:
+  grape: http://127.0.0.1:30001

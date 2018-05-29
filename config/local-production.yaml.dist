@@ -4,6 +4,9 @@ app:
     enable: true
     whitelist: null # array
 
+grenacheClient:
+  grape: http://127.0.0.1:30001
+
 log:
   label: :app-prod
   pathError: logs/error.log

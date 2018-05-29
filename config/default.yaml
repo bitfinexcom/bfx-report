@@ -5,6 +5,11 @@ app:
     enable: true
     whitelist: null # array
 
+grenacheClient:
+  query: rest:report:api
+  grape: http://127.0.0.1:30001
+  timeout: 10000
+
 logDebug:
   prefix: ''
   postfix: :app

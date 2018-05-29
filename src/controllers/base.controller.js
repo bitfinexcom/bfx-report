@@ -1,18 +1,45 @@
 'use strict'
 
-const { success, failure, failureUnauthorized } = require('../services/helpers/responses');
+const {
+  grenacheClientService: gClientService,
+  helpers
+} = require('../services')
+const { success, failure, failureUnauthorized } = helpers.responses
 
-const checkAuth = (req, res) => {
-  // success(200, { success: true }, res)
-  failureUnauthorized(res)
+const checkAuth = async (req, res) => {
+  const query = {
+    action: 'accountInfo',
+    args: [req.body]
+  }
+
+  try {
+    const data = await gClientService.request(query)
+
+    success(200, { success: true }, res)
+  } catch (err) {
+    failureUnauthorized(res)
+  }
 }
 
-const getLedgers = (req, res) => {
-  success(200, { success: true, data: {} }, res)
-  // failure(500, err.toString(), res)
+const getData = async (req, res) => {
+  const body = { ...req.body }
+  delete body.method
+  
+  const query = {
+    action: req.body.method || '',
+    args: [body]
+  }
+
+  try {
+    const data = await gClientService.request(query)
+
+    success(200, { success: true, data }, res)
+  } catch (err) {
+    failure(500, err.toString(), res)
+  }
 }
 
 module.exports = {
   checkAuth,
-  getLedgers
+  getData
 }
