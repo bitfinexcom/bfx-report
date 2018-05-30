@@ -3,6 +3,14 @@
     "port": 3001,
     "host": "127.0.0.1"
   },
+  "grenacheService": {
+    "restUrl": "https://dev-prdn.bitfinex.com:2998",
+    "wsUrl": "wss://dev-prdn.bitfinex.com:2998"
+  },
+  "auth": {
+    "apiKey": "",
+    "apiSecret": ""
+  },
   "logDebug": {
     "postfix": ":app-test",
     "enableInfo": false,
@@ -12,6 +20,7 @@
   },
   "log": {
     "label": ":app-test",
-    "enableConsole": false
+    "enableConsole": false,
+    "enableColor": false
   }
 }

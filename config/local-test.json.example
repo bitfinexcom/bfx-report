@@ -2,6 +2,14 @@
   "app": {
     "port": 3001
   },
+  "auth": {
+    "apiKey": "",
+    "apiSecret": ""
+  },
+  "grenacheService": {
+    "restUrl": "https://dev-prdn.bitfinex.com:2998",
+    "wsUrl": "wss://dev-prdn.bitfinex.com:2998"
+  },
   "grenacheClient": {
     "grape": "http://127.0.0.1:30001"
   },
@@ -14,6 +22,7 @@
   },
   "log": {
     "label": ":app-test",
-    "enableConsole": false
+    "enableConsole": false,
+    "enableColor": false
   }
 }

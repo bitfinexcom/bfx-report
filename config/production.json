@@ -3,6 +3,10 @@
     "port": 31339,
     "host": "127.0.0.1"
   },
+  "grenacheService": {
+    "restUrl": "https://api.bitfinex.com",
+    "wsUrl": "wss://api.bitfinex.com"
+  },
   "logDebug": {
     "postfix": ":app-prod",
     "enableInfo": false,

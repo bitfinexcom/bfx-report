@@ -6,6 +6,10 @@
       "whitelist": null
     }
   },
+  "grenacheService": {
+    "restUrl": "https://api.bitfinex.com",
+    "wsUrl": "wss://api.bitfinex.com"
+  },
   "grenacheClient": {
     "grape": "http://127.0.0.1:30001"
   }
