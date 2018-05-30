@@ -9,23 +9,7 @@ const logger = new CustomLogger({
   label: ':grenache:client'
 }).createLogger()
 
-_checkConf()
-
-const gClientConf = config.get('grenacheClient')
-
-const Peer = Grenache.PeerRPCClient
-
-const link = new Link({
-  grape: gClientConf.grape
-})
-
-link.start()
-
-const peer = new Peer(link, {})
-
-peer.init()
-
-function _checkConf () {
+const _checkConf = () => {
   if (
     config.has('grenacheClient')
     && config.has('grenacheClient.grape')
@@ -42,26 +26,21 @@ function _checkConf () {
   throw err
 }
 
-// const _request = (query, ...args) => {
-//   const _args = []
+_checkConf()
 
-//   if (typeof args[0] === 'function') {
-//     _args[0] = { timeout: gClientConf.timeout }
-//     _args[1] = args[0]
-//   }
+const gClientConf = config.get('grenacheClient')
 
-//   if (typeof args[0] === 'object') {
-//     _args = [...args]
-//   }
-  
-//   peer.request(gClientConf.query, query, _args[0], (err, data) => {
-//     if (err) {
-//       logger.debug('Found %s at %s', 'error', err)
-//     }
+const Peer = Grenache.PeerRPCClient
 
-//     _args[1](err, data)
-//   })
-// }
+const link = new Link({
+  grape: gClientConf.grape
+})
+
+link.start()
+
+const peer = new Peer(link, {})
+
+peer.init()
 
 const request = (query, ...args) => {
   const _args = []
@@ -81,10 +60,18 @@ const request = (query, ...args) => {
         logger.debug('Found %s at %s', 'error', err)
         reject(err)
 
+        if (typeof _args[1] === 'function') {
+          _args[1](err)
+        }
+
         return
       }
-  
+
       resolve(data)
+
+      if (typeof _args[1] === 'function') {
+        _args[1](err, data)
+      }
     })
   })
 }
