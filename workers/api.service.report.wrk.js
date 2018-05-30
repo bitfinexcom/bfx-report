@@ -10,6 +10,8 @@ class WrkdnsServiceApi extends WrkApi {
 
     this.init()
     this.start()
+
+    // console.log('---conf---', this.conf[this.group])
   }
 
   getApiConf () {

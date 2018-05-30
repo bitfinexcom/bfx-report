@@ -1,19 +1,31 @@
 'use strict'
 
 const BFX = require('bitfinex-api-node')
+const config = require('config')
 
-const REST_URL = 'https://dev-prdn.bitfinex.com:2998'// TODO:
-const WS_URL = 'wss://dev-prdn.bitfinex.com:2998'// TODO:
+const _checkConf = () => {
+  if (
+    config.has('grenacheService')
+    && config.has('grenacheService.restUrl')
+    && config.has('grenacheService.wsUrl')
+  ) {
+    return
+  }
+
+  const err = new Error('ERR_CONFIG_ARGS_NO_GRENACHE_SERVICE')
+
+  throw err
+}
 
 const createBFX = ({ apiKey = '', apiSecret = '' }) => {
   return new BFX({
     apiKey,
     apiSecret,
     ws: {
-      url: WS_URL
+      url: config.get('grenacheService.wsUrl')
     },
     rest: {
-      url: REST_URL
+      url: config.get('grenacheService.restUrl')
     }
   })
 }
