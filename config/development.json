@@ -1,0 +1,17 @@
+{
+  "app": {
+    "port": 31339,
+    "host": "127.0.0.1"
+  },
+  "logDebug": {
+    "postfix": ":app-dev",
+    "enableInfo": true,
+    "enableDev": true,
+    "enableError": true,
+    "enableServerStream": true
+  },
+  "log": {
+    "label": ":app-dev",
+    "pathExcLogger": null
+  }
+}
