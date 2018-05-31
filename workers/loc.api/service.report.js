@@ -3,7 +3,7 @@
 const { Api } = require('bfx-wrk-api')
 const bfxFactory = require('./bfx.factory')
 
-class reportService extends Api {
+class ReportService extends Api {
   space(service, msg) {
     const space = super.space(service, msg)
     return space
@@ -52,4 +52,4 @@ class reportService extends Api {
   }
 }
 
-module.exports = reportService
+module.exports = ReportService
