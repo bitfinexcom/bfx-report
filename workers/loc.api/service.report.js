@@ -9,14 +9,14 @@ class ReportService extends Api {
     return space
   }
 
-  accountInfo(space, args, cb) {
+  fundingInfo(space, args, cb) {
     if (!args.auth) return cb(new Error('ERR_ARGS_NO_AUTH_DATA'))
 
     const bfx = bfxFactory({ ...args.auth })
     const rest = bfx.rest(2, { transform: true })
 
     rest
-      .accountInfo()
+      .fundingInfo()
       .then(res => {
         cb(null, res)
       })

@@ -8,7 +8,7 @@ const { success, failure, failureUnauthorized } = helpers.responses
 
 const checkAuth = async (req, res) => {
   const query = {
-    action: 'accountInfo',
+    action: 'fundingInfo',
     args: [req.body]
   }
 

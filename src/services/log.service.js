@@ -56,7 +56,7 @@ const loggerConfig = {
     silly: 6
   },
   colors: {
-    silly: 'rainbow', //magenta
+    silly: 'rainbow',
     input: 'grey',
     verbose: 'cyan',
     prompt: 'grey',
@@ -64,7 +64,7 @@ const loggerConfig = {
     data: 'grey',
     help: 'cyan',
     warn: 'yellow',
-    debug: 'magenta', //blue
+    debug: 'magenta',
     error: 'red'
   }
 }
