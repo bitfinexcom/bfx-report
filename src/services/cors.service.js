@@ -8,38 +8,41 @@ const enable =
   config.has('app.cors.enable') &&
   config.get('app.cors.enable')
 
+const _getWhitelist = (confPath = 'app.cors.whitelist') => {
+  if (Array.isArray(config.get(confPath))) {
+    return config.get(confPath)
+  }
+
+  if (typeof config.get(confPath) === 'string') {
+    return [config.get(confPath)]
+  }
+
+  return null
+}
+
 const corsBase = () => {
   if (!enable) {
     return (req, res, next) => next()
   }
 
-  let whitelist = null
+  let whitelist = _getWhitelist()
 
-  if (config.has('app.cors.whitelist')) {
-    whitelist = Array.isArray(config.get('app.cors.whitelist'))
-      ? config.get('app.cors.whitelist')
-      : null
-
-    whitelist =
-      typeof config.get('app.cors.whitelist') === 'string'
-        ? config.get('app.cors.whitelist')
-        : null
-  }
-
-  const originFn = function(origin, callback) {
+  const originFn = (origin, callback) => {
+    console.log('---origin---', origin) // TODO:
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
+
+      return
     }
+
+    callback(new Error('Not allowed by CORS'))
   }
 
   let origin = true
 
-  if (whitelist === null) {
-    origin = true
-  } else {
-    origin = Array.isArray(whitelist) ? originFn : whitelist
+  console.log('---whitelist---', whitelist) // TODO:
+  if (whitelist !== null) {
+    origin = originFn
   }
 
   const corsOptions = {
