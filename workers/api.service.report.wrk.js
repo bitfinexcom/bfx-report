@@ -2,7 +2,7 @@
 
 const { WrkApi } = require('bfx-wrk-api')
 
-class WrkdnsServiceApi extends WrkApi {
+class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
     super(conf, ctx)
 
@@ -37,4 +37,4 @@ class WrkdnsServiceApi extends WrkApi {
   }
 }
 
-module.exports = WrkdnsServiceApi
+module.exports = WrkReportServiceApi
