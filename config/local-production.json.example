@@ -2,8 +2,7 @@
   "app": {
     "port": 31339,
     "cors": {
-      "enable": true,
-      "whitelist": null
+      "enable": true
     }
   },
   "grenacheService": {

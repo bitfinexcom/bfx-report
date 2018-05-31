@@ -3,8 +3,7 @@
     "port": 31339,
     "host": "127.0.0.1",
     "cors": {
-      "enable": true,
-      "whitelist": null
+      "enable": true
     }
   },
   "grenacheClient": {
