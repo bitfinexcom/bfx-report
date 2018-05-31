@@ -28,7 +28,6 @@ const corsBase = () => {
   let whitelist = _getWhitelist()
 
   const originFn = (origin, callback) => {
-    console.log('---origin---', origin) // TODO:
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
 
@@ -40,7 +39,6 @@ const corsBase = () => {
 
   let origin = true
 
-  console.log('---whitelist---', whitelist) // TODO:
   if (whitelist !== null) {
     origin = originFn
   }
@@ -50,7 +48,7 @@ const corsBase = () => {
     methods: ['POST', 'GET', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept'],
     credentials: true,
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    optionsSuccessStatus: 200
   }
 
   return cors(corsOptions)
