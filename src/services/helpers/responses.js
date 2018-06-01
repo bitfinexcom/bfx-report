@@ -34,9 +34,17 @@ const failureUnauthorized = (res, id = null) => {
   return failure(statusCode, errorMessage, res, id)
 }
 
+const failureInternalServerError = (res, id = null) => {
+  const statusCode = 500
+  const errorMessage = 'Internal Server Error'
+
+  return failure(statusCode, errorMessage, res, id)
+}
+
 module.exports = {
   success,
   failure,
   failureAccessDenied,
-  failureUnauthorized
+  failureUnauthorized,
+  failureInternalServerError
 }

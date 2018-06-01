@@ -4,7 +4,11 @@ const {
   grenacheClientService: gClientService,
   helpers
 } = require('../services')
-const { success, failure, failureUnauthorized } = helpers.responses
+const { success, failure, failureInternalServerError, failureUnauthorized } = helpers.responses
+
+const _isAuthError = (err) => {
+  return /apikey: digest invalid/.test(err.toString())
+}
 
 const checkAuth = async (req, res) => {
   const id = req.body.id || null
@@ -18,7 +22,13 @@ const checkAuth = async (req, res) => {
 
     success(200, { result: true, id }, res)
   } catch (err) {
-    failureUnauthorized(res, id)
+    if (_isAuthError(err)) {
+      failureUnauthorized(res, id)
+
+      return
+    }
+
+    failureInternalServerError(res, id)
   }
 }
 
@@ -36,7 +46,13 @@ const getData = async (req, res) => {
 
     success(200, { result, id }, res)
   } catch (err) {
-    failure(500, err.toString(), res, id)
+    if (_isAuthError(err)) {
+      failureUnauthorized(res, id)
+
+      return
+    }
+
+    failureInternalServerError(res, id)
   }
 }
 
