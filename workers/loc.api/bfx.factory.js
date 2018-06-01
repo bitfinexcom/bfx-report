@@ -6,8 +6,7 @@ const config = require('config')
 const _checkConf = () => {
   if (
     config.has('grenacheService') &&
-    config.has('grenacheService.restUrl') &&
-    config.has('grenacheService.wsUrl')
+    config.has('grenacheService.restUrl')
   ) {
     return
   }
@@ -23,9 +22,6 @@ const createBFX = ({ apiKey = '', apiSecret = '' }) => {
   return new BFX({
     apiKey,
     apiSecret,
-    ws: {
-      url: config.get('grenacheService.wsUrl')
-    },
     rest: {
       url: config.get('grenacheService.restUrl')
     }
