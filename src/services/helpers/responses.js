@@ -1,34 +1,37 @@
 'use strict'
 
-const success = function (statusCode, responseModel, res) {
+const success = (statusCode, responseModel, res) => {
   res.status(statusCode)
   res.json(responseModel)
 
   return res
 }
 
-const failure = function (statusCode, errorMessage, res) {
+const failure = (statusCode, errorMessage, res, id = null) => {
   res.status(statusCode)
   res.json({
-    message: errorMessage,
-    success: false
+    error: {
+      code: statusCode,
+      message: errorMessage
+    },
+    id
   })
 
   return res
 }
 
-const failureAccessDenied = function (res) {
+const failureAccessDenied = (res, id = null) => {
   const statusCode = 403
   const errorMessage = 'Access Denied'
 
-  return failure(statusCode, errorMessage, res)
+  return failure(statusCode, errorMessage, res, id)
 }
 
-const failureUnauthorized = function (res) {
+const failureUnauthorized = (res, id = null) => {
   const statusCode = 401
   const errorMessage = 'Unauthorized'
 
-  return failure(statusCode, errorMessage, res)
+  return failure(statusCode, errorMessage, res, id)
 }
 
 module.exports = {

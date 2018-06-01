@@ -74,7 +74,8 @@ describe('API', () => {
       .post('/check-auth')
       .type('json')
       .send({
-        auth
+        auth,
+        id: 5
       })
       .expect('Content-Type', /json/)
       .expect(200)
@@ -82,7 +83,8 @@ describe('API', () => {
         if (err) return done(err)
 
         assert.isObject(res.body)
-        assert.propertyVal(res.body, 'success', true)
+        assert.propertyVal(res.body, 'result', true)
+        assert.propertyVal(res.body, 'id', 5)
 
         done()
       })
@@ -105,7 +107,10 @@ describe('API', () => {
         if (err) return done(err)
 
         assert.isObject(res.body)
-        assert.propertyVal(res.body, 'success', false)
+        assert.isObject(res.body.error)
+        assert.propertyVal(res.body.error, 'code', 401)
+        assert.propertyVal(res.body.error, 'message', 'Unauthorized')
+        assert.propertyVal(res.body, 'id', null)
 
         done()
       })

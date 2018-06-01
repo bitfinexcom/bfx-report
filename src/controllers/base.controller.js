@@ -7,6 +7,7 @@ const {
 const { success, failure, failureUnauthorized } = helpers.responses
 
 const checkAuth = async (req, res) => {
+  const id = req.body.id || null
   const query = {
     action: 'fundingInfo',
     args: [req.body]
@@ -15,14 +16,15 @@ const checkAuth = async (req, res) => {
   try {
     await gClientService.request(query)
 
-    success(200, { success: true }, res)
+    success(200, { result: true, id }, res)
   } catch (err) {
-    failureUnauthorized(res)
+    failureUnauthorized(res, id)
   }
 }
 
 const getData = async (req, res) => {
   const body = { ...req.body }
+  const id = body.id || null
   delete body.method
   const query = {
     action: req.body.method || '',
@@ -30,11 +32,11 @@ const getData = async (req, res) => {
   }
 
   try {
-    const data = await gClientService.request(query)
+    const result = await gClientService.request(query)
 
-    success(200, { success: true, data }, res)
+    success(200, { result, id }, res)
   } catch (err) {
-    failure(500, err.toString(), res)
+    failure(500, err.toString(), res, id)
   }
 }
 
