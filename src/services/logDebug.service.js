@@ -1,6 +1,5 @@
 'use strict'
 
-const supportsColor = require('supports-color')
 const debug = require('debug')
 const config = require('config')
 

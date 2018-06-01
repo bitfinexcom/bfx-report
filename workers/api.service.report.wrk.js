@@ -10,26 +10,12 @@ class WrkReportServiceApi extends WrkApi {
 
     this.init()
     this.start()
-
-    // console.log('---conf---', this.conf[this.group])
   }
 
   getApiConf () {
     return {
       path: 'service.report'
     }
-  }
-
-  getPluginCtx (type) {
-    const ctx = super.getPluginCtx(type)
-
-    switch (type) {
-      case 'api_bfx':
-        // ctx.foo = 'bar'
-        break
-    }
-
-    return ctx
   }
 
   init () {

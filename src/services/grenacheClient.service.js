@@ -11,10 +11,10 @@ const logger = new CustomLogger({
 
 const _checkConf = () => {
   if (
-    config.has('grenacheClient')
-    && config.has('grenacheClient.grape')
-    && config.has('grenacheClient.query')
-    && config.has('grenacheClient.timeout')
+    config.has('grenacheClient') &&
+    config.has('grenacheClient.grape') &&
+    config.has('grenacheClient.query') &&
+    config.has('grenacheClient.timeout')
   ) {
     return
   }
@@ -43,7 +43,7 @@ const peer = new Peer(link, {})
 peer.init()
 
 const request = (query, ...args) => {
-  const _args = []
+  let _args = []
 
   if (typeof args[0] === 'function') {
     _args[0] = { timeout: gClientConf.timeout }

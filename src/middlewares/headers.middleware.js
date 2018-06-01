@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = function(req, res, next) {
+module.exports = (req, res, next) => {
   res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate')
   res.setHeader('Pragma', 'no-cache')
   res.setHeader('Expires', '-1')

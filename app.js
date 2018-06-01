@@ -46,7 +46,6 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   logger.error('Found %s at %s', 'error', err)
-  
   responses.failure(
     err.statusCode ? err.statusCode : 500,
     err.message || err.statusMessage || '',
@@ -54,7 +53,7 @@ app.use((err, req, res, next) => {
   )
 })
 
-const server = app.listen(port, host, function() {
+const server = app.listen(port, host, () => {
   const host = server.address().address
   const port = server.address().port
 

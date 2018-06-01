@@ -4,12 +4,12 @@ const { Api } = require('bfx-wrk-api')
 const bfxFactory = require('./bfx.factory')
 
 class ReportService extends Api {
-  space(service, msg) {
+  space (service, msg) {
     const space = super.space(service, msg)
     return space
   }
 
-  fundingInfo(space, args, cb) {
+  fundingInfo (space, args, cb) {
     if (!args.auth) return cb(new Error('ERR_ARGS_NO_AUTH_DATA'))
 
     const bfx = bfxFactory({ ...args.auth })
@@ -25,7 +25,7 @@ class ReportService extends Api {
       })
   }
 
-  orderHistory(space, args, cb) {
+  orderHistory (space, args, cb) {
     if (!args.auth) return cb(new Error('ERR_ARGS_NO_AUTH_DATA'))
     if (!args.params && typeof args.params !== 'object') {
       return cb(new Error('ERR_ARGS_NO_PARAMS'))

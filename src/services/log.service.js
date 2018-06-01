@@ -2,8 +2,8 @@
 
 const config = require('config')
 const colors = require('colors')
-const { createLogger, format, transports, loggers } = require('winston')
-const { combine, timestamp, label, printf, splat, colorize } = format
+const { createLogger, format, transports } = require('winston')
+const { combine, timestamp, label, printf, splat } = format
 
 const logLabel = config.has('log.label') ? config.get('log.label') : ''
 const pathError = config.has('log.pathError')
@@ -142,7 +142,6 @@ const combineFormat = (conf = {}) => {
 
   return combine(
     ignorePrivate(),
-    // colorize({ all: false }),
     splat(),
     label({ label: conf.label }),
     timestamp(),
@@ -151,18 +150,19 @@ const combineFormat = (conf = {}) => {
 }
 
 const logTransports = {}
-const excLogTransports = pathExcLogger
-  ? [
-      new transports.File({
-        filename: pathExcLogger,
-        colorize: false,
-        maxsize: maxSize,
-        format: combineFormat({ enableColor: enableColorPathExcLogger })
-      })
-    ]
-  : null
+let excLogTransports = null
 
-if (pathError)
+if (pathExcLogger) {
+  excLogTransports = [
+    new transports.File({
+      filename: pathExcLogger,
+      colorize: false,
+      maxsize: maxSize,
+      format: combineFormat({ enableColor: enableColorPathExcLogger })
+    })
+  ]
+}
+if (pathError) {
   logTransports.error = new transports.File({
     filename: pathError,
     level: 'error',
@@ -170,17 +170,20 @@ if (pathError)
     maxsize: maxSize,
     format: combineFormat({ enableColor: enableColorPathError })
   })
-if (pathLog)
+}
+if (pathLog) {
   logTransports.log = new transports.File({
     filename: pathLog,
     colorize: false,
     maxsize: maxSize,
     format: combineFormat({ enableColor: enableColorPathLog })
   })
-if (enableConsole)
+}
+if (enableConsole) {
   logTransports.console = new transports.Console({
     format: combineFormat()
   })
+}
 
 let arrLogTransports = Object.values(logTransports)
 
@@ -193,7 +196,7 @@ const logger = createLogger({
 })
 
 class CustomLogger {
-  constructor(conf = {}) {
+  constructor (conf = {}) {
     this.logger = null
 
     if (typeof conf.label === 'undefined') conf.label = ''
@@ -242,24 +245,23 @@ class CustomLogger {
 
     this.logTransports = Object.assign({}, logTransports, this._logTransports)
 
-    this.excLogTransports =
-      typeof this.logConf.pathExcLogger !== 'undefined'
-        ? [
-            new transports.File({
-              filename: this.logConf.pathExcLogger,
-              format: this.combineFormat({
-                enableColor: this.logConf.enableColorPathExcLogger
-              }),
-              colorize: false,
-              maxsize: this.logConf.maxSize
-            })
-          ]
-        : excLogTransports
+    if (typeof this.logConf.pathExcLogger !== 'undefined') {
+      this.excLogTransports = [
+        new transports.File({
+          filename: this.logConf.pathExcLogger,
+          format: this.combineFormat({
+            enableColor: this.logConf.enableColorPathExcLogger
+          }),
+          colorize: false,
+          maxsize: this.logConf.maxSize
+        })
+      ]
+    }
 
     this.arrLogTransports = Object.values(this.logTransports)
   }
 
-  createLogger() {
+  createLogger () {
     this.logger = createLogger({
       levels: this.loggerConfig.levels,
       format: this.combineFormat({
@@ -273,15 +275,15 @@ class CustomLogger {
     return this.logger
   }
 
-  combineFormat(conf = {}) {
-    if (typeof conf.enableColor === 'undefined')
+  combineFormat (conf = {}) {
+    if (typeof conf.enableColor === 'undefined') {
       conf.enableColor = this.logConf.enableColor
+    }
     if (typeof conf.label === 'undefined') conf.label = this.logConf.label
     if (typeof conf.color === 'undefined') conf.color = this.logConf.color
 
     return combine(
       ignorePrivate(),
-      // colorize({ all: false }),
       splat(),
       label({ label: `${logLabel}${conf.label}` }),
       timestamp(),
@@ -289,102 +291,66 @@ class CustomLogger {
     )
   }
 
-  setLogger(logger) {
+  setLogger (logger) {
     this.logger = logger
 
     return this
   }
 
-  getLogger() {
+  getLogger () {
     return this.logger
   }
 
-  setCustomFormat(customFormat) {
+  setCustomFormat (customFormat) {
     this.customFormat = customFormat
 
     return this
   }
 
-  getCustomFormat() {
+  getCustomFormat () {
     return this.customFormat
   }
 
-  setIgnorePrivate(ignorePrivate) {
+  setIgnorePrivate (ignorePrivate) {
     this.ignorePrivate = ignorePrivate
 
     return this
   }
 
-  getIgnorePrivate() {
+  getIgnorePrivate () {
     return this.ignorePrivate
   }
 
-  setLoggerConfig(loggerConfig) {
+  setLoggerConfig (loggerConfig) {
     this.loggerConfig = loggerConfig
 
     return this
   }
 
-  getLoggerConfig() {
+  getLoggerConfig () {
     return this.loggerConfig
   }
 
-  getLogTransports() {
+  getLogTransports () {
     return this.logTransports
   }
 
-  setLogTransports(logTransports) {
+  setLogTransports (logTransports) {
     this.logTransports = logTransports
 
     return this
   }
 
-  getArrLogTransports() {
+  getArrLogTransports () {
     return this.arrLogTransports
   }
 
-  setArrLogTransports(arrLogTransports) {
+  setArrLogTransports (arrLogTransports) {
     this.arrLogTransports = arrLogTransports
 
     return this
   }
 }
-
-/* Examples: */
-
-// const customLogger = new CustomLogger({
-//   label: ':test',
-//   color: 'red',
-//   pathLog: 'logs/test.log',
-//   enableColor: true
-// }).createLogger()
-// customLogger.info('Test', { test1: 1, test2: 'test' })
-
-// logger.log({
-//   level: 'info',
-//   message: 'What time is the testing at?'
-// })
-
-// logger.log({
-//   level: 'info',
-//   message: 'What time is the testing at?',
-//   private: true
-// })
-
-// logger.info('dfgdfgd')
-// logger.info({ rrr: 'tt', ttt: [44, 445] })
-// logger.warn('warn', { rr: 44, tt: 88, iii: { ggg: 6, yy: 'yy' } })
-// logger.error('Found %s at %s', 'error', new Error('chill winston'))
-// logger.log('info', 'test message %s, %s', 'first', 'second', { number: 123 })
-// logger.error('error', { number: 123 })
-
-// loggers.add('category1', {
-//   transports: [new transports.Console()]
-// })
-// const category1 = loggers.get('category1')
-// category1.info('logging from your IoC container-based logger')
-
-/* END Example */
 
 module.exports = {
   logger,

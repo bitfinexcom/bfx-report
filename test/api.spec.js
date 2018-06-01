@@ -13,16 +13,13 @@ const assert = chai.assert
 
 let rpc = null
 let grapes = null
-let auth = {
-  apiKey: '',
-  apiSecret: ''
-}
+let auth = null
 
 const _checkConf = () => {
   if (
-    config.has('auth')
-    && config.has('auth.apiKey')
-    && config.has('auth.apiSecret')
+    config.has('auth') &&
+    config.has('auth.apiKey') &&
+    config.has('auth.apiSecret')
   ) {
     return
   }
@@ -33,10 +30,10 @@ const _checkConf = () => {
 }
 
 describe('API', () => {
-  before(function(done) {
+  before(function (done) {
     this.timeout(20000)
 
-    _checkConf();
+    _checkConf()
     auth = config.get('auth')
 
     bootTwoGrapes((err, g) => {
@@ -63,7 +60,7 @@ describe('API', () => {
     })
   })
 
-  after(function(done) {
+  after(function (done) {
     this.timeout(5000)
     rpc.on('close', () => {
       killGrapes(grapes, done)
@@ -71,7 +68,7 @@ describe('API', () => {
     rpc.kill()
   })
 
-  it('it should be successfully auth', function(done) {
+  it('it should be successfully auth', function (done) {
     this.timeout(5000)
     agent
       .post('/check-auth')
@@ -85,13 +82,13 @@ describe('API', () => {
         if (err) return done(err)
 
         assert.isObject(res.body)
-        assert.propertyVal(res.body, 'success', true);
+        assert.propertyVal(res.body, 'success', true)
 
         done()
       })
   }).timeout(60000)
 
-  it('it should not be successfully auth', function(done) {
+  it('it should not be successfully auth', function (done) {
     this.timeout(5000)
     agent
       .post('/check-auth')
@@ -108,7 +105,7 @@ describe('API', () => {
         if (err) return done(err)
 
         assert.isObject(res.body)
-        assert.propertyVal(res.body, 'success', false);
+        assert.propertyVal(res.body, 'success', false)
 
         done()
       })

@@ -13,7 +13,7 @@ const checkAuth = async (req, res) => {
   }
 
   try {
-    const data = await gClientService.request(query)
+    await gClientService.request(query)
 
     success(200, { success: true }, res)
   } catch (err) {
@@ -24,7 +24,6 @@ const checkAuth = async (req, res) => {
 const getData = async (req, res) => {
   const body = { ...req.body }
   delete body.method
-  
   const query = {
     action: req.body.method || '',
     args: [body]

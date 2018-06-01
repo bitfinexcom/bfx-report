@@ -5,9 +5,9 @@ const config = require('config')
 
 const _checkConf = () => {
   if (
-    config.has('grenacheService')
-    && config.has('grenacheService.restUrl')
-    && config.has('grenacheService.wsUrl')
+    config.has('grenacheService') &&
+    config.has('grenacheService.restUrl') &&
+    config.has('grenacheService.wsUrl')
   ) {
     return
   }
@@ -16,6 +16,8 @@ const _checkConf = () => {
 
   throw err
 }
+
+_checkConf()
 
 const createBFX = ({ apiKey = '', apiSecret = '' }) => {
   return new BFX({
