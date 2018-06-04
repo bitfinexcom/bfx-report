@@ -88,7 +88,7 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 
   it('it should not be successfully auth', function (done) {
     this.timeout(5000)
@@ -114,7 +114,7 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 
   it('it should be successfully performed by the getMovements method', function (done) {
     this.timeout(5000)
@@ -154,7 +154,7 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 
   it('it should be successfully performed by the getTrades method', function (done) {
     this.timeout(5000)
@@ -195,7 +195,7 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 
   it('it should be successfully performed by the getOrders method', function (done) {
     this.timeout(5000)
@@ -250,7 +250,7 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 
   it('it should be successfully performed by the getMovements method', function (done) {
     this.timeout(5000)
@@ -294,7 +294,7 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 
   it('it should not be successfully auth by the getMovements method', function (done) {
     this.timeout(5000)
@@ -325,7 +325,7 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 
   it('it should not be successfully performed by the getMovements method', function (done) {
     this.timeout(5000)
@@ -351,7 +351,7 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 
   it('it should not be successfully performed by a fake method', function (done) {
     this.timeout(5000)
@@ -376,5 +376,5 @@ describe('API', () => {
 
         done()
       })
-  }).timeout(60000)
+  })
 })
