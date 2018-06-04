@@ -115,4 +115,266 @@ describe('API', () => {
         done()
       })
   }).timeout(60000)
+
+  it('it should be successfully performed by the getMovements method', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getLedgers',
+        params: {
+          symbol: 'BTC'
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.propertyVal(res.body, 'id', 5)
+        assert.isArray(res.body.result)
+
+        if (res.body.result.length > 0) {
+          let resItem = res.body.result[0]
+
+          assert.isObject(resItem)
+          assert.containsAllKeys(resItem, [
+            'id',
+            'currency',
+            'timestampMilli',
+            'amount',
+            'balance',
+            'description'
+          ])
+        }
+
+        done()
+      })
+  }).timeout(60000)
+
+  it('it should be successfully performed by the getTrades method', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getTrades',
+        params: {
+          symbol: 'tBTCUSD',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.propertyVal(res.body, 'id', 5)
+        assert.isArray(res.body.result)
+
+        if (res.body.result.length > 0) {
+          let resItem = res.body.result[0]
+
+          assert.isObject(resItem)
+          assert.containsAllKeys(resItem, [
+            'id',
+            'mts',
+            'amount',
+            'price'
+          ])
+        }
+
+        done()
+      })
+  }).timeout(60000)
+
+  it('it should be successfully performed by the getOrders method', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getOrders',
+        params: {
+          symbol: 'tBTCUSD',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.propertyVal(res.body, 'id', 5)
+        assert.isArray(res.body.result)
+
+        if (res.body.result.length > 0) {
+          let resItem = res.body.result[0]
+
+          assert.isObject(resItem)
+          assert.containsAllKeys(resItem, [
+            'id',
+            'gid',
+            'cid',
+            'symbol',
+            'mtsCreate',
+            'mtsUpdate',
+            'amount',
+            'amountOrig',
+            'type',
+            'typePrev',
+            'flags',
+            'status',
+            'price',
+            'priceAvg',
+            'priceTrailing',
+            'priceAuxLimit',
+            'notify',
+            'placedId'
+          ])
+        }
+
+        done()
+      })
+  }).timeout(60000)
+
+  it('it should be successfully performed by the getMovements method', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovements',
+        params: {
+          symbol: 'BTC'
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.propertyVal(res.body, 'id', 5)
+        assert.isArray(res.body.result)
+
+        if (res.body.result.length > 0) {
+          let resItem = res.body.result[0]
+
+          assert.isObject(resItem)
+          assert.containsAllKeys(resItem, [
+            'id',
+            'currency',
+            'currencyName',
+            'mtsStarted',
+            'mtsUpdated',
+            'status',
+            'amount',
+            'fees',
+            'destinationAddress',
+            'transactionId'
+          ])
+        }
+
+        done()
+      })
+  }).timeout(60000)
+
+  it('it should not be successfully auth by the getMovements method', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth: {
+          apiKey: '---',
+          apiSecret: '---'
+        },
+        method: 'getMovements',
+        params: {
+          symbol: 'BTC'
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(401)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.isObject(res.body.error)
+        assert.propertyVal(res.body.error, 'code', 401)
+        assert.propertyVal(res.body.error, 'message', 'Unauthorized')
+        assert.propertyVal(res.body, 'id', 5)
+
+        done()
+      })
+  }).timeout(60000)
+
+  it('it should not be successfully performed by the getMovements method', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovements',
+        params: null,
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.isObject(res.body.error)
+        assert.propertyVal(res.body.error, 'code', 500)
+        assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+        assert.propertyVal(res.body, 'id', 5)
+
+        done()
+      })
+  }).timeout(60000)
+
+  it('it should not be successfully performed by a fake method', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'fake',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.isObject(res.body.error)
+        assert.propertyVal(res.body.error, 'code', 500)
+        assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+        assert.propertyVal(res.body, 'id', 5)
+
+        done()
+      })
+  }).timeout(60000)
 })
