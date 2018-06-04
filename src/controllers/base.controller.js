@@ -4,7 +4,7 @@ const {
   grenacheClientService: gClientService,
   helpers
 } = require('../services')
-const { success, failure, failureInternalServerError, failureUnauthorized } = helpers.responses
+const { success, failureInternalServerError, failureUnauthorized } = helpers.responses
 
 const _isAuthError = (err) => {
   return /apikey: digest invalid/.test(err.toString())
