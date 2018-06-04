@@ -13,7 +13,7 @@ const _isAuthError = (err) => {
 const checkAuth = async (req, res) => {
   const id = req.body.id || null
   const query = {
-    action: 'fundingInfo',
+    action: 'getFundingInfo',
     args: [req.body]
   }
 
