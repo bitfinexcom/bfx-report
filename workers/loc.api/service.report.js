@@ -27,13 +27,16 @@ class ReportService extends Api {
 
   getLedgers (space, args, cb) {
     if (!args.auth) return cb(new Error('ERR_ARGS_NO_AUTH_DATA'))
-    if (!args.params || typeof args.params !== 'object') {
-      return cb(new Error('ERR_ARGS_NO_PARAMS'))
-    }
 
-    const params = [
-      args.params.symbol
-    ]
+    const params = []
+
+    if (args.params) {
+      if (typeof args.params !== 'object') {
+        return cb(new Error('ERR_ARGS_NO_PARAMS'))
+      }
+
+      params.push(args.params.symbol)
+    }
 
     const bfx = bfxFactory({ ...args.auth })
     const rest = bfx.rest(2, { transform: true })
