@@ -116,7 +116,7 @@ describe('API', () => {
       })
   })
 
-  it('it should be successfully performed by the getMovements method', function (done) {
+  it('it should be successfully performed by the getLedgers method', function (done) {
     this.timeout(5000)
     agent
       .post('/get-data')
