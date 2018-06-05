@@ -12,9 +12,9 @@ class RESTv2 extends RESTv2Base {
    * @see https://docs.bitfinex.com/v2/reference#ledgers
    */
   ledgers (symbol, cb) {
-    if (symbol) return this._makeAuthRequest(`/auth/r/ledgers/${symbol}/hist`, {}, cb, Ledgers)
+    const path = symbol ? `/auth/r/ledgers/${symbol}/hist` : '/auth/r/ledgers/hist'
 
-    return this._makeAuthRequest(`/auth/r/ledgers/hist`, {}, cb, Ledgers)
+    return this._makeAuthRequest(path, {}, cb, Ledgers)
   }
 
   /**
