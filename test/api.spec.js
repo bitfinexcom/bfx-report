@@ -156,6 +156,43 @@ describe('API', () => {
       })
   })
 
+  it('it should be successfully performed by the getLedgers method, without params', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getLedgers',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.propertyVal(res.body, 'id', 5)
+        assert.isArray(res.body.result)
+
+        if (res.body.result.length > 0) {
+          let resItem = res.body.result[0]
+
+          assert.isObject(resItem)
+          assert.containsAllKeys(resItem, [
+            'id',
+            'currency',
+            'timestampMilli',
+            'amount',
+            'balance',
+            'description'
+          ])
+        }
+
+        done()
+      })
+  })
+
   it('it should be successfully performed by the getTrades method', function (done) {
     this.timeout(5000)
     agent
@@ -296,6 +333,47 @@ describe('API', () => {
       })
   })
 
+  it('it should be successfully performed by the getMovements method, without params', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovements',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.propertyVal(res.body, 'id', 5)
+        assert.isArray(res.body.result)
+
+        if (res.body.result.length > 0) {
+          let resItem = res.body.result[0]
+
+          assert.isObject(resItem)
+          assert.containsAllKeys(resItem, [
+            'id',
+            'currency',
+            'currencyName',
+            'mtsStarted',
+            'mtsUpdated',
+            'status',
+            'amount',
+            'fees',
+            'destinationAddress',
+            'transactionId'
+          ])
+        }
+
+        done()
+      })
+  })
+
   it('it should not be successfully auth by the getMovements method', function (done) {
     this.timeout(5000)
     agent
@@ -335,7 +413,7 @@ describe('API', () => {
       .send({
         auth,
         method: 'getMovements',
-        params: null,
+        params: 'isNotObject',
         id: 5
       })
       .expect('Content-Type', /json/)

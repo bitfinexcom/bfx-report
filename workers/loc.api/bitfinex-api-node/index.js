@@ -10,6 +10,10 @@ class BFX extends BFXBase {
    * @return {RESTv2}
    */
   rest (version, extraOpts = {}) {
+    if (version !== 2) {
+      throw new Error(`Invalid http API version: ${version}`)
+    }
+
     const key = `2|${JSON.stringify(extraOpts)}`
 
     if (!this._transportCache.rest[key]) {
