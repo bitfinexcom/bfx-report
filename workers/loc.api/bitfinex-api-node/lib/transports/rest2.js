@@ -18,13 +18,15 @@ class RESTv2 extends RESTv2Base {
   }
 
   /**
-   * @param {string} symbol
+   * @param {string|null} symbol
    * @param {Method} cb
    * @return {Promise}
    * @see https://docs.bitfinex.com/v2/reference#movements
    */
-  movements (symbol = 'BTC', cb) {
-    return this._makeAuthRequest(`/auth/r/movements/${symbol}/hist`, {}, cb, Movements)
+  movements (symbol, cb) {
+    const path = symbol ? `/auth/r/movements/${symbol}/hist` : '/auth/r/movements/hist'
+
+    return this._makeAuthRequest(path, {}, cb, Movements)
   }
 }
 
