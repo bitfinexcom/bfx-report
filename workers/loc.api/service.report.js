@@ -1,7 +1,7 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
-const bfxFactory = require('./bfx.factory')
+const { getREST } = require('./helpers')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -9,46 +9,101 @@ class ReportService extends Api {
     return space
   }
 
-  fundingInfo (space, args, cb) {
-    if (!args.auth) return cb(new Error('ERR_ARGS_NO_AUTH_DATA'))
+  async getFundingInfo (space, args, cb) {
+    try {
+      const rest = getREST(args.auth)
+      const result = await rest.fundingInfo()
 
-    const bfx = bfxFactory({ ...args.auth })
-    const rest = bfx.rest(2, { transform: true })
-
-    rest
-      .fundingInfo()
-      .then(res => {
-        cb(null, res)
-      })
-      .catch(err => {
-        cb(err)
-      })
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
   }
 
-  orderHistory (space, args, cb) {
-    if (!args.auth) return cb(new Error('ERR_ARGS_NO_AUTH_DATA'))
-    if (!args.params && typeof args.params !== 'object') {
-      return cb(new Error('ERR_ARGS_NO_PARAMS'))
+  async getLedgers (space, args, cb) {
+    try {
+      const params = []
+
+      if (args.params) {
+        if (typeof args.params !== 'object') {
+          throw new Error('ERR_ARGS_NO_PARAMS')
+        }
+
+        params.push(args.params.symbol)
+      }
+
+      const rest = getREST(args.auth)
+      const result = await rest.ledgers(...params)
+
+      cb(null, result)
+    } catch (err) {
+      cb(err)
     }
+  }
 
-    const params = [
-      args.params.symbol,
-      args.params.start,
-      args.params.end,
-      args.params.limit
-    ]
+  async getTrades (space, args, cb) {
+    try {
+      if (!args.params || typeof args.params !== 'object') {
+        throw new Error('ERR_ARGS_NO_PARAMS')
+      }
 
-    const bfx = bfxFactory({ ...args.auth })
-    const rest = bfx.rest(2, { transform: true })
+      const params = [
+        args.params.symbol,
+        args.params.start,
+        args.params.end,
+        Math.min(args.params.limit, 10000)
+      ]
 
-    rest
-      .orderHistory(...params)
-      .then(res => {
-        cb(null, res)
-      })
-      .catch(err => {
-        cb(err)
-      })
+      const rest = getREST(args.auth)
+      const result = await rest.trades(...params)
+
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getOrders (space, args, cb) {
+    try {
+      if (!args.params || typeof args.params !== 'object') {
+        throw new Error('ERR_ARGS_NO_PARAMS')
+      }
+
+      const params = [
+        args.params.symbol,
+        args.params.start,
+        args.params.end,
+        Math.min(args.params.limit, 10000)
+      ]
+
+      const rest = getREST(args.auth)
+      const result = await rest.orderHistory(...params)
+
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getMovements (space, args, cb) {
+    try {
+      const params = []
+
+      if (args.params) {
+        if (typeof args.params !== 'object') {
+          throw new Error('ERR_ARGS_NO_PARAMS')
+        }
+
+        params.push(args.params.symbol)
+      }
+
+      const rest = getREST(args.auth)
+      const result = await rest.movements(...params)
+
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
   }
 }
 

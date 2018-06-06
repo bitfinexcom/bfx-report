@@ -48,7 +48,7 @@ app.use((err, req, res, next) => {
   logger.error('Found %s at %s', 'error', err)
   responses.failure(
     err.statusCode ? err.statusCode : 500,
-    err.message || err.statusMessage || '',
+    err.message || err.statusMessage || 'Internal Server Error',
     res
   )
 })
