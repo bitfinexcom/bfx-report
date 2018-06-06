@@ -19,11 +19,18 @@ npm install
 npm i -g grenache-grape
 ```
 
-### Сonfiguring configuration files
-- all configs are stored in `./config` directory
-- copy all the files with the name at the end `*.example`
-- at the end of the name remove `*.example`
-- сonfigure the resulting configuration files
+### Configure service
+
+- copy the files into new ones:
+
+```
+cp config/local-development.json.example config/local-development.json
+cp config/local-production.json.example config/local-production.json
+cp config/local-test.json.example config/local-test.json
+cp config/common.json.example config/common.json
+cp config/service.report.json.example config/service.report.json
+cp config/facs/grc.config.json.example config/facs/grc.config.json
+```
 
 ### Run two Grapes
 
