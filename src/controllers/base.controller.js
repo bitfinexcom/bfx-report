@@ -7,7 +7,7 @@ const {
 const { success, failureInternalServerError, failureUnauthorized } = helpers.responses
 
 const _isAuthError = (err) => {
-  return /apikey: digest invalid/.test(err.toString())
+  return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
 }
 
 const checkAuth = async (req, res) => {
@@ -18,7 +18,11 @@ const checkAuth = async (req, res) => {
   }
 
   try {
-    await gClientService.request(query)
+    const result = await gClientService.request(query)
+
+    if (!result) {
+      throw new Error('ERR_AUTH_UNAUTHORIZED')
+    }
 
     success(200, { result: true, id }, res)
   } catch (err) {
