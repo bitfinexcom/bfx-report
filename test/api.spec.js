@@ -116,6 +116,32 @@ describe('API', () => {
       })
   })
 
+  it('it should not be successfully auth, with an empty string', function (done) {
+    this.timeout(5000)
+    agent
+      .post('/check-auth')
+      .type('json')
+      .send({
+        auth: {
+          apiKey: '',
+          apiSecret: ''
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(401)
+      .end((err, res) => {
+        if (err) return done(err)
+
+        assert.isObject(res.body)
+        assert.isObject(res.body.error)
+        assert.propertyVal(res.body.error, 'code', 401)
+        assert.propertyVal(res.body.error, 'message', 'Unauthorized')
+        assert.propertyVal(res.body, 'id', null)
+
+        done()
+      })
+  })
+
   it('it should be successfully performed by the getLedgers method', function (done) {
     this.timeout(5000)
     agent
