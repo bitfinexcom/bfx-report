@@ -192,7 +192,8 @@ const logger = createLogger({
   format: combineFormat(),
   transports: arrLogTransports,
   exceptionHandlers: excLogTransports,
-  exitOnError: false
+  exitOnError: false,
+  silent: arrLogTransports.length === 0
 })
 
 class CustomLogger {
@@ -269,7 +270,8 @@ class CustomLogger {
       }),
       transports: this.arrLogTransports,
       exceptionHandlers: this.excLogTransports,
-      exitOnError: false
+      exitOnError: false,
+      silent: this.arrLogTransports.length === 0
     })
 
     return this.logger
