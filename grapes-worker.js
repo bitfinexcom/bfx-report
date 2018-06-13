@@ -2,7 +2,7 @@
 
 if (!process.env.NODE_ENV) process.env.NODE_ENV = 'production'
 
-const { spawn } = require('child_process')
+const { fork } = require('child_process')
 const path = require('path')
 const EventEmitter = require('events')
 require('config')
@@ -10,7 +10,7 @@ require('config')
 const { bootTwoGrapes, killGrapes } = require('./workers/grenache.helper')
 
 const emitter = new EventEmitter()
-let rpc = null
+let ipc = null
 let grapes = null
 
 bootTwoGrapes((err, g) => {
@@ -20,19 +20,15 @@ bootTwoGrapes((err, g) => {
 
   const modulePath = path.join(__dirname, 'worker.js')
 
-  rpc = spawn('node', [
-    modulePath,
+  ipc = fork(modulePath, [
     `--env=${process.env.NODE_ENV}`,
     '--wtype=wrk-report-service-api',
     '--apiPort=1337'
-  ])
-  rpc.stdout.on('data', d => {
-    console.log(d.toString())
+  ], {
+    cwd: process.cwd(),
+    stdio: ['inherit', 'inherit', 'inherit', 'ipc']
   })
-  rpc.stderr.on('data', d => {
-    console.log(d.toString())
-  })
-  rpc.on('close', () => {
+  ipc.on('close', () => {
     killGrapes(grapes, () => {
       process.nextTick(() => {
         process.exit(0)
@@ -40,12 +36,12 @@ bootTwoGrapes((err, g) => {
     })
   })
   grapes[0].once('announce', () => {
-    emitter.emit('ready:grapes-worker', { rpc, grapes })
+    emitter.emit('ready:grapes-worker', { ipc, grapes })
   })
 })
 
 const _processExit = () => {
-  rpc.kill()
+  ipc.kill()
 }
 
 process.on('SIGINT', () => _processExit())
@@ -53,7 +49,7 @@ process.on('SIGHUP', () => _processExit())
 process.on('SIGTERM', () => _processExit())
 
 module.exports = {
-  rpc,
+  ipc,
   grapes,
   emitter
 }
