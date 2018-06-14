@@ -58,4 +58,5 @@ const server = app.listen(port, host, () => {
   const port = server.address().port
 
   logger.info(`Server listening on host ${host} port ${port}`)
+  app.emit('listened', server)
 })

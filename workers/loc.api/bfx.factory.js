@@ -1,6 +1,6 @@
 'use strict'
 
-const BFX = require('./bitfinex-api-node')
+const BFX = require('bitfinex-api-node')
 const config = require('config')
 
 const _checkConf = () => {

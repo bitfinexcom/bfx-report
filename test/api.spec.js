@@ -1,17 +1,17 @@
 'use strict'
 
-const spawn = require('child_process').spawn
+const { fork } = require('child_process')
 const path = require('path')
 const chai = require('chai')
 const request = require('supertest')
 const config = require('config')
 
-const { bootTwoGrapes, killGrapes } = require('./helpers').grenacheHelper
+const { bootTwoGrapes, killGrapes } = require('../workers/grenache.helper')
 const { app } = require('../app')
 const agent = request.agent(app)
 const assert = chai.assert
 
-let rpc = null
+let ipc = null
 let grapes = null
 let auth = null
 
@@ -45,27 +45,22 @@ describe('API', () => {
       })
 
       const f = path.join(__dirname, '..', 'worker.js')
-      rpc = spawn('node', [
-        f,
+      ipc = fork(f, [
         '--env=development',
         '--wtype=wrk-report-service-api',
         '--apiPort=1338'
-      ])
-      rpc.stdout.on('data', d => {
-        console.log(d.toString())
-      })
-      rpc.stderr.on('data', d => {
-        console.log(d.toString())
+      ], {
+        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
       })
     })
   })
 
   after(function (done) {
     this.timeout(5000)
-    rpc.on('close', () => {
+    ipc.on('close', () => {
       killGrapes(grapes, done)
     })
-    rpc.kill()
+    ipc.kill()
   })
 
   it('it should be successfully auth', function (done) {
@@ -151,7 +146,10 @@ describe('API', () => {
         auth,
         method: 'getLedgers',
         params: {
-          symbol: 'BTC'
+          symbol: 'BTC',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
         },
         id: 5
       })
@@ -171,7 +169,7 @@ describe('API', () => {
           assert.containsAllKeys(resItem, [
             'id',
             'currency',
-            'timestampMilli',
+            'mts',
             'amount',
             'balance',
             'description'
@@ -208,7 +206,7 @@ describe('API', () => {
           assert.containsAllKeys(resItem, [
             'id',
             'currency',
-            'timestampMilli',
+            'mts',
             'amount',
             'balance',
             'description'
@@ -324,7 +322,10 @@ describe('API', () => {
         auth,
         method: 'getMovements',
         params: {
-          symbol: 'BTC'
+          symbol: 'BTC',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
         },
         id: 5
       })
@@ -412,7 +413,10 @@ describe('API', () => {
         },
         method: 'getMovements',
         params: {
-          symbol: 'BTC'
+          symbol: 'BTC',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
         },
         id: 5
       })

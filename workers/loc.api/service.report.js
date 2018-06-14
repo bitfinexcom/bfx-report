@@ -1,7 +1,7 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
-const { getREST } = require('./helpers')
+const { getREST, getLimitNotMoreThan } = require('./helpers')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -29,7 +29,14 @@ class ReportService extends Api {
           throw new Error('ERR_ARGS_NO_PARAMS')
         }
 
-        params.push(args.params.symbol)
+        params.push(
+          ...[
+            args.params.symbol,
+            args.params.start,
+            args.params.end,
+            getLimitNotMoreThan(args.params.limit)
+          ]
+        )
       }
 
       const rest = getREST(args.auth)
@@ -51,7 +58,7 @@ class ReportService extends Api {
         args.params.symbol,
         args.params.start,
         args.params.end,
-        Math.min(args.params.limit, 10000)
+        getLimitNotMoreThan(args.params.limit)
       ]
 
       const rest = getREST(args.auth)
@@ -73,7 +80,7 @@ class ReportService extends Api {
         args.params.symbol,
         args.params.start,
         args.params.end,
-        Math.min(args.params.limit, 10000)
+        getLimitNotMoreThan(args.params.limit)
       ]
 
       const rest = getREST(args.auth)
@@ -94,7 +101,14 @@ class ReportService extends Api {
           throw new Error('ERR_ARGS_NO_PARAMS')
         }
 
-        params.push(args.params.symbol)
+        params.push(
+          ...[
+            args.params.symbol,
+            args.params.start,
+            args.params.end,
+            getLimitNotMoreThan(args.params.limit)
+          ]
+        )
       }
 
       const rest = getREST(args.auth)

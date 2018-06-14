@@ -11,6 +11,8 @@
     "bfx-wrk-api": "git+https://github.com/bitfinexcom/bfx-wrk-api.git",
     "bitfinex-api-node": "git+https://github.com/bitfinexcom/bitfinex-api-node.git",
     "bfx-facs-interval": "https://github.com/bitfinexcom/bfx-facs-interval.git",
+    "bfx-facs-base": "git+https://github.com/bitfinexcom/bfx-facs-base.git",
+    "grenache-nodejs-ws-tls": "^0.7.4",
     "body-parser": "^1.18.3",
     "colors": "^1.3.0",
     "config": "^1.30.0",
@@ -64,8 +66,32 @@
         "NODE_ENV": "production"
       }
     },
+    "start:grapes:worker:prod": {
+      "command": "node grapes-worker.js",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "start:all:prod": {
+      "command": "node index.js",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
     "start:dev": {
       "command": "nodemon app.js",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    "start:grapes:worker:dev": {
+      "command": "nodemon grapes-worker.js",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    "start:all:dev": {
+      "command": "nodemon index.js",
       "env": {
         "NODE_ENV": "development"
       }
@@ -80,6 +106,10 @@
   "scripts": {
     "start": "better-npm-run start:prod",
     "startDev": "better-npm-run start:dev",
+    "startGrapesWorker": "better-npm-run start:grapes:worker:prod",
+    "startGrapesWorkerDev": "better-npm-run start:grapes:worker:dev",
+    "startAll": "better-npm-run start:all:prod",
+    "startAllDev": "better-npm-run start:all:dev",
     "startWorker": "node worker.js --env=production --wtype=wrk-report-service-api --apiPort 1337",
     "startWorkerDev": "node worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337",
     "test": "better-npm-run test"
