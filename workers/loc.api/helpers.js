@@ -12,6 +12,18 @@ const getREST = (auth) => {
   return bfx.rest(2, { transform: true })
 }
 
+const getLimitNotMoreThan = (limit, maxLimit = 10000) => {
+  if (
+    Number.isFinite(limit) &&
+    limit < maxLimit
+  ) {
+    return limit
+  }
+
+  return null
+}
+
 module.exports = {
-  getREST
+  getREST,
+  getLimitNotMoreThan
 }
