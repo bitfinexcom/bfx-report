@@ -11,6 +11,8 @@
     "bfx-wrk-api": "git+https://github.com/bitfinexcom/bfx-wrk-api.git",
     "bitfinex-api-node": "git+https://github.com/bitfinexcom/bitfinex-api-node.git",
     "bfx-facs-interval": "https://github.com/bitfinexcom/bfx-facs-interval.git",
+    "bfx-facs-base": "git+https://github.com/bitfinexcom/bfx-facs-base.git",
+    "grenache-nodejs-ws-tls": "^0.7.4",
     "body-parser": "^1.18.3",
     "colors": "^1.3.0",
     "config": "^1.30.0",
