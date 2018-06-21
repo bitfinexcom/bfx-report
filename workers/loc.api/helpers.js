@@ -23,7 +23,24 @@ const getLimitNotMoreThan = (limit, maxLimit = 10000) => {
   return null
 }
 
+const jobResolver = async (ctx, method, args, propName) => {
+  const processorQueue = ctx.bull_processor.queue
+  const aggregatorQueue = ctx.bull_aggregator.queue
+
+  const processorJob = await processorQueue.add({
+    method,
+    args,
+    propName
+  })
+  const resProc = await processorJob.finished()
+
+  const aggregatorJob = await aggregatorQueue.add(resProc)
+
+  return aggregatorJob.finished()
+}
+
 module.exports = {
   getREST,
-  getLimitNotMoreThan
+  getLimitNotMoreThan,
+  jobResolver
 }

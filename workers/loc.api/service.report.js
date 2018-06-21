@@ -1,8 +1,7 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
-const { getREST, getLimitNotMoreThan } = require('./helpers')
-const { promisify } = require('util')
+const { getREST, getLimitNotMoreThan, jobResolver } = require('./helpers')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -132,44 +131,14 @@ class ReportService extends Api {
       args.params.start = null
       args.params.end = null
 
-      const result = await this._getFullData('getTrades', args)
+      const result = await jobResolver(this.ctx, 'getTrades', args, 'mts')
+
+      // console.log('---result---', result) // TODO:
 
       cb(null, result)
     } catch (err) {
       cb(err)
     }
-  }
-
-  // TODO: 
-  async _getFullData (method, args, propName = 'mts') {
-    if (typeof this[method] !== 'function') {
-      throw new Error('ERR_METHOD_NOT_FOUND')
-    }
-
-    const data = []
-    const getData = promisify(this[method])
-    const res = await getData(null, args)
-
-    data.push(...res)
-
-    if (
-      data &&
-      Array.isArray(data) &&
-      data.length > 0 &&
-      typeof data[data.length - 1] === 'object' &&
-      data[data.length - 1][propName] &&
-      Number.isInteger(data[data.length - 1][propName])
-    ) {
-      console.log('---Data length---', data.length)
-      args.params.end = data[data.length - 1][propName] - 1
-
-      const subRes = await this._getFullData(method, args, propName)
-
-      data.push(...subRes)
-    }
-
-    console.log('---Total data length---', data.length)
-    return data
   }
 }
 

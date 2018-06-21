@@ -1,6 +1,9 @@
 'use strict'
 
 const { WrkApi } = require('bfx-wrk-api')
+const async = require('async')
+const bullProcessor = require('./loc.api/bull/bull.processor')
+const bullAggregator = require('./loc.api/bull/bull.aggregator')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -94,6 +97,21 @@ class WrkReportServiceApi extends WrkApi {
     }
 
     return null
+  }
+
+  _start (cb) {
+    async.series([ next => { super._start(next) },
+      next => {
+        const reportService = this.grc_bfx.api
+        const processorQueue = this.bull_processor.queue
+        const aggregatorQueue = this.bull_aggregator.queue
+
+        processorQueue.process(bullProcessor.bind(null, reportService))
+        aggregatorQueue.process(bullAggregator.bind(reportService))
+
+        next()
+      }
+    ], cb)
   }
 }
 
