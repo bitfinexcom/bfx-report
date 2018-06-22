@@ -1,5 +1,6 @@
 'use strict'
 
+// TODO:
 module.exports = (job) => {
-  return Promise.resolve(job.data)
+  return Promise.resolve()
 }

@@ -1,7 +1,7 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
-const { getREST, getLimitNotMoreThan, jobResolver } = require('./helpers')
+const { getREST, getLimitNotMoreThan } = require('./helpers')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -131,11 +131,23 @@ class ReportService extends Api {
       args.params.start = null
       args.params.end = null
 
-      const result = await jobResolver(this.ctx, 'getTrades', args, 'mts')
+      const columns = {
+        id: 'id',
+        mts: 'mts',
+        amount: 'amount',
+        price: 'price'
+      }
 
-      // console.log('---result---', result) // TODO:
+      const processorQueue = this.ctx.bull_processor.queue
 
-      cb(null, result)
+      await processorQueue.add({
+        method: 'getTrades',
+        args,
+        propName: 'mts',
+        columns
+      })
+
+      cb(null, true)
     } catch (err) {
       cb(err)
     }

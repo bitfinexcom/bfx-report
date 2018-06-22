@@ -107,7 +107,11 @@ class WrkReportServiceApi extends WrkApi {
         const aggregatorQueue = this.bull_aggregator.queue
 
         processorQueue.process(bullProcessor.bind(null, reportService))
-        aggregatorQueue.process(bullAggregator.bind(reportService))
+        aggregatorQueue.process(bullAggregator)
+
+        processorQueue.on('completed', (job, result) => {
+          aggregatorQueue.add(result) // TODO:
+        })
 
         next()
       }
