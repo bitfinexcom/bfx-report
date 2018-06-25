@@ -110,7 +110,7 @@ class WrkReportServiceApi extends WrkApi {
         aggregatorQueue.process(bullAggregator)
 
         processorQueue.on('completed', (job, result) => {
-          aggregatorQueue.add(result) // TODO:
+          aggregatorQueue.add(result)
         })
 
         next()
