@@ -134,7 +134,7 @@ module.exports = async (reportService, job) => {
 
     const writable = fs.createWriteStream(tempFilePath)
     const writablePromise = _writableToPromise(writable)
-    const stringifier = stringify({
+    const stringifier = stringify({ // TODO: Need to add formatting for the date
       header: true,
       columns: job.data.columns
     })
@@ -154,10 +154,10 @@ module.exports = async (reportService, job) => {
 
     await writablePromise
 
-    const niqueFileName = await _createUniqueFileName()
-    await rename(tempFilePath, niqueFileName)
+    const uniqueFileName = await _createUniqueFileName()
+    await rename(tempFilePath, uniqueFileName)
 
-    return Promise.resolve(niqueFileName)
+    return Promise.resolve(uniqueFileName)
   } catch (err) {
     return Promise.reject(err)
   }
