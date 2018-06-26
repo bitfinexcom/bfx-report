@@ -128,14 +128,14 @@ class ReportService extends Api {
       }
 
       args.params.limit = 1000
-      args.params.start = null
-      args.params.end = null
+      args.params.start = undefined
+      args.params.end = undefined
 
       const columns = {
-        id: 'id',
-        mts: 'mts',
-        amount: 'amount',
-        price: 'price'
+        id: 'ID',
+        mts: 'Time',
+        amount: 'Amount',
+        price: 'Price'
       }
 
       const processorQueue = this.ctx.bull_processor.queue
@@ -144,6 +144,112 @@ class ReportService extends Api {
         method: 'getTrades',
         args,
         propName: 'mts',
+        columns
+      })
+
+      cb(null, true)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  // TODO: 
+  async getLedgersCsv (space, args, cb) {
+    try {
+      if (!args.params || typeof args.params !== 'object') {
+        throw new Error('ERR_ARGS_NO_PARAMS')
+      }
+
+      args.params.limit = 5000
+      args.params.start = undefined
+      args.params.end = undefined
+
+      const columns = {
+        id: 'ID',
+        mts: 'Time',
+        currency: 'Currency',
+        amount: 'Amount',
+        balance: 'Balance'
+      }
+
+      const processorQueue = this.ctx.bull_processor.queue
+
+      await processorQueue.add({
+        method: 'getLedgers',
+        args,
+        propName: 'mts',
+        columns
+      })
+
+      cb(null, true)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  // TODO: 
+  async getOrdersCsv (space, args, cb) {
+    try {
+      if (!args.params || typeof args.params !== 'object') {
+        throw new Error('ERR_ARGS_NO_PARAMS')
+      }
+
+      args.params.limit = 5000
+      args.params.start = undefined
+      args.params.end = undefined // TODO:
+
+      const columns = {
+        id: 'ID',
+        symbol: 'Symbol',
+        type: 'Type',
+        price: 'Price',
+        priceAvg: 'Avg price',
+        mtsUpdate: 'Update',
+        status: 'Status'
+      }
+
+      const processorQueue = this.ctx.bull_processor.queue
+
+      await processorQueue.add({
+        method: 'getOrders',
+        args,
+        propName: 'mtsUpdate',
+        columns
+      })
+
+      cb(null, true)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  // TODO: 
+  async getMovementsCsv (space, args, cb) {
+    try {
+      if (!args.params || typeof args.params !== 'object') {
+        throw new Error('ERR_ARGS_NO_PARAMS')
+      }
+
+      args.params.limit = 25
+      args.params.start = undefined
+      args.params.end = undefined
+
+      const columns = {
+        id: 'ID',
+        mtsStarted: 'Started',
+        mtsUpdated: 'Updated',
+        currency: 'Currency',
+        amount: 'Amount',
+        status: 'Status',
+        destinationAddress: 'Destination'
+      }
+
+      const processorQueue = this.ctx.bull_processor.queue
+
+      await processorQueue.add({
+        method: 'getMovements',
+        args,
+        propName: 'mtsUpdated',
         columns
       })
 
