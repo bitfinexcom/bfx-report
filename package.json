@@ -24,7 +24,9 @@
     "grenache-nodejs-http": "^0.7.3",
     "grenache-nodejs-link": "^0.7.7",
     "grenache-nodejs-ws-tls": "^0.7.4",
+    "lodash": "^4.17.10",
     "method-override": "^2.3.10",
+    "moment": "^2.22.2",
     "morgan": "^1.9.0",
     "uuid": "^3.2.1",
     "winston": "^3.0.0"

@@ -5,6 +5,8 @@ const path = require('path')
 const fs = require('fs')
 const { stringify } = require('csv')
 const uuidv1 = require('uuid/v1')
+const moment = require('moment')
+const _ = require('lodash')
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
@@ -52,14 +54,43 @@ const _createUniqueFileName = async (count = 0) => {
   return Promise.resolve(path.join(tempDirPath, uFileName))
 }
 
-const _isRateLimit = (err) => {
+const _isRateLimitError = (err) => {
   return /ERR_RATE_LIMIT/.test(err.toString())
 }
 
-// TODO:
+const _formaters = {
+  date: val => moment(val).format('DD/MM/YYYY, h:mm:ss A')
+}
+
+const _dataFormatter = (obj, formatSettings) => {
+  if (
+    !obj ||
+    typeof obj !== 'object' ||
+    !formatSettings ||
+    typeof formatSettings !== 'object'
+  ) {
+    return obj
+  }
+
+  const res = _.cloneDeep(obj)
+
+  Object.entries(formatSettings).forEach(([key, val]) => {
+    try {
+      if (
+        typeof obj[key] !== 'undefined' &&
+        typeof _formaters[val] === 'function'
+      ) {
+        res[key] = _formaters[val](obj[key])
+      }
+    } catch (err) {}
+  })
+
+  return res
+}
+
 const _getFullData = async (
   reportService,
-  { method, args, propName = 'mts' },
+  { method, args, propName = 'mts', formatSettings },
   stream,
   { resolve, reject }
 ) => {
@@ -75,7 +106,7 @@ const _getFullData = async (
   try {
     res = await getData(null, args)
   } catch (err) {
-    if (!_isRateLimit(err)) {
+    if (!_isRateLimitError(err)) {
       reject(err)
       return
     }
@@ -98,7 +129,7 @@ const _getFullData = async (
   let data = res[res.length - 1]
 
   res.forEach((item) => {
-    stream.write(item)
+    stream.write(_dataFormatter(item, formatSettings))
   })
 
   if (
@@ -115,7 +146,8 @@ const _getFullData = async (
           {
             method,
             args,
-            propName
+            propName,
+            formatSettings
           },
           stream,
           { resolve, reject }
@@ -127,14 +159,13 @@ const _getFullData = async (
   resolve()
 }
 
-// TODO:
 module.exports = async (reportService, job) => {
   try {
     await _checkAndCreateDir()
 
     const writable = fs.createWriteStream(tempFilePath)
     const writablePromise = _writableToPromise(writable)
-    const stringifier = stringify({ // TODO: Need to add formatting for the date
+    const stringifier = stringify({
       header: true,
       columns: job.data.columns
     })
@@ -157,7 +188,10 @@ module.exports = async (reportService, job) => {
     const uniqueFileName = await _createUniqueFileName()
     await rename(tempFilePath, uniqueFileName)
 
-    return Promise.resolve(uniqueFileName)
+    return Promise.resolve({
+      fileName: uniqueFileName,
+      method: job.data && job.data.method ? job.data.method : null
+    })
   } catch (err) {
     return Promise.reject(err)
   }

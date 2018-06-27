@@ -1,7 +1,11 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
-const { getREST, getLimitNotMoreThan } = require('./helpers')
+const {
+  getREST,
+  getLimitNotMoreThan,
+  checkArgsAndAuth
+} = require('./helpers')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -120,16 +124,12 @@ class ReportService extends Api {
     }
   }
 
-  // TODO: 
   async getTradesCsv (space, args, cb) {
     try {
-      if (!args.params || typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
-      }
+      const method = 'getTrades'
+      await checkArgsAndAuth(args, this[method])
 
       args.params.limit = 1000
-      args.params.start = undefined
-      args.params.end = undefined
 
       const columns = {
         id: 'ID',
@@ -141,10 +141,13 @@ class ReportService extends Api {
       const processorQueue = this.ctx.bull_processor.queue
 
       await processorQueue.add({
-        method: 'getTrades',
+        method,
         args,
         propName: 'mts',
-        columns
+        columns,
+        formatSettings: {
+          mts: 'date'
+        }
       })
 
       cb(null, true)
@@ -153,16 +156,12 @@ class ReportService extends Api {
     }
   }
 
-  // TODO: 
   async getLedgersCsv (space, args, cb) {
     try {
-      if (!args.params || typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
-      }
+      const method = 'getLedgers'
+      await checkArgsAndAuth(args, this[method])
 
       args.params.limit = 5000
-      args.params.start = undefined
-      args.params.end = undefined
 
       const columns = {
         id: 'ID',
@@ -175,10 +174,13 @@ class ReportService extends Api {
       const processorQueue = this.ctx.bull_processor.queue
 
       await processorQueue.add({
-        method: 'getLedgers',
+        method,
         args,
         propName: 'mts',
-        columns
+        columns,
+        formatSettings: {
+          mts: 'date'
+        }
       })
 
       cb(null, true)
@@ -187,16 +189,12 @@ class ReportService extends Api {
     }
   }
 
-  // TODO: 
   async getOrdersCsv (space, args, cb) {
     try {
-      if (!args.params || typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
-      }
+      const method = 'getOrders'
+      await checkArgsAndAuth(args, this[method])
 
       args.params.limit = 5000
-      args.params.start = undefined
-      args.params.end = undefined // TODO:
 
       const columns = {
         id: 'ID',
@@ -211,10 +209,13 @@ class ReportService extends Api {
       const processorQueue = this.ctx.bull_processor.queue
 
       await processorQueue.add({
-        method: 'getOrders',
+        method,
         args,
         propName: 'mtsUpdate',
-        columns
+        columns,
+        formatSettings: {
+          mtsUpdate: 'date'
+        }
       })
 
       cb(null, true)
@@ -223,16 +224,12 @@ class ReportService extends Api {
     }
   }
 
-  // TODO: 
   async getMovementsCsv (space, args, cb) {
     try {
-      if (!args.params || typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
-      }
+      const method = 'getMovements'
+      await checkArgsAndAuth(args, this[method])
 
       args.params.limit = 25
-      args.params.start = undefined
-      args.params.end = undefined
 
       const columns = {
         id: 'ID',
@@ -247,10 +244,14 @@ class ReportService extends Api {
       const processorQueue = this.ctx.bull_processor.queue
 
       await processorQueue.add({
-        method: 'getMovements',
+        method,
         args,
         propName: 'mtsUpdated',
-        columns
+        columns,
+        formatSettings: {
+          mtsStarted: 'date',
+          mtsUpdated: 'date'
+        }
       })
 
       cb(null, true)
