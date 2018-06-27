@@ -16,6 +16,8 @@ const rename = promisify(fs.rename)
 const tempDirPath = path.join(__dirname, 'temp')
 const tempFilePath = path.join(tempDirPath, 'temporary-file.csv')
 
+let reportService = null
+
 const _writableToPromise = stream => {
   return new Promise((resolve, reject) => {
     stream.once('finish', () => {
@@ -89,7 +91,6 @@ const _dataFormatter = (obj, formatSettings) => {
 }
 
 const _getFullData = async (
-  reportService,
   { method, args, propName = 'mts', formatSettings },
   stream,
   { resolve, reject }
@@ -142,7 +143,6 @@ const _getFullData = async (
     await new Promise((resolve, reject) => {
       setImmediate(() => {
         _getFullData(
-          reportService,
           {
             method,
             args,
@@ -159,7 +159,7 @@ const _getFullData = async (
   resolve()
 }
 
-module.exports = async (reportService, job) => {
+module.exports = async (job) => {
   try {
     await _checkAndCreateDir()
 
@@ -174,7 +174,6 @@ module.exports = async (reportService, job) => {
 
     await new Promise((resolve, reject) => {
       _getFullData(
-        reportService,
         job.data,
         stringifier,
         { resolve, reject }
@@ -195,4 +194,8 @@ module.exports = async (reportService, job) => {
   } catch (err) {
     return Promise.reject(err)
   }
+}
+
+module.exports.setReportService = (rService) => {
+  reportService = rService
 }
