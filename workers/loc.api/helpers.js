@@ -1,5 +1,6 @@
 'use strict'
 
+const { promisify } = require('util')
 const bfxFactory = require('./bfx.factory')
 
 const getREST = (auth) => {
@@ -23,7 +24,33 @@ const getLimitNotMoreThan = (limit, maxLimit = 10000) => {
   return null
 }
 
+const checkArgsAndAuth = async (args, cb) => {
+  if (
+    !args.params ||
+    typeof args.params !== 'object' ||
+    typeof args.params.email !== 'string'
+  ) {
+    throw new Error('ERR_ARGS_NO_PARAMS')
+  }
+
+  args.params.limit = 1
+  args.params.start = undefined
+  args.params.end = (new Date()).getTime()
+
+  const checkAuth = promisify(cb)
+  const resAuth = await checkAuth(null, args)
+
+  if (!resAuth) {
+    throw new Error('ERR_AUTH_UNAUTHORIZED')
+  }
+
+  args.params.limit = undefined
+
+  return Promise.resolve(resAuth)
+}
+
 module.exports = {
   getREST,
-  getLimitNotMoreThan
+  getLimitNotMoreThan,
+  checkArgsAndAuth
 }
