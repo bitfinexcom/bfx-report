@@ -25,7 +25,11 @@ const getLimitNotMoreThan = (limit, maxLimit = 10000) => {
 }
 
 const checkArgsAndAuth = async (args, cb) => {
-  if (!args.params || typeof args.params !== 'object') {
+  if (
+    !args.params ||
+    typeof args.params !== 'object' ||
+    typeof args.params.email !== 'string'
+  ) {
     throw new Error('ERR_ARGS_NO_PARAMS')
   }
 

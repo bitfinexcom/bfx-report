@@ -95,68 +95,73 @@ const _getFullData = async (
   stream,
   { resolve, reject }
 ) => {
-  if (typeof reportService[method] !== 'function') {
-    reject(new Error('ERR_METHOD_NOT_FOUND'))
-    return
-  }
-
-  const getData = promisify(reportService[method])
-  let res = null
-  let promiseInterval = Promise.resolve()
-
   try {
-    res = await getData(null, args)
-  } catch (err) {
-    if (!_isRateLimitError(err)) {
-      reject(err)
+    if (typeof reportService[method] !== 'function') {
+      throw new Error('ERR_METHOD_NOT_FOUND')
+    }
+
+    const _args = _.cloneDeep(args)
+    delete _args.params.email
+
+    const getData = promisify(reportService[method])
+    let res = null
+    let promiseInterval = Promise.resolve()
+
+    try {
+      res = await getData(null, _args)
+    } catch (err) {
+      if (!_isRateLimitError(err)) {
+        throw err
+      }
+
+      promiseInterval = new Promise((resolve, reject) => {
+        setInterval(async () => {
+          res = await getData(null, _args)
+          resolve()
+        }, 80000)
+      })
+    }
+
+    await promiseInterval
+
+    if (!res || !Array.isArray(res) || res.length === 0) {
+      resolve()
       return
     }
 
-    promiseInterval = new Promise((resolve, reject) => {
-      setInterval(async () => {
-        res = await getData(null, args)
-        resolve()
-      }, 80000)
+    let data = res[res.length - 1]
+
+    res.forEach((item) => {
+      stream.write(_dataFormatter(item, formatSettings))
     })
-  }
 
-  await promiseInterval
+    if (
+      typeof data === 'object' &&
+      data[propName] &&
+      Number.isInteger(data[propName])
+    ) {
+      _args.params.end = data[propName] - 1
 
-  if (!res || !Array.isArray(res) || res.length === 0) {
-    resolve()
-    return
-  }
-
-  let data = res[res.length - 1]
-
-  res.forEach((item) => {
-    stream.write(_dataFormatter(item, formatSettings))
-  })
-
-  if (
-    typeof data === 'object' &&
-    data[propName] &&
-    Number.isInteger(data[propName])
-  ) {
-    args.params.end = data[propName] - 1
-
-    await new Promise((resolve, reject) => {
-      setImmediate(() => {
-        _getFullData(
-          {
-            method,
-            args,
-            propName,
-            formatSettings
-          },
-          stream,
-          { resolve, reject }
-        )
+      await new Promise((resolve, reject) => {
+        setImmediate(() => {
+          _getFullData(
+            {
+              method,
+              args: _args,
+              propName,
+              formatSettings
+            },
+            stream,
+            { resolve, reject }
+          )
+        })
       })
-    })
-  }
+    }
 
-  resolve()
+    resolve()
+  } catch (err) {
+    reject(err)
+  }
 }
 
 module.exports = async (job) => {
@@ -189,7 +194,7 @@ module.exports = async (job) => {
 
     return Promise.resolve({
       fileName: uniqueFileName,
-      method: job.data && job.data.method ? job.data.method : null
+      email: job.data.args.params.email
     })
   } catch (err) {
     return Promise.reject(err)

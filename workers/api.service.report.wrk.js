@@ -21,6 +21,21 @@ class WrkReportServiceApi extends WrkApi {
     }
   }
 
+  _checkBullAggregatorConf () {
+    if (
+      this.bull_aggregator &&
+      typeof this.bull_aggregator.conf === 'object' &&
+      typeof this.bull_aggregator.conf.emailTransport === 'object' &&
+      typeof this.bull_aggregator.conf.emailOpts === 'object'
+    ) {
+      return
+    }
+
+    const err = new Error('ERR_CONFIG_ARGS_NO_EMAIL_TRANSPORT_OR_OPTS')
+
+    throw err
+  }
+
   getPluginCtx (type) {
     super.init()
 
@@ -30,6 +45,7 @@ class WrkReportServiceApi extends WrkApi {
       case 'api_bfx':
         ctx.bull_processor = this.bull_processor
         ctx.bull_aggregator = this.bull_aggregator
+        this._checkBullAggregatorConf()
         break
     }
 
@@ -109,11 +125,22 @@ class WrkReportServiceApi extends WrkApi {
         bullProcessor.setReportService(reportService)
         bullAggregator.setReportService(reportService)
 
-        processorQueue.process(bullProcessor)
-        aggregatorQueue.process(bullAggregator)
+        processorQueue.process('*', 1, bullProcessor)
+        aggregatorQueue.process('*', 1, bullAggregator)
 
         processorQueue.on('completed', (job, result) => {
-          aggregatorQueue.add(result)
+          aggregatorQueue.add(
+            job.name,
+            result,
+            {
+              attempts: 10,
+              backoff: {
+                type: 'fixed',
+                delay: 60000
+              },
+              timeout: 1800000
+            }
+          )
         })
 
         next()

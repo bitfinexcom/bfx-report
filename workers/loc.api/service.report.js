@@ -7,6 +7,15 @@ const {
   checkArgsAndAuth
 } = require('./helpers')
 
+const jobOpts = {
+  attempts: 10,
+  backoff: {
+    type: 'fixed',
+    delay: 60000
+  },
+  timeout: 1200000
+}
+
 class ReportService extends Api {
   space (service, msg) {
     const space = super.space(service, msg)
@@ -140,15 +149,19 @@ class ReportService extends Api {
 
       const processorQueue = this.ctx.bull_processor.queue
 
-      await processorQueue.add({
+      await processorQueue.add(
         method,
-        args,
-        propName: 'mts',
-        columns,
-        formatSettings: {
-          mts: 'date'
-        }
-      })
+        {
+          method,
+          args,
+          propName: 'mts',
+          columns,
+          formatSettings: {
+            mts: 'date'
+          }
+        },
+        jobOpts
+      )
 
       cb(null, true)
     } catch (err) {
@@ -173,15 +186,19 @@ class ReportService extends Api {
 
       const processorQueue = this.ctx.bull_processor.queue
 
-      await processorQueue.add({
+      await processorQueue.add(
         method,
-        args,
-        propName: 'mts',
-        columns,
-        formatSettings: {
-          mts: 'date'
-        }
-      })
+        {
+          method,
+          args,
+          propName: 'mts',
+          columns,
+          formatSettings: {
+            mts: 'date'
+          }
+        },
+        jobOpts
+      )
 
       cb(null, true)
     } catch (err) {
@@ -208,15 +225,19 @@ class ReportService extends Api {
 
       const processorQueue = this.ctx.bull_processor.queue
 
-      await processorQueue.add({
+      await processorQueue.add(
         method,
-        args,
-        propName: 'mtsUpdate',
-        columns,
-        formatSettings: {
-          mtsUpdate: 'date'
-        }
-      })
+        {
+          method,
+          args,
+          propName: 'mtsUpdate',
+          columns,
+          formatSettings: {
+            mtsUpdate: 'date'
+          }
+        },
+        jobOpts
+      )
 
       cb(null, true)
     } catch (err) {
@@ -243,16 +264,20 @@ class ReportService extends Api {
 
       const processorQueue = this.ctx.bull_processor.queue
 
-      await processorQueue.add({
+      await processorQueue.add(
         method,
-        args,
-        propName: 'mtsUpdated',
-        columns,
-        formatSettings: {
-          mtsStarted: 'date',
-          mtsUpdated: 'date'
-        }
-      })
+        {
+          method,
+          args,
+          propName: 'mtsUpdated',
+          columns,
+          formatSettings: {
+            mtsStarted: 'date',
+            mtsUpdated: 'date'
+          }
+        },
+        jobOpts
+      )
 
       cb(null, true)
     } catch (err) {
