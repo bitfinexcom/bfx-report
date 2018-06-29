@@ -1,5 +1,6 @@
 'use strict'
 
+const mime = require('mime-types')
 const nodemailer = require('nodemailer')
 const pug = require('pug')
 const path = require('path')
@@ -7,6 +8,7 @@ const fs = require('fs')
 const { promisify } = require('util')
 
 const unlink = promisify(fs.unlink)
+const readFile = promisify(fs.readFile)
 
 const emailView = path.join(__dirname, 'views/email.pug')
 
@@ -34,25 +36,69 @@ const _sendMail = (to, data) => {
   })
 }
 
-// TODO:
-const _uploadS3 = (fileName) => {
-  return Promise.resolve('https://www.bitfinex.com') // TODO: Change to real link
+const mapNames = new Map([
+  ['getTrades', 'trades'],
+  ['getLedgers', 'ledgers'],
+  ['getOrders', 'orders'],
+  ['getMovements', 'movements']
+])
+
+const _getFileName = queueName => {
+  if (!mapNames.has(queueName)) {
+    return queueName.replace(/^get/i, '').toLowerCase()
+  }
+
+  return mapNames.get(queueName)
+}
+
+const _uploadS3 = async (path, fileName) => {
+  const grcBfx = reportService.ctx.grc_bfx
+  const configs = reportService.ctx.bull_aggregator.conf.s3
+  const mimeType = mime.lookup(path)
+  const ext = mime.extension(mimeType)
+  const buffer = await readFile(path)
+
+  const opts = {
+    ...configs,
+    contentType: mimeType,
+    contentDisposition: `${configs.contentDisposition || 'inline'}; filename="${fileName}.${ext}"`
+  }
+  const parsedData = [
+    buffer,
+    opts
+  ]
+
+  return new Promise((resolve, reject) => {
+    grcBfx.req(
+      'rest:ext:s3',
+      'uploadPresigned',
+      parsedData,
+      { timeout: 10000 },
+      (err, data) => {
+        if (err) {
+          reject(err)
+
+          return
+        }
+
+        resolve(data)
+      }
+    )
+  })
 }
 
 // TODO:
 module.exports = async (job) => {
   try {
     const data = job.data
-    console.log('---aggregator-data---', data) // TODO: Delete later
+    const fileName = _getFileName(job.name)
 
-    const link = await _uploadS3(data.fileName)
-    await _sendMail(data.email, { link })
+    const s3Data = await _uploadS3(data.fileName, fileName)
+    await _sendMail(data.email, { link: s3Data.public_url })
     await unlink(data.fileName)
 
     return Promise.resolve()
   } catch (err) {
-    console.error('---aggregator-error---', err.syscall) // TODO: Delete later
-
     if (err.syscall === 'unlink') {
       return Promise.resolve()
     }

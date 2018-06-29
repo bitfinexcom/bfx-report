@@ -36,6 +36,7 @@ const checkAuth = async (req, res) => {
   }
 }
 
+// TODO: add redirect to public URL for downloading csv for electronjs
 const getData = async (req, res) => {
   const body = { ...req.body }
   const id = body.id || null

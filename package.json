@@ -7,6 +7,7 @@
   "dependencies": {
     "async": "^2.5.0",
     "better-npm-run": "^0.1.0",
+    "bfx-ext-s3-js": "git+ssh://github.com/bitfinexcom/bfx-ext-s3-js.git",
     "bfx-facs-base": "git+https://github.com/bitfinexcom/bfx-facs-base.git",
     "bfx-facs-bull": "git+https://github.com:bitfinexcom/bfx-facs-bull.git",
     "bfx-facs-interval": "https://github.com/bitfinexcom/bfx-facs-interval.git",
@@ -26,6 +27,7 @@
     "grenache-nodejs-ws-tls": "^0.7.4",
     "lodash": "^4.17.10",
     "method-override": "^2.3.10",
+    "mime-types": "^2.1.18",
     "moment": "^2.22.2",
     "morgan": "^1.9.0",
     "nodemailer": "^4.6.7",
@@ -118,7 +120,9 @@
     "startAll": "better-npm-run start:all:prod",
     "startAllDev": "better-npm-run start:all:dev",
     "startWorker": "node worker.js --env=production --wtype=wrk-report-service-api --apiPort 1337",
+    "startWorkerS3": "node worker.js --env=production --wtype=wrk-ext-s3-api --apiPort 1338",
     "startWorkerDev": "node worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337",
+    "startWorkerS3Dev": "node worker.js --env=development --wtype=wrk-ext-s3-api --apiPort 1338",
     "test": "better-npm-run test"
   }
 }

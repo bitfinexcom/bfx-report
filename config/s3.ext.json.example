@@ -1,0 +1,10 @@
+{
+  "grcServices": [ "rest:ext:s3" ],
+  "s3": {
+    "bucket": "",
+    "acl": "",
+    "signedUrlExpireTime": 1,
+    "maxExpireTime": 1,
+    "contentDisposition": "inline"
+  }
+}
