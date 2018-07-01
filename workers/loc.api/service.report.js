@@ -1,7 +1,20 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
-const { getREST, getLimitNotMoreThan } = require('./helpers')
+const {
+  getREST,
+  getLimitNotMoreThan,
+  checkArgsAndAuth
+} = require('./helpers')
+
+const jobOpts = {
+  attempts: 10,
+  backoff: {
+    type: 'fixed',
+    delay: 60000
+  },
+  timeout: 1200000
+}
 
 class ReportService extends Api {
   space (service, msg) {
@@ -115,6 +128,158 @@ class ReportService extends Api {
       const result = await rest.movements(...params)
 
       cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getTradesCsv (space, args, cb) {
+    try {
+      const method = 'getTrades'
+      await checkArgsAndAuth(args, this[method])
+
+      args.params.limit = 1000
+
+      const columns = {
+        id: 'ID',
+        mts: 'Time',
+        amount: 'Amount',
+        price: 'Price'
+      }
+
+      const processorQueue = this.ctx.bull_processor.queue
+
+      await processorQueue.add(
+        method,
+        {
+          method,
+          args,
+          propName: 'mts',
+          columns,
+          formatSettings: {
+            mts: 'date'
+          }
+        },
+        jobOpts
+      )
+
+      cb(null, true)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getLedgersCsv (space, args, cb) {
+    try {
+      const method = 'getLedgers'
+      await checkArgsAndAuth(args, this[method])
+
+      args.params.limit = 5000
+
+      const columns = {
+        id: 'ID',
+        mts: 'Time',
+        currency: 'Currency',
+        amount: 'Amount',
+        balance: 'Balance'
+      }
+
+      const processorQueue = this.ctx.bull_processor.queue
+
+      await processorQueue.add(
+        method,
+        {
+          method,
+          args,
+          propName: 'mts',
+          columns,
+          formatSettings: {
+            mts: 'date'
+          }
+        },
+        jobOpts
+      )
+
+      cb(null, true)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getOrdersCsv (space, args, cb) {
+    try {
+      const method = 'getOrders'
+      await checkArgsAndAuth(args, this[method])
+
+      args.params.limit = 5000
+
+      const columns = {
+        id: 'ID',
+        symbol: 'Symbol',
+        type: 'Type',
+        price: 'Price',
+        priceAvg: 'Avg price',
+        mtsUpdate: 'Update',
+        status: 'Status'
+      }
+
+      const processorQueue = this.ctx.bull_processor.queue
+
+      await processorQueue.add(
+        method,
+        {
+          method,
+          args,
+          propName: 'mtsUpdate',
+          columns,
+          formatSettings: {
+            mtsUpdate: 'date'
+          }
+        },
+        jobOpts
+      )
+
+      cb(null, true)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getMovementsCsv (space, args, cb) {
+    try {
+      const method = 'getMovements'
+      await checkArgsAndAuth(args, this[method])
+
+      args.params.limit = 25
+
+      const columns = {
+        id: 'ID',
+        mtsStarted: 'Started',
+        mtsUpdated: 'Updated',
+        currency: 'Currency',
+        amount: 'Amount',
+        status: 'Status',
+        destinationAddress: 'Destination'
+      }
+
+      const processorQueue = this.ctx.bull_processor.queue
+
+      await processorQueue.add(
+        method,
+        {
+          method,
+          args,
+          propName: 'mtsUpdated',
+          columns,
+          formatSettings: {
+            mtsStarted: 'date',
+            mtsUpdated: 'date'
+          }
+        },
+        jobOpts
+      )
+
+      cb(null, true)
     } catch (err) {
       cb(err)
     }

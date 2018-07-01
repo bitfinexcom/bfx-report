@@ -29,7 +29,10 @@ cp config/local-production.json.example config/local-production.json
 cp config/local-test.json.example config/local-test.json
 cp config/common.json.example config/common.json
 cp config/service.report.json.example config/service.report.json
+cp config/s3.ext.json.example config/s3.ext.json
 cp config/facs/grc.config.json.example config/facs/grc.config.json
+cp config/facs/bull.config.json.example config/facs/bull.config.json
+cp config/facs/store-s3.config.json.example config/facs/store-s3.config.json
 ```
 
 ### Run two Grapes
@@ -51,6 +54,20 @@ npm run startWorker
 
 ```
 npm run startWorkerDev
+```
+
+### Run the AWS S3 Grenache service
+
+- for the production environment:
+
+```
+npm run startWorkerS3
+```
+
+- or for the development environment:
+
+```
+npm run startWorkerS3Dev
 ```
 
 ### Run the server
