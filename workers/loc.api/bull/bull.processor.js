@@ -4,7 +4,7 @@ const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
 const { stringify } = require('csv')
-const uuidv1 = require('uuid/v1')
+const uuidv1 = require('uuid/v4')
 const moment = require('moment')
 const _ = require('lodash')
 

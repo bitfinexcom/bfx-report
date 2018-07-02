@@ -5,6 +5,6 @@
     "acl": "",
     "signedUrlExpireTime": 1,
     "maxExpireTime": 1,
-    "contentDisposition": "inline"
+    "contentDisposition": "attachment"
   }
 }

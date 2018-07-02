@@ -25,7 +25,6 @@ class WrkReportServiceApi extends WrkApi {
     if (
       this.bull_aggregator &&
       typeof this.bull_aggregator.conf === 'object' &&
-      typeof this.bull_aggregator.conf.emailTransport === 'object' &&
       typeof this.bull_aggregator.conf.emailOpts === 'object'
     ) {
       return

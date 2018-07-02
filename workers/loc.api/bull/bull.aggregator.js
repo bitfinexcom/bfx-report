@@ -1,7 +1,6 @@
 'use strict'
 
 const mime = require('mime-types')
-const nodemailer = require('nodemailer')
 const pug = require('pug')
 const path = require('path')
 const fs = require('fs')
@@ -15,24 +14,31 @@ const emailView = path.join(__dirname, 'views/email.pug')
 let reportService = null
 
 const _sendMail = (to, data) => {
+  const grcBfx = reportService.ctx.grc_bfx
   const configs = reportService.ctx.bull_aggregator.conf
-  const transporter = nodemailer.createTransport(configs.emailTransport)
-  const html = pug.renderFile(emailView, data)
+  const text = pug.renderFile(emailView, data)
   const mailOptions = {
     to,
-    html,
+    text,
     ...configs.emailOpts
   }
 
   return new Promise((resolve, reject) => {
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        reject(err)
-        return
-      }
+    grcBfx.req(
+      'rest:ext:sendgrid',
+      'sendEmail',
+      [mailOptions],
+      { timeout: 10000 },
+      (err, data) => {
+        if (err) {
+          reject(err)
 
-      resolve(info)
-    })
+          return
+        }
+
+        resolve(data)
+      }
+    )
   })
 }
 
@@ -61,7 +67,7 @@ const _uploadS3 = async (path, fileName) => {
   const opts = {
     ...configs,
     contentType: mimeType,
-    contentDisposition: `${configs.contentDisposition || 'inline'}; filename="${fileName}.${ext}"`
+    contentDisposition: `${configs.contentDisposition || 'attachment'}; filename="${fileName}.${ext}"`
   }
   const parsedData = [
     buffer,
@@ -94,7 +100,7 @@ module.exports = async (job) => {
     const fileName = _getFileName(job.name)
 
     const s3Data = await _uploadS3(data.fileName, fileName)
-    await _sendMail(data.email, { link: s3Data.public_url })
+    await _sendMail(data.email, { link: s3Data.public_url, fileName })
     await unlink(data.fileName)
 
     return Promise.resolve()
