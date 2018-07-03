@@ -3,6 +3,10 @@
     "port": 31339,
     "cors": {
       "enable": true
+    },
+    "redirectCsvElectron": {
+      "enable": false,
+      "url": "https://report.bitfinex.com"
     }
   },
   "grenacheService": {

@@ -4,7 +4,8 @@ const { Api } = require('bfx-wrk-api')
 const {
   getREST,
   getLimitNotMoreThan,
-  checkArgsAndAuth
+  checkArgsAndAuth,
+  isAllowMethod
 } = require('./helpers')
 
 const jobOpts = {
@@ -135,6 +136,8 @@ class ReportService extends Api {
 
   async getTradesCsv (space, args, cb) {
     try {
+      isAllowMethod(this.ctx)
+
       const method = 'getTrades'
       await checkArgsAndAuth(args, this[method])
 
@@ -171,6 +174,8 @@ class ReportService extends Api {
 
   async getLedgersCsv (space, args, cb) {
     try {
+      isAllowMethod(this.ctx)
+
       const method = 'getLedgers'
       await checkArgsAndAuth(args, this[method])
 
@@ -208,6 +213,8 @@ class ReportService extends Api {
 
   async getOrdersCsv (space, args, cb) {
     try {
+      isAllowMethod(this.ctx)
+
       const method = 'getOrders'
       await checkArgsAndAuth(args, this[method])
 
@@ -247,6 +254,8 @@ class ReportService extends Api {
 
   async getMovementsCsv (space, args, cb) {
     try {
+      isAllowMethod(this.ctx)
+
       const method = 'getMovements'
       await checkArgsAndAuth(args, this[method])
 
