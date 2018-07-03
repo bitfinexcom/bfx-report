@@ -7,7 +7,6 @@
   "dependencies": {
     "async": "^2.5.0",
     "better-npm-run": "^0.1.0",
-    "bfx-ext-s3-js": "git+ssh://github.com/bitfinexcom/bfx-ext-s3-js.git",
     "bfx-facs-base": "git+https://github.com/bitfinexcom/bfx-facs-base.git",
     "bfx-facs-bull": "git+https://github.com:bitfinexcom/bfx-facs-bull.git",
     "bfx-facs-interval": "https://github.com/bitfinexcom/bfx-facs-interval.git",
@@ -32,10 +31,13 @@
     "morgan": "^1.9.0",
     "nodemailer": "^4.6.7",
     "pug": "^2.0.3",
+    "superagent": "^3.8.3",
     "uuid": "^3.2.1",
     "winston": "^3.0.0"
   },
   "devDependencies": {
+    "bfx-ext-js": "git+ssh://github.com/bitfinexcom/bfx-ext-sendgrid-js.git",
+    "bfx-ext-s3-js": "git+ssh://github.com/bitfinexcom/bfx-ext-s3-js.git",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
@@ -82,7 +84,7 @@
       }
     },
     "start:all:prod": {
-      "command": "node index.js",
+      "command": "node index-all.js",
       "env": {
         "NODE_ENV": "production"
       }
@@ -100,7 +102,7 @@
       }
     },
     "start:all:dev": {
-      "command": "nodemon index.js",
+      "command": "nodemon index-all.js",
       "env": {
         "NODE_ENV": "development"
       }

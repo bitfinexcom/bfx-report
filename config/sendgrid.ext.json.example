@@ -1,0 +1,5 @@
+{
+  "grcServices": [ "rest:ext:sendgrid" ],
+  "apiKey": "",
+  "defaultTemplate": "../../../workers/loc.api/templates/bitfinex-dev"
+}
