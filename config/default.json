@@ -16,6 +16,7 @@
       ]
     }
   },
+  "emailForTests": "",
   "grenacheClient": {
     "query": "rest:report:api",
     "grape": "http://127.0.0.1:30001",

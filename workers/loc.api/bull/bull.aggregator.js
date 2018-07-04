@@ -93,17 +93,16 @@ const _uploadS3 = async (path, fileName) => {
   })
 }
 
-// TODO:
 module.exports = async (job) => {
   try {
     const data = job.data
     const fileName = _getFileName(job.name)
 
     const s3Data = await _uploadS3(data.fileName, fileName)
-    await _sendMail(data.email, { link: s3Data.public_url, fileName })
+    const res = await _sendMail(data.email, { link: s3Data.public_url, fileName })
     await unlink(data.fileName)
 
-    return Promise.resolve()
+    return Promise.resolve({ statusCode: res.statusCode })
   } catch (err) {
     if (err.syscall === 'unlink') {
       return Promise.resolve()

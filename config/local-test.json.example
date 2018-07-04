@@ -6,6 +6,7 @@
     "apiKey": "",
     "apiSecret": ""
   },
+  "emailForTests": "",
   "grenacheService": {
     "restUrl": "https://dev-prdn.bitfinex.com:2998"
   },

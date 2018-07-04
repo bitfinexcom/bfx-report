@@ -1,0 +1,174 @@
+'use strict'
+
+const { fork } = require('child_process')
+const path = require('path')
+const fs = require('fs')
+const { assert } = require('chai')
+const request = require('supertest')
+const config = require('config')
+const { runWorker } = require('./worker-for-tests')
+
+const { bootTwoGrapes, killGrapes } = require('../workers/grenache.helper')
+const { app } = require('../app')
+const agent = request.agent(app)
+
+let wrkReportServiceApi = null
+let ipcS3 = null
+let ipcSendgrid = null
+let grapes = null
+let auth = null
+let email = null
+let processorQueue = null
+let aggregatorQueue = null
+
+const _checkConf = () => {
+  if (
+    config.has('auth') &&
+    config.has('auth.apiKey') &&
+    typeof config.get('auth.apiKey') === 'string' &&
+    config.get('auth.apiKey') &&
+    config.has('auth.apiSecret') &&
+    typeof config.get('auth.apiSecret') === 'string' &&
+    config.get('auth.apiSecret') &&
+    config.has('emailForTests') &&
+    typeof config.get('emailForTests') === 'string' &&
+    config.get('emailForTests')
+  ) {
+    return
+  }
+
+  const err = new Error('ERR_CONFIG_ARGS_NO_AUTH')
+
+  throw err
+}
+
+describe('Queue', () => {
+  before(function (done) {
+    this.timeout(20000)
+
+    _checkConf()
+    auth = config.get('auth')
+    email = config.get('emailForTests')
+
+    bootTwoGrapes((err, g) => {
+      if (err) throw err
+
+      grapes = g
+
+      const modulePath = path.join(__dirname, '..', 'worker.js')
+
+      wrkReportServiceApi = runWorker({
+        wtype: 'wrk-report-service-api',
+        apiPort: 1341
+      })
+      ipcS3 = fork(
+        modulePath,
+        ['--env=development', '--wtype=wrk-ext-s3-api', '--apiPort=1342'],
+        {
+          stdio: ['inherit', 'inherit', 'inherit', 'ipc']
+        }
+      )
+      ipcSendgrid = fork(
+        modulePath,
+        ['--env=development', '--wtype=wrk-ext-sendgrid-api', '--apiPort=1343'],
+        {
+          stdio: ['inherit', 'inherit', 'inherit', 'ipc']
+        }
+      )
+
+      grapes[0].once('announce', async () => {
+        processorQueue = wrkReportServiceApi.bull_processor.queue
+        aggregatorQueue = wrkReportServiceApi.bull_aggregator.queue
+
+        await processorQueue.clean(0)
+        await processorQueue.clean(0, 'failed')
+        await processorQueue.clean(0, 'wait')
+        await processorQueue.clean(0, 'delayed')
+        await processorQueue.clean(0, 'active')
+        await aggregatorQueue.clean(0)
+        await aggregatorQueue.clean(0, 'failed')
+        await aggregatorQueue.clean(0, 'wait')
+        await aggregatorQueue.clean(0, 'delayed')
+        await aggregatorQueue.clean(0, 'active')
+
+        done()
+      })
+    })
+  })
+
+  after(function (done) {
+    this.timeout(5000)
+
+    ipcS3.on('close', () => {
+      process.nextTick(() => {
+        wrkReportServiceApi.stop(() => {
+          killGrapes(grapes, done)
+        })
+      })
+    })
+    ipcSendgrid.on('close', () => {
+      process.nextTick(() => {
+        ipcS3.kill()
+      })
+    })
+
+    ipcSendgrid.kill()
+  })
+
+  it('it should be successfully performed by the getLedgersCsv method', async function () {
+    this.timeout(60000)
+
+    processorQueue.once('failed', (job, err) => {
+      throw err
+    })
+    aggregatorQueue.once('failed', (job, err) => {
+      throw err
+    })
+
+    const proccPromise = new Promise((resolve, reject) => {
+      processorQueue.once('completed', (job, result) => {
+        resolve(result)
+      })
+    })
+    const aggrPromise = new Promise((resolve, reject) => {
+      aggregatorQueue.once('completed', (job, result) => {
+        resolve(result)
+      })
+    })
+
+    const res = await agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getLedgersCsv',
+        params: {
+          symbol: 'BTC',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result)
+
+    const proccRes = await proccPromise
+
+    assert.isObject(proccRes)
+    assert.property(proccRes, 'fileName')
+    assert.isString(proccRes.fileName)
+    assert.isOk(fs.existsSync(proccRes.fileName))
+    assert.propertyVal(proccRes, 'email', email)
+
+    const aggrRes = await aggrPromise
+
+    assert.isObject(aggrRes)
+    assert.property(aggrRes, 'statusCode')
+    assert.isAtLeast(aggrRes.statusCode, 200)
+    assert.isBelow(aggrRes.statusCode, 300)
+    assert.isNotOk(fs.existsSync(proccRes.fileName))
+  })
+})
