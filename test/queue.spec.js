@@ -59,18 +59,18 @@ describe('Queue', () => {
 
       wrkReportServiceApi = runWorker({
         wtype: 'wrk-report-service-api',
-        apiPort: 1341
+        apiPort: 1338
       })
       ipcS3 = fork(
         modulePath,
-        ['--env=development', '--wtype=wrk-ext-s3-api', '--apiPort=1342'],
+        ['--env=development', '--wtype=wrk-ext-s3-api', '--apiPort=1339'],
         {
           stdio: ['inherit', 'inherit', 'inherit', 'ipc']
         }
       )
       ipcSendgrid = fork(
         modulePath,
-        ['--env=development', '--wtype=wrk-ext-sendgrid-api', '--apiPort=1343'],
+        ['--env=development', '--wtype=wrk-ext-sendgrid-api', '--apiPort=1340'],
         {
           stdio: ['inherit', 'inherit', 'inherit', 'ipc']
         }
@@ -170,5 +170,230 @@ describe('Queue', () => {
     assert.isAtLeast(aggrRes.statusCode, 200)
     assert.isBelow(aggrRes.statusCode, 300)
     assert.isNotOk(fs.existsSync(proccRes.fileName))
+  })
+
+  it('it should be successfully performed by the getTradesCsv method', async function () {
+    this.timeout(60000)
+
+    processorQueue.once('failed', (job, err) => {
+      throw err
+    })
+    aggregatorQueue.once('failed', (job, err) => {
+      throw err
+    })
+
+    const proccPromise = new Promise((resolve, reject) => {
+      processorQueue.once('completed', (job, result) => {
+        resolve(result)
+      })
+    })
+    const aggrPromise = new Promise((resolve, reject) => {
+      aggregatorQueue.once('completed', (job, result) => {
+        resolve(result)
+      })
+    })
+
+    const res = await agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getTradesCsv',
+        params: {
+          symbol: 'tBTCUSD',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result)
+
+    const proccRes = await proccPromise
+
+    assert.isObject(proccRes)
+    assert.property(proccRes, 'fileName')
+    assert.isString(proccRes.fileName)
+    assert.isOk(fs.existsSync(proccRes.fileName))
+    assert.propertyVal(proccRes, 'email', email)
+
+    const aggrRes = await aggrPromise
+
+    assert.isObject(aggrRes)
+    assert.property(aggrRes, 'statusCode')
+    assert.isAtLeast(aggrRes.statusCode, 200)
+    assert.isBelow(aggrRes.statusCode, 300)
+    assert.isNotOk(fs.existsSync(proccRes.fileName))
+  })
+
+  it('it should be successfully performed by the getOrdersCsv method', async function () {
+    this.timeout(60000)
+
+    processorQueue.once('failed', (job, err) => {
+      throw err
+    })
+    aggregatorQueue.once('failed', (job, err) => {
+      throw err
+    })
+
+    const proccPromise = new Promise((resolve, reject) => {
+      processorQueue.once('completed', (job, result) => {
+        resolve(result)
+      })
+    })
+    const aggrPromise = new Promise((resolve, reject) => {
+      aggregatorQueue.once('completed', (job, result) => {
+        resolve(result)
+      })
+    })
+
+    const res = await agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getOrdersCsv',
+        params: {
+          symbol: 'tBTCUSD',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result)
+
+    const proccRes = await proccPromise
+
+    assert.isObject(proccRes)
+    assert.property(proccRes, 'fileName')
+    assert.isString(proccRes.fileName)
+    assert.isOk(fs.existsSync(proccRes.fileName))
+    assert.propertyVal(proccRes, 'email', email)
+
+    const aggrRes = await aggrPromise
+
+    assert.isObject(aggrRes)
+    assert.property(aggrRes, 'statusCode')
+    assert.isAtLeast(aggrRes.statusCode, 200)
+    assert.isBelow(aggrRes.statusCode, 300)
+    assert.isNotOk(fs.existsSync(proccRes.fileName))
+  })
+
+  it('it should be successfully performed by the getMovementsCsv method', async function () {
+    this.timeout(60000)
+
+    processorQueue.once('failed', (job, err) => {
+      throw err
+    })
+    aggregatorQueue.once('failed', (job, err) => {
+      throw err
+    })
+
+    const proccPromise = new Promise((resolve, reject) => {
+      processorQueue.once('completed', (job, result) => {
+        resolve(result)
+      })
+    })
+    const aggrPromise = new Promise((resolve, reject) => {
+      aggregatorQueue.once('completed', (job, result) => {
+        resolve(result)
+      })
+    })
+
+    const res = await agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovementsCsv',
+        params: {
+          symbol: 'BTC',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result)
+
+    const proccRes = await proccPromise
+
+    assert.isObject(proccRes)
+    assert.property(proccRes, 'fileName')
+    assert.isString(proccRes.fileName)
+    assert.isOk(fs.existsSync(proccRes.fileName))
+    assert.propertyVal(proccRes, 'email', email)
+
+    const aggrRes = await aggrPromise
+
+    assert.isObject(aggrRes)
+    assert.property(aggrRes, 'statusCode')
+    assert.isAtLeast(aggrRes.statusCode, 200)
+    assert.isBelow(aggrRes.statusCode, 300)
+    assert.isNotOk(fs.existsSync(proccRes.fileName))
+  })
+
+  it('it should not be successfully auth by the getLedgersCsv method', async function () {
+    this.timeout(60000)
+
+    const res = await agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth: {
+          apiKey: '',
+          apiSecret: ''
+        },
+        method: 'getLedgersCsv',
+        params: {
+          symbol: 'BTC',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(401)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isNotOk(res.body.result)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 401)
+    assert.propertyVal(res.body.error, 'message', 'Unauthorized')
+  })
+
+  it('it should not be successfully performed by the getLedgersCsv method, without email param', async function () {
+    this.timeout(60000)
+
+    const res = await agent
+      .post('/get-data')
+      .type('json')
+      .send({
+        auth,
+        method: 'getLedgersCsv',
+        params: {
+          symbol: 'BTC'
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isNotOk(res.body.result)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 500)
+    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
   })
 })
