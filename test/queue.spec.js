@@ -42,6 +42,15 @@ const _checkConf = () => {
   throw err
 }
 
+const _cleanJobs = async (
+  queue,
+  status = ['completed', 'active', 'failed', 'wait', 'delayed']
+) => {
+  const promiseArr = status.map(item => queue.clean(0, item))
+
+  return Promise.all(promiseArr)
+}
+
 describe('Queue', () => {
   before(function (done) {
     this.timeout(20000)
@@ -80,39 +89,39 @@ describe('Queue', () => {
         processorQueue = wrkReportServiceApi.bull_processor.queue
         aggregatorQueue = wrkReportServiceApi.bull_aggregator.queue
 
-        await processorQueue.clean(0)
-        await processorQueue.clean(0, 'failed')
-        await processorQueue.clean(0, 'wait')
-        await processorQueue.clean(0, 'delayed')
-        await processorQueue.clean(0, 'active')
-        await aggregatorQueue.clean(0)
-        await aggregatorQueue.clean(0, 'failed')
-        await aggregatorQueue.clean(0, 'wait')
-        await aggregatorQueue.clean(0, 'delayed')
-        await aggregatorQueue.clean(0, 'active')
+        await _cleanJobs(processorQueue)
+        await _cleanJobs(aggregatorQueue)
 
         done()
       })
     })
   })
 
-  after(function (done) {
+  after(async function () {
     this.timeout(5000)
 
-    ipcS3.on('close', () => {
-      process.nextTick(() => {
-        wrkReportServiceApi.stop(() => {
-          killGrapes(grapes, done)
+    const promiseKill = new Promise((resolve, reject) => {
+      ipcS3.on('close', () => {
+        process.nextTick(() => {
+          wrkReportServiceApi.stop(() => {
+            killGrapes(grapes, resolve)
+          })
         })
       })
     })
+
     ipcSendgrid.on('close', () => {
       process.nextTick(() => {
         ipcS3.kill()
       })
     })
 
+    await _cleanJobs(processorQueue)
+    await _cleanJobs(aggregatorQueue)
+
     ipcSendgrid.kill()
+
+    await promiseKill
   })
 
   it('it should be successfully performed by the getLedgersCsv method', async function () {
