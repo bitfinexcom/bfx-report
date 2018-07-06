@@ -13,13 +13,16 @@ const { app } = require('../app')
 const agent = request.agent(app)
 
 let wrkReportServiceApi = null
+let ipcTestCall = null
 let ipcS3 = null
 let ipcSendgrid = null
 let grapes = null
 let auth = null
-let email = null
+let email = 'fake@email.test'
 let processorQueue = null
 let aggregatorQueue = null
+
+const basePath = '/api'
 
 const _checkConf = () => {
   if (
@@ -29,10 +32,7 @@ const _checkConf = () => {
     config.get('auth.apiKey') &&
     config.has('auth.apiSecret') &&
     typeof config.get('auth.apiSecret') === 'string' &&
-    config.get('auth.apiSecret') &&
-    config.has('emailForTests') &&
-    typeof config.get('emailForTests') === 'string' &&
-    config.get('emailForTests')
+    config.get('auth.apiSecret')
   ) {
     return
   }
@@ -57,29 +57,33 @@ describe('Queue', () => {
 
     _checkConf()
     auth = config.get('auth')
-    email = config.get('emailForTests')
 
     bootTwoGrapes((err, g) => {
       if (err) throw err
 
       grapes = g
 
-      const modulePath = path.join(__dirname, '..', 'worker.js')
-
       wrkReportServiceApi = runWorker({
         wtype: 'wrk-report-service-api',
         apiPort: 1338
       })
+      ipcTestCall = fork(
+        path.join(__dirname, 'simulate/bfx-ext-testcalls-js/worker.js'),
+        ['--env=development', '--wtype=wrk-ext-testcalls-api', '--apiPort=1339'],
+        {
+          stdio: ['inherit', 'inherit', 'inherit', 'ipc']
+        }
+      )
       ipcS3 = fork(
-        modulePath,
-        ['--env=development', '--wtype=wrk-ext-s3-api', '--apiPort=1339'],
+        path.join(__dirname, 'simulate/bfx-ext-s3-js/worker.js'),
+        ['--env=development', '--wtype=wrk-ext-s3-api', '--apiPort=1340'],
         {
           stdio: ['inherit', 'inherit', 'inherit', 'ipc']
         }
       )
       ipcSendgrid = fork(
-        modulePath,
-        ['--env=development', '--wtype=wrk-ext-sendgrid-api', '--apiPort=1340'],
+        path.join(__dirname, 'simulate/bfx-ext-sendgrid-js/worker.js'),
+        ['--env=development', '--wtype=wrk-ext-sendgrid-api', '--apiPort=1341'],
         {
           stdio: ['inherit', 'inherit', 'inherit', 'ipc']
         }
@@ -101,12 +105,18 @@ describe('Queue', () => {
     this.timeout(5000)
 
     const promiseKill = new Promise((resolve, reject) => {
-      ipcS3.on('close', () => {
+      ipcTestCall.on('close', () => {
         process.nextTick(() => {
           wrkReportServiceApi.stop(() => {
             killGrapes(grapes, resolve)
           })
         })
+      })
+    })
+
+    ipcS3.on('close', () => {
+      process.nextTick(() => {
+        ipcTestCall.kill()
       })
     })
 
@@ -146,7 +156,7 @@ describe('Queue', () => {
     })
 
     const res = await agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -203,7 +213,7 @@ describe('Queue', () => {
     })
 
     const res = await agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -260,7 +270,7 @@ describe('Queue', () => {
     })
 
     const res = await agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -317,7 +327,7 @@ describe('Queue', () => {
     })
 
     const res = await agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -356,7 +366,7 @@ describe('Queue', () => {
     this.timeout(60000)
 
     const res = await agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth: {
@@ -385,7 +395,7 @@ describe('Queue', () => {
     this.timeout(60000)
 
     const res = await agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,

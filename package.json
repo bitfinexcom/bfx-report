@@ -36,8 +36,6 @@
     "winston": "^3.0.0"
   },
   "devDependencies": {
-    "bfx-ext-js": "git+ssh://github.com/bitfinexcom/bfx-ext-sendgrid-js.git",
-    "bfx-ext-s3-js": "git+ssh://github.com/bitfinexcom/bfx-ext-s3-js.git",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
