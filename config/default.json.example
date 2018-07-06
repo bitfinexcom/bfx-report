@@ -38,17 +38,17 @@
   "logDebug": {
     "prefix": "",
     "postfix": ":app",
-    "enableInfo": true,
-    "enableDev": true,
-    "enableError": true,
-    "enableServerStream": true
+    "enableInfo": false,
+    "enableDev": false,
+    "enableError": false,
+    "enableServerStream": false
   },
   "log": {
     "label": ":app",
-    "pathError": "logs/error.log",
-    "pathExcLogger": "logs/exceptions-logger.log",
-    "pathLog": "logs/log.log",
-    "enableConsole": true,
+    "pathError": null,
+    "pathExcLogger": null,
+    "pathLog": null,
+    "enableConsole": false,
     "enableColor": true,
     "enableColorPathError": false,
     "enableColorPathExcLogger": false,
