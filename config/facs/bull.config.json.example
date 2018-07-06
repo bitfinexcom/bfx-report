@@ -1,15 +1,6 @@
 {
   "processor": {},
   "aggregator": {
-    "emailTransport": {
-      "host": "smtp.gmail.com",
-      "port": 587,
-      "secure": false,
-      "auth": {
-        "user": "",
-        "pass": ""
-      }
-    },
     "emailOpts": {
       "from": "\"Bitfinex\" <no-reply@bitfinex.com>",
       "subject": "Download report"
@@ -18,7 +9,7 @@
       "bucket": "",
       "acl": "",
       "signedUrlExpireTime": 1,
-      "contentDisposition": "inline"
+      "contentDisposition": "attachment"
     }
   }
 }

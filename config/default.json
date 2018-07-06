@@ -4,8 +4,19 @@
     "host": "127.0.0.1",
     "cors": {
       "enable": true
+    },
+    "redirectCsvElectron": {
+      "enable": false,
+      "url": "https://report.bitfinex.com",
+      "methods": [
+        "getTradesCsv",
+        "getLedgersCsv",
+        "getOrdersCsv",
+        "getMovementsCsv"
+      ]
     }
   },
+  "emailForTests": "",
   "grenacheClient": {
     "query": "rest:report:api",
     "grape": "http://127.0.0.1:30001",

@@ -1,10 +1,23 @@
 'use strict'
 
+const config = require('config')
+const request = require('superagent')
 const {
   grenacheClientService: gClientService,
   helpers
 } = require('../services')
 const { success, failureInternalServerError, failureUnauthorized } = helpers.responses
+
+const isEnableRedirectCsvElectron = (
+  config.has('app.redirectCsvElectron') &&
+  config.has('app.redirectCsvElectron.enable') &&
+  config.get('app.redirectCsvElectron.enable') &&
+  config.has('app.redirectCsvElectron.url') &&
+  typeof config.get('app.redirectCsvElectron.url') === 'string' &&
+  config.has('app.redirectCsvElectron.methods') &&
+  Array.isArray(config.get('app.redirectCsvElectron.methods')) &&
+  config.get('app.redirectCsvElectron.methods').length > 0
+)
 
 const _isAuthError = (err) => {
   return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
@@ -36,7 +49,6 @@ const checkAuth = async (req, res) => {
   }
 }
 
-// TODO: add redirect to public URL for downloading csv for electronjs
 const getData = async (req, res) => {
   const body = { ...req.body }
   const id = body.id || null
@@ -47,6 +59,24 @@ const getData = async (req, res) => {
   }
 
   try {
+    if (
+      isEnableRedirectCsvElectron &&
+      config
+        .get('app.redirectCsvElectron.methods')
+        .some(item => req.body.method === item)
+    ) {
+      const url = config.get('app.redirectCsvElectron.url') + req.originalUrl
+      const method = req.method.toLowerCase()
+      const result = await request[method](url)
+        .timeout(30000)
+        .type('json')
+        .send(req.body)
+
+      success(200, result, res)
+
+      return
+    }
+
     const result = await gClientService.request(query)
 
     success(200, { result, id }, res)

@@ -25,7 +25,6 @@ class WrkReportServiceApi extends WrkApi {
     if (
       this.bull_aggregator &&
       typeof this.bull_aggregator.conf === 'object' &&
-      typeof this.bull_aggregator.conf.emailTransport === 'object' &&
       typeof this.bull_aggregator.conf.emailOpts === 'object'
     ) {
       return
@@ -37,9 +36,11 @@ class WrkReportServiceApi extends WrkApi {
   }
 
   getPluginCtx (type) {
-    super.init()
-
     const ctx = super.getPluginCtx(type)
+
+    if (this.conf.isElectronEnv) {
+      return ctx
+    }
 
     switch (type) {
       case 'api_bfx':
@@ -54,6 +55,10 @@ class WrkReportServiceApi extends WrkApi {
 
   init () {
     super.init()
+
+    if (this.conf.isElectronEnv) {
+      return
+    }
 
     this.setInitFacs([
       [
@@ -118,6 +123,12 @@ class WrkReportServiceApi extends WrkApi {
   _start (cb) {
     async.series([ next => { super._start(next) },
       next => {
+        if (this.conf.isElectronEnv) {
+          next()
+
+          return
+        }
+
         const reportService = this.grc_bfx.api
         const processorQueue = this.bull_processor.queue
         const aggregatorQueue = this.bull_aggregator.queue

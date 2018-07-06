@@ -49,8 +49,22 @@ const checkArgsAndAuth = async (args, cb) => {
   return Promise.resolve(resAuth)
 }
 
+const isAllowMethod = (ctx) => {
+  if (
+    ctx.grc_bfx &&
+    ctx.grc_bfx.caller &&
+    ctx.grc_bfx.caller.conf &&
+    ctx.grc_bfx.caller.conf.isElectronEnv
+  ) {
+    throw new Error('ERR_API_ACTION_NOTFOUND')
+  }
+
+  return true
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
-  checkArgsAndAuth
+  checkArgsAndAuth,
+  isAllowMethod
 }
