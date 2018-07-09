@@ -4,13 +4,7 @@
     "host": "127.0.0.1",
     "redirectCsvElectron": {
       "enable": false,
-      "url": "https://report.bitfinex.com",
-      "methods": [
-        "getTradesCsv",
-        "getLedgersCsv",
-        "getOrdersCsv",
-        "getMovementsCsv"
-      ]
+      "url": "https://report.bitfinex.com"
     }
   },
   "auth": {
