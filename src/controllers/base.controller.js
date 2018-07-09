@@ -8,15 +8,19 @@ const {
 } = require('../services')
 const { success, failureInternalServerError, failureUnauthorized } = helpers.responses
 
+const _redirectMethods = [
+  'getTradesCsv',
+  'getLedgersCsv',
+  'getOrdersCsv',
+  'getMovementsCsv'
+]
+
 const isEnableRedirectCsvElectron = (
   config.has('app.redirectCsvElectron') &&
   config.has('app.redirectCsvElectron.enable') &&
   config.get('app.redirectCsvElectron.enable') &&
   config.has('app.redirectCsvElectron.url') &&
-  typeof config.get('app.redirectCsvElectron.url') === 'string' &&
-  config.has('app.redirectCsvElectron.methods') &&
-  Array.isArray(config.get('app.redirectCsvElectron.methods')) &&
-  config.get('app.redirectCsvElectron.methods').length > 0
+  typeof config.get('app.redirectCsvElectron.url') === 'string'
 )
 
 const _isAuthError = (err) => {
@@ -61,9 +65,7 @@ const getData = async (req, res) => {
   try {
     if (
       isEnableRedirectCsvElectron &&
-      config
-        .get('app.redirectCsvElectron.methods')
-        .some(item => req.body.method === item)
+      _redirectMethods.some(item => req.body.method === item)
     ) {
       const url = config.get('app.redirectCsvElectron.url') + req.originalUrl
       const method = req.method.toLowerCase()

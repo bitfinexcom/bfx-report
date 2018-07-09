@@ -12,5 +12,6 @@
     "aggregator": {
       "queue": "aggregator"
     }
-  }
+  },
+  "restUrl": "https://api.bitfinex.com"
 }

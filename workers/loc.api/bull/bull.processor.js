@@ -103,7 +103,7 @@ const _getFullData = async (
     const _args = _.cloneDeep(args)
     delete _args.params.email
 
-    const getData = promisify(reportService[method])
+    const getData = promisify(reportService[method].bind(reportService))
     let res = null
     let promiseInterval = Promise.resolve()
 
