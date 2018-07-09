@@ -72,32 +72,8 @@
         "NODE_ENV": "production"
       }
     },
-    "start:grapes:worker:prod": {
-      "command": "node grapes-worker.js",
-      "env": {
-        "NODE_ENV": "production"
-      }
-    },
-    "start:all:prod": {
-      "command": "node index-all.js",
-      "env": {
-        "NODE_ENV": "production"
-      }
-    },
     "start:dev": {
       "command": "nodemon app.js",
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    "start:grapes:worker:dev": {
-      "command": "nodemon grapes-worker.js",
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    "start:all:dev": {
-      "command": "nodemon index-all.js",
       "env": {
         "NODE_ENV": "development"
       }
@@ -112,14 +88,8 @@
   "scripts": {
     "start": "better-npm-run start:prod",
     "startDev": "better-npm-run start:dev",
-    "startGrapesWorker": "better-npm-run start:grapes:worker:prod",
-    "startGrapesWorkerDev": "better-npm-run start:grapes:worker:dev",
-    "startAll": "better-npm-run start:all:prod",
-    "startAllDev": "better-npm-run start:all:dev",
     "startWorker": "node worker.js --env=production --wtype=wrk-report-service-api --apiPort 1337",
-    "startWorkerS3": "node worker.js --env=production --wtype=wrk-ext-s3-api --apiPort 1338",
-    "startWorkerDev": "node worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337",
-    "startWorkerS3Dev": "node worker.js --env=development --wtype=wrk-ext-s3-api --apiPort 1338",
+    "startWorkerDev": "nodemon worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337",
     "test": "better-npm-run test"
   }
 }
