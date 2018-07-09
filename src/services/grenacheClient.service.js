@@ -13,8 +13,7 @@ const _checkConf = () => {
   if (
     config.has('grenacheClient') &&
     config.has('grenacheClient.grape') &&
-    config.has('grenacheClient.query') &&
-    config.has('grenacheClient.timeout')
+    config.has('grenacheClient.query')
   ) {
     return
   }
@@ -46,7 +45,7 @@ const request = (query, ...args) => {
   let _args = []
 
   if (typeof args[0] === 'function') {
-    _args[0] = { timeout: gClientConf.timeout }
+    _args[0] = { timeout: 10000 }
     _args[1] = args[0]
   }
 

@@ -25,7 +25,7 @@ class ReportService extends Api {
 
   async getFundingInfo (space, args, cb) {
     try {
-      const rest = getREST(args.auth)
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.fundingInfo()
 
       cb(null, result)
@@ -53,7 +53,7 @@ class ReportService extends Api {
         )
       }
 
-      const rest = getREST(args.auth)
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.ledgers(...params)
 
       cb(null, result)
@@ -75,7 +75,7 @@ class ReportService extends Api {
         getLimitNotMoreThan(args.params.limit)
       ]
 
-      const rest = getREST(args.auth)
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.trades(...params)
 
       cb(null, result)
@@ -97,7 +97,7 @@ class ReportService extends Api {
         getLimitNotMoreThan(args.params.limit)
       ]
 
-      const rest = getREST(args.auth)
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.orderHistory(...params)
 
       cb(null, result)
@@ -125,7 +125,7 @@ class ReportService extends Api {
         )
       }
 
-      const rest = getREST(args.auth)
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.movements(...params)
 
       cb(null, result)
@@ -139,7 +139,7 @@ class ReportService extends Api {
       isAllowMethod(this.ctx)
 
       const method = 'getTrades'
-      await checkArgsAndAuth(args, this[method])
+      await checkArgsAndAuth(args, this[method].bind(this))
 
       args.params.limit = 1000
 
@@ -177,7 +177,7 @@ class ReportService extends Api {
       isAllowMethod(this.ctx)
 
       const method = 'getLedgers'
-      await checkArgsAndAuth(args, this[method])
+      await checkArgsAndAuth(args, this[method].bind(this))
 
       args.params.limit = 5000
 
@@ -216,7 +216,7 @@ class ReportService extends Api {
       isAllowMethod(this.ctx)
 
       const method = 'getOrders'
-      await checkArgsAndAuth(args, this[method])
+      await checkArgsAndAuth(args, this[method].bind(this))
 
       args.params.limit = 5000
 
@@ -257,7 +257,7 @@ class ReportService extends Api {
       isAllowMethod(this.ctx)
 
       const method = 'getMovements'
-      await checkArgsAndAuth(args, this[method])
+      await checkArgsAndAuth(args, this[method].bind(this))
 
       args.params.limit = 25
 

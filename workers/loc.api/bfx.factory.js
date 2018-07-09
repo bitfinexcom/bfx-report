@@ -1,12 +1,11 @@
 'use strict'
 
 const BFX = require('bitfinex-api-node')
-const config = require('config')
 
-const _checkConf = () => {
+const _checkConf = (conf) => {
   if (
-    config.has('grenacheService') &&
-    config.has('grenacheService.restUrl')
+    conf &&
+    typeof conf.restUrl === 'string'
   ) {
     return
   }
@@ -16,14 +15,14 @@ const _checkConf = () => {
   throw err
 }
 
-_checkConf()
+const createBFX = ({ apiKey = '', apiSecret = '', conf = {} }) => {
+  _checkConf(conf)
 
-const createBFX = ({ apiKey = '', apiSecret = '' }) => {
   return new BFX({
     apiKey,
     apiSecret,
     rest: {
-      url: config.get('grenacheService.restUrl')
+      url: conf.restUrl
     }
   })
 }
