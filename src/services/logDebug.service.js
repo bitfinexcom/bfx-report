@@ -4,7 +4,7 @@ const debug = require('debug')
 const config = require('config')
 
 const prefix = ''
-const postfix = ':app'
+const postfix = process.env.NODE_ENV === 'development' ? ':app-dev' : ':app'
 
 const isEnable = config.has('enableLogDebug') && config.get('enableLogDebug')
 const enableInfo = isEnable
