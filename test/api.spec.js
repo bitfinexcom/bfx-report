@@ -6,7 +6,7 @@ const chai = require('chai')
 const request = require('supertest')
 const config = require('config')
 
-const { bootTwoGrapes, killGrapes } = require('../workers/grenache.helper')
+const { bootTwoGrapes, killGrapes } = require('./grenache.helper')
 const { app } = require('../app')
 const agent = request.agent(app)
 const assert = chai.assert

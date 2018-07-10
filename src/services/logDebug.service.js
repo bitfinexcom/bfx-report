@@ -3,12 +3,13 @@
 const debug = require('debug')
 const config = require('config')
 
-const prefix = config.has('logDebug.prefix')
-  ? config.get('logDebug.prefix')
-  : ''
-const postfix = config.has('logDebug.postfix')
-  ? config.get('logDebug.postfix')
-  : ''
+const prefix = ''
+const postfix = process.env.NODE_ENV === 'development' ? ':app-dev' : ':app'
+
+const isEnable = config.has('enableLogDebug') && config.get('enableLogDebug')
+const enableInfo = isEnable
+const enableDev = isEnable
+const enableError = isEnable
 
 let _token = []
 
@@ -16,17 +17,17 @@ const infoToken = `${prefix}info${postfix}`
 const devToken = `${prefix}dev${postfix}`
 const errorToken = `${prefix}error${postfix}`
 
-if (config.has('logDebug.enableInfo') && config.get('logDebug.enableInfo')) {
+if (enableInfo) {
   _token.push(`${infoToken}`)
   _token.push(`${infoToken}:*`)
 }
 
-if (config.has('logDebug.enableDev') && config.get('logDebug.enableDev')) {
+if (enableDev) {
   _token.push(`${devToken}`)
   _token.push(`${devToken}:*`)
 }
 
-if (config.has('logDebug.enableError') && config.get('logDebug.enableError')) {
+if (enableError) {
   _token.push(`${errorToken}`)
   _token.push(`${errorToken}:*`)
 }

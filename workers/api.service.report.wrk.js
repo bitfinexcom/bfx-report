@@ -46,7 +46,6 @@ class WrkReportServiceApi extends WrkApi {
       case 'api_bfx':
         ctx.bull_processor = this.bull_processor
         ctx.bull_aggregator = this.bull_aggregator
-        this._checkBullAggregatorConf()
         break
     }
 
@@ -66,54 +65,31 @@ class WrkReportServiceApi extends WrkApi {
         'bfx-facs-bull',
         'processor',
         'processor',
-        () => this.getBullProcConf()
+        () => this.getBullConf('processor')
       ],
       [
         'fac',
         'bfx-facs-bull',
         'aggregator',
         'aggregator',
-        () => this.getBullAggrConf()
+        () => this.getBullConf('aggregator')
       ]
     ])
   }
 
-  getBullProcConf () {
+  getBullConf (name) {
     const group = this.group
     const conf = this.conf[group]
 
     if (
       conf &&
-      typeof conf.bull === 'object' &&
-      conf.bull.processor &&
-      conf.bull.processor.queue
+      typeof conf.bull === 'object'
     ) {
       return {
         port: conf.bull.port,
         host: conf.bull.host,
         auth: conf.bull.auth,
-        queue: conf.bull.processor.queue
-      }
-    }
-
-    return null
-  }
-
-  getBullAggrConf () {
-    const group = this.group
-    const conf = this.conf[group]
-
-    if (
-      conf &&
-      typeof conf.bull === 'object' &&
-      conf.bull.aggregator &&
-      conf.bull.aggregator.queue
-    ) {
-      return {
-        port: conf.bull.port,
-        host: conf.bull.host,
-        auth: conf.bull.auth,
-        queue: conf.bull.aggregator.queue
+        queue: name
       }
     }
 
@@ -121,6 +97,8 @@ class WrkReportServiceApi extends WrkApi {
   }
 
   _start (cb) {
+    this._checkBullAggregatorConf()
+
     async.series([ next => { super._start(next) },
       next => {
         if (this.conf.isElectronEnv) {

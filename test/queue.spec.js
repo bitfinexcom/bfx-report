@@ -8,7 +8,7 @@ const request = require('supertest')
 const config = require('config')
 const { runWorker } = require('./worker-for-tests')
 
-const { bootTwoGrapes, killGrapes } = require('../workers/grenache.helper')
+const { bootTwoGrapes, killGrapes } = require('./grenache.helper')
 const { app } = require('../app')
 const agent = request.agent(app)
 

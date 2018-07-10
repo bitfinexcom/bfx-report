@@ -28,8 +28,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride())
 
 if (
-  config.has('logDebug.enableServerStream') &&
-  config.get('logDebug.enableServerStream')
+  config.has('enableLogDebug') &&
+  config.get('enableLogDebug')
 ) {
   app.use(
     morgan('combined', {
