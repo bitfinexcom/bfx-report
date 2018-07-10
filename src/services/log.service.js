@@ -5,34 +5,24 @@ const colors = require('colors')
 const { createLogger, format, transports } = require('winston')
 const { combine, timestamp, label, printf, splat } = format
 
-const logLabel = config.has('log.label') ? config.get('log.label') : ''
-const pathError = config.has('log.pathError')
-  ? config.get('log.pathError')
-  : false
-const pathExcLogger = config.has('log.pathExcLogger')
-  ? config.get('log.pathExcLogger')
-  : false
-const pathLog = config.has('log.pathLog') ? config.get('log.pathLog') : false
-const enableConsole = config.has('log.enableConsole')
-  ? config.get('log.enableConsole')
-  : false
-const enableColor = config.has('log.enableColor')
-  ? config.get('log.enableColor')
-  : true
-const enableColorPathError = config.has('log.enableColorPathError')
-  ? config.get('log.enableColorPathError')
-  : false
-const enableColorPathExcLogger = config.has('log.enableColorPathExcLogger')
-  ? config.get('log.enableColorPathExcLogger')
-  : false
-const enableColorPathLog = config.has('log.enableColorPathLog')
-  ? config.get('log.enableColorPathLog')
-  : false
-const maxSize = config.has('log.maxSize') ? config.get('log.maxSize') : null
-const _logConf = config.has('log') ? config.get('log') : {}
+const isDevEnv = process.env.NODE_ENV === 'development'
+const isProdEnv = process.env.NODE_ENV === 'production'
+const isEnableLog = config.has('enableLog') && config.get('enableLog')
+const basePath = 'logs/'
+const ext = '.log'
+
+const logLabel = isDevEnv ? ':app-dev' : ':app'
+const pathError = isEnableLog && (isProdEnv || isDevEnv) ? `${basePath}error${ext}` : null
+const pathExcLogger = isEnableLog && (isProdEnv || isDevEnv) ? `${basePath}exceptions-logger${ext}` : null
+const pathLog = isEnableLog && isDevEnv ? `${basePath}log${ext}` : null
+const enableConsole = isEnableLog && isDevEnv
+const enableColor = isEnableLog && isDevEnv
+const enableColorPathError = false
+const enableColorPathExcLogger = false
+const enableColorPathLog = false
+const maxSize = null
 
 const logConf = {
-  ..._logConf,
   pathError,
   pathExcLogger,
   pathLog,

@@ -27,24 +27,6 @@
       "api_port": 30001
     }
   },
-  "logDebug": {
-    "prefix": "",
-    "postfix": ":app",
-    "enableInfo": false,
-    "enableDev": false,
-    "enableError": false,
-    "enableServerStream": false
-  },
-  "log": {
-    "label": ":app",
-    "pathError": null,
-    "pathExcLogger": null,
-    "pathLog": null,
-    "enableConsole": false,
-    "enableColor": true,
-    "enableColorPathError": false,
-    "enableColorPathExcLogger": false,
-    "enableColorPathLog": false,
-    "maxSize": null
-  }
+  "enableLogDebug": false,
+  "enableLog": false
 }
