@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'app',
+      name: 'bfx-report',
       script: './app.js',
       error_file: './logs/pm2.error.log',
       out_file: './logs/pm2.out.log',
