@@ -19,7 +19,6 @@
     "csv": "^3.1.0",
     "debug": "^3.1.0",
     "express": "^4.16.3",
-    "grenache-grape": "^0.9.8",
     "grenache-nodejs-http": "^0.7.6",
     "grenache-nodejs-link": "^0.7.9",
     "lodash": "^4.17.10",
@@ -43,7 +42,8 @@
     "mocha": "^5.2.0",
     "nodemon": "^1.17.5",
     "standard": "^11.0.1",
-    "supertest": "^3.1.0"
+    "supertest": "^3.1.0",
+    "grenache-grape": "^0.9.8"
   },
   "standard": {
     "globals": [
