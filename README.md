@@ -4,10 +4,9 @@
 
 ### Install
 
-- install libraries. Once the project is cloned,
-execute the following commands from the root directory of the project:
+- install libraries. Once the project is cloned, execute the following commands from the root directory of the project:
 
-```
+```console
 npm install
 ```
 
@@ -15,7 +14,7 @@ npm install
 
 - Install `Grenache Grape`: https://github.com/bitfinexcom/grenache-grape:
 
-```
+```console
 npm i -g grenache-grape
 ```
 
@@ -23,7 +22,7 @@ npm i -g grenache-grape
 
 - copy the files into new ones:
 
-```
+```console
 cp config/default.json.example config/default.json
 cp config/common.json.example config/common.json
 cp config/service.report.json.example config/service.report.json
@@ -33,25 +32,25 @@ cp config/facs/bull.config.json.example config/facs/bull.config.json
 
 - you need to configure the fields for AWS S3
 
-```
+```console
 vim config/facs/bull.config.json
 ```
 
 - for tests and the `dev` environment, you need to change the field `restUrl` to `https://dev-prdn.bitfinex.com:2998`
 
-```
+```console
 vim config/service.report.json
 ```
 
 - for the tests you need to enter the fields `apiKey` and `apiSecret`
 
-```
+```console
 vim config/default.json
 ```
 
 ### Run two Grapes
 
-```
+```console
 grape --dp 20001 --aph 30001 --bn '127.0.0.1:20002'
 grape --dp 20002 --aph 40001 --bn '127.0.0.1:20001'
 ```
@@ -68,13 +67,13 @@ grape --dp 20002 --aph 40001 --bn '127.0.0.1:20001'
 
 - for the production environment:
 
-```
+```console
 npm run startWorker
 ```
 
 - or for the development environment:
 
-```
+```console
 npm run startWorkerDev
 ```
 
@@ -82,19 +81,19 @@ npm run startWorkerDev
 
 - for the production environment:
 
-```
+```console
 npm run start
 ```
 
 - or for the development environment:
 
-```
+```console
 npm run startDev
 ```
 
 ### Run tests
 
-```
+```console
 npm test
 ```
 
