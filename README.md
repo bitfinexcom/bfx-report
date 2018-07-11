@@ -12,7 +12,7 @@ npm install
 
 ### Other Requirements
 
-- Install `Grenache Grape`: https://github.com/bitfinexcom/grenache-grape:
+- Install `Grenache Grape`: <https://github.com/bitfinexcom/grenache-grape>:
 
 ```console
 npm i -g grenache-grape
@@ -57,11 +57,11 @@ grape --dp 20002 --aph 40001 --bn '127.0.0.1:20001'
 
 ### Run the `bfx-ext-s3-js` Grenache service
 
-- follow the instructions in `readme` https://github.com/bitfinexcom/bfx-ext-s3-js to configure and start the service
+- follow the instructions in `readme` <https://github.com/bitfinexcom/bfx-ext-s3-js> to configure and start the service
 
 ### Run the `bfx-ext-sendgrid-js` Grenache service
 
-- follow the instructions in `readme` https://github.com/bitfinexcom/bfx-ext-sendgrid-js to configure and start the service
+- follow the instructions in `readme` <https://github.com/bitfinexcom/bfx-ext-sendgrid-js> to configure and start the service
 
 ### Run the Grenache service
 
