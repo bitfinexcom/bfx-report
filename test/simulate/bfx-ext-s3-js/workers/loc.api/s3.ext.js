@@ -18,14 +18,21 @@ class ExtS3 extends Api {
     const call = {
       worker: 'ext.s3',
       on: 'uploadPresigned',
-      params: {data, opts},
-      res: {upload},
+      params: { data, opts },
+      res: { upload },
       timestamp: Date.now()
     }
-    grcBfx.req('rest:ext:testcalls', 'addCall', [call], {timeout: 2000}, (err, data) => {
-      if (err) cb(new Error('ext.s3:uploadPresigned:testcalls'))
-      else return cb(null, upload)
-    })
+
+    grcBfx.req(
+      'rest:ext:testcalls',
+      'addCall',
+      [call],
+      { timeout: 2000 },
+      (err, data) => {
+        if (err) cb(new Error('ext.s3:uploadPresigned:testcalls'))
+        else return cb(null, upload)
+      }
+    )
   }
 }
 
