@@ -88,7 +88,6 @@ class WrkReportServiceApi extends WrkApi {
       return {
         port: conf.bull.port,
         host: conf.bull.host,
-        auth: conf.bull.auth,
         queue: name
       }
     }

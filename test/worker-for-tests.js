@@ -7,6 +7,7 @@ const serviceRoot = path.join(__dirname, '..')
 
 const getJSONConf = (env, type, path) => {
   const conf = JSON.parse(fs.readFileSync(path, 'utf8'))
+
   if (!_.isObject(conf)) {
     return {}
   }
@@ -51,6 +52,7 @@ const runWorker = (
   })
 
   const pname = [wtype]
+
   pname.push(process.pid)
   process.title = pname.join('-')
 

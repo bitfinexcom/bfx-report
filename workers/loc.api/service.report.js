@@ -72,11 +72,12 @@ class ReportService extends Api {
         args.params.symbol,
         args.params.start,
         args.params.end,
-        getLimitNotMoreThan(args.params.limit)
+        getLimitNotMoreThan(args.params.limit),
+        args.params.sort
       ]
 
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.trades(...params)
+      const result = await rest.accountTrades(...params)
 
       cb(null, result)
     } catch (err) {
@@ -141,13 +142,16 @@ class ReportService extends Api {
       const method = 'getTrades'
       await checkArgsAndAuth(args, this[method].bind(this))
 
-      args.params.limit = 1000
+      args.params.limit = 1500
 
       const columns = {
         id: 'ID',
-        mts: 'Time',
-        amount: 'Amount',
-        price: 'Price'
+        pair: 'Pair',
+        mtsCreate: 'Date',
+        execAmount: 'Amount',
+        execPrice: 'Price',
+        fee: 'Fee',
+        feeCurrency: 'Fee currency'
       }
 
       const processorQueue = this.ctx.bull_processor.queue
@@ -157,10 +161,10 @@ class ReportService extends Api {
         {
           method,
           args,
-          propName: 'mts',
+          propName: 'mtsCreate',
           columns,
           formatSettings: {
-            mts: 'date'
+            mtsCreate: 'date'
           }
         },
         jobOpts
@@ -183,10 +187,11 @@ class ReportService extends Api {
 
       const columns = {
         id: 'ID',
-        mts: 'Time',
         currency: 'Currency',
+        mts: 'Date',
         amount: 'Amount',
-        balance: 'Balance'
+        balance: 'Balance',
+        description: 'Description'
       }
 
       const processorQueue = this.ctx.bull_processor.queue
@@ -223,11 +228,13 @@ class ReportService extends Api {
       const columns = {
         id: 'ID',
         symbol: 'Symbol',
-        type: 'Type',
-        price: 'Price',
-        priceAvg: 'Avg price',
+        mtsCreate: 'Create',
         mtsUpdate: 'Update',
-        status: 'Status'
+        amountOrig: 'Amount',
+        type: 'Type',
+        status: 'Status',
+        price: 'Price',
+        priceAvg: 'Avg price'
       }
 
       const processorQueue = this.ctx.bull_processor.queue
@@ -240,7 +247,8 @@ class ReportService extends Api {
           propName: 'mtsUpdate',
           columns,
           formatSettings: {
-            mtsUpdate: 'date'
+            mtsUpdate: 'date',
+            mtsCreate: 'date'
           }
         },
         jobOpts
@@ -263,11 +271,11 @@ class ReportService extends Api {
 
       const columns = {
         id: 'ID',
+        currency: 'Currency',
         mtsStarted: 'Started',
         mtsUpdated: 'Updated',
-        currency: 'Currency',
-        amount: 'Amount',
         status: 'Status',
+        amount: 'Amount',
         destinationAddress: 'Destination'
       }
 

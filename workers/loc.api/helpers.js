@@ -48,6 +48,7 @@ const checkArgsAndAuth = async (args, cb) => {
   }
 
   args.params.limit = undefined
+  args.params.sort = undefined
 
   return Promise.resolve(resAuth)
 }

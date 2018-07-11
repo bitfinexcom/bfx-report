@@ -37,7 +37,7 @@ cp config/facs/bull.config.json.example config/facs/bull.config.json
 vim config/facs/bull.config.json
 ```
 
-- for tests and the `dev` environment, you need to enter the field `restUrl`
+- for tests and the `dev` environment, you need to change the field `restUrl` to `https://dev-prdn.bitfinex.com:2998`
 
 ```
 vim config/service.report.json

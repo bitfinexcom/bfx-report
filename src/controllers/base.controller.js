@@ -15,12 +15,9 @@ const _redirectMethods = [
   'getMovementsCsv'
 ]
 
-const isEnableRedirectCsvElectron = (
-  config.has('app.redirectCsvElectron') &&
-  config.has('app.redirectCsvElectron.enable') &&
-  config.get('app.redirectCsvElectron.enable') &&
-  config.has('app.redirectCsvElectron.url') &&
-  typeof config.get('app.redirectCsvElectron.url') === 'string'
+const _isEnableRedirectCsvElectron = (
+  config.has('redirectCsvUrl') &&
+  typeof config.get('redirectCsvUrl') === 'string'
 )
 
 const _isAuthError = (err) => {
@@ -64,10 +61,10 @@ const getData = async (req, res) => {
 
   try {
     if (
-      isEnableRedirectCsvElectron &&
+      _isEnableRedirectCsvElectron &&
       _redirectMethods.some(item => req.body.method === item)
     ) {
-      const url = config.get('app.redirectCsvElectron.url') + req.originalUrl
+      const url = config.get('redirectCsvUrl') + req.originalUrl
       const method = req.method.toLowerCase()
       const result = await request[method](url)
         .timeout(30000)

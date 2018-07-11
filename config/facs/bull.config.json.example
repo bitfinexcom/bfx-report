@@ -1,5 +1,4 @@
 {
-  "processor": {},
   "aggregator": {
     "emailOpts": {
       "from": "\"Bitfinex\" <no-reply@bitfinex.com>",
