@@ -4,7 +4,7 @@ const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
 const { stringify } = require('csv')
-const uuidv1 = require('uuid/v4')
+const uuidv4 = require('uuid/v4')
 const moment = require('moment')
 const _ = require('lodash')
 
@@ -45,7 +45,7 @@ const _createUniqueFileName = async (count = 0) => {
     return Promise.reject(new Error('ERR_CREATE_UNIQUE_FILE_NAME'))
   }
 
-  const uFileName = `${uuidv1()}.csv`
+  const uFileName = `${uuidv4()}.csv`
 
   const files = await readdir(tempDirPath)
 

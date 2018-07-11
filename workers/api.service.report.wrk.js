@@ -37,16 +37,11 @@ class WrkReportServiceApi extends WrkApi {
 
   getPluginCtx (type) {
     const ctx = super.getPluginCtx(type)
+    const appType = this.conf.app_type
 
-    if (this.conf.isElectronEnv) {
-      return ctx
-    }
-
-    switch (type) {
-      case 'api_bfx':
-        ctx.bull_processor = this.bull_processor
-        ctx.bull_aggregator = this.bull_aggregator
-        break
+    if (type === 'api_bfx' && appType === 'nodejs') {
+      ctx.bull_processor = this.bull_processor
+      ctx.bull_aggregator = this.bull_aggregator
     }
 
     return ctx
@@ -54,27 +49,26 @@ class WrkReportServiceApi extends WrkApi {
 
   init () {
     super.init()
-
-    if (this.conf.isElectronEnv) {
-      return
-    }
-
-    this.setInitFacs([
-      [
-        'fac',
-        'bfx-facs-bull',
-        'processor',
-        'processor',
-        () => this.getBullConf('processor')
-      ],
-      [
-        'fac',
-        'bfx-facs-bull',
-        'aggregator',
-        'aggregator',
-        () => this.getBullConf('aggregator')
+    const appType = this.conf.app_type
+    if (appType === 'nodejs') {
+      const facs = [
+        [
+          'fac',
+          'bfx-facs-bull',
+          'processor',
+          'processor',
+          () => this.getBullConf('processor')
+        ],
+        [
+          'fac',
+          'bfx-facs-bull',
+          'aggregator',
+          'aggregator',
+          () => this.getBullConf('aggregator')
+        ]
       ]
-    ])
+      this.setInitFacs(facs)
+    }
   }
 
   getBullConf (name) {
@@ -96,41 +90,35 @@ class WrkReportServiceApi extends WrkApi {
   }
 
   _start (cb) {
-    this._checkBullAggregatorConf()
-
+    const appType = this.conf.app_type
     async.series([ next => { super._start(next) },
       next => {
-        if (this.conf.isElectronEnv) {
-          next()
+        if (appType === 'nodejs') {
+          const reportService = this.grc_bfx.api
+          const processorQueue = this.bull_processor.queue
+          const aggregatorQueue = this.bull_aggregator.queue
 
-          return
+          bullProcessor.setReportService(reportService)
+          bullAggregator.setReportService(reportService)
+
+          processorQueue.process('*', 1, bullProcessor)
+          aggregatorQueue.process('*', 1, bullAggregator)
+
+          processorQueue.on('completed', (job, result) => {
+            aggregatorQueue.add(
+              job.name,
+              result,
+              {
+                attempts: 10,
+                backoff: {
+                  type: 'fixed',
+                  delay: 60000
+                },
+                timeout: 1800000
+              }
+            )
+          })
         }
-
-        const reportService = this.grc_bfx.api
-        const processorQueue = this.bull_processor.queue
-        const aggregatorQueue = this.bull_aggregator.queue
-
-        bullProcessor.setReportService(reportService)
-        bullAggregator.setReportService(reportService)
-
-        processorQueue.process('*', 1, bullProcessor)
-        aggregatorQueue.process('*', 1, bullAggregator)
-
-        processorQueue.on('completed', (job, result) => {
-          aggregatorQueue.add(
-            job.name,
-            result,
-            {
-              attempts: 10,
-              backoff: {
-                type: 'fixed',
-                delay: 60000
-              },
-              timeout: 1800000
-            }
-          )
-        })
-
         next()
       }
     ], cb)

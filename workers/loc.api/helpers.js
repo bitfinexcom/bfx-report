@@ -35,20 +35,17 @@ const checkArgsAndAuth = async (args, cb) => {
   ) {
     throw new Error('ERR_ARGS_NO_PARAMS')
   }
-
-  args.params.limit = 1
-  args.params.start = undefined
-  args.params.end = (new Date()).getTime()
+  const testAuthArgs = {...args}
+  testAuthArgs.params.limit = 1
+  testAuthArgs.params.start = undefined
+  testAuthArgs.params.end = (new Date()).getTime()
 
   const checkAuth = promisify(cb)
-  const resAuth = await checkAuth(null, args)
+  const resAuth = await checkAuth(null, testAuthArgs)
 
   if (!resAuth) {
     throw new Error('ERR_AUTH_UNAUTHORIZED')
   }
-
-  args.params.limit = undefined
-  args.params.sort = undefined
 
   return Promise.resolve(resAuth)
 }
@@ -58,7 +55,7 @@ const isAllowMethod = (ctx) => {
     ctx.grc_bfx &&
     ctx.grc_bfx.caller &&
     ctx.grc_bfx.caller.conf &&
-    ctx.grc_bfx.caller.conf.isElectronEnv
+    ctx.grc_bfx.caller.conf.app_type === 'electron'
   ) {
     throw new Error('ERR_API_ACTION_NOTFOUND')
   }

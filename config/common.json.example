@@ -1,5 +1,5 @@
 {
   "dir_log": "logs",
   "debug": 0,
-  "isElectronEnv": false
+  "app_type": "nodejs"
 }
