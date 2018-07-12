@@ -1,7 +1,6 @@
 'use strict'
 
 const { WrkApi } = require('bfx-wrk-api')
-const async = require('async')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -19,22 +18,8 @@ class WrkReportServiceApi extends WrkApi {
     }
   }
 
-  getPluginCtx (type) {
-    const ctx = super.getPluginCtx(type)
-
-    return ctx
-  }
-
   init () {
     super.init()
-  }
-
-  _start (cb) {
-    async.series([ next => { super._start(next) },
-      next => {
-        next()
-      }
-    ], cb)
   }
 }
 
