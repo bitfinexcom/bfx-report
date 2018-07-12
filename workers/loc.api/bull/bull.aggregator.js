@@ -1,6 +1,5 @@
 'use strict'
 
-const mime = require('mime-types')
 const pug = require('pug')
 const path = require('path')
 const fs = require('fs')
@@ -60,14 +59,12 @@ const _getFileName = queueName => {
 const _uploadS3 = async (path, fileName) => {
   const grcBfx = reportService.ctx.grc_bfx
   const configs = reportService.ctx.bull_aggregator.conf.s3
-  const mimeType = mime.lookup(path)
-  const ext = mime.extension(mimeType)
   const buffer = await readFile(path)
 
   const opts = {
     ...configs,
-    contentType: mimeType,
-    contentDisposition: `${configs.contentDisposition || 'attachment'}; filename="${fileName}.${ext}"`
+    contentType: 'text/csv',
+    contentDisposition: `${configs.contentDisposition || 'attachment'}; filename="${fileName}.csv"`
   }
   const parsedData = [
     buffer,
