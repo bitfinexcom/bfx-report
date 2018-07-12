@@ -7,7 +7,7 @@
     "s3": {
       "bucket": "",
       "acl": "",
-      "signedUrlExpireTime": 1,
+      "signedUrlExpireTime": 28800,
       "contentDisposition": "attachment"
     }
   }
