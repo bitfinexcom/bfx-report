@@ -14,37 +14,26 @@ npm install
 
 ### Configure service
 
-- As to configure the service copy the example files from config folder into new ones:
+- As to configure the service copy the json.example files from config folder into new ones. Open a console on projects folder a copy the following codes :
 
 ```console
 cp config/default.json.example config/default.json
 cp config/common.json.example config/common.json
 cp config/service.report.json.example config/service.report.json
 cp config/facs/grc.config.json.example config/facs/grc.config.json
-cp config/facs/bull.config.json.example config/facs/bull.config.json
 ```
 
-- If this is intended to run inside a electronjs enviroment, edit common.json
+- To set grenache client for express, edit common.json. If running locally, leave actual values skipping this step.
 
 ```console
 vim config/common.json
-## set "app_type": "electron"
+## set grenacheClient value
 ```
 
-- If this is intended to run as a nodejs project, you should configure redis, s3 buckets and grenache network to connect.
-
+- To change the bitfinex api to connect to, edit `resUrl` in common.json. If you want to conect to main bitfinex api, skip this step, as this value is set by default.
 ```console
-## Configure grenache network  to connect
-vim config/default.json
-## Set grenacheClient.grape
-
-## Configure redis
-vim config/facs/bull.config.json
-## Set bull.port && bull.host values
-
-## Configure s3 (can be left blank, and would get networks values)
-vim config/facs/bull.config.json
-## Set s3.bucket && s3.acl
+vim config/service.report.json
+## set restUrl value
 ```
 
 ## Other Requirements
@@ -64,14 +53,6 @@ grape --dp 20001 --aph 30001 --bn '127.0.0.1:20002'
 grape --dp 20002 --aph 40001 --bn '127.0.0.1:20001'
 ```
 
-### Run the `bfx-ext-s3-js` Grenache service
-
-- follow the instructions in `readme` <https://github.com/bitfinexcom/bfx-ext-s3-js> to configure and start the service
-
-### Run the `bfx-ext-sendgrid-js` Grenache service
-
-- follow the instructions in `readme` <https://github.com/bitfinexcom/bfx-ext-sendgrid-js> to configure and start the service
-
 ## Run
 
 - For production environment run in two different consoles :
@@ -79,7 +60,7 @@ grape --dp 20002 --aph 40001 --bn '127.0.0.1:20001'
 ```console
 ## Console 1: runs worker
 npm run startWorker
-## Console 2: runs server
+## Console 2: runs express server
 npm run start
 ```
 
@@ -88,8 +69,8 @@ npm run start
 ```console
 ## Console 1: runs worker
 npm run startWorkerDev
-## Console 2: runs server
-npm run start
+## Console 2: runs express server
+npm run startDev
 ```
 
 
