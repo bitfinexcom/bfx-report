@@ -12,5 +12,6 @@
     "grape": "http://127.0.0.1:30001"
   },
   "enableLogDebug": false,
-  "enableLog": false
+  "enableLog": false,
+  "app_type": "nodejs"
 }
