@@ -1,5 +1,4 @@
 {
   "dir_log": "logs",
-  "debug": 0,
-  "app_type": "nodejs"
+  "debug": 0
 }
