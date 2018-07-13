@@ -2,7 +2,6 @@
 
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
-const uuidv4 = require('uuid/v4')
 
 const bullProcessor = require('./loc.api/bull/bull.processor')
 const bullAggregator = require('./loc.api/bull/bull.aggregator')
@@ -66,17 +65,20 @@ class WrkReportServiceApi extends WrkApi {
     const conf = this.conf[group]
 
     if (
-      conf &&
-      typeof conf.bull === 'object'
+      !conf ||
+      typeof conf.bull !== 'object' ||
+      !conf.bull.id ||
+      !conf.bull.port ||
+      !conf.bull.host
     ) {
-      return {
-        port: conf.bull.port,
-        host: conf.bull.host,
-        queue: `${name}-${uuidv4()}`
-      }
+      throw new Error('ERR_CONFIG_ARGS_NO_BULL_OPTS')
     }
 
-    return null
+    return {
+      port: conf.bull.port,
+      host: conf.bull.host,
+      queue: `${name}-${conf.bull.id}`
+    }
   }
 
   _start (cb) {
