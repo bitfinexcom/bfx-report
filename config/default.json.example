@@ -1,0 +1,16 @@
+{
+  "app": {
+    "port": 31339,
+    "host": "127.0.0.1"
+  },
+  "auth": {
+    "apiKey": "",
+    "apiSecret": ""
+  },
+  "grenacheClient": {
+    "query": "rest:report:api",
+    "grape": "http://127.0.0.1:30001"
+  },
+  "enableLogDebug": false,
+  "enableLog": false
+}

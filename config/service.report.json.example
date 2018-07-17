@@ -1,5 +1,6 @@
 {
   "grcServices": [
     "rest:report:api"
-  ]
+  ],
+  "restUrl": "https://api.bitfinex.com"
 }

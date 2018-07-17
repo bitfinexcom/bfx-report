@@ -3,16 +3,10 @@
 node_modules/
 .DS_Store
 npm-debug.log
-public/jspm_packages/
-public/node_modules/
-public/bower/
 config/*.json
-!config/default.json
-!config/production.json
-!config/development.json
-!config/test.json
 !config/*.json.example
 !config/facs/*.json.example
 config/facs/*.json
 logs/*
 !logs/.gitkeep
+workers/loc.api/bull/temp/

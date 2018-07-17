@@ -6,7 +6,7 @@ const chai = require('chai')
 const request = require('supertest')
 const config = require('config')
 
-const { bootTwoGrapes, killGrapes } = require('../workers/grenache.helper')
+const { bootTwoGrapes, killGrapes } = require('./grenache.helper')
 const { app } = require('../app')
 const agent = request.agent(app)
 const assert = chai.assert
@@ -14,6 +14,8 @@ const assert = chai.assert
 let ipc = null
 let grapes = null
 let auth = null
+
+const basePath = '/api'
 
 const _checkConf = () => {
   if (
@@ -66,7 +68,7 @@ describe('API', () => {
   it('it should be successfully auth', function (done) {
     this.timeout(5000)
     agent
-      .post('/check-auth')
+      .post(`${basePath}/check-auth`)
       .type('json')
       .send({
         auth,
@@ -88,7 +90,7 @@ describe('API', () => {
   it('it should not be successfully auth', function (done) {
     this.timeout(5000)
     agent
-      .post('/check-auth')
+      .post(`${basePath}/check-auth`)
       .type('json')
       .send({
         auth: {
@@ -114,7 +116,7 @@ describe('API', () => {
   it('it should not be successfully auth, with an empty string', function (done) {
     this.timeout(5000)
     agent
-      .post('/check-auth')
+      .post(`${basePath}/check-auth`)
       .type('json')
       .send({
         auth: {
@@ -140,7 +142,7 @@ describe('API', () => {
   it('it should be successfully performed by the getLedgers method', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -183,7 +185,7 @@ describe('API', () => {
   it('it should be successfully performed by the getLedgers method, without params', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -220,7 +222,7 @@ describe('API', () => {
   it('it should be successfully performed by the getTrades method', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -248,9 +250,16 @@ describe('API', () => {
           assert.isObject(resItem)
           assert.containsAllKeys(resItem, [
             'id',
-            'mts',
-            'amount',
-            'price'
+            'pair',
+            'mtsCreate',
+            'orderID',
+            'execAmount',
+            'execPrice',
+            'orderType',
+            'orderPrice',
+            'maker',
+            'fee',
+            'feeCurrency'
           ])
         }
 
@@ -261,7 +270,7 @@ describe('API', () => {
   it('it should be successfully performed by the getOrders method', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -316,7 +325,7 @@ describe('API', () => {
   it('it should be successfully performed by the getMovements method', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -363,7 +372,7 @@ describe('API', () => {
   it('it should be successfully performed by the getMovements method, without params', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -404,7 +413,7 @@ describe('API', () => {
   it('it should not be successfully auth by the getMovements method', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth: {
@@ -438,7 +447,7 @@ describe('API', () => {
   it('it should not be successfully performed by the getMovements method', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
@@ -464,7 +473,7 @@ describe('API', () => {
   it('it should not be successfully performed by a fake method', function (done) {
     this.timeout(5000)
     agent
-      .post('/get-data')
+      .post(`${basePath}/get-data`)
       .type('json')
       .send({
         auth,
