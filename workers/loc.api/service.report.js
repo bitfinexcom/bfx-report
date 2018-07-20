@@ -58,7 +58,6 @@ class ReportService extends Api {
 
       cb(null, result)
     } catch (err) {
-      console.log('getOrders error: ', err.toString())
       cb(err)
     }
   }
