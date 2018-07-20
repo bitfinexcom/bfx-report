@@ -3,7 +3,7 @@
 const { Api } = require('bfx-wrk-api')
 const {
   getREST,
-  getLimitNotMoreThan,
+  getParams,
   checkArgsAndAuth,
   isAllowMethod
 } = require('./helpers')
@@ -36,23 +36,8 @@ class ReportService extends Api {
 
   async getLedgers (space, args, cb) {
     try {
-      const params = []
-
-      if (args.params) {
-        if (typeof args.params !== 'object') {
-          throw new Error('ERR_ARGS_NO_PARAMS')
-        }
-
-        params.push(
-          ...[
-            args.params.symbol,
-            args.params.start,
-            args.params.end,
-            getLimitNotMoreThan(args.params.limit)
-          ]
-        )
-      }
-
+      const maxLimit = 5000
+      const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.ledgers(...params)
 
@@ -64,18 +49,8 @@ class ReportService extends Api {
 
   async getTrades (space, args, cb) {
     try {
-      if (!args.params || typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
-      }
-
-      const params = [
-        args.params.symbol,
-        args.params.start,
-        args.params.end,
-        getLimitNotMoreThan(args.params.limit),
-        args.params.sort
-      ]
-
+      const maxLimit = 1500
+      const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.accountTrades(...params)
 
@@ -87,17 +62,8 @@ class ReportService extends Api {
 
   async getOrders (space, args, cb) {
     try {
-      if (!args.params || typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
-      }
-
-      const params = [
-        args.params.symbol,
-        args.params.start,
-        args.params.end,
-        getLimitNotMoreThan(args.params.limit)
-      ]
-
+      const maxLimit = 5000
+      const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.orderHistory(...params)
 
@@ -109,26 +75,10 @@ class ReportService extends Api {
 
   async getMovements (space, args, cb) {
     try {
-      const params = []
-
-      if (args.params) {
-        if (typeof args.params !== 'object') {
-          throw new Error('ERR_ARGS_NO_PARAMS')
-        }
-
-        params.push(
-          ...[
-            args.params.symbol,
-            args.params.start,
-            args.params.end,
-            getLimitNotMoreThan(args.params.limit)
-          ]
-        )
-      }
-
+      const maxLimit = 25
+      const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.movements(...params)
-
       cb(null, result)
     } catch (err) {
       cb(err)
