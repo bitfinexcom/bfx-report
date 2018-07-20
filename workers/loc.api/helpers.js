@@ -1,5 +1,7 @@
 'use strict'
 
+const { promisify } = require('util')
+const _ = require('lodash')
 const bfxFactory = require('./bfx.factory')
 
 const getREST = (auth, wrkReportServiceApi) => {
@@ -38,8 +40,49 @@ const getParams = (args, maxLimit) => {
   return params
 }
 
+const checkArgsAndAuth = async (args, cb) => {
+  if (
+    !args.params ||
+    typeof args.params !== 'object' ||
+    typeof args.params.symbol !== 'string' ||
+    typeof args.params.start !== 'number' ||
+    typeof args.params.end !== 'number'
+  ) {
+    throw new Error('ERR_ARGS_NO_PARAMS')
+  }
+  const testAuthArgs = _.cloneDeep(args)
+
+  testAuthArgs.params.limit = 1
+  testAuthArgs.params.start = undefined
+  testAuthArgs.params.end = (new Date()).getTime()
+
+  const checkAuth = promisify(cb)
+  const resAuth = await checkAuth(null, testAuthArgs)
+
+  if (!resAuth) {
+    throw new Error('ERR_AUTH_UNAUTHORIZED')
+  }
+
+  return Promise.resolve(resAuth)
+}
+
+const isAllowMethod = (ctx) => {
+  if (
+    ctx.grc_bfx &&
+    ctx.grc_bfx.caller &&
+    ctx.grc_bfx.caller.conf &&
+    ctx.grc_bfx.caller.conf.app_type === 'electron'
+  ) {
+    throw new Error('ERR_API_ACTION_NOTFOUND')
+  }
+
+  return true
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
   getParams
+  checkArgsAndAuth,
+  isAllowMethod
 }
