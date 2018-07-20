@@ -3,8 +3,7 @@
 const { Api } = require('bfx-wrk-api')
 const {
   getREST,
-  getParams
-  getLimitNotMoreThan,
+  getParams,
   checkArgsAndAuth,
   isAllowMethod
 } = require('./helpers')

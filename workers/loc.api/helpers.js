@@ -82,7 +82,7 @@ const isAllowMethod = (ctx) => {
 module.exports = {
   getREST,
   getLimitNotMoreThan,
-  getParams
+  getParams,
   checkArgsAndAuth,
   isAllowMethod
 }
