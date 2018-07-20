@@ -32,7 +32,6 @@ class ReportService extends Api {
 
       cb(null, result)
     } catch (err) {
-      console.log('getLedgers error: ', err.toString())
       cb(err)
     }
   }
@@ -46,7 +45,6 @@ class ReportService extends Api {
 
       cb(null, result)
     } catch (err) {
-      console.log('getMovements error: ', err.toString())
       cb(err)
     }
   }
@@ -68,15 +66,11 @@ class ReportService extends Api {
   async getMovements (space, args, cb) {
     try {
       const maxLimit = 25
-      console.log('args', args)
       const params = getParams(args, maxLimit)
-      console.log('params', params) // simbol start end limit
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.movements(...params)
-      console.log('result', result)
       cb(null, result)
     } catch (err) {
-      console.log('getMovements error: ', err.toString())
       cb(err)
     }
   }
