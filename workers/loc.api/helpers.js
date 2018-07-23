@@ -17,15 +17,27 @@ const getREST = (auth, wrkReportServiceApi) => {
   return bfx.rest(2, { transform: true })
 }
 
-const getLimitNotMoreThan = (limit, maxLimit = 10000) => {
-  if (
-    Number.isFinite(limit) &&
-    limit < maxLimit
-  ) {
-    return limit
-  }
+const getLimitNotMoreThan = (limit, maxLimit = 25) => {
+  const num = limit || maxLimit
+  return Math.min(num, maxLimit)
+}
 
-  return null
+const getParams = (args, maxLimit) => {
+  const params = []
+  if (args.params) {
+    if (typeof args.params !== 'object') {
+      throw new Error('ERR_ARGS_NO_PARAMS')
+    }
+    params.push(
+      ...[
+        args.params.symbol,
+        args.params.start,
+        args.params.end,
+        getLimitNotMoreThan(args.params.limit, maxLimit)
+      ]
+    )
+  }
+  return params
 }
 
 const checkArgsAndAuth = async (args, cb) => {
@@ -70,6 +82,7 @@ const isAllowMethod = (ctx) => {
 module.exports = {
   getREST,
   getLimitNotMoreThan,
+  getParams,
   checkArgsAndAuth,
   isAllowMethod
 }
