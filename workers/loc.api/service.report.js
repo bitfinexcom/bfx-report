@@ -4,7 +4,6 @@ const { Api } = require('bfx-wrk-api')
 const {
   getREST,
   getParams,
-  checkArgsAndAuth,
   isAllowMethod
 } = require('./helpers')
 
@@ -82,8 +81,6 @@ class ReportService extends Api {
 
       const method = 'getTrades'
 
-      await checkArgsAndAuth(args, this[method].bind(this))
-
       const processorQueue = this.ctx.bull_processor.queue
       const jobData = {}
 
@@ -100,8 +97,6 @@ class ReportService extends Api {
       isAllowMethod(this.ctx)
 
       const method = 'getLedgers'
-
-      await checkArgsAndAuth(args, this[method].bind(this))
 
       const processorQueue = this.ctx.bull_processor.queue
       const jobData = {}
@@ -120,8 +115,6 @@ class ReportService extends Api {
 
       const method = 'getOrders'
 
-      await checkArgsAndAuth(args, this[method].bind(this))
-
       const processorQueue = this.ctx.bull_processor.queue
       const jobData = {}
 
@@ -138,8 +131,6 @@ class ReportService extends Api {
       isAllowMethod(this.ctx)
 
       const method = 'getMovements'
-
-      await checkArgsAndAuth(args, this[method].bind(this))
 
       const processorQueue = this.ctx.bull_processor.queue
       const jobData = {}

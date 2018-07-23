@@ -2,7 +2,6 @@
 
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
-const uuidv4 = require('uuid/v4')
 
 const bullProcessor = require('./loc.api/bull/bull.processor')
 const bullAggregator = require('./loc.api/bull/bull.aggregator')
@@ -65,18 +64,9 @@ class WrkReportServiceApi extends WrkApi {
     const group = this.group
     const conf = this.conf[group]
 
-    if (
-      conf &&
-      typeof conf.redisConnection === 'object'
-    ) {
-      return {
-        port: conf.redisConnection.port,
-        host: conf.redisConnection.host,
-        queue: name
-      }
-    }
-
-    return null
+    return (conf && conf.redisConnection)
+      ? { ...conf.redisConnection, queue: name }
+      : null
   }
 
   _start (cb) {
