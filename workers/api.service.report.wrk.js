@@ -72,7 +72,7 @@ class WrkReportServiceApi extends WrkApi {
       return {
         port: conf.redisConnection.port,
         host: conf.redisConnection.host,
-        queue: `${name}-${uuidv4()}`
+        queue: name
       }
     }
 
