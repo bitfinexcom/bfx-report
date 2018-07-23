@@ -67,11 +67,11 @@ class WrkReportServiceApi extends WrkApi {
 
     if (
       conf &&
-      typeof conf.bull === 'object'
+      typeof conf.redisConnection === 'object'
     ) {
       return {
-        port: conf.bull.port,
-        host: conf.bull.host,
+        port: conf.redisConnection.port,
+        host: conf.redisConnection.host,
         queue: `${name}-${uuidv4()}`
       }
     }
@@ -91,22 +91,11 @@ class WrkReportServiceApi extends WrkApi {
           const processorQueue = this.bull_processor.queue
           const aggregatorQueue = this.bull_aggregator.queue
 
-          processorQueue.process('*', 1, bullProcessor)
-          aggregatorQueue.process('*', 1, bullAggregator)
+          processorQueue.process('*', bullProcessor)
+          aggregatorQueue.process('*', bullAggregator)
 
           processorQueue.on('completed', (job, result) => {
-            aggregatorQueue.add(
-              job.name,
-              result,
-              {
-                attempts: 10,
-                backoff: {
-                  type: 'fixed',
-                  delay: 60000
-                },
-                timeout: 1800000
-              }
-            )
+            aggregatorQueue.add(job.name, result)
           })
         }
 
