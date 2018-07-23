@@ -2,7 +2,6 @@
 
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
-const uuidv4 = require('uuid/v4')
 
 const bullProcessor = require('./loc.api/bull/bull.processor')
 const bullAggregator = require('./loc.api/bull/bull.aggregator')
@@ -65,18 +64,9 @@ class WrkReportServiceApi extends WrkApi {
     const group = this.group
     const conf = this.conf[group]
 
-    if (
-      conf &&
-      typeof conf.bull === 'object'
-    ) {
-      return {
-        port: conf.bull.port,
-        host: conf.bull.host,
-        queue: `${name}-${uuidv4()}`
-      }
-    }
-
-    return null
+    return (conf && conf.redisConnection)
+      ? { ...conf.redisConnection, queue: name }
+      : null
   }
 
   _start (cb) {
@@ -91,22 +81,11 @@ class WrkReportServiceApi extends WrkApi {
           const processorQueue = this.bull_processor.queue
           const aggregatorQueue = this.bull_aggregator.queue
 
-          processorQueue.process('*', 1, bullProcessor)
-          aggregatorQueue.process('*', 1, bullAggregator)
+          processorQueue.process('*', bullProcessor)
+          aggregatorQueue.process('*', bullAggregator)
 
           processorQueue.on('completed', (job, result) => {
-            aggregatorQueue.add(
-              job.name,
-              result,
-              {
-                attempts: 10,
-                backoff: {
-                  type: 'fixed',
-                  delay: 60000
-                },
-                timeout: 1800000
-              }
-            )
+            aggregatorQueue.add(job.name, result)
           })
         }
 

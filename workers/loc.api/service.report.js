@@ -4,18 +4,8 @@ const { Api } = require('bfx-wrk-api')
 const {
   getREST,
   getParams,
-  checkArgsAndAuth,
   isAllowMethod
 } = require('./helpers')
-
-const jobOpts = {
-  attempts: 10,
-  backoff: {
-    type: 'fixed',
-    delay: 60000
-  },
-  timeout: 1200000
-}
 
 class ReportService extends Api {
   space (service, msg) {
@@ -91,12 +81,10 @@ class ReportService extends Api {
 
       const method = 'getTrades'
 
-      await checkArgsAndAuth(args, this[method].bind(this))
-
       const processorQueue = this.ctx.bull_processor.queue
       const jobData = {}
 
-      await processorQueue.add(method, jobData, jobOpts)
+      await processorQueue.add(method, jobData)
 
       cb(null, true)
     } catch (err) {
@@ -110,12 +98,10 @@ class ReportService extends Api {
 
       const method = 'getLedgers'
 
-      await checkArgsAndAuth(args, this[method].bind(this))
-
       const processorQueue = this.ctx.bull_processor.queue
       const jobData = {}
 
-      await processorQueue.add(method, jobData, jobOpts)
+      await processorQueue.add(method, jobData)
 
       cb(null, true)
     } catch (err) {
@@ -129,12 +115,10 @@ class ReportService extends Api {
 
       const method = 'getOrders'
 
-      await checkArgsAndAuth(args, this[method].bind(this))
-
       const processorQueue = this.ctx.bull_processor.queue
       const jobData = {}
 
-      await processorQueue.add(method, jobData, jobOpts)
+      await processorQueue.add(method, jobData)
 
       cb(null, true)
     } catch (err) {
@@ -148,12 +132,10 @@ class ReportService extends Api {
 
       const method = 'getMovements'
 
-      await checkArgsAndAuth(args, this[method].bind(this))
-
       const processorQueue = this.ctx.bull_processor.queue
       const jobData = {}
 
-      await processorQueue.add(method, jobData, jobOpts)
+      await processorQueue.add(method, jobData)
 
       cb(null, true)
     } catch (err) {
