@@ -82,7 +82,19 @@ class ReportService extends Api {
       const method = 'getTrades'
 
       const processorQueue = this.ctx.bull_processor.queue
-      const jobData = {}
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsCreate',
+        columnsCsv: {
+          id: 'ID',
+          pair: 'Pair',
+          mtsCreate: 'Date',
+          execAmount: 'Amount',
+          execPrice: 'Price',
+          fee: 'Fee',
+          feeCurrency: 'Fee currency'
+        }
+      }
 
       await processorQueue.add(method, jobData)
 
@@ -99,7 +111,18 @@ class ReportService extends Api {
       const method = 'getLedgers'
 
       const processorQueue = this.ctx.bull_processor.queue
-      const jobData = {}
+      const jobData = {
+        args,
+        propNameForPagination: 'mts',
+        columnsCsv: {
+          id: 'ID',
+          currency: 'Currency',
+          mts: 'Date',
+          amount: 'Amount',
+          balance: 'Balance',
+          description: 'Description'
+        }
+      }
 
       await processorQueue.add(method, jobData)
 
@@ -116,7 +139,21 @@ class ReportService extends Api {
       const method = 'getOrders'
 
       const processorQueue = this.ctx.bull_processor.queue
-      const jobData = {}
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          id: 'ID',
+          symbol: 'Symbol',
+          mtsCreate: 'Create',
+          mtsUpdate: 'Update',
+          amountOrig: 'Amount',
+          type: 'Type',
+          status: 'Status',
+          price: 'Price',
+          priceAvg: 'Avg price'
+        }
+      }
 
       await processorQueue.add(method, jobData)
 
@@ -133,7 +170,19 @@ class ReportService extends Api {
       const method = 'getMovements'
 
       const processorQueue = this.ctx.bull_processor.queue
-      const jobData = {}
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsUpdated',
+        columnsCsv: {
+          id: 'ID',
+          currency: 'Currency',
+          mtsStarted: 'Started',
+          mtsUpdated: 'Updated',
+          status: 'Status',
+          amount: 'Amount',
+          destinationAddress: 'Destination'
+        }
+      }
 
       await processorQueue.add(method, jobData)
 

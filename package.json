@@ -21,6 +21,7 @@
     "express": "^4.16.3",
     "grenache-nodejs-http": "^0.7.6",
     "grenache-nodejs-link": "^0.7.9",
+    "lodash": "^4.17.10",
     "method-override": "^2.3.10",
     "morgan": "^1.9.0",
     "superagent": "^3.8.3",
