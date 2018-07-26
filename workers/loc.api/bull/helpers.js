@@ -68,7 +68,16 @@ const _delay = (mc = 80000) => {
 }
 
 const _formaters = {
-  date: val => moment(val).format('DD/MM/YYYY, h:mm:ss A')
+  date: val => moment(val).format('DD/MM/YYYY, h:mm:ss A'),
+  symbol: val => {
+    const symbolsMap = [
+      { tBTCUSD: 'BTC/USD' }
+    ]
+
+    let res = symbolsMap.find(item => item[val] !== 'undefined')
+    res = typeof res === 'object' ? res[val] : val
+    return res
+  }
 }
 
 const _dataFormatter = (obj, formatSettings) => {

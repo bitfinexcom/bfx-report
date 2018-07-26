@@ -86,16 +86,16 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
-          id: 'ID',
-          pair: 'Pair',
-          mtsCreate: 'Date',
-          execAmount: 'Amount',
-          execPrice: 'Price',
-          fee: 'Fee',
-          feeCurrency: 'Fee currency'
+          id: '#',
+          pair: 'PAIR',
+          execAmount: 'AMOUNT',
+          execPrice: 'PRICE',
+          fee: 'FEE',
+          mtsCreate: 'DATE'
         },
         formatSettings: {
-          mtsCreate: 'date'
+          mtsCreate: 'date',
+          pair: 'symbol'
         }
       }
 
@@ -118,12 +118,11 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mts',
         columnsCsv: {
-          id: 'ID',
-          currency: 'Currency',
-          mts: 'Date',
-          amount: 'Amount',
-          balance: 'Balance',
-          description: 'Description'
+          description: 'DESCRIPTION',
+          currency: 'CURRENCY',
+          amount: 'AMOUNT',
+          balance: 'BALANCE',
+          mts: 'DATE'
         },
         formatSettings: {
           mts: 'date'
@@ -149,19 +148,19 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
-          id: 'ID',
-          symbol: 'Symbol',
-          mtsCreate: 'Create',
-          mtsUpdate: 'Update',
-          amountOrig: 'Amount',
-          type: 'Type',
-          status: 'Status',
-          price: 'Price',
-          priceAvg: 'Avg price'
+          id: '#',
+          symbol: 'PAIR',
+          type: 'TYPE',
+          amount: 'AMOUNT',
+          amountOrig: 'ORIGINAL AMOUNT',
+          price: 'PRICE',
+          priceAvg: 'AVG PRICE',
+          mtsUpdate: 'UPDATE',
+          status: 'STATUS'
         },
         formatSettings: {
-          mtsCreate: 'date',
-          mtsUpdate: 'date'
+          mtsUpdate: 'date',
+          symbol: 'symbol'
         }
       }
 
@@ -184,16 +183,13 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdated',
         columnsCsv: {
-          id: 'ID',
-          currency: 'Currency',
-          mtsStarted: 'Started',
-          mtsUpdated: 'Updated',
-          status: 'Status',
-          amount: 'Amount',
-          destinationAddress: 'Destination'
+          id: '#',
+          mtsUpdated: 'DATE',
+          status: 'STATUS',
+          amount: 'AMOUNT',
+          destinationAddress: 'DESCRIPTION'
         },
         formatSettings: {
-          mtsStarted: 'date',
           mtsUpdated: 'date'
         }
       }
