@@ -5,6 +5,7 @@ const path = require('path')
 const fs = require('fs')
 const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
+const moment = require('moment')
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
@@ -66,15 +67,43 @@ const _delay = (mc = 80000) => {
   })
 }
 
-const _write = (res, stream) => {
+const _formaters = {
+  date: val => moment(val).format('DD/MM/YYYY, h:mm:ss A')
+}
+
+const _dataFormatter = (obj, formatSettings) => {
+  if (
+    typeof obj !== 'object' ||
+    typeof formatSettings !== 'object'
+  ) {
+    return obj
+  }
+
+  const res = _.cloneDeep(obj)
+
+  Object.entries(formatSettings).forEach(([key, val]) => {
+    try {
+      if (
+        typeof obj[key] !== 'undefined' &&
+        typeof _formaters[val] === 'function'
+      ) {
+        res[key] = _formaters[val](obj[key])
+      }
+    } catch (err) {}
+  })
+
+  return res
+}
+
+const _write = (res, stream, formatSettings) => {
   res.forEach((item) => {
-    stream.write(item)
+    stream.write(_dataFormatter(item, formatSettings))
   })
 }
 
 const _progress = (job, currTime, { start, end }) => {
-  // TODO:
-  const percent = 100
+  let percent = ((currTime - start) / (end - start)) * 100
+  percent = Math.round(percent * 10) / 10
 
   return job.progress(percent)
 }
@@ -115,10 +144,15 @@ const writeDataToStream = async (reportService, stream, job) => {
       throw err
     }
 
-    if (!res || !Array.isArray(res) || res.length === 0) break
+    if (!res || !Array.isArray(res) || res.length === 0) {
+      if (count > 0) await job.progress(100)
+
+      break
+    }
 
     const lastItem = res[res.length - 1]
     const propName = job.data.propNameForPagination
+    const formatSettings = job.data.formatSettings
 
     if (
       typeof lastItem !== 'object' ||
@@ -127,25 +161,27 @@ const writeDataToStream = async (reportService, stream, job) => {
     ) break
 
     const currTime = lastItem[propName]
+    let isAllData = false
 
     if (_args.params.start >= currTime) {
       res = res.filter((item) => _args.params.start <= item[propName])
-      _write(res, stream)
-      await _progress(job, currTime, _args.params)
-
-      break
+      isAllData = true
     }
 
     if (_args.params.limit < (count + res.length)) {
       const deleteElems = res.length - (count + res.length - _args.params.limit)
       res.splice(deleteElems)
-      _write(res, stream)
-      await _progress(job, currTime, _args.params)
+      isAllData = true
+    }
+
+    _write(res, stream, formatSettings)
+
+    if (isAllData) {
+      await job.progress(100)
 
       break
     }
 
-    _write(res, stream)
     await _progress(job, currTime, _args.params)
 
     count += res.length

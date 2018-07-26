@@ -93,6 +93,9 @@ class ReportService extends Api {
           execPrice: 'Price',
           fee: 'Fee',
           feeCurrency: 'Fee currency'
+        },
+        formatSettings: {
+          mtsCreate: 'date'
         }
       }
 
@@ -121,6 +124,9 @@ class ReportService extends Api {
           amount: 'Amount',
           balance: 'Balance',
           description: 'Description'
+        },
+        formatSettings: {
+          mts: 'date'
         }
       }
 
@@ -152,6 +158,10 @@ class ReportService extends Api {
           status: 'Status',
           price: 'Price',
           priceAvg: 'Avg price'
+        },
+        formatSettings: {
+          mtsCreate: 'date',
+          mtsUpdate: 'date'
         }
       }
 
@@ -181,6 +191,10 @@ class ReportService extends Api {
           status: 'Status',
           amount: 'Amount',
           destinationAddress: 'Destination'
+        },
+        formatSettings: {
+          mtsStarted: 'date',
+          mtsUpdated: 'date'
         }
       }
 
