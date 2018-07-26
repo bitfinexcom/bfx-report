@@ -42,8 +42,11 @@ module.exports = async job => {
       filePath
     })
   } catch (err) {
-    if (isAuthError(err)) {
+    try {
       await unlink(filePath)
+    } catch (err) {}
+
+    if (isAuthError(err)) {
       await job.discard()
     }
 
