@@ -178,14 +178,16 @@ const writeDataToStream = async (reportService, stream, job) => {
     }
 
     if (_args.params.limit < (count + res.length)) {
-      const deleteElems = res.length - (count + res.length - _args.params.limit)
-      res.splice(deleteElems)
+      res.splice(_args.params.limit - count)
       isAllData = true
     }
 
     _write(res, stream, formatSettings)
 
-    if (isAllData) {
+    count += res.length
+    const needElems = _args.params.limit - count
+
+    if (isAllData || needElems <= 0) {
       await job.progress(100)
 
       break
@@ -193,9 +195,8 @@ const writeDataToStream = async (reportService, stream, job) => {
 
     await _progress(job, currTime, _args.params)
 
-    count += res.length
     currIterationArgs.params.end = lastItem[propName] - 1
-    currIterationArgs.params.limit = _args.params.limit - count
+    if (needElems) currIterationArgs.params.limit = needElems
   }
 
   return Promise.resolve()

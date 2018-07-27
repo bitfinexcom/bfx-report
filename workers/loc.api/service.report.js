@@ -5,7 +5,7 @@ const {
   getREST,
   getParams,
   isAllowMethod,
-  requiredParamsExist
+  checkParams
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -79,7 +79,7 @@ class ReportService extends Api {
   async getTradesCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
-      requiredParamsExist(args)
+      checkParams(args)
 
       const method = 'getTrades'
 
@@ -112,7 +112,7 @@ class ReportService extends Api {
   async getLedgersCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
-      requiredParamsExist(args)
+      checkParams(args)
 
       const method = 'getLedgers'
 
@@ -143,7 +143,7 @@ class ReportService extends Api {
   async getOrdersCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
-      requiredParamsExist(args)
+      checkParams(args)
 
       const method = 'getOrders'
 
@@ -179,7 +179,7 @@ class ReportService extends Api {
   async getMovementsCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
-      requiredParamsExist(args)
+      checkParams(args)
 
       const method = 'getMovements'
 
