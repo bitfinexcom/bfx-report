@@ -39,7 +39,8 @@ module.exports = async job => {
     await writablePromise
 
     return Promise.resolve({
-      filePath
+      filePath,
+      email: job.data.args.params.email
     })
   } catch (err) {
     try {

@@ -51,9 +51,20 @@ const isAllowMethod = (ctx) => {
   return true
 }
 
+const requiredParamsExist = (args) => {
+  if (
+    !args.params ||
+    typeof args.params !== 'object' ||
+    typeof args.params.email !== 'string'
+  ) {
+    throw new Error('ERR_ARGS_NO_PARAMS')
+  }
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
   getParams,
-  isAllowMethod
+  isAllowMethod,
+  requiredParamsExist
 }

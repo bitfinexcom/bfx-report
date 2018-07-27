@@ -4,7 +4,8 @@ const { Api } = require('bfx-wrk-api')
 const {
   getREST,
   getParams,
-  isAllowMethod
+  isAllowMethod,
+  requiredParamsExist
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -78,6 +79,7 @@ class ReportService extends Api {
   async getTradesCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      requiredParamsExist(args)
 
       const method = 'getTrades'
 
@@ -110,6 +112,7 @@ class ReportService extends Api {
   async getLedgersCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      requiredParamsExist(args)
 
       const method = 'getLedgers'
 
@@ -140,6 +143,7 @@ class ReportService extends Api {
   async getOrdersCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      requiredParamsExist(args)
 
       const method = 'getOrders'
 
@@ -175,6 +179,7 @@ class ReportService extends Api {
   async getMovementsCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      requiredParamsExist(args)
 
       const method = 'getMovements'
 
