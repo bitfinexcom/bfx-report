@@ -63,7 +63,7 @@ const isAuthError = (err) => {
 
 const _delay = (mc = 80000) => {
   return new Promise((resolve) => {
-    setInterval(resolve, mc)
+    setTimeout(resolve, mc)
   })
 }
 
@@ -111,8 +111,7 @@ const _write = (res, stream, formatSettings) => {
 }
 
 const _progress = (job, currTime, { start, end }) => {
-  let percent = ((currTime - start) / (end - start)) * 100
-  percent = Math.round(percent * 10) / 10
+  const percent = Math.round(((currTime - start) / (end - start)) * 100)
 
   return job.progress(percent)
 }
@@ -148,9 +147,7 @@ const writeDataToStream = async (reportService, stream, job) => {
       if (_isRateLimitError(err)) {
         await _delay()
         res = await getData(null, currIterationArgs)
-      }
-
-      throw err
+      } else throw err
     }
 
     if (!res || !Array.isArray(res) || res.length === 0) {
