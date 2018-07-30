@@ -13,7 +13,10 @@ const {
   failureUnauthorized
 } = helpers.responses
 
-const _redirectCsvUrl = 'https://dev-prdn.bitfinex.com:2995'
+const _redirectCsvUrl = config.has('redirectCsvUrl')
+  ? config.get('redirectCsvUrl')
+  : null
+
 const _redirectMethods = [
   'getTradesCsv',
   'getLedgersCsv',
@@ -23,7 +26,8 @@ const _redirectMethods = [
 
 const _isEnableRedirectCsvElectron = (
   config.has('app_type') &&
-  config.get('app_type') === 'electron'
+  config.get('app_type') === 'electron' &&
+  _redirectCsvUrl
 )
 
 const _isAuthError = (err) => {

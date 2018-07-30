@@ -13,5 +13,6 @@
   },
   "enableLogDebug": false,
   "enableLog": false,
-  "app_type": "nodejs"
+  "app_type": "nodejs",
+  "redirectCsvUrl": "https://report.bitfinex.com"
 }

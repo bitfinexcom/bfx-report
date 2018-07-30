@@ -4,6 +4,8 @@ const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
 const uuidv4 = require('uuid/v4')
+const _ = require('lodash')
+const moment = require('moment')
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
@@ -51,18 +53,155 @@ const writableToPromise = stream => {
   })
 }
 
-const writeDataToStream = stream => {
-  const fakeData = {
-    id: 1,
-    description: 'description',
-    otherField: 'other field'
+const _isRateLimitError = (err) => {
+  return /ERR_RATE_LIMIT/.test(err.toString())
+}
+
+const isAuthError = (err) => {
+  return /apikey: digest invalid/.test(err.toString())
+}
+
+const _delay = (mc = 80000) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, mc)
+  })
+}
+
+const _formaters = {
+  date: val => moment(val).format('DD/MM/YYYY, h:mm:ss A'),
+  symbol: val => {
+    const symbolsMap = [
+      { tBTCUSD: 'BTC/USD' }
+    ]
+
+    let res = symbolsMap.find(item => item[val] !== 'undefined')
+    res = typeof res === 'object' ? res[val] : val
+    return res
+  }
+}
+
+const _dataFormatter = (obj, formatSettings) => {
+  if (
+    typeof obj !== 'object' ||
+    typeof formatSettings !== 'object'
+  ) {
+    return obj
   }
 
-  stream.write(fakeData)
+  const res = _.cloneDeep(obj)
+
+  Object.entries(formatSettings).forEach(([key, val]) => {
+    try {
+      if (
+        typeof obj[key] !== 'undefined' &&
+        typeof _formaters[val] === 'function'
+      ) {
+        res[key] = _formaters[val](obj[key])
+      }
+    } catch (err) {}
+  })
+
+  return res
+}
+
+const _write = (res, stream, formatSettings) => {
+  res.forEach((item) => {
+    stream.write(_dataFormatter(item, formatSettings))
+  })
+}
+
+const _progress = (job, currTime, { start, end }) => {
+  const percent = Math.round(((currTime - start) / (end - start)) * 100)
+
+  return job.progress(percent)
+}
+
+const writeDataToStream = async (reportService, stream, job) => {
+  const method = job.name
+
+  if (typeof reportService[method] !== 'function') {
+    throw new Error('ERR_METHOD_NOT_FOUND')
+  }
+
+  const _args = _.cloneDeep(job.data.args)
+  _args.params.end = _args.params.end
+    ? _args.params.end
+    : (new Date()).getTime()
+  _args.params.start = _args.params.start
+    ? _args.params.start
+    : 0
+
+  const currIterationArgs = _.cloneDeep(_args)
+
+  const getData = promisify(reportService[method].bind(reportService))
+
+  let res = null
+  let count = 0
+
+  while (true) {
+    await job.progress(0)
+
+    try {
+      res = await getData(null, currIterationArgs)
+    } catch (err) {
+      if (_isRateLimitError(err)) {
+        await _delay()
+        res = await getData(null, currIterationArgs)
+      } else throw err
+    }
+
+    if (!res || !Array.isArray(res) || res.length === 0) {
+      if (count > 0) await job.progress(100)
+
+      break
+    }
+
+    const lastItem = res[res.length - 1]
+    const propName = job.data.propNameForPagination
+    const formatSettings = job.data.formatSettings
+
+    if (
+      typeof lastItem !== 'object' ||
+      !lastItem[propName] ||
+      !Number.isInteger(lastItem[propName])
+    ) break
+
+    const currTime = lastItem[propName]
+    let isAllData = false
+
+    if (_args.params.start >= currTime) {
+      res = res.filter((item) => _args.params.start <= item[propName])
+      isAllData = true
+    }
+
+    if (_args.params.limit < (count + res.length)) {
+      res.splice(_args.params.limit - count)
+      isAllData = true
+    }
+
+    _write(res, stream, formatSettings)
+
+    count += res.length
+    const needElems = _args.params.limit - count
+
+    if (isAllData || needElems <= 0) {
+      await job.progress(100)
+
+      break
+    }
+
+    await _progress(job, currTime, _args.params)
+
+    currIterationArgs.params.end = lastItem[propName] - 1
+    if (needElems) currIterationArgs.params.limit = needElems
+  }
+
+  return Promise.resolve()
 }
 
 module.exports = {
   createUniqueFileName,
   writableToPromise,
-  writeDataToStream
+  writeDataToStream,
+  isAuthError
 }

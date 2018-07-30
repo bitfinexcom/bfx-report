@@ -4,7 +4,8 @@ const { Api } = require('bfx-wrk-api')
 const {
   getREST,
   getParams,
-  isAllowMethod
+  isAllowMethod,
+  checkParams
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -78,11 +79,27 @@ class ReportService extends Api {
   async getTradesCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      checkParams(args)
 
       const method = 'getTrades'
 
       const processorQueue = this.ctx.bull_processor.queue
-      const jobData = {}
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsCreate',
+        columnsCsv: {
+          id: '#',
+          pair: 'PAIR',
+          execAmount: 'AMOUNT',
+          execPrice: 'PRICE',
+          fee: 'FEE',
+          mtsCreate: 'DATE'
+        },
+        formatSettings: {
+          mtsCreate: 'date',
+          pair: 'symbol'
+        }
+      }
 
       await processorQueue.add(method, jobData)
 
@@ -95,11 +112,25 @@ class ReportService extends Api {
   async getLedgersCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      checkParams(args)
 
       const method = 'getLedgers'
 
       const processorQueue = this.ctx.bull_processor.queue
-      const jobData = {}
+      const jobData = {
+        args,
+        propNameForPagination: 'mts',
+        columnsCsv: {
+          description: 'DESCRIPTION',
+          currency: 'CURRENCY',
+          amount: 'AMOUNT',
+          balance: 'BALANCE',
+          mts: 'DATE'
+        },
+        formatSettings: {
+          mts: 'date'
+        }
+      }
 
       await processorQueue.add(method, jobData)
 
@@ -112,11 +143,30 @@ class ReportService extends Api {
   async getOrdersCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      checkParams(args)
 
       const method = 'getOrders'
 
       const processorQueue = this.ctx.bull_processor.queue
-      const jobData = {}
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          id: '#',
+          symbol: 'PAIR',
+          type: 'TYPE',
+          amount: 'AMOUNT',
+          amountOrig: 'ORIGINAL AMOUNT',
+          price: 'PRICE',
+          priceAvg: 'AVG PRICE',
+          mtsUpdate: 'UPDATE',
+          status: 'STATUS'
+        },
+        formatSettings: {
+          mtsUpdate: 'date',
+          symbol: 'symbol'
+        }
+      }
 
       await processorQueue.add(method, jobData)
 
@@ -129,11 +179,25 @@ class ReportService extends Api {
   async getMovementsCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      checkParams(args)
 
       const method = 'getMovements'
 
       const processorQueue = this.ctx.bull_processor.queue
-      const jobData = {}
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsUpdated',
+        columnsCsv: {
+          id: '#',
+          mtsUpdated: 'DATE',
+          status: 'STATUS',
+          amount: 'AMOUNT',
+          destinationAddress: 'DESCRIPTION'
+        },
+        formatSettings: {
+          mtsUpdated: 'date'
+        }
+      }
 
       await processorQueue.add(method, jobData)
 

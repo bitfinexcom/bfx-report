@@ -81,6 +81,8 @@ class WrkReportServiceApi extends WrkApi {
           const processorQueue = this.bull_processor.queue
           const aggregatorQueue = this.bull_aggregator.queue
 
+          bullProcessor.setReportService(this.grc_bfx.api)
+
           processorQueue.process('*', bullProcessor)
           aggregatorQueue.process('*', bullAggregator)
 
