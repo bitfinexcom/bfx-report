@@ -2,11 +2,20 @@
 
 const config = require('config')
 const request = require('superagent')
+
 const {
   grenacheClientService: gClientService,
   helpers
 } = require('../services')
-const { success, failureInternalServerError, failureUnauthorized } = helpers.responses
+const {
+  success,
+  failureInternalServerError,
+  failureUnauthorized
+} = helpers.responses
+
+const _redirectCsvUrl = config.has('redirectCsvUrl')
+  ? config.get('redirectCsvUrl')
+  : null
 
 const _redirectMethods = [
   'getTradesCsv',
@@ -16,8 +25,9 @@ const _redirectMethods = [
 ]
 
 const _isEnableRedirectCsvElectron = (
-  config.has('redirectCsvUrl') &&
-  typeof config.get('redirectCsvUrl') === 'string'
+  config.has('app_type') &&
+  config.get('app_type') === 'electron' &&
+  _redirectCsvUrl
 )
 
 const _isAuthError = (err) => {
@@ -64,7 +74,7 @@ const getData = async (req, res) => {
       _isEnableRedirectCsvElectron &&
       _redirectMethods.some(item => req.body.method === item)
     ) {
-      const url = config.get('redirectCsvUrl') + req.originalUrl
+      const url = _redirectCsvUrl + req.originalUrl
       const method = req.method.toLowerCase()
       const result = await request[method](url)
         .timeout(30000)

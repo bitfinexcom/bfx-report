@@ -2,6 +2,7 @@
 
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
+
 const bullProcessor = require('./loc.api/bull/bull.processor')
 const bullAggregator = require('./loc.api/bull/bull.aggregator')
 
@@ -21,20 +22,6 @@ class WrkReportServiceApi extends WrkApi {
     }
   }
 
-  _checkBullAggregatorConf () {
-    if (
-      this.bull_aggregator &&
-      typeof this.bull_aggregator.conf === 'object' &&
-      typeof this.bull_aggregator.conf.emailOpts === 'object'
-    ) {
-      return
-    }
-
-    const err = new Error('ERR_CONFIG_ARGS_NO_EMAIL_TRANSPORT_OR_OPTS')
-
-    throw err
-  }
-
   getPluginCtx (type) {
     const ctx = super.getPluginCtx(type)
     const appType = this.conf.app_type
@@ -49,7 +36,9 @@ class WrkReportServiceApi extends WrkApi {
 
   init () {
     super.init()
+
     const appType = this.conf.app_type
+
     if (appType === 'nodejs') {
       const facs = [
         [
@@ -75,50 +64,33 @@ class WrkReportServiceApi extends WrkApi {
     const group = this.group
     const conf = this.conf[group]
 
-    if (
-      conf &&
-      typeof conf.bull === 'object'
-    ) {
-      return {
-        port: conf.bull.port,
-        host: conf.bull.host,
-        queue: name
-      }
-    }
-
-    return null
+    return (conf && conf.redisConnection)
+      ? { ...conf.redisConnection, queue: name }
+      : null
   }
 
   _start (cb) {
     const appType = this.conf.app_type
-    async.series([ next => { super._start(next) },
+
+    async.series([
+      next => {
+        super._start(next)
+      },
       next => {
         if (appType === 'nodejs') {
-          const reportService = this.grc_bfx.api
           const processorQueue = this.bull_processor.queue
           const aggregatorQueue = this.bull_aggregator.queue
 
-          bullProcessor.setReportService(reportService)
-          bullAggregator.setReportService(reportService)
+          bullProcessor.setReportService(this.grc_bfx.api)
 
-          processorQueue.process('*', 1, bullProcessor)
-          aggregatorQueue.process('*', 1, bullAggregator)
+          processorQueue.process('*', bullProcessor)
+          aggregatorQueue.process('*', bullAggregator)
 
           processorQueue.on('completed', (job, result) => {
-            aggregatorQueue.add(
-              job.name,
-              result,
-              {
-                attempts: 10,
-                backoff: {
-                  type: 'fixed',
-                  delay: 60000
-                },
-                timeout: 1800000
-              }
-            )
+            aggregatorQueue.add(job.name, result)
           })
         }
+
         next()
       }
     ], cb)

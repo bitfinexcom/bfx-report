@@ -5,7 +5,7 @@
   "main": "app.js",
   "private": true,
   "dependencies": {
-    "async": "^2.5.0",
+    "async": "^2.6.1",
     "better-npm-run": "^0.1.0",
     "bfx-facs-bull": "git+https://github.com:bitfinexcom/bfx-facs-bull.git",
     "bfx-facs-interval": "https://github.com/bitfinexcom/bfx-facs-interval.git",
@@ -23,12 +23,10 @@
     "grenache-nodejs-link": "^0.7.9",
     "lodash": "^4.17.10",
     "method-override": "^2.3.10",
-    "mime-types": "^2.1.18",
     "moment": "^2.22.2",
     "morgan": "^1.9.0",
-    "pug": "^2.0.3",
     "superagent": "^3.8.3",
-    "uuid": "^3.2.1",
+    "uuid": "^3.3.2",
     "winston": "^3.0.0"
   },
   "devDependencies": {

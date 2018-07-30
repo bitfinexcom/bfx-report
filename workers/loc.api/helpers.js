@@ -1,6 +1,5 @@
 'use strict'
 
-const { promisify } = require('util')
 const bfxFactory = require('./bfx.factory')
 
 const getREST = (auth, wrkReportServiceApi) => {
@@ -16,38 +15,27 @@ const getREST = (auth, wrkReportServiceApi) => {
   return bfx.rest(2, { transform: true })
 }
 
-const getLimitNotMoreThan = (limit, maxLimit = 10000) => {
-  if (
-    Number.isFinite(limit) &&
-    limit < maxLimit
-  ) {
-    return limit
-  }
-
-  return null
+const getLimitNotMoreThan = (limit, maxLimit = 25) => {
+  const num = limit || maxLimit
+  return Math.min(num, maxLimit)
 }
 
-const checkArgsAndAuth = async (args, cb) => {
-  if (
-    !args.params ||
-    typeof args.params !== 'object' ||
-    typeof args.params.email !== 'string'
-  ) {
-    throw new Error('ERR_ARGS_NO_PARAMS')
+const getParams = (args, maxLimit) => {
+  const params = []
+  if (args.params) {
+    if (typeof args.params !== 'object') {
+      throw new Error('ERR_ARGS_NO_PARAMS')
+    }
+    params.push(
+      ...[
+        args.params.symbol,
+        args.params.start,
+        args.params.end,
+        getLimitNotMoreThan(args.params.limit, maxLimit)
+      ]
+    )
   }
-  const testAuthArgs = {...args}
-  testAuthArgs.params.limit = 1
-  testAuthArgs.params.start = undefined
-  testAuthArgs.params.end = (new Date()).getTime()
-
-  const checkAuth = promisify(cb)
-  const resAuth = await checkAuth(null, testAuthArgs)
-
-  if (!resAuth) {
-    throw new Error('ERR_AUTH_UNAUTHORIZED')
-  }
-
-  return Promise.resolve(resAuth)
+  return params
 }
 
 const isAllowMethod = (ctx) => {
@@ -63,9 +51,23 @@ const isAllowMethod = (ctx) => {
   return true
 }
 
+const checkParams = (args) => {
+  if (
+    !args.params ||
+    typeof args.params !== 'object' ||
+    typeof args.params.email !== 'string' ||
+    (args.params.limit && !Number.isInteger(args.params.limit)) ||
+    (args.params.start && !Number.isInteger(args.params.start)) ||
+    (args.params.end && !Number.isInteger(args.params.end))
+  ) {
+    throw new Error('ERR_ARGS_NO_PARAMS')
+  }
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
-  checkArgsAndAuth,
-  isAllowMethod
+  getParams,
+  isAllowMethod,
+  checkParams
 }

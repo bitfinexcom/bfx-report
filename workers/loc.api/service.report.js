@@ -3,19 +3,10 @@
 const { Api } = require('bfx-wrk-api')
 const {
   getREST,
-  getLimitNotMoreThan,
-  checkArgsAndAuth,
-  isAllowMethod
+  getParams,
+  isAllowMethod,
+  checkParams
 } = require('./helpers')
-
-const jobOpts = {
-  attempts: 10,
-  backoff: {
-    type: 'fixed',
-    delay: 60000
-  },
-  timeout: 1200000
-}
 
 class ReportService extends Api {
   space (service, msg) {
@@ -36,23 +27,8 @@ class ReportService extends Api {
 
   async getLedgers (space, args, cb) {
     try {
-      const params = []
-
-      if (args.params) {
-        if (typeof args.params !== 'object') {
-          throw new Error('ERR_ARGS_NO_PARAMS')
-        }
-
-        params.push(
-          ...[
-            args.params.symbol,
-            args.params.start,
-            args.params.end,
-            getLimitNotMoreThan(args.params.limit)
-          ]
-        )
-      }
-
+      const maxLimit = 5000
+      const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.ledgers(...params)
 
@@ -64,18 +40,8 @@ class ReportService extends Api {
 
   async getTrades (space, args, cb) {
     try {
-      if (!args.params || typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
-      }
-
-      const params = [
-        args.params.symbol,
-        args.params.start,
-        args.params.end,
-        getLimitNotMoreThan(args.params.limit),
-        args.params.sort
-      ]
-
+      const maxLimit = 1500
+      const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.accountTrades(...params)
 
@@ -87,17 +53,8 @@ class ReportService extends Api {
 
   async getOrders (space, args, cb) {
     try {
-      if (!args.params || typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
-      }
-
-      const params = [
-        args.params.symbol,
-        args.params.start,
-        args.params.end,
-        getLimitNotMoreThan(args.params.limit)
-      ]
-
+      const maxLimit = 5000
+      const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.orderHistory(...params)
 
@@ -109,26 +66,10 @@ class ReportService extends Api {
 
   async getMovements (space, args, cb) {
     try {
-      const params = []
-
-      if (args.params) {
-        if (typeof args.params !== 'object') {
-          throw new Error('ERR_ARGS_NO_PARAMS')
-        }
-
-        params.push(
-          ...[
-            args.params.symbol,
-            args.params.start,
-            args.params.end,
-            getLimitNotMoreThan(args.params.limit)
-          ]
-        )
-      }
-
+      const maxLimit = 25
+      const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const result = await rest.movements(...params)
-
       cb(null, result)
     } catch (err) {
       cb(err)
@@ -138,37 +79,29 @@ class ReportService extends Api {
   async getTradesCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      checkParams(args)
 
       const method = 'getTrades'
-      await checkArgsAndAuth(args, this[method].bind(this))
-
-      args.params.limit = 1500
-
-      const columns = {
-        id: 'ID',
-        pair: 'Pair',
-        mtsCreate: 'Date',
-        execAmount: 'Amount',
-        execPrice: 'Price',
-        fee: 'Fee',
-        feeCurrency: 'Fee currency'
-      }
 
       const processorQueue = this.ctx.bull_processor.queue
-
-      await processorQueue.add(
-        method,
-        {
-          method,
-          args,
-          propName: 'mtsCreate',
-          columns,
-          formatSettings: {
-            mtsCreate: 'date'
-          }
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsCreate',
+        columnsCsv: {
+          id: '#',
+          pair: 'PAIR',
+          execAmount: 'AMOUNT',
+          execPrice: 'PRICE',
+          fee: 'FEE',
+          mtsCreate: 'DATE'
         },
-        jobOpts
-      )
+        formatSettings: {
+          mtsCreate: 'date',
+          pair: 'symbol'
+        }
+      }
+
+      await processorQueue.add(method, jobData)
 
       cb(null, true)
     } catch (err) {
@@ -179,36 +112,27 @@ class ReportService extends Api {
   async getLedgersCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      checkParams(args)
 
       const method = 'getLedgers'
-      await checkArgsAndAuth(args, this[method].bind(this))
-
-      args.params.limit = 5000
-
-      const columns = {
-        id: 'ID',
-        currency: 'Currency',
-        mts: 'Date',
-        amount: 'Amount',
-        balance: 'Balance',
-        description: 'Description'
-      }
 
       const processorQueue = this.ctx.bull_processor.queue
-
-      await processorQueue.add(
-        method,
-        {
-          method,
-          args,
-          propName: 'mts',
-          columns,
-          formatSettings: {
-            mts: 'date'
-          }
+      const jobData = {
+        args,
+        propNameForPagination: 'mts',
+        columnsCsv: {
+          description: 'DESCRIPTION',
+          currency: 'CURRENCY',
+          amount: 'AMOUNT',
+          balance: 'BALANCE',
+          mts: 'DATE'
         },
-        jobOpts
-      )
+        formatSettings: {
+          mts: 'date'
+        }
+      }
+
+      await processorQueue.add(method, jobData)
 
       cb(null, true)
     } catch (err) {
@@ -219,40 +143,32 @@ class ReportService extends Api {
   async getOrdersCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      checkParams(args)
 
       const method = 'getOrders'
-      await checkArgsAndAuth(args, this[method].bind(this))
-
-      args.params.limit = 5000
-
-      const columns = {
-        id: 'ID',
-        symbol: 'Symbol',
-        mtsCreate: 'Create',
-        mtsUpdate: 'Update',
-        amountOrig: 'Amount',
-        type: 'Type',
-        status: 'Status',
-        price: 'Price',
-        priceAvg: 'Avg price'
-      }
 
       const processorQueue = this.ctx.bull_processor.queue
-
-      await processorQueue.add(
-        method,
-        {
-          method,
-          args,
-          propName: 'mtsUpdate',
-          columns,
-          formatSettings: {
-            mtsUpdate: 'date',
-            mtsCreate: 'date'
-          }
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          id: '#',
+          symbol: 'PAIR',
+          type: 'TYPE',
+          amount: 'AMOUNT',
+          amountOrig: 'ORIGINAL AMOUNT',
+          price: 'PRICE',
+          priceAvg: 'AVG PRICE',
+          mtsUpdate: 'UPDATE',
+          status: 'STATUS'
         },
-        jobOpts
-      )
+        formatSettings: {
+          mtsUpdate: 'date',
+          symbol: 'symbol'
+        }
+      }
+
+      await processorQueue.add(method, jobData)
 
       cb(null, true)
     } catch (err) {
@@ -263,38 +179,27 @@ class ReportService extends Api {
   async getMovementsCsv (space, args, cb) {
     try {
       isAllowMethod(this.ctx)
+      checkParams(args)
 
       const method = 'getMovements'
-      await checkArgsAndAuth(args, this[method].bind(this))
-
-      args.params.limit = 25
-
-      const columns = {
-        id: 'ID',
-        currency: 'Currency',
-        mtsStarted: 'Started',
-        mtsUpdated: 'Updated',
-        status: 'Status',
-        amount: 'Amount',
-        destinationAddress: 'Destination'
-      }
 
       const processorQueue = this.ctx.bull_processor.queue
-
-      await processorQueue.add(
-        method,
-        {
-          method,
-          args,
-          propName: 'mtsUpdated',
-          columns,
-          formatSettings: {
-            mtsStarted: 'date',
-            mtsUpdated: 'date'
-          }
+      const jobData = {
+        args,
+        propNameForPagination: 'mtsUpdated',
+        columnsCsv: {
+          id: '#',
+          mtsUpdated: 'DATE',
+          status: 'STATUS',
+          amount: 'AMOUNT',
+          destinationAddress: 'DESCRIPTION'
         },
-        jobOpts
-      )
+        formatSettings: {
+          mtsUpdated: 'date'
+        }
+      }
+
+      await processorQueue.add(method, jobData)
 
       cb(null, true)
     } catch (err) {

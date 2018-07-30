@@ -1,4 +1,0 @@
-{
-  "grcServices": [ "rest:ext:sendgrid" ],
-  "apiKey": "testkey"
-}
