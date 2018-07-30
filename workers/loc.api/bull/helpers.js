@@ -10,6 +10,7 @@ const moment = require('moment')
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
+const readFile = promisify(fs.readFile)
 
 const tempDirPath = path.join(__dirname, 'temp')
 
@@ -199,9 +200,60 @@ const writeDataToStream = async (reportService, stream, job) => {
   return Promise.resolve()
 }
 
+const _fileNamesMap = new Map([
+  ['getTrades', 'trades'],
+  ['getLedgers', 'ledgers'],
+  ['getOrders', 'orders'],
+  ['getMovements', 'movements']
+])
+
+const _getFileNameForS3 = queueName => {
+  if (!_fileNamesMap.has(queueName)) {
+    return queueName.replace(/^get/i, '').toLowerCase()
+  }
+
+  return _fileNamesMap.get(queueName)
+}
+
+const uploadS3 = async (reportService, filePath, queueName) => {
+  const grcBfx = reportService.ctx.grc_bfx
+  const configs = reportService.ctx.bull_aggregator.conf.s3
+  const buffer = await readFile(filePath)
+  const fileName = _getFileNameForS3(queueName)
+
+  const opts = {
+    ...configs,
+    contentType: 'text/csv',
+    contentDisposition: `${configs.contentDisposition || 'attachment'}; filename="${fileName}.csv"`
+  }
+  const parsedData = [
+    buffer,
+    opts
+  ]
+
+  return new Promise((resolve, reject) => {
+    grcBfx.req(
+      'rest:ext:s3',
+      'uploadPresigned',
+      parsedData,
+      { timeout: 10000 },
+      (err, data) => {
+        if (err) {
+          reject(err)
+
+          return
+        }
+
+        resolve(data)
+      }
+    )
+  })
+}
+
 module.exports = {
   createUniqueFileName,
   writableToPromise,
   writeDataToStream,
-  isAuthError
+  isAuthError,
+  uploadS3
 }
