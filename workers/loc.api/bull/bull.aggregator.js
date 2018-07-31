@@ -5,7 +5,7 @@ const fs = require('fs')
 
 const unlink = promisify(fs.unlink)
 
-const { uploadS3 } = require('./helpers')
+const { uploadS3, sendMail } = require('./helpers')
 
 let reportService = null
 
@@ -13,7 +13,8 @@ module.exports = async job => {
   try {
     const data = job.data
 
-    await uploadS3(reportService, data.filePath, job.name)
+    const s3Data = await uploadS3(reportService, data.filePath, job.name)
+    await sendMail(reportService, data.email, 'email.pug', s3Data)
     await unlink(data.filePath)
 
     return Promise.resolve()

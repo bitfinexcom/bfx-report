@@ -1,5 +1,9 @@
 {
   "aggregator": {
+    "emailOpts": {
+      "from": "\"Bitfinex\" <no-reply@bitfinex.com>",
+      "subject": "Download report"
+    },
     "s3": {
       "bucket": "",
       "acl": "",
