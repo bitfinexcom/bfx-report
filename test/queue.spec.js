@@ -1,121 +1,64 @@
 'use strict'
 
-const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
 const { assert } = require('chai')
 const request = require('supertest')
 const config = require('config')
 
-const readdir = promisify(fs.readdir)
-const unlink = promisify(fs.unlink)
+const {
+  startEnviroment,
+  stopEnviroment
+} = require('./helpers/helpers.boot')
+const {
+  checkConfAuth,
+  cleanJobs,
+  rmAllFiles,
+  queueToPromise
+} = require('./helpers/helpers.core')
 
-const { runWorker } = require('./worker-for-tests')
-const { bootTwoGrapes, killGrapes } = require('./grenache.helper')
 const { app } = require('../app')
 const agent = request.agent(app)
 
 let wrkReportServiceApi = null
-let grapes = null
 let auth = null
 let processorQueue = null
+let aggregatorQueue = null
 
 const basePath = '/api'
 const tempDirPath = path.join(__dirname, '..', 'workers/loc.api/bull/temp')
 const email = 'fake@mail.fake'
 
-const _checkConf = () => {
-  if (
-    config.has('auth') &&
-    config.has('auth.apiKey') &&
-    typeof config.get('auth.apiKey') === 'string' &&
-    config.get('auth.apiKey') &&
-    config.has('auth.apiSecret') &&
-    typeof config.get('auth.apiSecret') === 'string' &&
-    config.get('auth.apiSecret')
-  ) {
-    return
-  }
-
-  const err = new Error('ERR_CONFIG_ARGS_NO_AUTH')
-
-  throw err
-}
-
-const _cleanJobs = async (
-  queue,
-  status = ['completed', 'active', 'failed', 'wait', 'delayed']
-) => {
-  const promisesArr = status.map(item => queue.clean(0, item))
-
-  return Promise.all(promisesArr)
-}
-
-const _rmAllFiles = async (dir) => {
-  const files = await readdir(dir)
-  const promisesArr = files.map(file => unlink(path.join(dir, file)))
-
-  return Promise.all(promisesArr)
-}
-
-const _queueToPromise = (queue) => {
-  return new Promise((resolve, reject) => {
-    queue.once('failed', (job, err) => {
-      reject(err)
-    })
-    queue.once('error', (err) => {
-      reject(err)
-    })
-    queue.once('completed', (job, result) => {
-      resolve(result)
-    })
-  })
-}
-
 describe('Queue', () => {
-  before(function (done) {
+  before(async function () {
     this.timeout(20000)
 
-    _checkConf()
+    checkConfAuth()
     auth = config.get('auth')
 
-    bootTwoGrapes((err, g) => {
-      if (err) throw err
+    const env = await startEnviroment()
+    wrkReportServiceApi = env.wrkReportServiceApi
+    processorQueue = wrkReportServiceApi.bull_processor.queue
+    aggregatorQueue = wrkReportServiceApi.bull_aggregator.queue
 
-      grapes = g
-
-      wrkReportServiceApi = runWorker({
-        wtype: 'wrk-report-service-api',
-        apiPort: 1338
-      })
-
-      grapes[0].once('announce', async () => {
-        processorQueue = wrkReportServiceApi.bull_processor.queue
-
-        await _cleanJobs(processorQueue)
-
-        done()
-      })
-    })
+    await cleanJobs(processorQueue)
+    await cleanJobs(aggregatorQueue)
   })
 
   after(async function () {
     this.timeout(5000)
 
-    await _cleanJobs(processorQueue)
-    await _rmAllFiles(tempDirPath)
-
-    await new Promise((resolve) => {
-      wrkReportServiceApi.stop(() => {
-        killGrapes(grapes, resolve)
-      })
-    })
+    await cleanJobs(processorQueue)
+    await cleanJobs(aggregatorQueue)
+    await rmAllFiles(tempDirPath)
+    await stopEnviroment()
   })
 
   it('it should be successfully performed by the getLedgersCsv method', async function () {
     this.timeout(60000)
 
-    const proccPromise = _queueToPromise(processorQueue)
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
       .post(`${basePath}/get-data`)
@@ -138,20 +81,23 @@ describe('Queue', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isOk(res.body.result)
 
-    const proccRes = await proccPromise
+    const procRes = await procPromise
 
-    assert.isObject(proccRes)
-    assert.property(proccRes, 'filePath')
-    assert.property(proccRes, 'email')
-    assert.isString(proccRes.filePath)
-    assert.isString(proccRes.email)
-    assert.isOk(fs.existsSync(proccRes.filePath))
+    assert.isObject(procRes)
+    assert.property(procRes, 'filePath')
+    assert.property(procRes, 'email')
+    assert.isString(procRes.filePath)
+    assert.isString(procRes.email)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
   })
 
   it('it should be successfully performed by the getTradesCsv method', async function () {
     this.timeout(60000)
 
-    const proccPromise = _queueToPromise(processorQueue)
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
       .post(`${basePath}/get-data`)
@@ -174,20 +120,23 @@ describe('Queue', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isOk(res.body.result)
 
-    const proccRes = await proccPromise
+    const procRes = await procPromise
 
-    assert.isObject(proccRes)
-    assert.property(proccRes, 'filePath')
-    assert.property(proccRes, 'email')
-    assert.isString(proccRes.filePath)
-    assert.isString(proccRes.email)
-    assert.isOk(fs.existsSync(proccRes.filePath))
+    assert.isObject(procRes)
+    assert.property(procRes, 'filePath')
+    assert.property(procRes, 'email')
+    assert.isString(procRes.filePath)
+    assert.isString(procRes.email)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
   })
 
   it('it should be successfully performed by the getOrdersCsv method', async function () {
     this.timeout(60000)
 
-    const proccPromise = _queueToPromise(processorQueue)
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
       .post(`${basePath}/get-data`)
@@ -210,20 +159,23 @@ describe('Queue', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isOk(res.body.result)
 
-    const proccRes = await proccPromise
+    const procRes = await procPromise
 
-    assert.isObject(proccRes)
-    assert.property(proccRes, 'filePath')
-    assert.property(proccRes, 'email')
-    assert.isString(proccRes.filePath)
-    assert.isString(proccRes.email)
-    assert.isOk(fs.existsSync(proccRes.filePath))
+    assert.isObject(procRes)
+    assert.property(procRes, 'filePath')
+    assert.property(procRes, 'email')
+    assert.isString(procRes.filePath)
+    assert.isString(procRes.email)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
   })
 
   it('it should be successfully performed by the getMovementsCsv method', async function () {
     this.timeout(60000)
 
-    const proccPromise = _queueToPromise(processorQueue)
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
       .post(`${basePath}/get-data`)
@@ -246,20 +198,22 @@ describe('Queue', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isOk(res.body.result)
 
-    const proccRes = await proccPromise
+    const procRes = await procPromise
 
-    assert.isObject(proccRes)
-    assert.property(proccRes, 'filePath')
-    assert.property(proccRes, 'email')
-    assert.isString(proccRes.filePath)
-    assert.isString(proccRes.email)
-    assert.isOk(fs.existsSync(proccRes.filePath))
+    assert.isObject(procRes)
+    assert.property(procRes, 'filePath')
+    assert.property(procRes, 'email')
+    assert.isString(procRes.filePath)
+    assert.isString(procRes.email)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
   })
 
   it('it should not be successfully auth by the getLedgersCsv method', async function () {
     this.timeout(60000)
 
-    const proccPromise = _queueToPromise(processorQueue)
+    const procPromise = queueToPromise(processorQueue)
 
     const res = await agent
       .post(`${basePath}/get-data`)
@@ -286,7 +240,7 @@ describe('Queue', () => {
     assert.isOk(res.body.result)
 
     try {
-      await proccPromise
+      await procPromise
       assert(false, 'The queue must not completed')
     } catch (err) {
       assert.include(err.toString(), 'apikey: digest invalid')

@@ -49,7 +49,9 @@
       "describe",
       "it",
       "before",
-      "after"
+      "after",
+      "beforeEach",
+      "afterEach"
     ]
   },
   "nodemonConfig": {
@@ -89,6 +91,7 @@
     "startDev": "better-npm-run start:dev",
     "startWorker": "node worker.js --env=production --wtype=wrk-report-service-api --apiPort 1337",
     "startWorkerDev": "nodemon worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337",
+    "startSimulEnv": "node test/simulate/simulate-enviroment.js",
     "test": "better-npm-run test"
   }
 }

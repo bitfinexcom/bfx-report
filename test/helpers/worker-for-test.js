@@ -3,7 +3,7 @@
 const path = require('path')
 const _ = require('lodash')
 const fs = require('fs')
-const serviceRoot = path.join(__dirname, '..')
+const serviceRoot = path.join(__dirname, '../..')
 
 const getJSONConf = (env, type, path) => {
   const conf = JSON.parse(fs.readFileSync(path, 'utf8'))
