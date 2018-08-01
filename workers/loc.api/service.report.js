@@ -14,6 +14,27 @@ class ReportService extends Api {
     return space
   }
 
+  async getSymbols (space, args, cb) {
+    try {
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const pairs = await rest.symbols()
+      const coins = []
+
+      for (const pair in pairs) {
+        const f = pairs[pair].substring(0, 3)
+        if (!coins.includes(f)) coins.push(f)
+        const s = pairs[pair].substring(3, 6)
+        if (!coins.includes(s)) coins.push(s)
+      }
+
+      const result = { coins, pairs }
+
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
   async getFundingInfo (space, args, cb) {
     try {
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
