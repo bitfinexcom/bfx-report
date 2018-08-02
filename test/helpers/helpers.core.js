@@ -3,28 +3,9 @@
 const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
-const config = require('config')
 
 const readdir = promisify(fs.readdir)
 const unlink = promisify(fs.unlink)
-
-const checkConfAuth = () => {
-  if (
-    config.has('auth') &&
-    config.has('auth.apiKey') &&
-    typeof config.get('auth.apiKey') === 'string' &&
-    config.get('auth.apiKey') &&
-    config.has('auth.apiSecret') &&
-    typeof config.get('auth.apiSecret') === 'string' &&
-    config.get('auth.apiSecret')
-  ) {
-    return
-  }
-
-  const err = new Error('ERR_CONFIG_ARGS_NO_AUTH')
-
-  throw err
-}
 
 const cleanJobs = async (
   queue,
@@ -57,7 +38,6 @@ const queueToPromise = (queue) => {
 }
 
 module.exports = {
-  checkConfAuth,
   cleanJobs,
   rmAllFiles,
   queueToPromise

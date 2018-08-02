@@ -4,37 +4,42 @@ const path = require('path')
 const fs = require('fs')
 const { assert } = require('chai')
 const request = require('supertest')
-const config = require('config')
 
 const {
   startEnviroment,
   stopEnviroment
 } = require('./helpers/helpers.boot')
 const {
-  checkConfAuth,
   cleanJobs,
   rmAllFiles,
   queueToPromise
 } = require('./helpers/helpers.core')
+const { createMockRESTv2SrvWithDate } = require('./helpers/helpers.mock-rest-v2')
 
 const { app } = require('../app')
 const agent = request.agent(app)
 
 let wrkReportServiceApi = null
-let auth = null
+let auth = {
+  apiKey: 'fake',
+  apiSecret: 'fake'
+}
 let processorQueue = null
 let aggregatorQueue = null
+let mockRESTv2Srv = null
 
 const basePath = '/api'
 const tempDirPath = path.join(__dirname, '..', 'workers/loc.api/bull/temp')
 const email = 'fake@mail.fake'
+const date = new Date()
+const end = date.getTime()
+const start = (new Date()).setDate(date.getDate() - 90)
 
 describe('Queue', () => {
   before(async function () {
     this.timeout(20000)
 
-    checkConfAuth()
-    auth = config.get('auth')
+    mockRESTv2Srv = createMockRESTv2SrvWithDate(date)
 
     const env = await startEnviroment()
     wrkReportServiceApi = env.wrkReportServiceApi
@@ -47,6 +52,10 @@ describe('Queue', () => {
 
   after(async function () {
     this.timeout(5000)
+
+    try {
+      await mockRESTv2Srv.close()
+    } catch (err) { }
 
     await cleanJobs(processorQueue)
     await cleanJobs(aggregatorQueue)
@@ -68,8 +77,9 @@ describe('Queue', () => {
         method: 'getLedgersCsv',
         params: {
           symbol: 'BTC',
-          end: (new Date()).getTime(),
-          start: (new Date()).setDate((new Date()).getDate() - 90),
+          end,
+          start,
+          limit: 120000,
           email
         },
         id: 5
@@ -107,8 +117,9 @@ describe('Queue', () => {
         method: 'getTradesCsv',
         params: {
           symbol: 'tBTCUSD',
-          end: (new Date()).getTime(),
-          start: (new Date()).setDate((new Date()).getDate() - 90),
+          end,
+          start,
+          limit: 1000,
           email
         },
         id: 5
@@ -146,8 +157,9 @@ describe('Queue', () => {
         method: 'getOrdersCsv',
         params: {
           symbol: 'tBTCUSD',
-          end: (new Date()).getTime(),
-          start: (new Date()).setDate((new Date()).getDate() - 90),
+          end,
+          start,
+          limit: 1000,
           email
         },
         id: 5
@@ -185,8 +197,9 @@ describe('Queue', () => {
         method: 'getMovementsCsv',
         params: {
           symbol: 'BTC',
-          end: (new Date()).getTime(),
-          start: (new Date()).setDate((new Date()).getDate() - 90),
+          end,
+          start,
+          limit: 1000,
           email
         },
         id: 5
@@ -219,15 +232,12 @@ describe('Queue', () => {
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
-        auth: {
-          apiKey: '---',
-          apiSecret: '---'
-        },
         method: 'getLedgersCsv',
         params: {
           symbol: 'BTC',
-          end: (new Date()).getTime(),
-          start: (new Date()).setDate((new Date()).getDate() - 90),
+          end,
+          start,
+          limit: 1000,
           email
         },
         id: 5
@@ -243,7 +253,7 @@ describe('Queue', () => {
       await procPromise
       assert(false, 'The queue must not completed')
     } catch (err) {
-      assert.include(err.toString(), 'apikey: digest invalid')
+      assert.match(err.toString(), /(apikey: digest invalid)|(ERR_ARGS_NO_AUTH_DATA)/)
     }
   })
 
@@ -258,8 +268,9 @@ describe('Queue', () => {
         method: 'getLedgersCsv',
         params: {
           symbol: 'BTC',
-          end: (new Date()).getTime(),
-          start: (new Date()).setDate((new Date()).getDate() - 90)
+          end,
+          start,
+          limit: 1000
         },
         id: 5
       })

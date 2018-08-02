@@ -2,18 +2,21 @@
 
 const { assert } = require('chai')
 const request = require('supertest')
-const config = require('config')
 
 const {
   startEnviroment,
   stopEnviroment
 } = require('./helpers/helpers.boot')
-const { checkConfAuth } = require('./helpers/helpers.core')
+const { createMockRESTv2SrvWithAllData } = require('./helpers/helpers.mock-rest-v2')
 
 const { app } = require('../app')
 const agent = request.agent(app)
 
-let auth = null
+let auth = {
+  apiKey: 'fake',
+  apiSecret: 'fake'
+}
+let mockRESTv2Srv = null
 
 const basePath = '/api'
 
@@ -21,14 +24,17 @@ describe('API', () => {
   before(async function () {
     this.timeout(20000)
 
-    checkConfAuth()
-    auth = config.get('auth')
+    mockRESTv2Srv = createMockRESTv2SrvWithAllData()
 
     await startEnviroment(false, true)
   })
 
   after(async function () {
     this.timeout(5000)
+
+    try {
+      await mockRESTv2Srv.close()
+    } catch (err) { }
 
     await stopEnviroment()
   })
@@ -51,7 +57,7 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
   })
 
-  it('it should not be successfully auth', async function () {
+  it('it should be successfully auth, with auth token', async function () {
     this.timeout(5000)
 
     const res = await agent
@@ -59,21 +65,19 @@ describe('API', () => {
       .type('json')
       .send({
         auth: {
-          apiKey: '---',
-          apiSecret: '---'
-        }
+          authToken: 'fake'
+        },
+        id: 5
       })
       .expect('Content-Type', /json/)
-      .expect(401)
+      .expect(200)
 
     assert.isObject(res.body)
-    assert.isObject(res.body.error)
-    assert.propertyVal(res.body.error, 'code', 401)
-    assert.propertyVal(res.body.error, 'message', 'Unauthorized')
-    assert.propertyVal(res.body, 'id', null)
+    assert.propertyVal(res.body, 'result', true)
+    assert.propertyVal(res.body, 'id', 5)
   })
 
-  it('it should not be successfully auth, with an empty string', async function () {
+  it('it should not be successfully auth', async function () {
     this.timeout(5000)
 
     const res = await agent
@@ -340,36 +344,6 @@ describe('API', () => {
         'transactionId'
       ])
     }
-  })
-
-  it('it should not be successfully auth by the getMovements method', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/get-data`)
-      .type('json')
-      .send({
-        auth: {
-          apiKey: '---',
-          apiSecret: '---'
-        },
-        method: 'getMovements',
-        params: {
-          symbol: 'BTC',
-          start: 0,
-          end: (new Date()).getTime,
-          limit: 1
-        },
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(401)
-
-    assert.isObject(res.body)
-    assert.isObject(res.body.error)
-    assert.propertyVal(res.body.error, 'code', 401)
-    assert.propertyVal(res.body.error, 'message', 'Unauthorized')
-    assert.propertyVal(res.body, 'id', 5)
   })
 
   it('it should not be successfully performed by the getMovements method', async function () {
