@@ -37,8 +37,87 @@ const queueToPromise = (queue) => {
   })
 }
 
+const queueToPromiseMulti = (queue, count, cb = () => { }) => {
+  return new Promise((resolve, reject) => {
+    let currCount = 0
+
+    const onCompleted = (job, result) => {
+      currCount += 1
+
+      try {
+        cb(result)
+      } catch (err) {
+        reject(err)
+      }
+
+      if (currCount >= count) {
+        queue.removeListener('completed', onCompleted)
+        resolve()
+      }
+    }
+
+    queue.once('failed', (job, err) => {
+      reject(err)
+    })
+    queue.once('error', (err) => {
+      reject(err)
+    })
+    queue.on('completed', onCompleted)
+  })
+}
+
+const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
+  return new Promise((resolve, reject) => {
+    let currCount = 0
+
+    const onCompleted = (job, result) => {
+      currCount += 1
+
+      try {
+        cb(result)
+      } catch (err) {
+        reject(err)
+      }
+
+      if (currCount >= count) {
+        queues.forEach(queue => {
+          queue.removeListener('completed', onCompleted)
+        })
+
+        resolve()
+      }
+    }
+
+    queues.forEach(queue => {
+      queue.once('failed', (job, err) => {
+        reject(err)
+      })
+      queue.once('error', (err) => {
+        reject(err)
+      })
+      queue.on('completed', onCompleted)
+    })
+  })
+}
+
+const asyncForEach = async (arr, cb) => {
+  for (let i = 0; i < arr.length; i += 1) {
+    await cb(arr[i], i, arr)
+  }
+}
+
+const delay = (mc = 1000) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, mc)
+  })
+}
+
 module.exports = {
   cleanJobs,
   rmAllFiles,
-  queueToPromise
+  queueToPromise,
+  queueToPromiseMulti,
+  queuesToPromiseMulti,
+  asyncForEach,
+  delay
 }

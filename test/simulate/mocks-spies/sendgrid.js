@@ -26,7 +26,7 @@ function addFunctions (ExtApi) {
         res: res[0],
         timestamp: Date.now()
       }
-      grcBfx.req('rest:ext:testcalls', 'addCall', [call], {timeout: 2000}, (err, data) => {
+      grcBfx.req('rest:ext:testcalls', 'addCall', [call], { timeout: 10000 }, (err, data) => {
         if (err) cb(new Error('ext.sendgrid:sendEmail:testcalls'))
         else return cb(null, res && res.length && res[0])
       })

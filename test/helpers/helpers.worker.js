@@ -6,7 +6,7 @@ const { runWorker } = require('./worker-for-test')
 
 const ipc = []
 
-let wrkReportServiceApi = null
+let wrksReportServiceApi = []
 
 const startHelpers = (
   logs,
@@ -32,33 +32,43 @@ const startHelpers = (
   })
 }
 
-const startWorkers = (logs, isRootWrk) => {
-  if (isRootWrk) {
-    const wrkIpc = fork(
-      path.join(__dirname, '../..', 'worker.js'),
-      [
-        '--env=development',
-        '--wtype=wrk-report-service-api',
-        '--apiPort=1338'
-      ],
-      {
-        silent: !logs
-      }
-    )
+const startWorkers = (logs, isRootWrk, countWrk = 1) => {
+  let apiPort = 13381
 
-    ipc.push(wrkIpc)
-  } else {
-    wrkReportServiceApi = runWorker({
-      wtype: 'wrk-report-service-api',
-      apiPort: 1338
-    })
+  for (let i = 0; i < countWrk; i += 1) {
+    if (isRootWrk) {
+      const wrkIpc = fork(
+        path.join(__dirname, '../..', 'worker.js'),
+        [
+          '--env=development',
+          '--wtype=wrk-report-service-api',
+          `--apiPort=${apiPort}`
+        ],
+        {
+          silent: !logs
+        }
+      )
+
+      ipc.push(wrkIpc)
+    } else {
+      const wrk = runWorker({
+        wtype: 'wrk-report-service-api',
+        apiPort
+      })
+
+      wrksReportServiceApi.push(wrk)
+    }
+
+    apiPort += 1
   }
 
   ipc.push(...startHelpers(logs))
 
   return {
-    wrkReportServiceApi,
-    amount: isRootWrk ? ipc.length : ipc.length + 1
+    wrksReportServiceApi,
+    amount: (isRootWrk
+      ? ipc.length
+      : (ipc.length + wrksReportServiceApi.length))
   }
 }
 
@@ -74,11 +84,22 @@ const closeIpc = (ipc, resolve = (() => { })) => {
   }
 }
 
+const closeWrks = (wrks, resolve = (() => { })) => {
+  if (wrks.length) {
+    const close = wrks.pop()
+    close.stop(() => {
+      closeWrks(wrks, resolve)
+    })
+  } else {
+    resolve()
+  }
+}
+
 const stopWorkers = () => {
   return new Promise((resolve, reject) => {
     try {
-      if (wrkReportServiceApi) {
-        wrkReportServiceApi.stop(() => {
+      if (wrksReportServiceApi.length) {
+        closeWrks(wrksReportServiceApi, () => {
           closeIpc(ipc, resolve)
         })
       } else closeIpc(ipc, resolve)
@@ -92,5 +113,6 @@ module.exports = {
   stopWorkers,
   startWorkers,
   startHelpers,
-  closeIpc
+  closeIpc,
+  closeWrks
 }

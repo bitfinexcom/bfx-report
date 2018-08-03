@@ -12,7 +12,8 @@ const {
 const {
   cleanJobs,
   rmAllFiles,
-  queueToPromise
+  queueToPromise,
+  queueToPromiseMulti
 } = require('./helpers/helpers.core')
 const { createMockRESTv2SrvWithDate } = require('./helpers/helpers.mock-rest-v2')
 
@@ -42,7 +43,7 @@ describe('Queue', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithDate(date)
 
     const env = await startEnviroment()
-    wrkReportServiceApi = env.wrkReportServiceApi
+    wrkReportServiceApi = env.wrksReportServiceApi[0]
     processorQueue = wrkReportServiceApi.bull_processor.queue
     aggregatorQueue = wrkReportServiceApi.bull_aggregator.queue
 
@@ -53,14 +54,14 @@ describe('Queue', () => {
   after(async function () {
     this.timeout(5000)
 
-    try {
-      await mockRESTv2Srv.close()
-    } catch (err) { }
-
     await cleanJobs(processorQueue)
     await cleanJobs(aggregatorQueue)
     await rmAllFiles(tempDirPath)
     await stopEnviroment()
+
+    try {
+      await mockRESTv2Srv.close()
+    } catch (err) { }
   })
 
   it('it should be successfully performed by the getLedgersCsv method', async function () {
@@ -79,7 +80,7 @@ describe('Queue', () => {
           symbol: 'BTC',
           end,
           start,
-          limit: 120000,
+          limit: 1000,
           email
         },
         id: 5
@@ -101,6 +102,8 @@ describe('Queue', () => {
     assert.isOk(fs.existsSync(procRes.filePath))
 
     await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
   })
 
   it('it should be successfully performed by the getTradesCsv method', async function () {
@@ -141,6 +144,8 @@ describe('Queue', () => {
     assert.isOk(fs.existsSync(procRes.filePath))
 
     await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
   })
 
   it('it should be successfully performed by the getOrdersCsv method', async function () {
@@ -181,6 +186,8 @@ describe('Queue', () => {
     assert.isOk(fs.existsSync(procRes.filePath))
 
     await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
   })
 
   it('it should be successfully performed by the getMovementsCsv method', async function () {
@@ -221,6 +228,8 @@ describe('Queue', () => {
     assert.isOk(fs.existsSync(procRes.filePath))
 
     await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
   })
 
   it('it should not be successfully auth by the getLedgersCsv method', async function () {
@@ -283,5 +292,51 @@ describe('Queue', () => {
     assert.isObject(res.body.error)
     assert.propertyVal(res.body.error, 'code', 500)
     assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+  })
+
+  it('it should be successfully performed by the getLedgersCsv method, with multiple users', async function () {
+    this.timeout(2 * 60000)
+
+    const count = 10
+    const procPromise = queueToPromiseMulti(
+      processorQueue,
+      count,
+      procRes => {
+        assert.isObject(procRes)
+        assert.property(procRes, 'filePath')
+        assert.property(procRes, 'email')
+        assert.isString(procRes.filePath)
+        assert.isString(procRes.email)
+        assert.isOk(fs.existsSync(procRes.filePath))
+      }
+    )
+    const aggrPromise = queueToPromiseMulti(aggregatorQueue, count)
+
+    for (let i = 0; i < count; i += 1) {
+      const res = await agent
+        .post(`${basePath}/get-data`)
+        .type('json')
+        .send({
+          auth,
+          method: 'getLedgersCsv',
+          params: {
+            symbol: 'BTC',
+            end,
+            start,
+            limit: 10000, // TODO:
+            email
+          },
+          id: 5
+        })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      assert.isObject(res.body)
+      assert.propertyVal(res.body, 'id', 5)
+      assert.isOk(res.body.result)
+    }
+
+    await procPromise
+    await aggrPromise
   })
 })

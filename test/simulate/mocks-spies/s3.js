@@ -22,7 +22,7 @@ function addFunctions (ExtApi) {
       'rest:ext:testcalls',
       'addCall',
       [call],
-      { timeout: 2000 },
+      { timeout: 10000 },
       (err, data) => {
         if (err) cb(new Error('ext.s3:uploadPresigned:testcalls'))
         else return cb(null, upload)

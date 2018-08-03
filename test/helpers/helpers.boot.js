@@ -6,13 +6,13 @@ const { bootTwoGrapes, killGrapes } = require('./helpers.grape')
 
 let grapes = null
 
-const startEnviroment = (logs = false, isRootWrk = false) => {
+const startEnviroment = (logs = false, isRootWrk = false, countWrk = 1) => {
   return new Promise((resolve, reject) => {
     let count = 0
 
     bootTwoGrapes(async (err, g) => {
-      if (err) throw err
-      const { wrkReportServiceApi, amount } = startWorkers(logs, isRootWrk)
+      if (err) reject(err)
+      const { wrksReportServiceApi, amount } = startWorkers(logs, isRootWrk, countWrk)
 
       grapes = g
 
@@ -30,7 +30,7 @@ const startEnviroment = (logs = false, isRootWrk = false) => {
               'rest:ext:testcalls'
             )
 
-            resolve({ request, requestCalls, wrkReportServiceApi })
+            resolve({ request, requestCalls, wrksReportServiceApi })
           } catch (e) {
             reject(e)
           }

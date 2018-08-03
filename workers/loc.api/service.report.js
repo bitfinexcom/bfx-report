@@ -153,7 +153,8 @@ class ReportService extends Api {
         }
       }
 
-      await processorQueue.add(method, jobData)
+      // TODO:
+      await processorQueue.add(method, jobData, { delay: 2000 })
 
       cb(null, true)
     } catch (err) {
