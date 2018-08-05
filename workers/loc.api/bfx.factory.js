@@ -15,12 +15,13 @@ const _checkConf = (conf) => {
   throw err
 }
 
-const createBFX = ({ apiKey = '', apiSecret = '', conf = {} }) => {
+const createBFX = ({ apiKey = '', apiSecret = '', authToken = '', conf = {} }) => {
   _checkConf(conf)
-
+  const auth = (authToken)
+    ? { authToken }
+    : { apiKey, apiSecret }
   return new BFX({
-    apiKey,
-    apiSecret,
+    ...auth,
     rest: {
       url: conf.restUrl
     }

@@ -1,0 +1,10 @@
+{
+  "aggregator": {
+    "s3": {
+      "bucket": "",
+      "acl": "",
+      "signedUrlExpireTime": 28800,
+      "contentDisposition": "attachment"
+    }
+  }
+}

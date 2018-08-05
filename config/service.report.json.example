@@ -2,5 +2,9 @@
   "grcServices": [
     "rest:report:api"
   ],
+  "redisConnection": {
+    "port": "6379",
+    "host": "127.0.0.1"
+  },
   "restUrl": "https://api.bitfinex.com"
 }
