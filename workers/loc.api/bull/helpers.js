@@ -6,6 +6,7 @@ const fs = require('fs')
 const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
 const moment = require('moment')
+const pug = require('pug')
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
@@ -13,6 +14,7 @@ const readdir = promisify(fs.readdir)
 const readFile = promisify(fs.readFile)
 
 const tempDirPath = path.join(__dirname, 'temp')
+const basePathToViews = path.join(__dirname, 'views')
 
 const _checkAndCreateDir = async () => {
   try {
@@ -244,6 +246,38 @@ const uploadS3 = async (reportService, filePath, queueName) => {
           return
         }
 
+        resolve({
+          ...data,
+          fileName
+        })
+      }
+    )
+  })
+}
+
+const sendMail = (reportService, to, viewName, data) => {
+  const grcBfx = reportService.ctx.grc_bfx
+  const configs = reportService.ctx.bull_aggregator.conf
+  const text = pug.renderFile(path.join(basePathToViews, viewName), data)
+  const mailOptions = {
+    to,
+    text,
+    ...configs.emailOpts
+  }
+
+  return new Promise((resolve, reject) => {
+    grcBfx.req(
+      'rest:ext:sendgrid',
+      'sendEmail',
+      [mailOptions],
+      { timeout: 10000 },
+      (err, data) => {
+        if (err) {
+          reject(err)
+
+          return
+        }
+
         resolve(data)
       }
     )
@@ -255,5 +289,6 @@ module.exports = {
   writableToPromise,
   writeDataToStream,
   isAuthError,
-  uploadS3
+  uploadS3,
+  sendMail
 }

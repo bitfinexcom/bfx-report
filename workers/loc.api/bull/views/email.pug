@@ -1,0 +1,16 @@
+p
+  | Your download link 
+  b
+    | #{fileName}.csv 
+  | is ready
+p
+  | Click the button below to download
+table.btn.btn-primary(border='0', cellpadding='0', cellspacing='0', style='margin-top:30px;margin-bottom:30px;width: 100%;')
+  tbody
+    tr
+      td(align='center')
+        table(border='0', cellpadding='0', cellspacing='0')
+          tbody
+            tr
+              td
+                a(href=public_url, target='_blank', style='background-color: #3498db;border: solid 1px #3498db;border-radius: 5px;box-sizing: border-box;color: #ffffff;cursor: pointer;display: inline-block;font-size: 14px;font-weight: bold;margin: 0;padding: 12px 25px;text-decoration: none;text-transform: capitalize;') Download CSV
