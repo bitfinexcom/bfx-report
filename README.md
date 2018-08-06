@@ -21,6 +21,7 @@ cp config/default.json.example config/default.json
 cp config/common.json.example config/common.json
 cp config/service.report.json.example config/service.report.json
 cp config/facs/grc.config.json.example config/facs/grc.config.json
+cp config/facs/bull.config.json.example config/facs/bull.config.json
 ```
 
 - To set grenache client for express, edit common.json. If running locally, leave actual values skipping this step.
