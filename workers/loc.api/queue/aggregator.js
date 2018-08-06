@@ -10,20 +10,25 @@ const { uploadS3, sendMail } = require('./helpers')
 let reportService = null
 
 module.exports = async job => {
+  const aggregatorQueue = reportService.ctx.lokue_aggregator.q
+
   try {
     const data = job.data
 
-    const s3Data = await uploadS3(reportService, data.filePath, job.name)
-    await sendMail(reportService, data.email, 'email.pug', s3Data)
+    const s3Data = await uploadS3(reportService, data.s3Conf, data.filePath, data.name)
+    await sendMail(reportService, data.emailConf, data.email, 'email.pug', s3Data)
     await unlink(data.filePath)
 
-    return Promise.resolve()
+    job.done()
+    aggregatorQueue.emit('completed')
   } catch (err) {
     if (err.syscall === 'unlink') {
-      await job.discard()
+      job.done()
+      aggregatorQueue.emit('error:unlink', job)
     }
 
-    return Promise.reject(err)
+    job.done(err)
+    aggregatorQueue.emit('error:base', job)
   }
 }
 

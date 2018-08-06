@@ -113,18 +113,20 @@ const _write = (res, stream, formatSettings) => {
   })
 }
 
-const _progress = (job, currTime, { start, end }) => {
+const _progress = (queue, currTime, { start, end }) => {
   const percent = Math.round(((currTime - start) / (end - start)) * 100)
 
-  return job.progress(percent)
+  queue.emit('progress', percent)
 }
 
 const writeDataToStream = async (reportService, stream, job) => {
-  const method = job.name
+  const method = job.data.name
 
   if (typeof reportService[method] !== 'function') {
     throw new Error('ERR_METHOD_NOT_FOUND')
   }
+
+  const queue = reportService.ctx.lokue_aggregator.q
 
   const _args = _.cloneDeep(job.data.args)
   _args.params.end = _args.params.end
@@ -142,7 +144,7 @@ const writeDataToStream = async (reportService, stream, job) => {
   let count = 0
 
   while (true) {
-    await job.progress(0)
+    queue.emit('progress', 0)
 
     try {
       res = await getData(null, currIterationArgs)
@@ -154,7 +156,7 @@ const writeDataToStream = async (reportService, stream, job) => {
     }
 
     if (!res || !Array.isArray(res) || res.length === 0) {
-      if (count > 0) await job.progress(100)
+      if (count > 0) queue.emit('progress', 100)
 
       break
     }
@@ -188,12 +190,12 @@ const writeDataToStream = async (reportService, stream, job) => {
     const needElems = _args.params.limit - count
 
     if (isAllData || needElems <= 0) {
-      await job.progress(100)
+      queue.on('progress', 100)
 
       break
     }
 
-    await _progress(job, currTime, _args.params)
+    _progress(queue, currTime, _args.params)
 
     currIterationArgs.params.end = lastItem[propName] - 1
     if (needElems) currIterationArgs.params.limit = needElems
@@ -217,9 +219,8 @@ const _getFileNameForS3 = queueName => {
   return _fileNamesMap.get(queueName)
 }
 
-const uploadS3 = async (reportService, filePath, queueName) => {
+const uploadS3 = async (reportService, configs, filePath, queueName) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const configs = reportService.ctx.bull_aggregator.conf.s3
   const buffer = await readFile(filePath)
   const fileName = _getFileNameForS3(queueName)
 
@@ -255,14 +256,13 @@ const uploadS3 = async (reportService, filePath, queueName) => {
   })
 }
 
-const sendMail = (reportService, to, viewName, data) => {
+const sendMail = (reportService, configs, to, viewName, data) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const configs = reportService.ctx.bull_aggregator.conf
   const text = pug.renderFile(path.join(basePathToViews, viewName), data)
   const mailOptions = {
     to,
     text,
-    ...configs.emailOpts
+    ...configs
   }
 
   return new Promise((resolve, reject) => {

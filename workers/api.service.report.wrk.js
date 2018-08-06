@@ -3,8 +3,8 @@
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
 
-const bullProcessor = require('./loc.api/bull/bull.processor')
-const bullAggregator = require('./loc.api/bull/bull.aggregator')
+const processor = require('./loc.api/queue/processor')
+const aggregator = require('./loc.api/queue/aggregator')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -24,11 +24,10 @@ class WrkReportServiceApi extends WrkApi {
 
   getPluginCtx (type) {
     const ctx = super.getPluginCtx(type)
-    const appType = this.conf.app_type
 
-    if (type === 'api_bfx' && appType === 'nodejs') {
-      ctx.bull_processor = this.bull_processor
-      ctx.bull_aggregator = this.bull_aggregator
+    if (type === 'api_bfx') {
+      ctx.lokue_processor = this.lokue_processor
+      ctx.lokue_aggregator = this.lokue_aggregator
     }
 
     return ctx
@@ -37,60 +36,51 @@ class WrkReportServiceApi extends WrkApi {
   init () {
     super.init()
 
-    const appType = this.conf.app_type
+    const persist = true
 
-    if (appType === 'nodejs') {
-      const facs = [
-        [
-          'fac',
-          'bfx-facs-bull',
-          'processor',
-          'processor',
-          () => this.getBullConf('processor')
-        ],
-        [
-          'fac',
-          'bfx-facs-bull',
-          'aggregator',
-          'aggregator',
-          () => this.getBullConf('aggregator')
-        ]
+    const facs = [
+      [
+        'fac',
+        'bfx-facs-lokue',
+        'processor',
+        'processor',
+        { persist, name: 'queue' }
+      ],
+      [
+        'fac',
+        'bfx-facs-lokue',
+        'aggregator',
+        'aggregator',
+        { persist, name: 'queue' }
       ]
-      this.setInitFacs(facs)
-    }
-  }
-
-  getBullConf (name) {
-    const group = this.group
-    const conf = this.conf[group]
-
-    return (conf && conf.redisConnection)
-      ? { ...conf.redisConnection, queue: name }
-      : null
+    ]
+    this.setInitFacs(facs)
   }
 
   _start (cb) {
-    const appType = this.conf.app_type
-
     async.series([
       next => {
         super._start(next)
       },
       next => {
-        if (appType === 'nodejs') {
-          const processorQueue = this.bull_processor.queue
-          const aggregatorQueue = this.bull_aggregator.queue
+        const processorQueue = this.lokue_processor.q
+        const aggregatorQueue = this.lokue_aggregator.q
+        const group = this.group
+        const conf = this.conf[group]
 
-          bullProcessor.setReportService(this.grc_bfx.api)
-          bullAggregator.setReportService(this.grc_bfx.api)
+        processor.setReportService(this.grc_bfx.api)
+        aggregator.setReportService(this.grc_bfx.api)
 
-          processorQueue.process('*', bullProcessor)
-          aggregatorQueue.process('*', bullAggregator)
+        processorQueue.on('job', processor)
+        aggregatorQueue.on('job', aggregator)
 
-          processorQueue.on('completed', (job, result) => {
-            aggregatorQueue.add(job.name, result)
+        processorQueue.on('completed', (result) => {
+          aggregatorQueue.addJob({
+            ...result,
+            emailConf: conf.emailConf,
+            s3Conf: conf.s3Conf
           })
-        }
+        })
 
         next()
       }
