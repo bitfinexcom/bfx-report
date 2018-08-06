@@ -16,6 +16,7 @@ let reportService = null
 
 module.exports = async job => {
   let filePath = null
+  const processorQueue = reportService.ctx.lokue_processor.q
 
   try {
     filePath = await createUniqueFileName()
@@ -38,20 +39,26 @@ module.exports = async job => {
 
     await writablePromise
 
-    return Promise.resolve({
+    job.done()
+    processorQueue.emit('completed', {
+      name: job.data.name,
       filePath,
       email: job.data.args.params.email
     })
   } catch (err) {
     try {
       await unlink(filePath)
-    } catch (err) {}
-
-    if (isAuthError(err)) {
-      await job.discard()
+    } catch (err) {
+      processorQueue.emit('error:unlink', job)
     }
 
-    return Promise.reject(err)
+    job.done(err)
+
+    if (isAuthError(err)) {
+      processorQueue.emit('error:auth', job)
+    }
+
+    processorQueue.emit('error:base', job)
   }
 }
 

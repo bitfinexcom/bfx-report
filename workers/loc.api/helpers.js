@@ -38,19 +38,6 @@ const getParams = (args, maxLimit) => {
   return params
 }
 
-const isAllowMethod = (ctx) => {
-  if (
-    ctx.grc_bfx &&
-    ctx.grc_bfx.caller &&
-    ctx.grc_bfx.caller.conf &&
-    ctx.grc_bfx.caller.conf.app_type === 'electron'
-  ) {
-    throw new Error('ERR_API_ACTION_NOTFOUND')
-  }
-
-  return true
-}
-
 const checkParams = (args) => {
   if (
     !args.params ||
@@ -68,6 +55,5 @@ module.exports = {
   getREST,
   getLimitNotMoreThan,
   getParams,
-  isAllowMethod,
   checkParams
 }
