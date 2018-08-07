@@ -40,6 +40,32 @@ const checkAuth = async (req, res) => {
   }
 }
 
+const checkStoredLocally = async (req, res) => {
+  const id = req.body.id || null
+  const queryS3 = {
+    action: 'lookUpFunction',
+    args: [{
+      params: { service: 'rest:ext:s3' }
+    }]
+  }
+  const querySendgrid = {
+    action: 'lookUpFunction',
+    args: [{
+      params: { service: 'rest:ext:sendgrid' }
+    }]
+  }
+
+  try {
+    const countS3Services = await gClientService.request(queryS3)
+    const countSendgridServices = await gClientService.request(querySendgrid)
+    const result = !!(countS3Services && countSendgridServices)
+
+    success(200, { result, id }, res)
+  } catch (err) {
+    failureInternalServerError(res, id)
+  }
+}
+
 const getData = async (req, res) => {
   const body = { ...req.body }
   const id = body.id || null
@@ -66,5 +92,6 @@ const getData = async (req, res) => {
 
 module.exports = {
   checkAuth,
+  checkStoredLocally,
   getData
 }
