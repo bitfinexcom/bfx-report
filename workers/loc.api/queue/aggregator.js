@@ -28,7 +28,7 @@ module.exports = async job => {
       await sendMail(reportService, data.emailConf, data.email, 'email.pug', s3Data)
       await unlink(data.filePath)
     } else {
-      await moveFileToLocalStorage(filePath, name)
+      await moveFileToLocalStorage(filePath, name, data.startDate, data.endDate)
     }
 
     job.done()

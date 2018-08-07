@@ -43,7 +43,9 @@ module.exports = async job => {
     processorQueue.emit('completed', {
       name: job.data.name,
       filePath,
-      email: job.data.args.params.email
+      email: job.data.args.params.email,
+      endDate: job.data.args.params.end,
+      startDate: job.data.args.params.start
     })
   } catch (err) {
     try {
