@@ -13,6 +13,17 @@ class ReportService extends Api {
     return space
   }
 
+  async getEmail (space, args, cb) {
+    try {
+      // TODO: Waiting for implemenatition of api_v2 end point
+      const result = 'example@email.com'
+
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
   lookUpFunction (space, args, cb) {
     try {
       if (typeof args.params !== 'object') {

@@ -252,6 +252,12 @@ const moveFileToLocalStorage = async (filePath, name, start, end) => {
   await rename(filePath, newFilePath)
 }
 
+const getEmail = async (reportService, args) => {
+  const getEmail = promisify(reportService.getEmail.bind(reportService))
+
+  return getEmail(null, args)
+}
+
 const uploadS3 = async (reportService, configs, filePath, queueName) => {
   const grcBfx = reportService.ctx.grc_bfx
   const buffer = await readFile(filePath)
@@ -325,5 +331,6 @@ module.exports = {
   uploadS3,
   sendMail,
   hasS3AndSendgrid,
-  moveFileToLocalStorage
+  moveFileToLocalStorage,
+  getEmail
 }
