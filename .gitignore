@@ -12,3 +12,4 @@ logs/*
 workers/loc.api/bull/temp/
 db/*
 !db/.gitkeep
+csv/

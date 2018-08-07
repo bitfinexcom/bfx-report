@@ -5,7 +5,12 @@ const fs = require('fs')
 
 const unlink = promisify(fs.unlink)
 
-const { uploadS3, sendMail } = require('./helpers')
+const {
+  uploadS3,
+  sendMail,
+  hasS3AndSendgrid,
+  moveFileToLocalStorage
+} = require('./helpers')
 
 let reportService = null
 
@@ -14,10 +19,17 @@ module.exports = async job => {
 
   try {
     const data = job.data
+    const filePath = data.filePath
+    const name = data.name
+    const isEnableS3AndSendgrid = await hasS3AndSendgrid(reportService)
 
-    const s3Data = await uploadS3(reportService, data.s3Conf, data.filePath, data.name)
-    await sendMail(reportService, data.emailConf, data.email, 'email.pug', s3Data)
-    await unlink(data.filePath)
+    if (isEnableS3AndSendgrid) {
+      const s3Data = await uploadS3(reportService, data.s3Conf, filePath, name)
+      await sendMail(reportService, data.emailConf, data.email, 'email.pug', s3Data)
+      await unlink(data.filePath)
+    } else {
+      await moveFileToLocalStorage(filePath, name)
+    }
 
     job.done()
     aggregatorQueue.emit('completed')

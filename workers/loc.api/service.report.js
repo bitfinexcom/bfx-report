@@ -13,6 +13,25 @@ class ReportService extends Api {
     return space
   }
 
+  lookUpFunction (space, args, cb) {
+    try {
+      if (typeof args.params !== 'object') {
+        throw new Error('ERR_ARGS_NO_PARAMS')
+      }
+
+      const { service } = args.params
+      const grape = this.ctx.grc_bfx
+
+      grape.link.lookup(service, (err, res) => {
+        const amount = (!err) ? res.length : 0
+
+        cb(null, amount)
+      })
+    } catch (err) {
+      cb(err)
+    }
+  }
+
   async getSymbols (space, args, cb) {
     try {
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
