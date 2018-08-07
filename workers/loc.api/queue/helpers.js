@@ -193,7 +193,7 @@ const writeDataToStream = async (reportService, stream, job) => {
     const needElems = _args.params.limit - count
 
     if (isAllData || needElems <= 0) {
-      queue.on('progress', 100)
+      queue.emit('progress', 100)
 
       break
     }
