@@ -9,7 +9,8 @@ const {
   createUniqueFileName,
   writableToPromise,
   writeDataToStream,
-  isAuthError
+  isAuthError,
+  writeMessageToStream
 } = require('./helpers')
 
 let reportService = null
@@ -21,6 +22,7 @@ module.exports = async job => {
   try {
     filePath = await createUniqueFileName()
 
+    const isUnauth = job.data.isUnauth || false
     const writable = fs.createWriteStream(filePath)
     const writablePromise = writableToPromise(writable)
     const stringifier = stringify({
@@ -29,12 +31,21 @@ module.exports = async job => {
     })
 
     stringifier.pipe(writable)
-    await writeDataToStream(
-      reportService,
-      stringifier,
-      job,
-      filePath
-    )
+
+    if (isUnauth) {
+      await writeMessageToStream(
+        reportService,
+        stringifier,
+        'Your file could not be completed, please try again'
+      )
+    } else {
+      await writeDataToStream(
+        reportService,
+        stringifier,
+        job
+      )
+    }
+
     stringifier.end()
 
     await writablePromise
@@ -43,7 +54,8 @@ module.exports = async job => {
     processorQueue.emit('completed', {
       name: job.data.name,
       filePath,
-      email: job.data.args.params.email
+      email: job.data.args.params.email,
+      isUnauth
     })
   } catch (err) {
     try {

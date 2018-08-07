@@ -193,7 +193,7 @@ const writeDataToStream = async (reportService, stream, job) => {
     const needElems = _args.params.limit - count
 
     if (isAllData || needElems <= 0) {
-      queue.on('progress', 100)
+      queue.emit('progress', 100)
 
       break
     }
@@ -205,6 +205,14 @@ const writeDataToStream = async (reportService, stream, job) => {
   }
 
   return Promise.resolve()
+}
+
+const writeMessageToStream = (reportService, stream, message) => {
+  const queue = reportService.ctx.lokue_aggregator.q
+
+  queue.emit('progress', 0)
+  _write([message], stream)
+  queue.emit('progress', 100)
 }
 
 const _fileNamesMap = new Map([
@@ -319,5 +327,6 @@ module.exports = {
   uploadS3,
   sendMail,
   hasS3AndSendgrid,
-  moveFileToLocalStorage
+  moveFileToLocalStorage,
+  writeMessageToStream
 }
