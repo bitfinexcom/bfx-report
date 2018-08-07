@@ -10,7 +10,8 @@ const {
   writableToPromise,
   writeDataToStream,
   isAuthError,
-  writeMessageToStream
+  writeMessageToStream,
+  getEmail
 } = require('./helpers')
 
 let reportService = null
@@ -49,12 +50,15 @@ module.exports = async job => {
     stringifier.end()
 
     await writablePromise
+    const email = await getEmail(reportService, { auth: job.data.args.auth })
 
     job.done()
     processorQueue.emit('completed', {
       name: job.data.name,
       filePath,
-      email: job.data.args.params.email,
+      email,
+      endDate: job.data.args.params.end,
+      startDate: job.data.args.params.start,
       isUnauth
     })
   } catch (err) {

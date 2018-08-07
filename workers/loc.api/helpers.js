@@ -42,7 +42,6 @@ const checkParams = (args) => {
   if (
     !args.params ||
     typeof args.params !== 'object' ||
-    typeof args.params.email !== 'string' ||
     (args.params.limit && !Number.isInteger(args.params.limit)) ||
     (args.params.start && !Number.isInteger(args.params.start)) ||
     (args.params.end && !Number.isInteger(args.params.end))
