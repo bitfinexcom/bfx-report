@@ -122,6 +122,10 @@ const _progress = (queue, currTime, { start, end }) => {
   queue.emit('progress', percent)
 }
 
+const _getDateString = mc => {
+  return (new Date(mc)).toDateString().split(' ').join('-')
+}
+
 const writeDataToStream = async (reportService, stream, job) => {
   const method = job.data.name
 
@@ -193,7 +197,7 @@ const writeDataToStream = async (reportService, stream, job) => {
     const needElems = _args.params.limit - count
 
     if (isAllData || needElems <= 0) {
-      queue.on('progress', 100)
+      queue.emit('progress', 100)
 
       break
     }
@@ -235,15 +239,23 @@ const hasS3AndSendgrid = async reportService => {
   return !!(countS3Services && countSendgridServices)
 }
 
-const moveFileToLocalStorage = async (filePath, name) => {
+const moveFileToLocalStorage = async (filePath, name, start, end) => {
   await _checkAndCreateDir(localStorageDirPath)
 
   const baseName = _getFileNameForS3(name)
   const timestamp = (new Date()).toISOString()
-  const fileName = `${baseName}-${timestamp}.csv`
+  const startDate = start ? _getDateString(start) : _getDateString(0)
+  const endDate = end ? _getDateString(end) : _getDateString((new Date()).getTime())
+  const fileName = `${baseName}_FROM:_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
   const newFilePath = path.join(localStorageDirPath, fileName)
 
   await rename(filePath, newFilePath)
+}
+
+const getEmail = async (reportService, args) => {
+  const getEmail = promisify(reportService.getEmail.bind(reportService))
+
+  return getEmail(null, args)
 }
 
 const uploadS3 = async (reportService, configs, filePath, queueName) => {
@@ -319,5 +331,6 @@ module.exports = {
   uploadS3,
   sendMail,
   hasS3AndSendgrid,
-  moveFileToLocalStorage
+  moveFileToLocalStorage,
+  getEmail
 }
