@@ -1,8 +1,5 @@
 'use strict'
 
-const config = require('config')
-const request = require('superagent')
-
 const {
   grenacheClientService: gClientService,
   helpers
@@ -12,23 +9,6 @@ const {
   failureInternalServerError,
   failureUnauthorized
 } = helpers.responses
-
-const _redirectCsvUrl = config.has('redirectCsvUrl')
-  ? config.get('redirectCsvUrl')
-  : null
-
-const _redirectMethods = [
-  'getTradesCsv',
-  'getLedgersCsv',
-  'getOrdersCsv',
-  'getMovementsCsv'
-]
-
-const _isEnableRedirectCsvElectron = (
-  config.has('app_type') &&
-  config.get('app_type') === 'electron' &&
-  _redirectCsvUrl
-)
 
 const _isAuthError = (err) => {
   return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
@@ -60,6 +40,32 @@ const checkAuth = async (req, res) => {
   }
 }
 
+const checkStoredLocally = async (req, res) => {
+  const id = req.body.id || null
+  const queryS3 = {
+    action: 'lookUpFunction',
+    args: [{
+      params: { service: 'rest:ext:s3' }
+    }]
+  }
+  const querySendgrid = {
+    action: 'lookUpFunction',
+    args: [{
+      params: { service: 'rest:ext:sendgrid' }
+    }]
+  }
+
+  try {
+    const countS3Services = await gClientService.request(queryS3)
+    const countSendgridServices = await gClientService.request(querySendgrid)
+    const result = !!(countS3Services && countSendgridServices)
+
+    success(200, { result, id }, res)
+  } catch (err) {
+    failureInternalServerError(res, id)
+  }
+}
+
 const getData = async (req, res) => {
   const body = { ...req.body }
   const id = body.id || null
@@ -70,22 +76,6 @@ const getData = async (req, res) => {
   }
 
   try {
-    if (
-      _isEnableRedirectCsvElectron &&
-      _redirectMethods.some(item => req.body.method === item)
-    ) {
-      const url = _redirectCsvUrl + req.originalUrl
-      const method = req.method.toLowerCase()
-      const result = await request[method](url)
-        .timeout(30000)
-        .type('json')
-        .send(req.body)
-
-      success(200, result, res)
-
-      return
-    }
-
     const result = await gClientService.request(query)
 
     success(200, { result, id }, res)
@@ -102,5 +92,6 @@ const getData = async (req, res) => {
 
 module.exports = {
   checkAuth,
+  checkStoredLocally,
   getData
 }

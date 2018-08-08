@@ -10,3 +10,6 @@ config/facs/*.json
 logs/*
 !logs/.gitkeep
 workers/loc.api/bull/temp/
+db/*
+!db/.gitkeep
+csv/

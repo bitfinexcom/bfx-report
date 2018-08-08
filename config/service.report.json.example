@@ -2,9 +2,15 @@
   "grcServices": [
     "rest:report:api"
   ],
-  "redisConnection": {
-    "port": "6379",
-    "host": "127.0.0.1"
+  "restUrl": "https://api.bitfinex.com",
+  "emailConf": {
+    "from": "\"Bitfinex\" <no-reply@bitfinex.com>",
+    "subject": "Download report"
   },
-  "restUrl": "https://api.bitfinex.com"
+  "s3Conf": {
+    "bucket": "",
+    "acl": "",
+    "signedUrlExpireTime": 28800,
+    "contentDisposition": "attachment"
+  }
 }

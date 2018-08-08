@@ -12,16 +12,19 @@ const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
 const readFile = promisify(fs.readFile)
+const rename = promisify(fs.rename)
 
 const tempDirPath = path.join(__dirname, 'temp')
+const rootDir = path.dirname(require.main.filename)
+const localStorageDirPath = path.join(rootDir, 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 
-const _checkAndCreateDir = async () => {
+const _checkAndCreateDir = async (dirPath) => {
   try {
-    await access(tempDirPath, fs.F_OK)
+    await access(dirPath, fs.F_OK)
     return Promise.resolve()
   } catch (err) {
-    return mkdir(tempDirPath)
+    return mkdir(dirPath)
   }
 }
 
@@ -32,7 +35,7 @@ const createUniqueFileName = async (count = 0) => {
     return Promise.reject(new Error('ERR_CREATE_UNIQUE_FILE_NAME'))
   }
 
-  await _checkAndCreateDir()
+  await _checkAndCreateDir(tempDirPath)
 
   const uniqueFileName = `${uuidv4()}.csv`
 
@@ -113,18 +116,30 @@ const _write = (res, stream, formatSettings) => {
   })
 }
 
-const _progress = (job, currTime, { start, end }) => {
+const _progress = (queue, currTime, { start, end }) => {
   const percent = Math.round(((currTime - start) / (end - start)) * 100)
 
-  return job.progress(percent)
+  queue.emit('progress', percent)
+}
+
+const _getDateString = mc => {
+  return (new Date(mc)).toDateString().split(' ').join('-')
 }
 
 const writeDataToStream = async (reportService, stream, job) => {
-  const method = job.name
+  if (typeof job === 'string') {
+    _writeMessageToStream(reportService, stream, job)
+
+    return Promise.resolve()
+  }
+
+  const method = job.data.name
 
   if (typeof reportService[method] !== 'function') {
     throw new Error('ERR_METHOD_NOT_FOUND')
   }
+
+  const queue = reportService.ctx.lokue_aggregator.q
 
   const _args = _.cloneDeep(job.data.args)
   _args.params.end = _args.params.end
@@ -142,7 +157,7 @@ const writeDataToStream = async (reportService, stream, job) => {
   let count = 0
 
   while (true) {
-    await job.progress(0)
+    queue.emit('progress', 0)
 
     try {
       res = await getData(null, currIterationArgs)
@@ -154,7 +169,7 @@ const writeDataToStream = async (reportService, stream, job) => {
     }
 
     if (!res || !Array.isArray(res) || res.length === 0) {
-      if (count > 0) await job.progress(100)
+      if (count > 0) queue.emit('progress', 100)
 
       break
     }
@@ -188,18 +203,26 @@ const writeDataToStream = async (reportService, stream, job) => {
     const needElems = _args.params.limit - count
 
     if (isAllData || needElems <= 0) {
-      await job.progress(100)
+      queue.emit('progress', 100)
 
       break
     }
 
-    await _progress(job, currTime, _args.params)
+    _progress(queue, currTime, _args.params)
 
     currIterationArgs.params.end = lastItem[propName] - 1
     if (needElems) currIterationArgs.params.limit = needElems
   }
 
   return Promise.resolve()
+}
+
+const _writeMessageToStream = (reportService, stream, message) => {
+  const queue = reportService.ctx.lokue_aggregator.q
+
+  queue.emit('progress', 0)
+  _write([message], stream)
+  queue.emit('progress', 100)
 }
 
 const _fileNamesMap = new Map([
@@ -217,9 +240,40 @@ const _getFileNameForS3 = queueName => {
   return _fileNamesMap.get(queueName)
 }
 
-const uploadS3 = async (reportService, filePath, queueName) => {
+const hasS3AndSendgrid = async reportService => {
+  const lookUpFn = promisify(reportService.lookUpFunction.bind(reportService))
+
+  const countS3Services = await lookUpFn(null, {
+    params: { service: 'rest:ext:s3' }
+  })
+  const countSendgridServices = await lookUpFn(null, {
+    params: { service: 'rest:ext:sendgrid' }
+  })
+
+  return !!(countS3Services && countSendgridServices)
+}
+
+const moveFileToLocalStorage = async (filePath, name, start, end) => {
+  await _checkAndCreateDir(localStorageDirPath)
+
+  const baseName = _getFileNameForS3(name)
+  const timestamp = (new Date()).toISOString()
+  const startDate = start ? _getDateString(start) : _getDateString(0)
+  const endDate = end ? _getDateString(end) : _getDateString((new Date()).getTime())
+  const fileName = `${baseName}_FROM:_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
+  const newFilePath = path.join(localStorageDirPath, fileName)
+
+  await rename(filePath, newFilePath)
+}
+
+const getEmail = async (reportService, args) => {
+  const getEmail = promisify(reportService.getEmail.bind(reportService))
+
+  return getEmail(null, args)
+}
+
+const uploadS3 = async (reportService, configs, filePath, queueName) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const configs = reportService.ctx.bull_aggregator.conf.s3
   const buffer = await readFile(filePath)
   const fileName = _getFileNameForS3(queueName)
 
@@ -255,14 +309,13 @@ const uploadS3 = async (reportService, filePath, queueName) => {
   })
 }
 
-const sendMail = (reportService, to, viewName, data) => {
+const sendMail = (reportService, configs, to, viewName, data) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const configs = reportService.ctx.bull_aggregator.conf
   const text = pug.renderFile(path.join(basePathToViews, viewName), data)
   const mailOptions = {
     to,
     text,
-    ...configs.emailOpts
+    ...configs
   }
 
   return new Promise((resolve, reject) => {
@@ -290,5 +343,8 @@ module.exports = {
   writeDataToStream,
   isAuthError,
   uploadS3,
-  sendMail
+  sendMail,
+  hasS3AndSendgrid,
+  moveFileToLocalStorage,
+  getEmail
 }

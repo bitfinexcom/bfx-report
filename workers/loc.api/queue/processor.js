@@ -9,17 +9,21 @@ const {
   createUniqueFileName,
   writableToPromise,
   writeDataToStream,
-  isAuthError
+  isAuthError,
+  getEmail
 } = require('./helpers')
 
 let reportService = null
 
 module.exports = async job => {
   let filePath = null
+  const processorQueue = reportService.ctx.lokue_processor.q
 
   try {
     filePath = await createUniqueFileName()
 
+    const isUnauth = job.data.isUnauth || false
+    const write = isUnauth ? 'Your file could not be completed, please try again' : job
     const writable = fs.createWriteStream(filePath)
     const writablePromise = writableToPromise(writable)
     const stringifier = stringify({
@@ -28,30 +32,41 @@ module.exports = async job => {
     })
 
     stringifier.pipe(writable)
+
     await writeDataToStream(
       reportService,
       stringifier,
-      job,
-      filePath
+      write
     )
+
     stringifier.end()
 
     await writablePromise
+    const email = await getEmail(reportService, { auth: job.data.args.auth })
 
-    return Promise.resolve({
+    job.done()
+    processorQueue.emit('completed', {
+      name: job.data.name,
       filePath,
-      email: job.data.args.params.email
+      email,
+      endDate: job.data.args.params.end,
+      startDate: job.data.args.params.start,
+      isUnauth
     })
   } catch (err) {
     try {
       await unlink(filePath)
-    } catch (err) {}
-
-    if (isAuthError(err)) {
-      await job.discard()
+    } catch (err) {
+      processorQueue.emit('error:unlink', job)
     }
 
-    return Promise.reject(err)
+    job.done(err)
+
+    if (isAuthError(err)) {
+      processorQueue.emit('error:auth', job)
+    }
+
+    processorQueue.emit('error:base', job)
   }
 }
 
