@@ -39,10 +39,9 @@ module.exports = async job => {
     if (err.syscall === 'unlink') {
       job.done()
       aggregatorQueue.emit('error:unlink', job)
-    }
+    } else job.done(err)
 
-    job.done(err)
-    aggregatorQueue.emit('error:base', job)
+    aggregatorQueue.emit('error:base', err, job)
   }
 }
 
