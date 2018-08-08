@@ -6,34 +6,35 @@ const fs = require('fs')
 
 const readdir = promisify(fs.readdir)
 const unlink = promisify(fs.unlink)
+const mkdir = promisify(fs.mkdir)
 
-const cleanJobs = async (
-  queue,
-  status = ['completed', 'active', 'failed', 'wait', 'delayed']
-) => {
-  const promisesArr = status.map(item => queue.clean(0, item))
+const rmDB = async (queue) => {
+  const path = queue.opts.name
 
-  return Promise.all(promisesArr)
+  try {
+    await unlink(path)
+  } catch (err) { }
+
+  return Promise.resolve()
 }
 
 const rmAllFiles = async (dir) => {
-  const files = await readdir(dir)
-  const promisesArr = files.map(file => unlink(path.join(dir, file)))
+  try {
+    const files = await readdir(dir)
+    const promisesArr = files.map(file => unlink(path.join(dir, file)))
 
-  return Promise.all(promisesArr)
+    return Promise.all(promisesArr)
+  } catch (err) {
+    await mkdir(dir)
+
+    return Promise.resolve()
+  }
 }
 
 const queueToPromise = (queue) => {
   return new Promise((resolve, reject) => {
-    queue.once('failed', (job, err) => {
-      reject(err)
-    })
-    queue.once('error', (err) => {
-      reject(err)
-    })
-    queue.once('completed', (job, result) => {
-      resolve(result)
-    })
+    queue.once('error:base', reject)
+    queue.once('completed', resolve)
   })
 }
 
@@ -41,7 +42,7 @@ const queueToPromiseMulti = (queue, count, cb = () => { }) => {
   return new Promise((resolve, reject) => {
     let currCount = 0
 
-    const onCompleted = (job, result) => {
+    const onCompleted = (result) => {
       currCount += 1
 
       try {
@@ -56,12 +57,7 @@ const queueToPromiseMulti = (queue, count, cb = () => { }) => {
       }
     }
 
-    queue.once('failed', (job, err) => {
-      reject(err)
-    })
-    queue.once('error', (err) => {
-      reject(err)
-    })
+    queue.once('error:base', reject)
     queue.on('completed', onCompleted)
   })
 }
@@ -70,7 +66,7 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
   return new Promise((resolve, reject) => {
     let currCount = 0
 
-    const onCompleted = (job, result) => {
+    const onCompleted = (result) => {
       currCount += 1
 
       try {
@@ -89,35 +85,23 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
     }
 
     queues.forEach(queue => {
-      queue.once('failed', (job, err) => {
-        reject(err)
-      })
-      queue.once('error', (err) => {
-        reject(err)
-      })
+      queue.once('error:base', reject)
       queue.on('completed', onCompleted)
     })
   })
 }
 
-const asyncForEach = async (arr, cb) => {
-  for (let i = 0; i < arr.length; i += 1) {
-    await cb(arr[i], i, arr)
-  }
-}
-
-const delay = (mc = 1000) => {
+const delay = (mc = 100) => {
   return new Promise((resolve) => {
     setTimeout(resolve, mc)
   })
 }
 
 module.exports = {
-  cleanJobs,
+  rmDB,
   rmAllFiles,
   queueToPromise,
   queueToPromiseMulti,
   queuesToPromiseMulti,
-  asyncForEach,
   delay
 }

@@ -99,6 +99,23 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', null)
   })
 
+  it('it should be successfully check, csv is stored locally', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/check-stored-locally`)
+      .type('json')
+      .send({
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'result', true)
+    assert.propertyVal(res.body, 'id', 5)
+  })
+
   it('it should be successfully performed by the getLedgers method', async function () {
     this.timeout(5000)
 

@@ -10,9 +10,10 @@ const {
   stopEnviroment
 } = require('./helpers/helpers.boot')
 const {
-  rmDB,
+  cleanJobs,
   rmAllFiles,
-  queuesToPromiseMulti
+  queuesToPromiseMulti,
+  asyncForEach
 } = require('./helpers/helpers.core')
 const { createMockRESTv2SrvWithDate } = require('./helpers/helpers.mock-rest-v2')
 
@@ -29,7 +30,8 @@ let aggregatorQueues = []
 let mockRESTv2Srv = null
 
 const basePath = '/api'
-const tempDirPath = path.join(__dirname, '..', 'workers/loc.api/queue/temp')
+const tempDirPath = path.join(__dirname, '..', 'workers/loc.api/bull/temp')
+const email = 'fake@mail.fake'
 const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
@@ -40,28 +42,30 @@ describe('Queue load', () => {
 
     mockRESTv2Srv = createMockRESTv2SrvWithDate(date)
 
-    await rmAllFiles(tempDirPath)
     const env = await startEnviroment(false, false, 8)
     wrksReportServiceApi = env.wrksReportServiceApi
 
-    wrksReportServiceApi.forEach(wrk => {
-      const procQ = wrk.lokue_processor.q
-      const aggrQ = wrk.lokue_aggregator.q
+    await asyncForEach(wrksReportServiceApi, async wrk => {
+      const procQ = wrk.bull_processor.queue
+      const aggrQ = wrk.bull_aggregator.queue
 
       processorQueues.push(procQ)
       aggregatorQueues.push(aggrQ)
-    })
 
-    await rmDB(processorQueues[0])
-    await rmDB(aggregatorQueues[0])
+      await cleanJobs(procQ)
+      await cleanJobs(aggrQ)
+    })
   })
 
   after(async function () {
     this.timeout(5000)
 
-    await rmDB(processorQueues[0])
-    await rmDB(aggregatorQueues[0])
-
+    await asyncForEach(processorQueues, async queue => {
+      await cleanJobs(queue)
+    })
+    await asyncForEach(aggregatorQueues, async queue => {
+      await cleanJobs(queue)
+    })
     await rmAllFiles(tempDirPath)
     await stopEnviroment()
 
@@ -79,20 +83,10 @@ describe('Queue load', () => {
       count,
       procRes => {
         assert.isObject(procRes)
-        assert.containsAllKeys(procRes, [
-          'name',
-          'filePath',
-          'email',
-          'endDate',
-          'startDate',
-          'isUnauth'
-        ])
-        assert.isString(procRes.name)
+        assert.property(procRes, 'filePath')
+        assert.property(procRes, 'email')
         assert.isString(procRes.filePath)
         assert.isString(procRes.email)
-        assert.isFinite(procRes.endDate)
-        assert.isFinite(procRes.startDate)
-        assert.isBoolean(procRes.isUnauth)
         assert.isOk(fs.existsSync(procRes.filePath))
       }
     )
@@ -109,7 +103,8 @@ describe('Queue load', () => {
             symbol: 'BTC',
             end,
             start,
-            limit: 10000
+            limit: 10000, // TODO:
+            email
           },
           id: 5
         })
