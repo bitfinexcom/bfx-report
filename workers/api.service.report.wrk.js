@@ -68,9 +68,14 @@ class WrkReportServiceApi extends WrkApi {
         const aggregatorQueue = this.lokue_aggregator.q
         const group = this.group
         const conf = this.conf[group]
+        const reportService = this.grc_bfx.api
 
-        processor.setReportService(this.grc_bfx.api)
-        aggregator.setReportService(this.grc_bfx.api)
+        if (!reportService.ctx) {
+          reportService.ctx = reportService.caller.getCtx()
+        }
+
+        processor.setReportService(reportService)
+        aggregator.setReportService(reportService)
 
         processorQueue.on('job', processor)
         aggregatorQueue.on('job', aggregator)
