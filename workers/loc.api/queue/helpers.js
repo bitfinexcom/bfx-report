@@ -127,6 +127,12 @@ const _getDateString = mc => {
 }
 
 const writeDataToStream = async (reportService, stream, job) => {
+  if (typeof job === 'string') {
+    _writeMessageToStream(reportService, stream, job)
+
+    return Promise.resolve()
+  }
+
   const method = job.data.name
 
   if (typeof reportService[method] !== 'function') {
@@ -209,6 +215,14 @@ const writeDataToStream = async (reportService, stream, job) => {
   }
 
   return Promise.resolve()
+}
+
+const _writeMessageToStream = (reportService, stream, message) => {
+  const queue = reportService.ctx.lokue_aggregator.q
+
+  queue.emit('progress', 0)
+  _write([message], stream)
+  queue.emit('progress', 100)
 }
 
 const _fileNamesMap = new Map([

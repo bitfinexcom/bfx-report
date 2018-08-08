@@ -2,6 +2,7 @@
 
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
+const _ = require('lodash')
 
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
@@ -79,6 +80,15 @@ class WrkReportServiceApi extends WrkApi {
             ...result,
             emailConf: conf.emailConf,
             s3Conf: conf.s3Conf
+          })
+        })
+        processorQueue.on('error:auth', (job) => {
+          const data = _.cloneDeep(job.data)
+          delete data.columnsCsv
+
+          processorQueue.addJob({
+            ...data,
+            isUnauth: true
           })
         })
 

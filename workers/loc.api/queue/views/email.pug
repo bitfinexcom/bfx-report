@@ -1,10 +1,14 @@
-p
-  | Your download link 
-  b
-    | #{fileName}.csv 
-  | is ready
-p
-  | Click the button below to download
+if isUnauth
+  p
+    | Your file could not be completed, please try again
+else
+  p
+    | Your download link 
+    b
+      | #{fileName}.csv 
+    | is ready
+  p
+    | Click the button below to download
 table.btn.btn-primary(border='0', cellpadding='0', cellspacing='0', style='margin-top:30px;margin-bottom:30px;width: 100%;')
   tbody
     tr
