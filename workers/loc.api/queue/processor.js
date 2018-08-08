@@ -66,7 +66,7 @@ module.exports = async job => {
       processorQueue.emit('error:auth', job)
     }
 
-    processorQueue.emit('error:base', job)
+    processorQueue.emit('error:base', err, job)
   }
 }
 
