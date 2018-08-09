@@ -91,17 +91,10 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
   })
 }
 
-const delay = (mc = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, mc)
-  })
-}
-
 module.exports = {
   rmDB,
   rmAllFiles,
   queueToPromise,
   queueToPromiseMulti,
-  queuesToPromiseMulti,
-  delay
+  queuesToPromiseMulti
 }
