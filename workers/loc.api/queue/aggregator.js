@@ -6,9 +6,10 @@ const fs = require('fs')
 const unlink = promisify(fs.unlink)
 
 const {
+  getEmail,
   uploadS3,
   sendMail,
-  hasS3AndSendgrid,
+  checkS3SendgridCoreUser,
   moveFileToLocalStorage
 } = require('./helpers')
 
@@ -22,9 +23,12 @@ module.exports = async job => {
     const filePath = data.filePath
     const name = data.name
     const isUnauth = job.data.isUnauth || false
-    const isEnableS3AndSendgrid = await hasS3AndSendgrid(reportService)
+    const token = job.data.token || false
 
-    if (isEnableS3AndSendgrid) {
+    if (token) await checkS3SendgridCoreUser(reportService)
+    const email = token && await getEmail(reportService, { token })
+
+    if (email) {
       const s3Data = await uploadS3(reportService, data.s3Conf, filePath, name)
       s3Data.isUnauth = isUnauth
       await sendMail(reportService, data.emailConf, data.email, 'email.pug', s3Data)

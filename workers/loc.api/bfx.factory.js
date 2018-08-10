@@ -15,10 +15,10 @@ const _checkConf = (conf) => {
   throw err
 }
 
-const createBFX = ({ apiKey = '', apiSecret = '', authToken = '', conf = {} }) => {
+const createBFX = ({ apiKey = '', apiSecret = '', authToken = '', ip = '', conf = {} }) => {
   _checkConf(conf)
   const auth = (authToken)
-    ? { authToken }
+    ? { authToken, ip }
     : { apiKey, apiSecret }
   return new BFX({
     ...auth,
