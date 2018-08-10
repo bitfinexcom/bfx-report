@@ -30,6 +30,7 @@ let mockRESTv2Srv = null
 
 const basePath = '/api'
 const tempDirPath = path.join(__dirname, '..', 'workers/loc.api/queue/temp')
+const dbDirPath = path.join(__dirname, '..', 'db')
 const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
@@ -41,29 +42,23 @@ describe('Queue load', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithDate(date)
 
     await rmAllFiles(tempDirPath)
+    await rmDB(dbDirPath)
     const env = await startEnviroment(false, false, 8)
+
     wrksReportServiceApi = env.wrksReportServiceApi
 
     wrksReportServiceApi.forEach(wrk => {
-      const procQ = wrk.lokue_processor.q
-      const aggrQ = wrk.lokue_aggregator.q
-
-      processorQueues.push(procQ)
-      aggregatorQueues.push(aggrQ)
+      processorQueues.push(wrk.lokue_processor.q)
+      aggregatorQueues.push(wrk.lokue_aggregator.q)
     })
-
-    await rmDB(processorQueues[0])
-    await rmDB(aggregatorQueues[0])
   })
 
   after(async function () {
     this.timeout(5000)
 
-    await rmDB(processorQueues[0])
-    await rmDB(aggregatorQueues[0])
-
-    await rmAllFiles(tempDirPath)
     await stopEnviroment()
+    await rmDB(dbDirPath)
+    await rmAllFiles(tempDirPath)
 
     try {
       await mockRESTv2Srv.close()
@@ -71,7 +66,7 @@ describe('Queue load', () => {
   })
 
   it('it should be successfully performed by the getLedgersCsv method, with 100 users', async function () {
-    this.timeout(5 * 60000)
+    this.timeout(10 * 60000)
 
     const count = 100
     const procPromise = queuesToPromiseMulti(

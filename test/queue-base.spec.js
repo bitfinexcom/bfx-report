@@ -31,6 +31,7 @@ let mockRESTv2Srv = null
 
 const basePath = '/api'
 const tempDirPath = path.join(__dirname, '..', 'workers/loc.api/queue/temp')
+const dbDirPath = path.join(__dirname, '..', 'db')
 const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
@@ -42,22 +43,20 @@ describe('Queue', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithDate(date)
 
     await rmAllFiles(tempDirPath)
+    await rmDB(dbDirPath)
     const env = await startEnviroment()
+
     wrkReportServiceApi = env.wrksReportServiceApi[0]
     processorQueue = wrkReportServiceApi.lokue_processor.q
     aggregatorQueue = wrkReportServiceApi.lokue_aggregator.q
-
-    await rmDB(processorQueue)
-    await rmDB(aggregatorQueue)
   })
 
   after(async function () {
     this.timeout(5000)
 
-    await rmDB(processorQueue)
-    await rmDB(aggregatorQueue)
-    await rmAllFiles(tempDirPath)
     await stopEnviroment()
+    await rmDB(dbDirPath)
+    await rmAllFiles(tempDirPath)
 
     try {
       await mockRESTv2Srv.close()
@@ -218,7 +217,7 @@ describe('Queue', () => {
   })
 
   it('it should be successfully performed by the getMovementsCsv method', async function () {
-    this.timeout(60000)
+    this.timeout(3 * 60000)
 
     const procPromise = queueToPromise(processorQueue)
     const aggrPromise = queueToPromise(aggregatorQueue)
@@ -233,7 +232,7 @@ describe('Queue', () => {
           symbol: 'BTC',
           end,
           start,
-          limit: 1000
+          limit: 10000
         },
         id: 5
       })
@@ -282,7 +281,7 @@ describe('Queue', () => {
           symbol: 'BTC',
           end,
           start,
-          limit: 1000
+          limit: 10000
         },
         id: 5
       })
@@ -302,7 +301,7 @@ describe('Queue', () => {
   })
 
   it('it should be successfully performed by the getLedgersCsv method, with multiple users', async function () {
-    this.timeout(2 * 60000)
+    this.timeout(5 * 60000)
 
     const count = 10
     const procPromise = queueToPromiseMulti(

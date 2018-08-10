@@ -1,5 +1,6 @@
 'use strict'
 
+const path = require('path')
 const { assert } = require('chai')
 const request = require('supertest')
 
@@ -7,6 +8,7 @@ const {
   startEnviroment,
   stopEnviroment
 } = require('./helpers/helpers.boot')
+const { rmDB } = require('./helpers/helpers.core')
 const { createMockRESTv2SrvWithAllData } = require('./helpers/helpers.mock-rest-v2')
 
 const { app } = require('../app')
@@ -19,6 +21,7 @@ let auth = {
 let mockRESTv2Srv = null
 
 const basePath = '/api'
+const dbDirPath = path.join(__dirname, '..', 'db')
 
 describe('API', () => {
   before(async function () {
@@ -26,6 +29,7 @@ describe('API', () => {
 
     mockRESTv2Srv = createMockRESTv2SrvWithAllData()
 
+    await rmDB(dbDirPath)
     await startEnviroment(false, true)
   })
 
@@ -37,6 +41,7 @@ describe('API', () => {
     } catch (err) { }
 
     await stopEnviroment()
+    await rmDB(dbDirPath)
   })
 
   it('it should be successfully auth', async function () {

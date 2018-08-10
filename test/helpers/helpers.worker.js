@@ -34,6 +34,7 @@ const startHelpers = (
 
 const startWorkers = (logs, isRootWrk, countWrk = 1) => {
   let apiPort = 13381
+  let dbID = 1
 
   for (let i = 0; i < countWrk; i += 1) {
     if (isRootWrk) {
@@ -42,7 +43,8 @@ const startWorkers = (logs, isRootWrk, countWrk = 1) => {
         [
           '--env=development',
           '--wtype=wrk-report-service-api',
-          `--apiPort=${apiPort}`
+          `--apiPort=${apiPort}`,
+          `--dbID=${dbID}`
         ],
         {
           silent: !logs
@@ -53,13 +55,15 @@ const startWorkers = (logs, isRootWrk, countWrk = 1) => {
     } else {
       const wrk = runWorker({
         wtype: 'wrk-report-service-api',
-        apiPort
+        apiPort,
+        dbID
       })
 
       wrksReportServiceApi.push(wrk)
     }
 
     apiPort += 1
+    dbID += 1
   }
 
   ipc.push(...startHelpers(logs))
