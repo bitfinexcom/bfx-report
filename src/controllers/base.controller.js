@@ -9,6 +9,7 @@ const {
   failureInternalServerError,
   failureUnauthorized
 } = helpers.responses
+const requestIp = require('request-ip')
 
 const _isAuthError = (err) => {
   return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
@@ -68,6 +69,8 @@ const checkStoredLocally = async (req, res) => {
 
 const getData = async (req, res) => {
   const body = { ...req.body }
+  const ip = requestIp.getClientIp(req)
+  if (body.auth) body.auth.ip = ip
   const id = body.id || null
   delete body.method
   const query = {

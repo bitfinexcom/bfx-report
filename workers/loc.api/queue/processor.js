@@ -9,8 +9,7 @@ const {
   createUniqueFileName,
   writableToPromise,
   writeDataToStream,
-  isAuthError,
-  getEmail
+  isAuthError
 } = require('./helpers')
 
 let reportService = null
@@ -42,13 +41,16 @@ module.exports = async job => {
     stringifier.end()
 
     await writablePromise
-    const email = await getEmail(reportService, { auth: job.data.args.auth })
+
+    const authToken = job.data.args.auth.authToken
+    const ip = authToken && job.data.args.auth.ip
+    const token = ip && [authToken, { ip }]
 
     job.done()
     processorQueue.emit('completed', {
       name: job.data.name,
       filePath,
-      email,
+      token,
       endDate: job.data.args.params.end,
       startDate: job.data.args.params.start,
       isUnauth
