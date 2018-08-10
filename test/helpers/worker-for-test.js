@@ -3,7 +3,7 @@
 const path = require('path')
 const _ = require('lodash')
 const fs = require('fs')
-const serviceRoot = path.join(__dirname, '..')
+const serviceRoot = path.join(__dirname, '../..')
 
 const getJSONConf = (env, type, path) => {
   const conf = JSON.parse(fs.readFileSync(path, 'utf8'))
@@ -30,10 +30,11 @@ const runWorker = (
     wtype: 'wrk-report-service-api',
     env: 'development',
     apiPort: 1337,
-    debug: false
+    debug: false,
+    dbID: 1
   }
 ) => {
-  const { wtype, env } = cmd
+  const { wtype, env, dbID } = cmd
 
   const conf = _.merge(
     {},
@@ -43,8 +44,9 @@ const runWorker = (
   const wref = wtype.split('-').reverse()
   const ctx = {
     root: serviceRoot,
-    wtype: wtype,
-    env: env
+    wtype,
+    env,
+    dbID
   }
 
   _.each(cmd, (v, k) => {
