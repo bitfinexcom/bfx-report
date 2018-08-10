@@ -7,9 +7,10 @@
   "dependencies": {
     "async": "^2.6.1",
     "better-npm-run": "^0.1.0",
+    "bfx-api-mock-srv": "git+https://github.com/bitfinexcom/bfx-api-mock-srv.git",
     "bfx-facs-base": "git+https://github.com:bitfinexcom/bfx-facs-base.git",
-    "bfx-facs-lokue": "git+https://github.com:bitfinexcom/bfx-facs-lokue.git",
     "bfx-facs-interval": "https://github.com/bitfinexcom/bfx-facs-interval.git",
+    "bfx-facs-lokue": "git+https://github.com:bitfinexcom/bfx-facs-lokue.git",
     "bfx-svc-boot-js": "https://github.com/bitfinexcom/bfx-svc-boot-js.git",
     "bfx-wrk-api": "git+https://github.com/bitfinexcom/bfx-wrk-api.git",
     "bitfinex-api-node": "git+https://github.com/bitfinexcom/bitfinex-api-node.git",
@@ -29,7 +30,8 @@
     "pug": "^2.0.3",
     "request-ip": "^2.1.1",
     "uuid": "^3.3.2",
-    "winston": "^3.0.0"
+    "winston": "^3.0.0",
+    "yargs": "^12.0.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
@@ -50,7 +52,9 @@
       "describe",
       "it",
       "before",
-      "after"
+      "after",
+      "beforeEach",
+      "afterEach"
     ]
   },
   "nodemonConfig": {
@@ -84,13 +88,21 @@
       "env": {
         "NODE_ENV": "test"
       }
+    },
+    "testDev": {
+      "command": "standard && mocha --recursive test/**/*-dev.spec.js --exit --timeout 10000",
+      "env": {
+        "NODE_ENV": "test"
+      }
     }
   },
   "scripts": {
     "start": "better-npm-run start:prod",
     "startDev": "better-npm-run start:dev",
-    "startWorker": "node worker.js --env=production --wtype=wrk-report-service-api --apiPort 1337",
-    "startWorkerDev": "nodemon worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337",
-    "test": "better-npm-run test"
+    "startWorker": "node worker.js --env=production --wtype=wrk-report-service-api --apiPort 1337 --dbID 1",
+    "startWorkerDev": "nodemon worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337 --dbID 1",
+    "startSimulEnv": "node test/simulate/simulate-enviroment.js",
+    "test": "better-npm-run test",
+    "testDev": "better-npm-run testDev"
   }
 }

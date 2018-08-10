@@ -3,6 +3,7 @@
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
 const _ = require('lodash')
+const argv = require('yargs').argv
 
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
@@ -38,6 +39,8 @@ class WrkReportServiceApi extends WrkApi {
     super.init()
 
     const persist = true
+    const dbID = this.ctx.dbID || argv.dbID || 1
+    const name = `queue_${dbID}`
 
     const facs = [
       [
@@ -45,14 +48,14 @@ class WrkReportServiceApi extends WrkApi {
         'bfx-facs-lokue',
         'processor',
         'processor',
-        { persist, name: 'queue' }
+        { persist, name }
       ],
       [
         'fac',
         'bfx-facs-lokue',
         'aggregator',
         'aggregator',
-        { persist, name: 'queue' }
+        { persist, name }
       ]
     ]
     this.setInitFacs(facs)
@@ -68,9 +71,14 @@ class WrkReportServiceApi extends WrkApi {
         const aggregatorQueue = this.lokue_aggregator.q
         const group = this.group
         const conf = this.conf[group]
+        const reportService = this.grc_bfx.api
 
-        processor.setReportService(this.grc_bfx.api)
-        aggregator.setReportService(this.grc_bfx.api)
+        if (!reportService.ctx) {
+          reportService.ctx = reportService.caller.getCtx()
+        }
+
+        processor.setReportService(reportService)
+        aggregator.setReportService(reportService)
 
         processorQueue.on('job', processor)
         aggregatorQueue.on('job', aggregator)

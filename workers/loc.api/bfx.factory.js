@@ -2,6 +2,8 @@
 
 const BFX = require('bitfinex-api-node')
 
+const isTestEnv = process.env.NODE_ENV === 'test'
+
 const _checkConf = (conf) => {
   if (
     conf &&
@@ -23,7 +25,7 @@ const createBFX = ({ apiKey = '', apiSecret = '', authToken = '', ip = '', conf 
   return new BFX({
     ...auth,
     rest: {
-      url: conf.restUrl
+      url: isTestEnv ? 'http://localhost:9999' : conf.restUrl
     }
   })
 }
