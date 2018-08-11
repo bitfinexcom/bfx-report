@@ -67,7 +67,10 @@
       "public/",
       ".git/",
       ".idea/",
-      ".vscode/"
+      ".vscode/",
+      "csv/",
+      "workers/loc.api/queue/temp/",
+      "workers/loc.api/queue/views/"
     ]
   },
   "betterScripts": {

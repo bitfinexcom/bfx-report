@@ -31,7 +31,7 @@ module.exports = async job => {
     if (email) {
       const s3Data = await uploadS3(reportService, data.s3Conf, filePath, name)
       s3Data.isUnauth = isUnauth
-      await sendMail(reportService, data.emailConf, data.email, 'email.pug', s3Data)
+      await sendMail(reportService, data.emailConf, email, 'email.pug', s3Data, data.startDate, data.endDate)
       await unlink(data.filePath)
     } else {
       await moveFileToLocalStorage(filePath, name, data.startDate, data.endDate)
@@ -43,7 +43,14 @@ module.exports = async job => {
     if (err.syscall === 'unlink') {
       job.done()
       aggregatorQueue.emit('error:unlink', job)
-    } else job.done(err)
+    } else {
+      try {
+        await unlink(job.data.filePath)
+      } catch (e) {
+
+      }
+      job.done(err)
+    }
 
     aggregatorQueue.emit('error:base', err, job)
   }
