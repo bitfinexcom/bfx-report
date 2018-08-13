@@ -21,7 +21,6 @@ cp config/default.json.example config/default.json
 cp config/common.json.example config/common.json
 cp config/service.report.json.example config/service.report.json
 cp config/facs/grc.config.json.example config/facs/grc.config.json
-cp config/facs/bull.config.json.example config/facs/bull.config.json
 ```
 
 - To set grenache client for express, edit common.json. If running locally, leave actual values skipping this step.
@@ -56,6 +55,8 @@ grape --dp 20002 --aph 40001 --bn '127.0.0.1:20001'
 
 ## Run
 
+### Production environment
+
 - For production environment run in two different consoles :
 
 ```console
@@ -64,6 +65,7 @@ npm run startWorker
 ## Console 2: runs express server
 npm run start
 ```
+### Development environment
 
 - For development environment run in two different consoles :
 
@@ -77,15 +79,6 @@ npm run startDev
 
 ## Testing
 
-### Configure tests
-
-- As to run test command `npm test` its necessary to complete the fields `apiKey` and `apiSecret` in default.json with keys obtained in https://www.bitfinex.com/api
-
-```console
-## Configure for tests
-vim config/default.json
-## Set auth.apiKey && auth.apiSecret
-```
 ### Run tests
 
 ```console
