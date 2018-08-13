@@ -13,7 +13,7 @@ function addFunctions (ExtApi) {
     const call = {
       worker: 'ext.s3',
       on: 'uploadPresigned',
-      params: { data, opts },
+      params: { opts },
       res: { upload },
       timestamp: Date.now()
     }
