@@ -22,6 +22,8 @@ module.exports = async job => {
   try {
     filePath = await createUniqueFileName()
 
+    const isUnauth = job.data.isUnauth || false
+    const write = isUnauth ? 'Your file could not be completed, please try again' : job
     const writable = fs.createWriteStream(filePath)
     const writablePromise = writableToPromise(writable)
     const stringifier = stringify({
@@ -30,12 +32,13 @@ module.exports = async job => {
     })
 
     stringifier.pipe(writable)
+
     await writeDataToStream(
       reportService,
       stringifier,
-      job,
-      filePath
+      write
     )
+
     stringifier.end()
 
     await writablePromise
@@ -47,7 +50,8 @@ module.exports = async job => {
       filePath,
       email,
       endDate: job.data.args.params.end,
-      startDate: job.data.args.params.start
+      startDate: job.data.args.params.start,
+      isUnauth
     })
   } catch (err) {
     try {
