@@ -4,7 +4,6 @@ const { Api } = require('bfx-wrk-api')
 const {
   getREST,
   getParams,
-  isAllowMethod,
   checkParams
 } = require('./helpers')
 
@@ -99,13 +98,13 @@ class ReportService extends Api {
 
   async getTradesCsv (space, args, cb) {
     try {
-      isAllowMethod(this.ctx)
       checkParams(args)
 
       const method = 'getTrades'
 
-      const processorQueue = this.ctx.bull_processor.queue
+      const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        name: method,
         args,
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
@@ -122,7 +121,7 @@ class ReportService extends Api {
         }
       }
 
-      await processorQueue.add(method, jobData)
+      processorQueue.addJob(jobData)
 
       cb(null, true)
     } catch (err) {
@@ -132,13 +131,13 @@ class ReportService extends Api {
 
   async getLedgersCsv (space, args, cb) {
     try {
-      isAllowMethod(this.ctx)
       checkParams(args)
 
       const method = 'getLedgers'
 
-      const processorQueue = this.ctx.bull_processor.queue
+      const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        name: method,
         args,
         propNameForPagination: 'mts',
         columnsCsv: {
@@ -153,7 +152,7 @@ class ReportService extends Api {
         }
       }
 
-      await processorQueue.add(method, jobData)
+      processorQueue.addJob(jobData)
 
       cb(null, true)
     } catch (err) {
@@ -163,13 +162,13 @@ class ReportService extends Api {
 
   async getOrdersCsv (space, args, cb) {
     try {
-      isAllowMethod(this.ctx)
       checkParams(args)
 
       const method = 'getOrders'
 
-      const processorQueue = this.ctx.bull_processor.queue
+      const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        name: method,
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
@@ -189,7 +188,7 @@ class ReportService extends Api {
         }
       }
 
-      await processorQueue.add(method, jobData)
+      processorQueue.addJob(jobData)
 
       cb(null, true)
     } catch (err) {
@@ -199,13 +198,13 @@ class ReportService extends Api {
 
   async getMovementsCsv (space, args, cb) {
     try {
-      isAllowMethod(this.ctx)
       checkParams(args)
 
       const method = 'getMovements'
 
-      const processorQueue = this.ctx.bull_processor.queue
+      const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        name: method,
         args,
         propNameForPagination: 'mtsUpdated',
         columnsCsv: {
@@ -220,7 +219,7 @@ class ReportService extends Api {
         }
       }
 
-      await processorQueue.add(method, jobData)
+      processorQueue.addJob(jobData)
 
       cb(null, true)
     } catch (err) {

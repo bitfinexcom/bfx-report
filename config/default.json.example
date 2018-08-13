@@ -12,7 +12,5 @@
     "grape": "http://127.0.0.1:30001"
   },
   "enableLogDebug": false,
-  "enableLog": false,
-  "app_type": "nodejs",
-  "redirectCsvUrl": "https://report.bitfinex.com"
+  "enableLog": false
 }
