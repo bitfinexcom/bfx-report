@@ -30,14 +30,14 @@ const _checkAndCreateDir = async (dirPath) => {
     try {
       await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
     } catch (errBasePath) {
-      if (errBasePath.code !== 'ENOENT') await chmod(basePath, 766)
+      if (errBasePath.code !== 'ENOENT') await chmod(basePath, '766')
 
       throw errBasePath
     }
 
     if (err.code === 'ENOENT') await mkdir(dirPath)
 
-    await chmod(dirPath, 766)
+    await chmod(dirPath, '766')
   }
 }
 
@@ -293,9 +293,9 @@ const moveFileToLocalStorage = async (filePath, name, start, end) => {
   } catch (err) {
     if (err.code === 'ENOENT') throw err
     else {
-      await chmod(filePath, 766)
+      await chmod(filePath, '766')
       await rename(filePath, newFilePath)
-      await chmod(newFilePath, 766)
+      await chmod(newFilePath, '766')
     }
   }
 }
