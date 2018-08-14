@@ -27,15 +27,17 @@ const _checkAndCreateDir = async (dirPath) => {
   try {
     await access(dirPath, fs.constants.F_OK | fs.constants.W_OK)
   } catch (err) {
-    try {
-      await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
-    } catch (errBasePath) {
-      if (errBasePath.code !== 'ENOENT') await chmod(basePath, '766')
+    if (err.code === 'ENOENT') {
+      try {
+        await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
+      } catch (errBasePath) {
+        if (errBasePath.code === 'EACCES') await chmod(basePath, '766')
 
-      throw errBasePath
+        throw errBasePath
+      }
+
+      await mkdir(dirPath)
     }
-
-    if (err.code === 'ENOENT') await mkdir(dirPath)
 
     await chmod(dirPath, '766')
   }
@@ -255,10 +257,10 @@ const _getBaseName = queueName => {
 
 const _getCompleteFileName = (queueName, start, end) => {
   const baseName = _getBaseName(queueName)
-  const timestamp = (new Date()).toISOString()
+  const timestamp = (new Date()).toISOString().split(':').join('-')
   const startDate = start ? _getDateString(start) : _getDateString(0)
   const endDate = end ? _getDateString(end) : _getDateString((new Date()).getTime())
-  const fileName = `${baseName}_FROM:_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
+  const fileName = `${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
   return fileName
 }
 
@@ -289,15 +291,16 @@ const moveFileToLocalStorage = async (filePath, name, start, end) => {
 
   try {
     await access(filePath, fs.constants.F_OK | fs.constants.W_OK)
-    await rename(filePath, newFilePath)
   } catch (err) {
-    if (err.code === 'ENOENT') throw err
-    else {
+    if (err.code === 'EACCES') {
       await chmod(filePath, '766')
-      await rename(filePath, newFilePath)
-      await chmod(newFilePath, '766')
     }
+
+    throw err
   }
+
+  await rename(filePath, newFilePath)
+  await chmod(newFilePath, '766')
 }
 
 const getEmail = async (reportService, args) => {
