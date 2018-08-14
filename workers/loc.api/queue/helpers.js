@@ -7,24 +7,38 @@ const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
 const moment = require('moment')
 const pug = require('pug')
+const argv = require('yargs').argv
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
 const readFile = promisify(fs.readFile)
 const rename = promisify(fs.rename)
+const chmod = promisify(fs.chmod)
 
 const tempDirPath = path.join(__dirname, 'temp')
 const rootDir = path.dirname(require.main.filename)
-const localStorageDirPath = path.join(rootDir, 'csv')
+const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 
 const _checkAndCreateDir = async (dirPath) => {
+  const basePath = path.join(dirPath, '..')
+
   try {
-    await access(dirPath, fs.F_OK)
-    return Promise.resolve()
+    await access(dirPath, fs.constants.F_OK | fs.constants.W_OK)
   } catch (err) {
-    return mkdir(dirPath)
+    if (err.code === 'ENOENT') {
+      try {
+        await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
+      } catch (errBasePath) {
+        if (errBasePath.code === 'EACCES') await chmod(basePath, '766')
+        else throw errBasePath
+      }
+
+      await mkdir(dirPath)
+    }
+
+    await chmod(dirPath, '766')
   }
 }
 
@@ -232,7 +246,7 @@ const _fileNamesMap = new Map([
   ['getMovements', 'movements']
 ])
 
-const _getFileNameForS3 = queueName => {
+const _getBaseName = queueName => {
   if (!_fileNamesMap.has(queueName)) {
     return queueName.replace(/^get/i, '').toLowerCase()
   }
@@ -240,50 +254,81 @@ const _getFileNameForS3 = queueName => {
   return _fileNamesMap.get(queueName)
 }
 
-const hasS3AndSendgrid = async reportService => {
+const _getCompleteFileName = (queueName, start, end) => {
+  const baseName = _getBaseName(queueName)
+  const timestamp = (new Date()).toISOString().split(':').join('-')
+  const startDate = start ? _getDateString(start) : _getDateString(0)
+  const endDate = end ? _getDateString(end) : _getDateString((new Date()).getTime())
+  const fileName = `${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
+  return fileName
+}
+
+const checkS3SendgridCoreUser = async reportService => {
   const lookUpFn = promisify(reportService.lookUpFunction.bind(reportService))
 
   const countS3Services = await lookUpFn(null, {
     params: { service: 'rest:ext:s3' }
   })
+  if (!countS3Services) throw new Error('REPORT_S3_WAS_NOT_FOUNDED')
+
   const countSendgridServices = await lookUpFn(null, {
     params: { service: 'rest:ext:sendgrid' }
   })
+  if (!countSendgridServices) throw new Error('REPORT_SENDGRID_WAS_NOT_FOUNDED')
 
-  return !!(countS3Services && countSendgridServices)
+  const countCoreUserServices = await lookUpFn(null, {
+    params: { service: 'rest:core:user' }
+  })
+  if (!countCoreUserServices) throw new Error('REPORT_CORE_USER_WAS_NOT_FOUNDED')
 }
 
 const moveFileToLocalStorage = async (filePath, name, start, end) => {
   await _checkAndCreateDir(localStorageDirPath)
 
-  const baseName = _getFileNameForS3(name)
-  const timestamp = (new Date()).toISOString()
-  const startDate = start ? _getDateString(start) : _getDateString(0)
-  const endDate = end ? _getDateString(end) : _getDateString((new Date()).getTime())
-  const fileName = `${baseName}_FROM:_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
+  const fileName = _getCompleteFileName(name, start, end)
   const newFilePath = path.join(localStorageDirPath, fileName)
 
+  try {
+    await access(filePath, fs.constants.F_OK | fs.constants.W_OK)
+  } catch (err) {
+    if (err.code === 'EACCES') {
+      await chmod(filePath, '766')
+    } else throw err
+  }
+
   await rename(filePath, newFilePath)
+  await chmod(newFilePath, '766')
 }
 
 const getEmail = async (reportService, args) => {
-  const getEmail = promisify(reportService.getEmail.bind(reportService))
+  const grcBfx = reportService.ctx.grc_bfx
 
-  return getEmail(null, args)
+  return new Promise(async (resolve, reject) => {
+    grcBfx.req(
+      'rest:core:user',
+      'checkAuthToken',
+      args.token,
+      { timeout: 10000 },
+      (err, data) => {
+        if (err) return reject(err)
+        if (data.email) return resolve(data.email)
+        else return reject(new Error('No email found'))
+      })
+  })
 }
 
-const uploadS3 = async (reportService, configs, filePath, queueName) => {
+const uploadS3 = async (reportService, configs, filePath, queueName, start, end) => {
   const grcBfx = reportService.ctx.grc_bfx
   const buffer = await readFile(filePath)
-  const fileName = _getFileNameForS3(queueName)
+  const fileName = _getCompleteFileName(queueName, start, end)
 
   const opts = {
     ...configs,
-    contentType: 'text/csv',
-    contentDisposition: `${configs.contentDisposition || 'attachment'}; filename="${fileName}.csv"`
+    contentDisposition: `attachment; filename="${fileName}"`,
+    contentType: 'text/csv'
   }
   const parsedData = [
-    buffer,
+    buffer.toString('hex'),
     opts
   ]
 
@@ -311,10 +356,12 @@ const uploadS3 = async (reportService, configs, filePath, queueName) => {
 
 const sendMail = (reportService, configs, to, viewName, data) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const text = pug.renderFile(path.join(basePathToViews, viewName), data)
+  const text = `Download (${data.fileName}): ${data.public_url}`
+  const html = pug.renderFile(path.join(basePathToViews, viewName), data)
   const mailOptions = {
     to,
     text,
+    html,
     ...configs
   }
 
@@ -344,7 +391,7 @@ module.exports = {
   isAuthError,
   uploadS3,
   sendMail,
-  hasS3AndSendgrid,
+  checkS3SendgridCoreUser,
   moveFileToLocalStorage,
   getEmail
 }

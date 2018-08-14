@@ -96,14 +96,13 @@ describe('Queue', () => {
     assert.containsAllKeys(procRes, [
       'name',
       'filePath',
-      'email',
+      'token',
       'endDate',
       'startDate',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isString(procRes.email)
     assert.isFinite(procRes.endDate)
     assert.isFinite(procRes.startDate)
     assert.isBoolean(procRes.isUnauth)
@@ -147,14 +146,13 @@ describe('Queue', () => {
     assert.containsAllKeys(procRes, [
       'name',
       'filePath',
-      'email',
+      'token',
       'endDate',
       'startDate',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isString(procRes.email)
     assert.isFinite(procRes.endDate)
     assert.isFinite(procRes.startDate)
     assert.isBoolean(procRes.isUnauth)
@@ -198,14 +196,13 @@ describe('Queue', () => {
     assert.containsAllKeys(procRes, [
       'name',
       'filePath',
-      'email',
+      'token',
       'endDate',
       'startDate',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isString(procRes.email)
     assert.isFinite(procRes.endDate)
     assert.isFinite(procRes.startDate)
     assert.isBoolean(procRes.isUnauth)
@@ -249,14 +246,13 @@ describe('Queue', () => {
     assert.containsAllKeys(procRes, [
       'name',
       'filePath',
-      'email',
+      'token',
       'endDate',
       'startDate',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isString(procRes.email)
     assert.isFinite(procRes.endDate)
     assert.isFinite(procRes.startDate)
     assert.isBoolean(procRes.isUnauth)
@@ -312,14 +308,13 @@ describe('Queue', () => {
         assert.containsAllKeys(procRes, [
           'name',
           'filePath',
-          'email',
+          'token',
           'endDate',
           'startDate',
           'isUnauth'
         ])
         assert.isString(procRes.name)
         assert.isString(procRes.filePath)
-        assert.isString(procRes.email)
         assert.isFinite(procRes.endDate)
         assert.isFinite(procRes.startDate)
         assert.isBoolean(procRes.isUnauth)

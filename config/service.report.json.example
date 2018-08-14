@@ -10,7 +10,6 @@
   "s3Conf": {
     "bucket": "",
     "acl": "",
-    "signedUrlExpireTime": 28800,
-    "contentDisposition": "attachment"
+    "signedUrlExpireTime": 28800
   }
 }
