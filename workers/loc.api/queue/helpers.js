@@ -7,24 +7,38 @@ const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
 const moment = require('moment')
 const pug = require('pug')
+const argv = require('yargs').argv
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
 const readFile = promisify(fs.readFile)
 const rename = promisify(fs.rename)
+const chmod = promisify(fs.chmod)
 
 const tempDirPath = path.join(__dirname, 'temp')
 const rootDir = path.dirname(require.main.filename)
-const localStorageDirPath = path.join(rootDir, 'csv')
+const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 
 const _checkAndCreateDir = async (dirPath) => {
+  const basePath = path.join(dirPath, '..')
+
   try {
-    await access(dirPath, fs.F_OK)
-    return Promise.resolve()
+    await access(dirPath, fs.constants.F_OK | fs.constants.W_OK)
   } catch (err) {
-    return mkdir(dirPath)
+    if (err.code === 'ENOENT') {
+      try {
+        await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
+      } catch (errBasePath) {
+        if (errBasePath.code === 'EACCES') await chmod(basePath, '766')
+        else throw errBasePath
+      }
+
+      await mkdir(dirPath)
+    }
+
+    await chmod(dirPath, '766')
   }
 }
 
@@ -242,10 +256,10 @@ const _getBaseName = queueName => {
 
 const _getCompleteFileName = (queueName, start, end) => {
   const baseName = _getBaseName(queueName)
-  const timestamp = (new Date()).toISOString()
+  const timestamp = (new Date()).toISOString().split(':').join('-')
   const startDate = start ? _getDateString(start) : _getDateString(0)
   const endDate = end ? _getDateString(end) : _getDateString((new Date()).getTime())
-  const fileName = `${baseName}_FROM:_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
+  const fileName = `${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
   return fileName
 }
 
@@ -274,7 +288,16 @@ const moveFileToLocalStorage = async (filePath, name, start, end) => {
   const fileName = _getCompleteFileName(name, start, end)
   const newFilePath = path.join(localStorageDirPath, fileName)
 
+  try {
+    await access(filePath, fs.constants.F_OK | fs.constants.W_OK)
+  } catch (err) {
+    if (err.code === 'EACCES') {
+      await chmod(filePath, '766')
+    } else throw err
+  }
+
   await rename(filePath, newFilePath)
+  await chmod(newFilePath, '766')
 }
 
 const getEmail = async (reportService, args) => {
