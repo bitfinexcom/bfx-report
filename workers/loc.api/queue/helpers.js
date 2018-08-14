@@ -7,24 +7,37 @@ const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
 const moment = require('moment')
 const pug = require('pug')
+const argv = require('yargs').argv
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
 const readFile = promisify(fs.readFile)
 const rename = promisify(fs.rename)
+const chmod = promisify(fs.chmod)
 
 const tempDirPath = path.join(__dirname, 'temp')
 const rootDir = path.dirname(require.main.filename)
-const localStorageDirPath = path.join(rootDir, 'csv')
+const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 
 const _checkAndCreateDir = async (dirPath) => {
+  const basePath = path.join(dirPath, '..')
+
   try {
-    await access(dirPath, fs.F_OK)
-    return Promise.resolve()
+    await access(dirPath, fs.constants.F_OK | fs.constants.W_OK)
   } catch (err) {
-    return mkdir(dirPath)
+    try {
+      await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
+    } catch (errBasePath) {
+      if (errBasePath.code !== 'ENOENT') await chmod(basePath, 766)
+
+      throw errBasePath
+    }
+
+    if (err.code === 'ENOENT') await mkdir(dirPath)
+
+    await chmod(dirPath, 766)
   }
 }
 
@@ -274,7 +287,17 @@ const moveFileToLocalStorage = async (filePath, name, start, end) => {
   const fileName = _getCompleteFileName(name, start, end)
   const newFilePath = path.join(localStorageDirPath, fileName)
 
-  await rename(filePath, newFilePath)
+  try {
+    await access(filePath, fs.constants.F_OK | fs.constants.W_OK)
+    await rename(filePath, newFilePath)
+  } catch (err) {
+    if (err.code === 'ENOENT') throw err
+    else {
+      await chmod(filePath, 766)
+      await rename(filePath, newFilePath)
+      await chmod(newFilePath, 766)
+    }
+  }
 }
 
 const getEmail = async (reportService, args) => {
