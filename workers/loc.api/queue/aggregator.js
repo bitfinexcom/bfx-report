@@ -17,6 +17,8 @@ let reportService = null
 
 module.exports = async job => {
   const aggregatorQueue = reportService.ctx.lokue_aggregator.q
+  const wReportServApi = reportService.ctx.grc_bfx.caller
+  const conf = wReportServApi.conf[wReportServApi.group]
 
   try {
     const data = job.data
@@ -34,7 +36,7 @@ module.exports = async job => {
       await sendMail(reportService, data.emailConf, email, 'email.pug', s3Data, data.startDate, data.endDate)
       await unlink(data.filePath)
     } else {
-      await moveFileToLocalStorage(filePath, name, data.startDate, data.endDate)
+      await moveFileToLocalStorage(filePath, name, data.startDate, data.endDate, conf.isElectronjsEnv)
     }
 
     job.done()

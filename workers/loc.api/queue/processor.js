@@ -17,9 +17,11 @@ let reportService = null
 module.exports = async job => {
   let filePath = null
   const processorQueue = reportService.ctx.lokue_processor.q
+  const wReportServApi = reportService.ctx.grc_bfx.caller
+  const conf = wReportServApi.conf[wReportServApi.group]
 
   try {
-    filePath = await createUniqueFileName()
+    filePath = await createUniqueFileName(conf.isElectronjsEnv)
 
     const isUnauth = job.data.isUnauth || false
     const write = isUnauth ? 'Your file could not be completed, please try again' : job

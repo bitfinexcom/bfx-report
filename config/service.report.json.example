@@ -11,5 +11,6 @@
     "bucket": "",
     "acl": "",
     "signedUrlExpireTime": 28800
-  }
+  },
+  "isElectronjsEnv": false
 }
