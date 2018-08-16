@@ -4,9 +4,11 @@ const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
 const _ = require('lodash')
 const argv = require('yargs').argv
+const path = require('path')
 
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
+const sync = require('./loc.api/sync')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -19,8 +21,12 @@ class WrkReportServiceApi extends WrkApi {
   }
 
   getApiConf () {
+    const group = this.group
+    const conf = this.conf[group]
+    const suffix = conf.syncMode ? `.${conf.dbDriver}` : ''
+
     return {
-      path: 'service.report'
+      path: `service.report${suffix}`
     }
   }
 
@@ -41,6 +47,8 @@ class WrkReportServiceApi extends WrkApi {
     const persist = true
     const dbID = this.ctx.dbID || argv.dbID || 1
     const name = `queue_${dbID}`
+    const group = this.group
+    const conf = this.conf[group]
 
     const facs = [
       [
@@ -58,6 +66,19 @@ class WrkReportServiceApi extends WrkApi {
         { persist, name }
       ]
     ]
+
+    if (conf.syncMode) {
+      facs.push(
+        [
+          'fac',
+          'bfx-facs-scheduler',
+          'sync',
+          'sync',
+          { label: 'sync' }
+        ]
+      )
+    }
+
     this.setInitFacs(facs)
   }
 
@@ -75,6 +96,14 @@ class WrkReportServiceApi extends WrkApi {
 
         if (!reportService.ctx) {
           reportService.ctx = reportService.caller.getCtx()
+        }
+
+        if (conf.syncMode) {
+          const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
+          sync.setReportService(reportService)
+          this.syncProgress = 100
+          this.scheduler_sync.add('sync', sync, rule)
+          sync()
         }
 
         processor.setReportService(reportService)

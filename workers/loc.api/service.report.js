@@ -13,6 +13,13 @@ class ReportService extends Api {
     return space
   }
 
+  getSyncProgress (space, args, cb) {
+    const wrk = this.ctx.grc_bfx.caller
+    const group = wrk.group
+    const conf = wrk.conf[group]
+    cb(null, conf.syncMode ? wrk.syncProgress : false)
+  }
+
   async getEmail (space, args, cb) {
     try {
       // TODO: Waiting for implemenatition of api_v2 end point
