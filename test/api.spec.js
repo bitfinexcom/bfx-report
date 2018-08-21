@@ -111,13 +111,14 @@ describe('API', () => {
       .post(`${basePath}/check-stored-locally`)
       .type('json')
       .send({
+        auth,
         id: 5
       })
       .expect('Content-Type', /json/)
       .expect(200)
 
     assert.isObject(res.body)
-    assert.propertyVal(res.body, 'result', true)
+    assert.isString(res.body.result)
     assert.propertyVal(res.body, 'id', 5)
   })
 

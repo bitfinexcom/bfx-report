@@ -20,13 +20,11 @@ const _mockData = new Map([
     ]
   ],
   [
-    'f_info',
+    'user_info',
     [
-      'fUSD',
-      12345,
-      12345,
-      12345,
-      12345
+      null,
+      'fake@email.fake',
+      null
     ]
   ],
   [
