@@ -44,15 +44,11 @@ module.exports = async job => {
 
     await writablePromise
 
-    const authToken = job.data.args.auth.authToken
-    const ip = authToken && job.data.args.auth.ip
-    const token = ip && [authToken, { ip }]
-
     job.done()
     processorQueue.emit('completed', {
       name: job.data.name,
       filePath,
-      token,
+      email: job.data.args.params.email,
       endDate: job.data.args.params.end,
       startDate: job.data.args.params.start,
       isUnauth
