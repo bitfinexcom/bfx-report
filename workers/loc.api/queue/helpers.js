@@ -21,42 +21,44 @@ const rootDir = path.dirname(require.main.filename)
 const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 
-const _checkAndCreateDir = async (dirPath) => {
+const _checkAndCreateDir = async (dirPath, isElectronjsEnv = false) => {
   const basePath = path.join(dirPath, '..')
 
   try {
     await access(dirPath, fs.constants.F_OK | fs.constants.W_OK)
   } catch (err) {
+    if (err.code === 'EACCES' && !isElectronjsEnv) throw err
     if (err.code === 'ENOENT') {
       try {
         await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
       } catch (errBasePath) {
-        if (errBasePath.code === 'EACCES') await chmod(basePath, '766')
-        else throw errBasePath
+        if (errBasePath.code === 'EACCES' && isElectronjsEnv) {
+          await chmod(basePath, '766')
+        } else throw errBasePath
       }
 
       await mkdir(dirPath)
     }
 
-    await chmod(dirPath, '766')
+    if (isElectronjsEnv) await chmod(dirPath, '766')
   }
 }
 
-const createUniqueFileName = async (count = 0) => {
+const createUniqueFileName = async (isElectronjsEnv, count = 0) => {
   count += 1
 
   if (count > 20) {
     return Promise.reject(new Error('ERR_CREATE_UNIQUE_FILE_NAME'))
   }
 
-  await _checkAndCreateDir(tempDirPath)
+  await _checkAndCreateDir(tempDirPath, isElectronjsEnv)
 
   const uniqueFileName = `${uuidv4()}.csv`
 
   const files = await readdir(tempDirPath)
 
   if (files.some(file => file === uniqueFileName)) {
-    return createUniqueFileName(count)
+    return createUniqueFileName(isElectronjsEnv, count)
   }
 
   return Promise.resolve(path.join(tempDirPath, uniqueFileName))
@@ -282,8 +284,8 @@ const checkS3SendgridCoreUser = async reportService => {
   if (!countCoreUserServices) throw new Error('REPORT_CORE_USER_WAS_NOT_FOUNDED')
 }
 
-const moveFileToLocalStorage = async (filePath, name, start, end) => {
-  await _checkAndCreateDir(localStorageDirPath)
+const moveFileToLocalStorage = async (filePath, name, start, end, isElectronjsEnv = false) => {
+  await _checkAndCreateDir(localStorageDirPath, isElectronjsEnv)
 
   const fileName = _getCompleteFileName(name, start, end)
   const newFilePath = path.join(localStorageDirPath, fileName)
@@ -291,13 +293,16 @@ const moveFileToLocalStorage = async (filePath, name, start, end) => {
   try {
     await access(filePath, fs.constants.F_OK | fs.constants.W_OK)
   } catch (err) {
-    if (err.code === 'EACCES') {
+    if (err.code === 'EACCES' && isElectronjsEnv) {
       await chmod(filePath, '766')
     } else throw err
   }
 
   await rename(filePath, newFilePath)
-  await chmod(newFilePath, '766')
+
+  if (isElectronjsEnv) {
+    await chmod(newFilePath, '766')
+  }
 }
 
 const getEmail = async (reportService, args) => {
