@@ -3,37 +3,33 @@
 const ReportService = require('./service.report')
 
 class MysqlReportService extends ReportService {
-  getEmail (space, args, cb) {
-    // TODO:
+  // TODO:
+  async getEmail (space, args, cb) {
     super.getEmail(space, args, cb)
   }
 
-  getSymbols (space, args, cb) {
-    // TODO:
+  // TODO:
+  async getSymbols (space, args, cb) {
     super.getSymbols(space, args, cb)
   }
 
-  getFundingInfo (space, args, cb) {
-    cb(null, true)
-  }
-
+  // TODO:
   getLedgers (space, args, cb) {
-    // TODO:
     super.getLedgers(space, args, cb)
   }
 
+  // TODO:
   async getTrades (space, args, cb) {
-    // TODO:
     super.getTrades(space, args, cb)
   }
 
+  // TODO:
   async getOrders (space, args, cb) {
-    // TODO:
     super.getOrders(space, args, cb)
   }
 
+  // TODO:
   async getMovements (space, args, cb) {
-    // TODO:
     super.getMovements(space, args, cb)
   }
 }
