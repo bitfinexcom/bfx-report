@@ -7,7 +7,6 @@
   "dependencies": {
     "async": "^2.6.1",
     "better-npm-run": "^0.1.0",
-    "bfx-api-mock-srv": "git+https://github.com/bitfinexcom/bfx-api-mock-srv.git",
     "bfx-facs-base": "git+https://github.com:bitfinexcom/bfx-facs-base.git",
     "bfx-facs-interval": "https://github.com/bitfinexcom/bfx-facs-interval.git",
     "bfx-facs-lokue": "git+https://github.com:bitfinexcom/bfx-facs-lokue.git",
@@ -28,12 +27,12 @@
     "moment": "^2.22.2",
     "morgan": "^1.9.0",
     "pug": "^2.0.3",
-    "request-ip": "^2.1.1",
     "uuid": "^3.3.2",
     "winston": "^3.0.0",
     "yargs": "^12.0.1"
   },
   "devDependencies": {
+    "bfx-api-mock-srv": "git+https://github.com/bitfinexcom/bfx-api-mock-srv.git",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",

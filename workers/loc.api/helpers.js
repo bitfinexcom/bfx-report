@@ -1,6 +1,7 @@
 'use strict'
 
 const bfxFactory = require('./bfx.factory')
+const { hasS3AndSendgrid } = require('./queue/helpers')
 
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
@@ -50,9 +51,22 @@ const checkParams = (args) => {
   }
 }
 
+const getCsvStoreStatus = async (reportService, args) => {
+  if (typeof args.params.email !== 'string') {
+    return { isSaveLocaly: true }
+  }
+
+  if (!await hasS3AndSendgrid(reportService)) {
+    throw new Error('ERR_CAN_NOT_SEND_EMAIL')
+  }
+
+  return { isSendEmail: true }
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
   getParams,
-  checkParams
+  checkParams,
+  getCsvStoreStatus
 }

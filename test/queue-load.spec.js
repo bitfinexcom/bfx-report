@@ -34,6 +34,7 @@ const dbDirPath = path.join(__dirname, '..', 'db')
 const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
+const email = 'fake@email.fake'
 
 describe('Queue load', () => {
   before(async function () {
@@ -77,7 +78,7 @@ describe('Queue load', () => {
         assert.containsAllKeys(procRes, [
           'name',
           'filePath',
-          'token',
+          'email',
           'endDate',
           'startDate',
           'isUnauth'
@@ -103,7 +104,8 @@ describe('Queue load', () => {
             symbol: 'BTC',
             end,
             start,
-            limit: 10000
+            limit: 10000,
+            email
           },
           id: 5
         })
@@ -112,7 +114,8 @@ describe('Queue load', () => {
 
       assert.isObject(res.body)
       assert.propertyVal(res.body, 'id', 5)
-      assert.isOk(res.body.result)
+      assert.isObject(res.body.result)
+      assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
     }
 
     await procPromise

@@ -35,6 +35,7 @@ const dbDirPath = path.join(__dirname, '..', 'db')
 const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
+const email = 'fake@email.fake'
 
 describe('Queue', () => {
   before(async function () {
@@ -79,7 +80,8 @@ describe('Queue', () => {
           symbol: 'BTC',
           end,
           start,
-          limit: 1000
+          limit: 1000,
+          email
         },
         id: 5
       })
@@ -88,7 +90,8 @@ describe('Queue', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
 
     const procRes = await procPromise
 
@@ -96,7 +99,7 @@ describe('Queue', () => {
     assert.containsAllKeys(procRes, [
       'name',
       'filePath',
-      'token',
+      'email',
       'endDate',
       'startDate',
       'isUnauth'
@@ -129,7 +132,8 @@ describe('Queue', () => {
           symbol: 'tBTCUSD',
           end,
           start,
-          limit: 1000
+          limit: 1000,
+          email
         },
         id: 5
       })
@@ -138,7 +142,8 @@ describe('Queue', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
 
     const procRes = await procPromise
 
@@ -146,7 +151,7 @@ describe('Queue', () => {
     assert.containsAllKeys(procRes, [
       'name',
       'filePath',
-      'token',
+      'email',
       'endDate',
       'startDate',
       'isUnauth'
@@ -179,7 +184,8 @@ describe('Queue', () => {
           symbol: 'tBTCUSD',
           end,
           start,
-          limit: 1000
+          limit: 1000,
+          email
         },
         id: 5
       })
@@ -188,7 +194,8 @@ describe('Queue', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
 
     const procRes = await procPromise
 
@@ -196,7 +203,7 @@ describe('Queue', () => {
     assert.containsAllKeys(procRes, [
       'name',
       'filePath',
-      'token',
+      'email',
       'endDate',
       'startDate',
       'isUnauth'
@@ -229,7 +236,8 @@ describe('Queue', () => {
           symbol: 'BTC',
           end,
           start,
-          limit: 10000
+          limit: 10000,
+          email
         },
         id: 5
       })
@@ -238,7 +246,8 @@ describe('Queue', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
 
     const procRes = await procPromise
 
@@ -246,7 +255,7 @@ describe('Queue', () => {
     assert.containsAllKeys(procRes, [
       'name',
       'filePath',
-      'token',
+      'email',
       'endDate',
       'startDate',
       'isUnauth'
@@ -277,7 +286,8 @@ describe('Queue', () => {
           symbol: 'BTC',
           end,
           start,
-          limit: 10000
+          limit: 10000,
+          email
         },
         id: 5
       })
@@ -286,7 +296,8 @@ describe('Queue', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
 
     try {
       await procPromise
@@ -308,7 +319,7 @@ describe('Queue', () => {
         assert.containsAllKeys(procRes, [
           'name',
           'filePath',
-          'token',
+          'email',
           'endDate',
           'startDate',
           'isUnauth'
@@ -334,7 +345,8 @@ describe('Queue', () => {
             symbol: 'BTC',
             end,
             start,
-            limit: 10000
+            limit: 10000,
+            email
           },
           id: 5
         })
@@ -343,7 +355,8 @@ describe('Queue', () => {
 
       assert.isObject(res.body)
       assert.propertyVal(res.body, 'id', 5)
-      assert.isOk(res.body.result)
+      assert.isObject(res.body.result)
+      assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
     }
 
     await procPromise
