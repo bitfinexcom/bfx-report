@@ -4,7 +4,8 @@ const { Api } = require('bfx-wrk-api')
 const {
   getREST,
   getParams,
-  checkParams
+  checkParams,
+  getCsvStoreStatus
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -22,10 +23,10 @@ class ReportService extends Api {
 
   async getEmail (space, args, cb) {
     try {
-      // TODO: Waiting for implemenatition of api_v2 end point
-      const result = 'example@email.com'
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const result = await rest.userInfo()
 
-      cb(null, result)
+      cb(null, result.email)
     } catch (err) {
       cb(err)
     }
@@ -64,17 +65,6 @@ class ReportService extends Api {
       }
 
       const result = { coins, pairs }
-
-      cb(null, result)
-    } catch (err) {
-      cb(err)
-    }
-  }
-
-  async getFundingInfo (space, args, cb) {
-    try {
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.fundingInfo()
 
       cb(null, result)
     } catch (err) {
@@ -136,6 +126,7 @@ class ReportService extends Api {
   async getTradesCsv (space, args, cb) {
     try {
       checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
 
       const method = 'getTrades'
 
@@ -160,7 +151,7 @@ class ReportService extends Api {
 
       processorQueue.addJob(jobData)
 
-      cb(null, true)
+      cb(null, status)
     } catch (err) {
       cb(err)
     }
@@ -169,6 +160,7 @@ class ReportService extends Api {
   async getLedgersCsv (space, args, cb) {
     try {
       checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
 
       const method = 'getLedgers'
 
@@ -191,7 +183,7 @@ class ReportService extends Api {
 
       processorQueue.addJob(jobData)
 
-      cb(null, true)
+      cb(null, status)
     } catch (err) {
       cb(err)
     }
@@ -200,6 +192,7 @@ class ReportService extends Api {
   async getOrdersCsv (space, args, cb) {
     try {
       checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
 
       const method = 'getOrders'
 
@@ -227,7 +220,7 @@ class ReportService extends Api {
 
       processorQueue.addJob(jobData)
 
-      cb(null, true)
+      cb(null, status)
     } catch (err) {
       cb(err)
     }
@@ -236,6 +229,7 @@ class ReportService extends Api {
   async getMovementsCsv (space, args, cb) {
     try {
       checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
 
       const method = 'getMovements'
 
@@ -258,7 +252,7 @@ class ReportService extends Api {
 
       processorQueue.addJob(jobData)
 
-      cb(null, true)
+      cb(null, status)
     } catch (err) {
       cb(err)
     }

@@ -9,16 +9,15 @@ const {
   failureInternalServerError,
   failureUnauthorized
 } = helpers.responses
-const requestIp = require('request-ip')
 
 const _isAuthError = (err) => {
-  return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
+  return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
 }
 
 const checkAuth = async (req, res) => {
   const id = req.body.id || null
   const query = {
-    action: 'getFundingInfo',
+    action: 'getEmail',
     args: [req.body]
   }
 
@@ -55,22 +54,34 @@ const checkStoredLocally = async (req, res) => {
       params: { service: 'rest:ext:sendgrid' }
     }]
   }
+  const queryGetEmail = {
+    action: 'getEmail',
+    args: [req.body]
+  }
 
   try {
     const countS3Services = await gClientService.request(queryS3)
     const countSendgridServices = await gClientService.request(querySendgrid)
-    const result = !!(countS3Services && countSendgridServices)
+    let result = false
+
+    if (countS3Services && countSendgridServices) {
+      result = await gClientService.request(queryGetEmail)
+    }
 
     success(200, { result, id }, res)
   } catch (err) {
+    if (_isAuthError(err)) {
+      failureUnauthorized(res, id)
+
+      return
+    }
+
     failureInternalServerError(res, id)
   }
 }
 
 const getData = async (req, res) => {
   const body = { ...req.body }
-  const ip = requestIp.getClientIp(req)
-  if (body.auth) body.auth.ip = ip
   const id = body.id || null
   delete body.method
   const query = {

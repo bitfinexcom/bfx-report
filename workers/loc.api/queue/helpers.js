@@ -265,23 +265,17 @@ const _getCompleteFileName = (queueName, start, end) => {
   return fileName
 }
 
-const checkS3SendgridCoreUser = async reportService => {
+const hasS3AndSendgrid = async reportService => {
   const lookUpFn = promisify(reportService.lookUpFunction.bind(reportService))
 
   const countS3Services = await lookUpFn(null, {
     params: { service: 'rest:ext:s3' }
   })
-  if (!countS3Services) throw new Error('REPORT_S3_WAS_NOT_FOUNDED')
-
   const countSendgridServices = await lookUpFn(null, {
     params: { service: 'rest:ext:sendgrid' }
   })
-  if (!countSendgridServices) throw new Error('REPORT_SENDGRID_WAS_NOT_FOUNDED')
 
-  const countCoreUserServices = await lookUpFn(null, {
-    params: { service: 'rest:core:user' }
-  })
-  if (!countCoreUserServices) throw new Error('REPORT_CORE_USER_WAS_NOT_FOUNDED')
+  return !!(countS3Services && countSendgridServices)
 }
 
 const moveFileToLocalStorage = async (filePath, name, start, end, isElectronjsEnv = false) => {
@@ -303,23 +297,6 @@ const moveFileToLocalStorage = async (filePath, name, start, end, isElectronjsEn
   if (isElectronjsEnv) {
     await chmod(newFilePath, '766')
   }
-}
-
-const getEmail = async (reportService, args) => {
-  const grcBfx = reportService.ctx.grc_bfx
-
-  return new Promise(async (resolve, reject) => {
-    grcBfx.req(
-      'rest:core:user',
-      'checkAuthToken',
-      args.token,
-      { timeout: 10000 },
-      (err, data) => {
-        if (err) return reject(err)
-        if (data.email) return resolve(data.email)
-        else return reject(new Error('No email found'))
-      })
-  })
 }
 
 const uploadS3 = async (reportService, configs, filePath, queueName, start, end) => {
@@ -396,7 +373,6 @@ module.exports = {
   isAuthError,
   uploadS3,
   sendMail,
-  checkS3SendgridCoreUser,
   moveFileToLocalStorage,
-  getEmail
+  hasS3AndSendgrid
 }
