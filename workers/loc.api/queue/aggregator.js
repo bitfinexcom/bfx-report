@@ -24,9 +24,9 @@ module.exports = async job => {
     const filePath = data.filePath
     const name = data.name
     const isUnauth = job.data.isUnauth || false
-    const isEnableS3AndSendgrid = await hasS3AndSendgrid(reportService)
+    const isEnableToSendEmail = typeof data.email === 'string' && await hasS3AndSendgrid(reportService)
 
-    if (isEnableS3AndSendgrid && typeof data.email === 'string') {
+    if (isEnableToSendEmail) {
       const s3Data = await uploadS3(reportService, data.s3Conf, filePath, name, data.startDate, data.endDate)
       s3Data.isUnauth = isUnauth
       await sendMail(reportService, data.emailConf, data.email, 'email.pug', s3Data)

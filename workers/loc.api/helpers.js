@@ -52,15 +52,15 @@ const checkParams = (args) => {
 }
 
 const getCsvStoreStatus = async (reportService, args) => {
-  const isEnableS3AndSendgrid = await hasS3AndSendgrid(reportService)
+  if (typeof args.params.email !== 'string') {
+    return { isSaveLocaly: true }
+  }
 
-  if (typeof args.params.email === 'string' && !isEnableS3AndSendgrid) {
+  if (!await hasS3AndSendgrid(reportService)) {
     throw new Error('ERR_CAN_NOT_SEND_EMAIL')
   }
 
-  return (isEnableS3AndSendgrid && typeof args.params.email === 'string')
-    ? { isSendEmail: true }
-    : { isSaveLocaly: true }
+  return { isSendEmail: true }
 }
 
 module.exports = {
