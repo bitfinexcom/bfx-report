@@ -39,11 +39,10 @@ const getParams = (args, maxLimit) => {
   return params
 }
 
-const checkParams = (args, isEnableS3AndSendgrid) => {
+const checkParams = (args) => {
   if (
     !args.params ||
     typeof args.params !== 'object' ||
-    (isEnableS3AndSendgrid && typeof args.params.email !== 'string') ||
     (args.params.limit && !Number.isInteger(args.params.limit)) ||
     (args.params.start && !Number.isInteger(args.params.start)) ||
     (args.params.end && !Number.isInteger(args.params.end))
@@ -52,13 +51,16 @@ const checkParams = (args, isEnableS3AndSendgrid) => {
   }
 }
 
-const getCsvStoreStatus = async reportService => {
+const getCsvStoreStatus = async (reportService, args) => {
   const isEnableS3AndSendgrid = await hasS3AndSendgrid(reportService)
 
-  return {
-    isEnableS3AndSendgrid,
-    status: isEnableS3AndSendgrid ? { isSendEmail: true } : { isSaveLocaly: true }
+  if (typeof args.params.email === 'string' && !isEnableS3AndSendgrid) {
+    throw new Error('ERR_CAN_NOT_SEND_EMAIL')
   }
+
+  return (isEnableS3AndSendgrid && typeof args.params.email === 'string')
+    ? { isSendEmail: true }
+    : { isSaveLocaly: true }
 }
 
 module.exports = {

@@ -118,8 +118,8 @@ class ReportService extends Api {
 
   async getTradesCsv (space, args, cb) {
     try {
-      const { isEnableS3AndSendgrid, status } = await getCsvStoreStatus(this)
-      checkParams(args, isEnableS3AndSendgrid)
+      checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
 
       const method = 'getTrades'
 
@@ -152,8 +152,8 @@ class ReportService extends Api {
 
   async getLedgersCsv (space, args, cb) {
     try {
-      const { isEnableS3AndSendgrid, status } = await getCsvStoreStatus(this)
-      checkParams(args, isEnableS3AndSendgrid)
+      checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
 
       const method = 'getLedgers'
 
@@ -184,8 +184,8 @@ class ReportService extends Api {
 
   async getOrdersCsv (space, args, cb) {
     try {
-      const { isEnableS3AndSendgrid, status } = await getCsvStoreStatus(this)
-      checkParams(args, isEnableS3AndSendgrid)
+      checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
 
       const method = 'getOrders'
 
@@ -221,8 +221,8 @@ class ReportService extends Api {
 
   async getMovementsCsv (space, args, cb) {
     try {
-      const { isEnableS3AndSendgrid, status } = await getCsvStoreStatus(this)
-      checkParams(args, isEnableS3AndSendgrid)
+      checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
 
       const method = 'getMovements'
 
