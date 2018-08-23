@@ -14,11 +14,14 @@ class ReportService extends Api {
     return space
   }
 
-  getSyncProgress (space, args, cb) {
+  isSyncMode (space, args, cb = () => { }) {
     const wrk = this.ctx.grc_bfx.caller
     const group = wrk.group
     const conf = wrk.conf[group]
-    cb(null, conf.syncMode ? wrk.syncProgress : false)
+
+    cb(null, conf.syncMode)
+
+    return conf.syncMode
   }
 
   async getEmail (space, args, cb) {

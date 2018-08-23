@@ -1,36 +1,48 @@
 'use strict'
 
-const ReportService = require('./service.report')
+const MediatorReportService = require('./service.report.mediator')
 
-class MongoReportService extends ReportService {
+class MongoReportService extends MediatorReportService {
   // TODO:
   async getEmail (space, args, cb) {
-    super.getEmail(space, args, cb)
+    if (super.getEmail(space, args, cb)) return
+
+    cb(new Error('NOT_IMPLEMENTED'))
   }
 
   // TODO:
   async getSymbols (space, args, cb) {
-    super.getSymbols(space, args, cb)
+    if (super.getSymbols(space, args, cb)) return
+
+    cb(new Error('NOT_IMPLEMENTED'))
   }
 
   // TODO:
-  getLedgers (space, args, cb) {
-    super.getLedgers(space, args, cb)
+  async getLedgers (space, args, cb) {
+    if (super.getLedgers(space, args, cb)) return
+
+    cb(new Error('NOT_IMPLEMENTED'))
   }
 
   // TODO:
   async getTrades (space, args, cb) {
-    super.getTrades(space, args, cb)
+    if (super.getTrades(space, args, cb)) return
+
+    cb(new Error('NOT_IMPLEMENTED'))
   }
 
   // TODO:
   async getOrders (space, args, cb) {
-    super.getOrders(space, args, cb)
+    if (super.getOrders(space, args, cb)) return
+
+    cb(new Error('NOT_IMPLEMENTED'))
   }
 
   // TODO:
   async getMovements (space, args, cb) {
-    super.getMovements(space, args, cb)
+    if (super.getMovements(space, args, cb)) return
+
+    cb(new Error('NOT_IMPLEMENTED'))
   }
 }
 

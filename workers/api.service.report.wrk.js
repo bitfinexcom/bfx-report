@@ -100,9 +100,15 @@ class WrkReportServiceApi extends WrkApi {
 
         if (conf.syncMode) {
           const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
+          const name = 'sync'
+
           sync.setReportService(reportService)
-          this.syncProgress = 100
-          this.scheduler_sync.add('sync', sync, rule)
+
+          this.scheduler_sync.add(name, sync, rule)
+
+          const job = this.scheduler_sync.mem.get(name)
+          job.rule = rule
+
           sync()
         }
 
