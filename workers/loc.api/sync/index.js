@@ -1,30 +1,30 @@
 'use strict'
 
+const { checkNewData } = require('./helpers')
+
 let reportService = null
 let isFirstRun = true
-let count = 0
 
 // TODO:
 module.exports = async () => {
-  count += 1
-  const currId = count
-  const wReportServApi = reportService.ctx.grc_bfx.caller
+  const wrk = reportService.ctx.grc_bfx.caller
+  const group = wrk.group
+  const conf = wrk.conf[group]
 
-  if (wReportServApi.syncProgress < 100 && !isFirstRun) {
+  if (wrk.syncProgress < 100 && !isFirstRun) {
     return
   }
 
   isFirstRun = false
-  wReportServApi.syncProgress = 0
+  wrk.syncProgress = 0
 
-  // TODO:
-  console.log('---start-sync--- ', currId)
-  await new Promise((resolve) => {
-    setTimeout(resolve, 6000)
-  })
-  console.log('---stop-sync--- ', currId)
+  console.log('---start-sync--- ')
 
-  wReportServApi.syncProgress = 100
+  const methodCollMap = await checkNewData(reportService, conf.auth)
+
+  console.log('---stop-sync--- ')
+
+  wrk.syncProgress = 100
 }
 
 module.exports.setReportService = (rService) => {

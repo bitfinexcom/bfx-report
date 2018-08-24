@@ -1,5 +1,7 @@
 'use strict'
 
+const { promisify } = require('util')
+
 const ReportService = require('./service.report')
 
 class MediatorReportService extends ReportService {
@@ -21,8 +23,7 @@ class MediatorReportService extends ReportService {
 
   enableScheduler (space, args, cb) {
     try {
-      const wrk = this.ctx.grc_bfx.caller
-      const job = wrk.scheduler_sync.mem.get('sync')
+      const job = this.ctx.scheduler_sync.mem.get('sync')
       const res = job.reschedule(job.rule)
 
       cb(null, res)
@@ -33,8 +34,7 @@ class MediatorReportService extends ReportService {
 
   disableScheduler (space, args, cb) {
     try {
-      const wrk = this.ctx.grc_bfx.caller
-      const job = wrk.scheduler_sync.mem.get('sync')
+      const job = this.ctx.scheduler_sync.mem.get('sync')
 
       job.once('canceled', () => {
         cb(null, true)
@@ -111,6 +111,30 @@ class MediatorReportService extends ReportService {
     }
 
     return false
+  }
+
+  _getEmail (args) {
+    return promisify(super.getEmail.bind(this))(null, args)
+  }
+
+  _getSymbols (args) {
+    return promisify(super.getSymbols.bind(this))(null, args)
+  }
+
+  _getLedgers (args) {
+    return promisify(super.getLedgers.bind(this))(null, args)
+  }
+
+  _getTrades (args) {
+    return promisify(super.getTrades.bind(this))(null, args)
+  }
+
+  _getOrders (args) {
+    return promisify(super.getOrders.bind(this))(null, args)
+  }
+
+  _getMovements (args) {
+    return promisify(super.getMovements.bind(this))(null, args)
   }
 }
 

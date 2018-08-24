@@ -32,10 +32,19 @@ class WrkReportServiceApi extends WrkApi {
 
   getPluginCtx (type) {
     const ctx = super.getPluginCtx(type)
+    const group = this.group
+    const conf = this.conf[group]
 
     if (type === 'api_bfx') {
       ctx.lokue_processor = this.lokue_processor
       ctx.lokue_aggregator = this.lokue_aggregator
+
+      if (conf.syncMode) {
+        const dbFacNs = this.getFacNs(`db-${conf.dbDriver}`, 'm0')
+
+        ctx.scheduler_sync = this.scheduler_sync
+        ctx[dbFacNs] = this[dbFacNs]
+      }
     }
 
     return ctx
@@ -75,6 +84,13 @@ class WrkReportServiceApi extends WrkApi {
           'sync',
           'sync',
           { label: 'sync' }
+        ],
+        [
+          'fac',
+          `bfx-facs-db-${conf.dbDriver}`,
+          'm0',
+          'm0',
+          { }
         ]
       )
     }
@@ -87,7 +103,7 @@ class WrkReportServiceApi extends WrkApi {
       next => {
         super._start(next)
       },
-      next => {
+      async next => {
         const processorQueue = this.lokue_processor.q
         const aggregatorQueue = this.lokue_aggregator.q
         const group = this.group
@@ -99,6 +115,15 @@ class WrkReportServiceApi extends WrkApi {
         }
 
         if (conf.syncMode) {
+          if (reportService._createIndex) await reportService._createIndex()
+          if (
+            !conf.auth ||
+            !conf.auth.apiKey ||
+            typeof conf.auth.apiKey !== 'string' ||
+            !conf.auth.apiSecret ||
+            typeof conf.auth.apiSecret !== 'string'
+          ) throw new Error('ERR_SYNC_MODE_NOT_AUTH')
+
           const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
           const name = 'sync'
 

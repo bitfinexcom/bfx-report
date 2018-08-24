@@ -13,6 +13,10 @@
     "signedUrlExpireTime": 28800
   },
   "isElectronjsEnv": false,
+  "auth": {
+    "apiKey": "",
+    "apiSecret": ""
+  },
   "dbDriver": "mongo",
   "syncMode": false
 }
