@@ -90,7 +90,7 @@ class WrkReportServiceApi extends WrkApi {
           `bfx-facs-db-${conf.dbDriver}`,
           'm0',
           'm0',
-          { }
+          { name: 'sync' }
         ]
       )
     }
