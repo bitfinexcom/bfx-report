@@ -1,6 +1,10 @@
 'use strict'
 
-const { checkNewData } = require('./helpers')
+const {
+  insertNewDataToDb,
+  setProgress,
+  getProgress
+} = require('./helpers')
 
 let reportService = null
 let isFirstRun = true
@@ -11,20 +15,24 @@ module.exports = async () => {
   const group = wrk.group
   const conf = wrk.conf[group]
 
-  if (wrk.syncProgress < 100 && !isFirstRun) {
+  if (getProgress(reportService) < 100 && !isFirstRun) {
     return
   }
 
   isFirstRun = false
-  wrk.syncProgress = 0
+  setProgress(reportService, 0)
 
   console.log('---start-sync--- ')
 
-  const methodCollMap = await checkNewData(reportService, conf.auth)
+  try {
+    await insertNewDataToDb(reportService, conf.auth)
+  } catch (err) {
+    console.log('---err---', err)
+  }
 
   console.log('---stop-sync--- ')
 
-  wrk.syncProgress = 100
+  setProgress(reportService, 100)
 }
 
 module.exports.setReportService = (rService) => {

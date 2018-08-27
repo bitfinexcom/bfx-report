@@ -1,5 +1,7 @@
 'use strict'
 
+const _ = require('lodash')
+
 const _methodCollMap = new Map([
   // ['_getEmail', 'email'],
   // ['_getSymbols', 'symbols'],
@@ -7,25 +9,33 @@ const _methodCollMap = new Map([
     name: 'ledgers',
     maxLimit: 5000,
     dateFieldName: 'mts',
-    hasNewData: false
+    symbolFieldName: 'currency',
+    hasNewData: false,
+    start: 0
   }],
   ['_getTrades', {
     name: 'trades',
     maxLimit: 1500,
     dateFieldName: 'mtsCreate',
-    hasNewData: false
+    symbolFieldName: 'pair',
+    hasNewData: false,
+    start: 0
   }],
   ['_getOrders', {
     name: 'orders',
     maxLimit: 5000,
     dateFieldName: 'mtsUpdate',
-    hasNewData: false
+    symbolFieldName: 'symbol',
+    hasNewData: false,
+    start: 0
   }],
   ['_getMovements', {
     name: 'movements',
     maxLimit: 25,
     dateFieldName: 'mtsUpdated',
-    hasNewData: false
+    symbolFieldName: 'currency',
+    hasNewData: false,
+    start: 0
   }]
 ])
 
@@ -37,8 +47,8 @@ const _getMethodArgMap = (
   method,
   auth = { apiKey: '', apiSecret: '' },
   limit,
-  end = (new Date()).getTime(),
-  start = 0
+  start = 0,
+  end = (new Date()).getTime()
 ) => {
   return {
     auth,
@@ -54,7 +64,7 @@ const _isEmptyData = (data) => {
   return (
     !data ||
     (Array.isArray(data) && data.length === 0) ||
-    (typeof data === 'string' && Object.keys(data).length === 0)
+    (typeof data === 'object' && Object.keys(data).length === 0)
   )
 }
 
@@ -62,11 +72,10 @@ const _compareElemsDbAndApi = (dateFieldName, elDb, elApi) => {
   const _elDb = Array.isArray(elDb) ? elDb[0] : elDb
   const _elApi = Array.isArray(elApi) ? elApi[0] : elApi
 
-  return _elDb[dateFieldName] < _elApi[dateFieldName]
+  return _elDb[dateFieldName] < _elApi[dateFieldName] || _elDb[dateFieldName]
 }
 
-// TODO:
-const checkNewData = async (reportService, auth) => {
+const _checkNewData = async (reportService, auth) => {
   const methodCollMap = getMethodCollMap()
 
   for (let [method, item] of _methodCollMap) {
@@ -82,19 +91,147 @@ const checkNewData = async (reportService, auth) => {
 
     if (_isEmptyData(lastElemFromDb)) {
       methodCollMap.get(method).hasNewData = true
+      methodCollMap.get(method).start = 0
 
       continue
     }
 
-    if (_compareElemsDbAndApi(item.dateFieldName, lastElemFromDb, lastElemFromApi)) {
+    const lastDateInDb = _compareElemsDbAndApi(item.dateFieldName, lastElemFromDb, lastElemFromApi)
+    if (lastDateInDb) {
       methodCollMap.get(method).hasNewData = true
+      methodCollMap.get(method).start = lastDateInDb + 1
     }
   }
 
-  return methodCollMap
+  return new Map([...methodCollMap].filter(([key, value]) => value.hasNewData))
+}
+
+const _delay = (mc = 80000) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, mc)
+  })
+}
+
+const _isRateLimitError = (err) => {
+  return /ERR_RATE_LIMIT/.test(err.toString())
+}
+
+const setProgress = (reportService, progress) => {
+  reportService.ctx.grc_bfx.caller.syncProgress = progress
+}
+
+const getProgress = (reportService) => {
+  return reportService.ctx.grc_bfx.caller.syncProgress
+}
+
+const _normalizeApiData = (data = []) => {
+  return data.map(item => {
+    if (
+      typeof item !== 'object' ||
+      !item._fieldKeys ||
+      !Array.isArray(item._fieldKeys)
+    ) {
+      return item
+    }
+
+    return _.pick(item, item._fieldKeys)
+  })
+}
+
+const _insertApiDataToDb = async (
+  reportService,
+  args,
+  {
+    methodApi,
+    collName,
+    dateFieldName
+  }
+) => {
+  if (
+    typeof reportService[methodApi] !== 'function'
+  ) {
+    throw new Error('ERR_METHOD_NOT_FOUND')
+  }
+
+  const _args = _.cloneDeep(args)
+  const currIterationArgs = _.cloneDeep(_args)
+
+  let res = null
+  let count = 0
+
+  while (true) {
+    try {
+      res = await reportService[methodApi](currIterationArgs)
+    } catch (err) {
+      if (_isRateLimitError(err)) {
+        await _delay()
+        res = await reportService[methodApi](currIterationArgs)
+      } else throw err
+    }
+
+    if (!res || !Array.isArray(res) || res.length === 0) {
+      break
+    }
+
+    const lastItem = res[res.length - 1]
+
+    if (
+      typeof lastItem !== 'object' ||
+      !lastItem[dateFieldName] ||
+      !Number.isInteger(lastItem[dateFieldName])
+    ) break
+
+    const currTime = lastItem[dateFieldName]
+    let isAllData = false
+
+    if (_args.params.start >= currTime) {
+      res = res.filter((item) => _args.params.start <= item[dateFieldName])
+      isAllData = true
+    }
+
+    if (_args.params.limit < (count + res.length)) {
+      res.splice(_args.params.limit - count)
+      isAllData = true
+    }
+
+    await reportService._insertElemsToDb(collName, _normalizeApiData(res))
+
+    count += res.length
+    const needElems = _args.params.limit - count
+
+    if (isAllData || needElems <= 0) {
+      break
+    }
+
+    currIterationArgs.params.end = lastItem[dateFieldName] - 1
+    if (needElems) currIterationArgs.params.limit = needElems
+  }
+}
+
+const insertNewDataToDb = async (reportService, auth) => {
+  const methodCollMap = await _checkNewData(reportService, auth)
+  let count = 0
+
+  for (let [method, item] of methodCollMap) {
+    const args = _getMethodArgMap(method, { ...auth }, null, item.start)
+    await _insertApiDataToDb(
+      reportService,
+      args,
+      {
+        methodApi: method,
+        collName: item.name,
+        dateFieldName: item.dateFieldName
+      }
+    )
+
+    count += 1
+    setProgress(reportService, Math.round((count / methodCollMap.size) * 100))
+  }
 }
 
 module.exports = {
   getMethodCollMap,
-  checkNewData
+  insertNewDataToDb,
+  setProgress,
+  getProgress
 }
