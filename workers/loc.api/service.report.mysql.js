@@ -44,6 +44,13 @@ class MysqlReportService extends MediatorReportService {
 
     cb(new Error('NOT_IMPLEMENTED'))
   }
+
+  // TODO:
+  async _getLastElemFromDb (name, dateFieldName) {
+    const cli = this.ctx.dbMysql_m0.cli
+
+    return null
+  }
 }
 
 module.exports = MysqlReportService

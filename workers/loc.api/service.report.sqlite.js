@@ -44,6 +44,13 @@ class SqliteReportService extends MediatorReportService {
 
     cb(new Error('NOT_IMPLEMENTED'))
   }
+
+  // TODO:
+  async _getLastElemFromDb (name, dateFieldName) {
+    const db = this.ctx.dbSqlite_m0.db
+
+    return null
+  }
 }
 
 module.exports = SqliteReportService
