@@ -1,8 +1,6 @@
 'use strict'
 
 const MediatorReportService = require('./service.report.mediator')
-const { getLimitNotMoreThan } = require('./helpers')
-const { getMethodCollMap } = require('./sync/helpers')
 
 class MongoReportService extends MediatorReportService {
   // TODO:
@@ -23,43 +21,7 @@ class MongoReportService extends MediatorReportService {
   async getLedgers (space, args, cb) {
     if (super.getLedgers(space, args, cb)) return
 
-    if (
-      !args.params ||
-      typeof args.params !== 'object'
-    ) {
-      throw new Error('ERR_ARGS_NO_PARAMS')
-    }
-
-    try {
-      const maxLimit = 5000
-      const params = { ...args.params }
-      params.limit = getLimitNotMoreThan(args.params.limit, maxLimit)
-      const method = '_getLedgers'
-      const methodColl = getMethodCollMap().get(method)
-      const query = {}
-
-      query[methodColl.dateFieldName] = {
-        $gte: params.start ? params.start : 0,
-        $lte: params.end ? params.end : (new Date()).getTime()
-      }
-
-      if (params.symbol) {
-        query[methodColl.symbolFieldName] = params.symbol
-      }
-
-      const res = await this._getCollByName(methodColl.name)
-        .find(
-          query,
-          {
-            sort: [[methodColl.dateFieldName, -1]],
-            limit: params.limit
-          })
-        .toArray()
-
-      cb(null, res)
-    } catch (err) {
-      cb(err)
-    }
+    cb(new Error('NOT_IMPLEMENTED'))
   }
 
   // TODO:

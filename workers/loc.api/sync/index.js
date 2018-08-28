@@ -9,7 +9,6 @@ const {
 let reportService = null
 let isFirstRun = true
 
-// TODO:
 module.exports = async () => {
   const wrk = reportService.ctx.grc_bfx.caller
   const group = wrk.group
@@ -22,15 +21,11 @@ module.exports = async () => {
   isFirstRun = false
   setProgress(reportService, 0)
 
-  console.log('---start-sync--- ')
-
   try {
     await insertNewDataToDb(reportService, conf.auth)
   } catch (err) {
-    console.log('---err---', err)
+    console.error('Scheduler error: ', err)
   }
-
-  console.log('---stop-sync--- ')
 
   setProgress(reportService, 100)
 }

@@ -47,7 +47,7 @@ class MysqlReportService extends MediatorReportService {
 
   // TODO:
   async _getLastElemFromDb (name, dateFieldName) {
-    const cli = this.ctx.dbMysql_m0.cli
+    const db = this.ctx.dbMysql_m0.cli
 
     return null
   }

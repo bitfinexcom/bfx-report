@@ -3,8 +3,6 @@
 const _ = require('lodash')
 
 const _methodCollMap = new Map([
-  // ['_getEmail', 'email'],
-  // ['_getSymbols', 'symbols'],
   ['_getLedgers', {
     name: 'ledgers',
     maxLimit: 5000,
@@ -169,9 +167,11 @@ const _insertApiDataToDb = async (
       } else throw err
     }
 
-    if (!res || !Array.isArray(res) || res.length === 0) {
-      break
-    }
+    if (
+      !res ||
+      !Array.isArray(res) ||
+      res.length === 0
+    ) break
 
     const lastItem = res[res.length - 1]
 
