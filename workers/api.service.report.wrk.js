@@ -116,13 +116,6 @@ class WrkReportServiceApi extends WrkApi {
 
         if (conf.syncMode) {
           if (reportService._createIndex) await reportService._createIndex()
-          if (
-            !conf.auth ||
-            !conf.auth.apiKey ||
-            typeof conf.auth.apiKey !== 'string' ||
-            !conf.auth.apiSecret ||
-            typeof conf.auth.apiSecret !== 'string'
-          ) throw new Error('ERR_SYNC_MODE_NOT_AUTH')
 
           const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
           const name = 'sync'
@@ -134,7 +127,7 @@ class WrkReportServiceApi extends WrkApi {
           const job = this.scheduler_sync.mem.get(name)
           job.rule = rule
 
-          sync()
+          job.cancel(true)
         }
 
         processor.setReportService(reportService)

@@ -119,7 +119,29 @@ const setProgress = (reportService, progress) => {
 }
 
 const getProgress = (reportService) => {
-  return reportService.ctx.grc_bfx.caller.syncProgress
+  return typeof reportService.ctx.grc_bfx.caller.syncProgress === 'number'
+    ? reportService.ctx.grc_bfx.caller.syncProgress
+    : false
+}
+
+const getAllAuth = (reportService) => {
+  if (
+    !reportService.ctx.grc_bfx.caller.auth ||
+    !(reportService.ctx.grc_bfx.caller.auth instanceof Map)
+  ) reportService.ctx.grc_bfx.caller.auth = new Map()
+
+  return reportService.ctx.grc_bfx.caller.auth
+}
+
+const addAuth = (reportService, auth) => {
+  return getAllAuth(reportService).set(auth.apiKey, auth)
+}
+
+const removeAuth = (reportService, apiKey) => {
+  const auth = getAllAuth(reportService)
+  auth.delete(apiKey)
+
+  return auth
 }
 
 const _normalizeApiData = (data = []) => {
@@ -208,11 +230,20 @@ const _insertApiDataToDb = async (
   }
 }
 
-const insertNewDataToDb = async (reportService, auth) => {
+const _insertNewDataToDb = async (reportService, auth, userProgress = 1) => {
+  if (
+    typeof auth.apiKey !== 'string' ||
+    typeof auth.apiSecret !== 'string'
+  ) {
+    setProgress(reportService, false)
+
+    return
+  }
+
   const methodCollMap = await _checkNewData(reportService, auth)
   let count = 0
 
-  for (let [method, item] of methodCollMap) {
+  for (const [method, item] of methodCollMap) {
     const args = _getMethodArgMap(method, { ...auth }, null, item.start)
     await _insertApiDataToDb(
       reportService,
@@ -225,13 +256,43 @@ const insertNewDataToDb = async (reportService, auth) => {
     )
 
     count += 1
-    setProgress(reportService, Math.round((count / methodCollMap.size) * 100))
+    const progress = Math.round((count / methodCollMap.size) * 100 * userProgress)
+    setProgress(reportService, progress)
+  }
+}
+
+const insertNewDataToDbMultiUser = async (reportService) => {
+  const auth = getAllAuth(reportService)
+
+  if (
+    !auth ||
+    !(auth instanceof Map) ||
+    auth.size === 0
+  ) {
+    setProgress(reportService, false)
+
+    return
+  }
+
+  let count = 1
+
+  for (const authItem of auth) {
+    if (typeof authItem[1] !== 'object') {
+      continue
+    }
+
+    const userProgress = count / auth.length
+    await _insertNewDataToDb(reportService, authItem[1], userProgress)
+    count += 1
   }
 }
 
 module.exports = {
   getMethodCollMap,
-  insertNewDataToDb,
+  insertNewDataToDbMultiUser,
   setProgress,
-  getProgress
+  getProgress,
+  getAllAuth,
+  addAuth,
+  removeAuth
 }

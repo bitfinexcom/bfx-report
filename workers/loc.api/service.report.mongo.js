@@ -3,6 +3,28 @@
 const MediatorReportService = require('./service.report.mediator')
 
 class MongoReportService extends MediatorReportService {
+  // TODO: Insert user into DB
+  async login (space, args, cb) {
+    try {
+      const res = await super.login(space, args)
+
+      cb(null, true)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  // TODO: Remove user from DB
+  async logout (space, args, cb) {
+    try {
+      await super.logout(space, args)
+
+      cb(null, true)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
   // TODO:
   async getEmail (space, args, cb) {
     if (super.getEmail(space, args, cb)) return

@@ -3,8 +3,49 @@
 const { promisify } = require('util')
 
 const ReportService = require('./service.report')
+const {
+  addAuth,
+  removeAuth
+} = require('./sync/helpers')
 
 class MediatorReportService extends ReportService {
+  // TODO:
+  async login (space, args, cb = () => { }) {
+    try {
+      const email = await this._checkAuth(args)
+
+      const res = {
+        email,
+        auth: { ...args.auth }
+      }
+
+      addAuth(this, args.auth)
+      cb(null, res)
+
+      return res
+    } catch (err) {
+      cb(err)
+
+      throw err
+    }
+  }
+
+  // TODO:
+  async logout (space, args, cb) {
+    try {
+      await this._checkAuth(args)
+
+      removeAuth(this, args.auth.apiKey)
+      cb(null, true)
+
+      return true
+    } catch (err) {
+      cb(err)
+
+      throw err
+    }
+  }
+
   enableSyncMode (space, args, cb) {
     const wrk = this.ctx.grc_bfx.caller
     const group = wrk.group
@@ -135,6 +176,24 @@ class MediatorReportService extends ReportService {
 
   _getMovements (args) {
     return promisify(super.getMovements.bind(this))(null, args)
+  }
+
+  async _checkAuth (args) {
+    if (
+      typeof args.auth !== 'object' ||
+      typeof args.auth.apiKey !== 'string' ||
+      typeof args.auth.apiSecret !== 'string'
+    ) {
+      throw new Error('ERR_AUTH_UNAUTHORIZED')
+    }
+
+    const email = await this._getEmail(args)
+
+    if (!email) {
+      throw new Error('ERR_AUTH_UNAUTHORIZED')
+    }
+
+    return email
   }
 }
 
