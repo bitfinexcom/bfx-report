@@ -122,6 +122,155 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
   })
 
+  it('it should be successfully performed by the getFundingOfferHistory method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getFundingOfferHistory',
+        params: {
+          symbol: 'fUSD',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    if (res.body.result.length > 0) {
+      let resItem = res.body.result[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'id',
+        'symbol',
+        'mtsCreate',
+        'mtsUpdate',
+        'amount',
+        'amountOrig',
+        'type',
+        'flags',
+        'status',
+        'rate',
+        'period',
+        'notify',
+        'hidden',
+        'renew',
+        'rateReal'
+      ])
+    }
+  })
+
+  it('it should be successfully performed by the getFundingLoanHistory method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getFundingLoanHistory',
+        params: {
+          symbol: 'fUSD',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    if (res.body.result.length > 0) {
+      let resItem = res.body.result[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'id',
+        'symbol',
+        'side',
+        'mtsCreate',
+        'mtsUpdate',
+        'amount',
+        'flags',
+        'status',
+        'rate',
+        'period',
+        'mtsOpening',
+        'mtsLastPayout',
+        'notify',
+        'hidden',
+        'renew',
+        'rateReal',
+        'noClose'
+      ])
+    }
+  })
+
+  it('it should be successfully performed by the getFundingCreditHistory method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getFundingCreditHistory',
+        params: {
+          symbol: 'fUSD',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    if (res.body.result.length > 0) {
+      let resItem = res.body.result[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'id',
+        'symbol',
+        'side',
+        'mtsCreate',
+        'mtsUpdate',
+        'amount',
+        'flags',
+        'status',
+        'rate',
+        'period',
+        'mtsOpening',
+        'mtsLastPayout',
+        'notify',
+        'hidden',
+        'renew',
+        'rateReal',
+        'noClose',
+        'positionPair'
+      ])
+    }
+  })
+
   it('it should be successfully performed by the getLedgers method', async function () {
     this.timeout(5000)
 

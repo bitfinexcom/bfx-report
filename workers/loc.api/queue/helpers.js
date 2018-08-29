@@ -245,7 +245,10 @@ const _fileNamesMap = new Map([
   ['getTrades', 'trades'],
   ['getLedgers', 'ledgers'],
   ['getOrders', 'orders'],
-  ['getMovements', 'movements']
+  ['getMovements', 'movements'],
+  ['getFundingOfferHistory', 'funding_offers_history'],
+  ['getFundingLoanHistory', 'funding_loans_history'],
+  ['getFundingCreditHistory', 'funding_credits_history']
 ])
 
 const _getBaseName = queueName => {
