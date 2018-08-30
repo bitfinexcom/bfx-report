@@ -90,7 +90,7 @@ const _delay = (mc = 80000) => {
 }
 
 const _formaters = {
-  date: val => moment(val).format('DD/MM/YYYY, h:mm:ss A'),
+  date: val => Number.isInteger(val) ? moment(val).format('DD/MM/YYYY, h:mm:ss A') : val,
   symbol: val => {
     const symbolsMap = [
       { tBTCUSD: 'BTC/USD' }
