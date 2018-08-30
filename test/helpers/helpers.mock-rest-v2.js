@@ -240,18 +240,18 @@ const _setDateTo = (key, dataItem, date = new Date()) => {
       break
 
     case 'f_offer_hist':
-      dataItem[5] = date.getTime()
-      dataItem[6] = date.getTime()
+      dataItem[2] = date.getTime()
+      dataItem[3] = date.getTime()
       break
 
     case 'f_loan_hist':
-      dataItem[5] = date.getTime()
-      dataItem[6] = date.getTime()
+      dataItem[3] = date.getTime()
+      dataItem[4] = date.getTime()
       break
 
     case 'f_credit_hist':
-      dataItem[5] = date.getTime()
-      dataItem[6] = date.getTime()
+      dataItem[3] = date.getTime()
+      dataItem[4] = date.getTime()
       break
   }
 
