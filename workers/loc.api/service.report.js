@@ -300,12 +300,14 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
-          id: '#',
-          mtsUpdate: 'DATE',
-          status: 'STATUS',
+          symbol: 'SYMBOL',
           amount: 'AMOUNT',
+          amountOrig: 'AMOUNT ORIG',
+          type: 'TYPE',
+          status: 'STATUS',
           rate: 'RATE',
-          period: 'PERIOD'
+          period: 'PERIOD',
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
           mtsUpdate: 'date'
@@ -333,15 +335,21 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
-          id: '#',
-          mtsUpdate: 'DATE',
-          status: 'STATUS',
+          symbol: 'SYMBOL',
+          side: 'SIDE',
           amount: 'AMOUNT',
+          status: 'STATUS',
           rate: 'RATE',
-          period: 'PERIOD'
+          period: 'PERIOD',
+          mtsOpening: 'OPENING',
+          mtsLastPayout: 'LAST PAYOUT',
+          noClose: 'NO CLOSE',
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
-          mtsUpdate: 'date'
+          mtsUpdate: 'date',
+          mtsOpening: 'date',
+          mtsLastPayout: 'date'
         }
       }
 
@@ -366,15 +374,22 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
-          id: '#',
-          mtsUpdate: 'DATE',
-          status: 'STATUS',
+          symbol: 'SYMBOL',
+          side: 'SIDE',
           amount: 'AMOUNT',
+          status: 'STATUS',
           rate: 'RATE',
-          period: 'PERIOD'
+          period: 'PERIOD',
+          mtsOpening: 'OPENING',
+          mtsLastPayout: 'LAST PAYOUT',
+          noClose: 'NO CLOSE',
+          positionPair: 'POSITION PAIR',
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
-          mtsUpdate: 'date'
+          mtsUpdate: 'date',
+          mtsOpening: 'date',
+          mtsLastPayout: 'date'
         }
       }
 
