@@ -12,5 +12,7 @@
     "acl": "",
     "signedUrlExpireTime": 28800
   },
-  "isElectronjsEnv": false
+  "isElectronjsEnv": false,
+  "dbDriver": "mongo",
+  "syncMode": false
 }

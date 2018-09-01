@@ -4,9 +4,11 @@ const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
 const _ = require('lodash')
 const argv = require('yargs').argv
+const path = require('path')
 
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
+const sync = require('./loc.api/sync')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -19,17 +21,30 @@ class WrkReportServiceApi extends WrkApi {
   }
 
   getApiConf () {
+    const group = this.group
+    const conf = this.conf[group]
+    const suffix = conf.syncMode ? `.${conf.dbDriver}` : ''
+
     return {
-      path: 'service.report'
+      path: `service.report${suffix}`
     }
   }
 
   getPluginCtx (type) {
     const ctx = super.getPluginCtx(type)
+    const group = this.group
+    const conf = this.conf[group]
 
     if (type === 'api_bfx') {
       ctx.lokue_processor = this.lokue_processor
       ctx.lokue_aggregator = this.lokue_aggregator
+
+      if (conf.syncMode) {
+        const dbFacNs = this.getFacNs(`db-${conf.dbDriver}`, 'm0')
+
+        ctx.scheduler_sync = this.scheduler_sync
+        ctx[dbFacNs] = this[dbFacNs]
+      }
     }
 
     return ctx
@@ -41,6 +56,8 @@ class WrkReportServiceApi extends WrkApi {
     const persist = true
     const dbID = this.ctx.dbID || argv.dbID || 1
     const name = `queue_${dbID}`
+    const group = this.group
+    const conf = this.conf[group]
 
     const facs = [
       [
@@ -58,6 +75,26 @@ class WrkReportServiceApi extends WrkApi {
         { persist, name }
       ]
     ]
+
+    if (conf.syncMode) {
+      facs.push(
+        [
+          'fac',
+          'bfx-facs-scheduler',
+          'sync',
+          'sync',
+          { label: 'sync' }
+        ],
+        [
+          'fac',
+          `bfx-facs-db-${conf.dbDriver}`,
+          'm0',
+          'm0',
+          { name: 'sync' }
+        ]
+      )
+    }
+
     this.setInitFacs(facs)
   }
 
@@ -66,7 +103,7 @@ class WrkReportServiceApi extends WrkApi {
       next => {
         super._start(next)
       },
-      next => {
+      async next => {
         const processorQueue = this.lokue_processor.q
         const aggregatorQueue = this.lokue_aggregator.q
         const group = this.group
@@ -75,6 +112,22 @@ class WrkReportServiceApi extends WrkApi {
 
         if (!reportService.ctx) {
           reportService.ctx = reportService.caller.getCtx()
+        }
+
+        if (conf.syncMode) {
+          if (reportService._createIndex) await reportService._createIndex()
+
+          const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
+          const name = 'sync'
+
+          sync.setReportService(reportService)
+
+          this.scheduler_sync.add(name, sync, rule)
+
+          const job = this.scheduler_sync.mem.get(name)
+          job.rule = rule
+
+          job.cancel(true)
         }
 
         processor.setReportService(reportService)
