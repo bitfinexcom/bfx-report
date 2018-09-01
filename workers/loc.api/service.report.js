@@ -116,6 +116,42 @@ class ReportService extends Api {
     }
   }
 
+  async getFundingOfferHistory (space, args, cb) {
+    try {
+      const maxLimit = 5000
+      const params = getParams(args, maxLimit)
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const result = await rest.fundingOfferHistory(...params)
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getFundingLoanHistory (space, args, cb) {
+    try {
+      const maxLimit = 5000
+      const params = getParams(args, maxLimit)
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const result = await rest.fundingLoanHistory(...params)
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getFundingCreditHistory (space, args, cb) {
+    try {
+      const maxLimit = 5000
+      const params = getParams(args, maxLimit)
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const result = await rest.fundingCreditHistory(...params)
+      cb(null, result)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
   async getTradesCsv (space, args, cb) {
     try {
       checkParams(args)
@@ -240,6 +276,120 @@ class ReportService extends Api {
         },
         formatSettings: {
           mtsUpdated: 'date'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getFundingOfferHistoryCsv (space, args, cb) {
+    try {
+      checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getFundingOfferHistory'
+
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        name: method,
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          symbol: 'SYMBOL',
+          amount: 'AMOUNT',
+          amountOrig: 'AMOUNT ORIG',
+          type: 'TYPE',
+          status: 'STATUS',
+          rate: 'RATE',
+          period: 'PERIOD',
+          mtsUpdate: 'DATE'
+        },
+        formatSettings: {
+          mtsUpdate: 'date'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getFundingLoanHistoryCsv (space, args, cb) {
+    try {
+      checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getFundingLoanHistory'
+
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        name: method,
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          symbol: 'SYMBOL',
+          side: 'SIDE',
+          amount: 'AMOUNT',
+          status: 'STATUS',
+          rate: 'RATE',
+          period: 'PERIOD',
+          mtsOpening: 'OPENING',
+          mtsLastPayout: 'LAST PAYOUT',
+          noClose: 'NO CLOSE',
+          mtsUpdate: 'DATE'
+        },
+        formatSettings: {
+          mtsUpdate: 'date',
+          mtsOpening: 'date',
+          mtsLastPayout: 'date'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  async getFundingCreditHistoryCsv (space, args, cb) {
+    try {
+      checkParams(args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getFundingCreditHistory'
+
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        name: method,
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          symbol: 'SYMBOL',
+          side: 'SIDE',
+          amount: 'AMOUNT',
+          status: 'STATUS',
+          rate: 'RATE',
+          period: 'PERIOD',
+          mtsOpening: 'OPENING',
+          mtsLastPayout: 'LAST PAYOUT',
+          noClose: 'NO CLOSE',
+          positionPair: 'POSITION PAIR',
+          mtsUpdate: 'DATE'
+        },
+        formatSettings: {
+          mtsUpdate: 'date',
+          mtsOpening: 'date',
+          mtsLastPayout: 'date'
         }
       }
 

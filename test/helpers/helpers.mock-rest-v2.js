@@ -114,6 +114,85 @@ const _mockData = new Map([
       null,
       null
     ]]
+  ],
+  [
+    'f_offer_hist',
+    [[
+      12345,
+      'fUSD',
+      (new Date()).getTime(),
+      (new Date()).getTime(),
+      0,
+      100,
+      null,
+      null,
+      null,
+      null,
+      'EXECUTED at 0.7% (100.0)',
+      null,
+      null,
+      null,
+      0.007,
+      7,
+      false,
+      false,
+      null,
+      false,
+      null
+    ]]
+  ],
+  [
+    'f_loan_hist',
+    [[
+      12345,
+      'fUSD',
+      1,
+      (new Date()).getTime(),
+      (new Date()).getTime(),
+      200,
+      null,
+      'CLOSED (used)',
+      null,
+      null,
+      null,
+      0.00168,
+      30,
+      null,
+      null,
+      false,
+      false,
+      null,
+      false,
+      null,
+      false
+    ]]
+  ],
+  [
+    'f_credit_hist',
+    [[
+      12345,
+      'fUSD',
+      -1,
+      (new Date()).getTime(),
+      (new Date()).getTime(),
+      681.25937738,
+      null,
+      'CLOSED (reduced)',
+      null,
+      null,
+      null,
+      0,
+      2,
+      null,
+      null,
+      false,
+      false,
+      null,
+      false,
+      null,
+      false,
+      null
+    ]]
   ]
 ])
 
@@ -159,6 +238,21 @@ const _setDateTo = (key, dataItem, date = new Date()) => {
       dataItem[5] = date.getTime()
       dataItem[6] = date.getTime()
       break
+
+    case 'f_offer_hist':
+      dataItem[2] = date.getTime()
+      dataItem[3] = date.getTime()
+      break
+
+    case 'f_loan_hist':
+      dataItem[3] = date.getTime()
+      dataItem[4] = date.getTime()
+      break
+
+    case 'f_credit_hist':
+      dataItem[3] = date.getTime()
+      dataItem[4] = date.getTime()
+      break
   }
 
   return dataItem
@@ -170,7 +264,10 @@ const createMockRESTv2SrvWithDate = (
     'ledgers': { limit: 5000 },
     'trades': { limit: 1500 },
     'orders': { limit: 5000 },
-    'movements': { limit: 25 }
+    'movements': { limit: 25 },
+    'f_offer_hist': { limit: 5000 },
+    'f_loan_hist': { limit: 5000 },
+    'f_credit_hist': { limit: 5000 }
   }
 ) => {
   const srv = _createMockRESTv2Srv()

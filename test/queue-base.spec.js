@@ -64,6 +64,162 @@ describe('Queue', () => {
     } catch (err) { }
   })
 
+  it('it should be successfully performed by the getFundingOfferHistoryCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getFundingOfferHistoryCsv',
+        params: {
+          symbol: 'fUSD',
+          end,
+          start,
+          limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'name',
+      'filePath',
+      'email',
+      'endDate',
+      'startDate',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isFinite(procRes.endDate)
+    assert.isFinite(procRes.startDate)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
+  it('it should be successfully performed by the getFundingLoanHistoryCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getFundingLoanHistoryCsv',
+        params: {
+          symbol: 'fUSD',
+          end,
+          start,
+          limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'name',
+      'filePath',
+      'email',
+      'endDate',
+      'startDate',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isFinite(procRes.endDate)
+    assert.isFinite(procRes.startDate)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
+  it('it should be successfully performed by the getFundingCreditHistoryCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getFundingCreditHistoryCsv',
+        params: {
+          symbol: 'fUSD',
+          end,
+          start,
+          limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'name',
+      'filePath',
+      'email',
+      'endDate',
+      'startDate',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isFinite(procRes.endDate)
+    assert.isFinite(procRes.startDate)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
   it('it should be successfully performed by the getLedgersCsv method', async function () {
     this.timeout(60000)
 
