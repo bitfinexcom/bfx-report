@@ -12,5 +12,6 @@
     "acl": "",
     "signedUrlExpireTime": 28800
   },
+  "isSpamRestrictionMode": true,
   "isElectronjsEnv": false
 }
