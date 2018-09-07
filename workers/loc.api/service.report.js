@@ -5,7 +5,8 @@ const {
   getREST,
   getParams,
   checkParams,
-  getCsvStoreStatus
+  getCsvStoreStatus,
+  hasJobInQueueWithStatusBy
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -14,10 +15,15 @@ class ReportService extends Api {
     return space
   }
 
+  _getUserInfo (args) {
+    const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+
+    return rest.userInfo()
+  }
+
   async getEmail (space, args, cb) {
     try {
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.userInfo()
+      const result = await this._getUserInfo(args)
 
       cb(null, result.email)
     } catch (err) {
@@ -155,18 +161,20 @@ class ReportService extends Api {
   async getTradesCsv (space, args, cb) {
     try {
       checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getTrades'
 
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userId,
         name: method,
         args,
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
           id: '#',
-          pair: 'PAIR',
+          symbol: 'PAIR',
           execAmount: 'AMOUNT',
           execPrice: 'PRICE',
           fee: 'FEE',
@@ -174,7 +182,7 @@ class ReportService extends Api {
         },
         formatSettings: {
           mtsCreate: 'date',
-          pair: 'symbol'
+          symbol: 'symbol'
         }
       }
 
@@ -189,12 +197,14 @@ class ReportService extends Api {
   async getLedgersCsv (space, args, cb) {
     try {
       checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getLedgers'
 
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userId,
         name: method,
         args,
         propNameForPagination: 'mts',
@@ -221,12 +231,14 @@ class ReportService extends Api {
   async getOrdersCsv (space, args, cb) {
     try {
       checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getOrders'
 
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userId,
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
@@ -258,12 +270,14 @@ class ReportService extends Api {
   async getMovementsCsv (space, args, cb) {
     try {
       checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getMovements'
 
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userId,
         name: method,
         args,
         propNameForPagination: 'mtsUpdated',
@@ -290,12 +304,14 @@ class ReportService extends Api {
   async getFundingOfferHistoryCsv (space, args, cb) {
     try {
       checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getFundingOfferHistory'
 
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userId,
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
@@ -325,12 +341,14 @@ class ReportService extends Api {
   async getFundingLoanHistoryCsv (space, args, cb) {
     try {
       checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getFundingLoanHistory'
 
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userId,
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
@@ -364,12 +382,14 @@ class ReportService extends Api {
   async getFundingCreditHistoryCsv (space, args, cb) {
     try {
       checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getFundingCreditHistory'
 
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userId,
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',

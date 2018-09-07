@@ -373,7 +373,7 @@ describe('API', () => {
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
         'id',
-        'pair',
+        'symbol',
         'mtsCreate',
         'orderID',
         'execAmount',

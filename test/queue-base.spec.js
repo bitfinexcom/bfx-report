@@ -431,8 +431,6 @@ describe('Queue', () => {
   it('it should not be successfully auth by the getLedgersCsv method', async function () {
     this.timeout(60000)
 
-    const procPromise = queueToPromise(processorQueue)
-
     const res = await agent
       .post(`${basePath}/get-data`)
       .type('json')
@@ -448,19 +446,15 @@ describe('Queue', () => {
         id: 5
       })
       .expect('Content-Type', /json/)
-      .expect(200)
+      .expect(500)
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    try {
-      await procPromise
-      assert(false, 'The queue must not completed')
-    } catch (err) {
-      assert.match(err.toString(), /(apikey: digest invalid)|(ERR_ARGS_NO_AUTH_DATA)/)
-    }
+    assert.isObject(res.body.error)
+    assert.containsAllKeys(res.body.error, [
+      'code',
+      'message'
+    ])
   })
 
   it('it should be successfully performed by the getLedgersCsv method, with multiple users', async function () {

@@ -7,11 +7,16 @@ const {
 const {
   success,
   failureInternalServerError,
-  failureUnauthorized
+  failureUnauthorized,
+  failureHasJobInQueue
 } = helpers.responses
 
 const _isAuthError = (err) => {
   return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
+}
+
+const _isHasJobInQueueError = (err) => {
+  return /ERR_HAS_JOB_IN_QUEUE/.test(err.toString())
 }
 
 const checkAuth = async (req, res) => {
@@ -96,6 +101,11 @@ const getData = async (req, res) => {
   } catch (err) {
     if (_isAuthError(err)) {
       failureUnauthorized(res, id)
+
+      return
+    }
+    if (_isHasJobInQueueError(err)) {
+      failureHasJobInQueue(res, id)
 
       return
     }

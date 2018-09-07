@@ -22,9 +22,9 @@ const _mockData = new Map([
   [
     'user_info',
     [
-      null,
+      123,
       'fake@email.fake',
-      null
+      'fakename'
     ]
   ],
   [
@@ -267,12 +267,20 @@ const createMockRESTv2SrvWithDate = (
     'movements': { limit: 25 },
     'f_offer_hist': { limit: 5000 },
     'f_loan_hist': { limit: 5000 },
-    'f_credit_hist': { limit: 5000 }
+    'f_credit_hist': { limit: 5000 },
+    'user_info': null,
+    'symbols': null
   }
 ) => {
   const srv = _createMockRESTv2Srv()
 
   Object.entries(opts).forEach(([key, val]) => {
+    if (!Array.isArray(_getMockData(key)[0])) {
+      srv.setResponse(key, _getMockData(key).slice())
+
+      return
+    }
+
     const dataItem = _getMockData(key)[0].slice()
 
     _setDateTo(key, dataItem, date)

@@ -26,6 +26,14 @@ class WrkReportServiceApi extends WrkApi {
 
   getPluginCtx (type) {
     const ctx = super.getPluginCtx(type)
+    const group = this.group
+    const conf = this.conf[group]
+
+    if (typeof this.ctx.isSpamRestrictionMode !== 'undefined') {
+      conf.isSpamRestrictionMode = !!this.ctx.isSpamRestrictionMode
+    } else if (typeof argv.isSpamRestrictionMode !== 'undefined') {
+      conf.isSpamRestrictionMode = !!argv.isSpamRestrictionMode
+    }
 
     if (type === 'api_bfx') {
       ctx.lokue_processor = this.lokue_processor

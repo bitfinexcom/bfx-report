@@ -34,6 +34,13 @@ const failureUnauthorized = (res, id = null) => {
   return failure(statusCode, errorMessage, res, id)
 }
 
+const failureHasJobInQueue = (res, id = null) => {
+  const statusCode = 401
+  const errorMessage = 'Spam restriction mode, user already has an export on queue'
+
+  return failure(statusCode, errorMessage, res, id)
+}
+
 const failureInternalServerError = (res, id = null) => {
   const statusCode = 500
   const errorMessage = 'Internal Server Error'
@@ -46,5 +53,6 @@ module.exports = {
   failure,
   failureAccessDenied,
   failureUnauthorized,
-  failureInternalServerError
+  failureInternalServerError,
+  failureHasJobInQueue
 }

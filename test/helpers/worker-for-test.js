@@ -31,10 +31,11 @@ const runWorker = (
     env: 'development',
     apiPort: 1337,
     debug: false,
-    dbID: 1
+    dbID: 1,
+    isSpamRestrictionMode: false
   }
 ) => {
-  const { wtype, env, dbID } = cmd
+  const { wtype, env, dbID, isSpamRestrictionMode } = cmd
 
   const conf = _.merge(
     {},
@@ -46,7 +47,8 @@ const runWorker = (
     root: serviceRoot,
     wtype,
     env,
-    dbID
+    dbID,
+    isSpamRestrictionMode
   }
 
   _.each(cmd, (v, k) => {
