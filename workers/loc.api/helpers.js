@@ -69,23 +69,20 @@ const hasJobInQueueWithStatusBy = async (
   statuses = ['ACTIVE', 'PROCESSING']
 ) => {
   const userInfo = await reportService._getUserInfo(args)
-  const res = {
-    userId: userInfo.id,
-    hasJobInQueue: false
-  }
+
   const ctx = reportService.ctx
   const wrk = ctx.grc_bfx.caller
   const group = wrk.group
   const conf = wrk.conf[group]
 
   if (!conf.isSpamRestrictionMode) {
-    return res
+    return userInfo.id
   }
 
   const procQ = ctx.lokue_processor.q
   const aggrQ = ctx.lokue_aggregator.q
 
-  res.hasJobInQueue = !(statuses.every(status => {
+  const hasJobInQueue = !(statuses.every(status => {
     return [procQ, aggrQ].every(queue => {
       const jobs = queue.listJobs(status)
 
@@ -104,7 +101,11 @@ const hasJobInQueueWithStatusBy = async (
     })
   }))
 
-  return res
+  if (hasJobInQueue) {
+    throw new Error('ERR_HAS_JOB_IN_QUEUE')
+  }
+
+  return userInfo.id
 }
 
 module.exports = {

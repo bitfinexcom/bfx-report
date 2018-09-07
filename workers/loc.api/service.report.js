@@ -161,14 +161,7 @@ class ReportService extends Api {
   async getTradesCsv (space, args, cb) {
     try {
       checkParams(args)
-      const { hasJobInQueue, userId } = await hasJobInQueueWithStatusBy(this, args)
-
-      if (hasJobInQueue) {
-        cb(null, { hasJobInQueue: true })
-
-        return
-      }
-
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getTrades'
@@ -204,14 +197,7 @@ class ReportService extends Api {
   async getLedgersCsv (space, args, cb) {
     try {
       checkParams(args)
-      const { hasJobInQueue, userId } = await hasJobInQueueWithStatusBy(this, args)
-
-      if (hasJobInQueue) {
-        cb(null, { hasJobInQueue: true })
-
-        return
-      }
-
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getLedgers'
@@ -245,14 +231,7 @@ class ReportService extends Api {
   async getOrdersCsv (space, args, cb) {
     try {
       checkParams(args)
-      const { hasJobInQueue, userId } = await hasJobInQueueWithStatusBy(this, args)
-
-      if (hasJobInQueue) {
-        cb(null, { hasJobInQueue: true })
-
-        return
-      }
-
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getOrders'
@@ -291,14 +270,7 @@ class ReportService extends Api {
   async getMovementsCsv (space, args, cb) {
     try {
       checkParams(args)
-      const { hasJobInQueue, userId } = await hasJobInQueueWithStatusBy(this, args)
-
-      if (hasJobInQueue) {
-        cb(null, { hasJobInQueue: true })
-
-        return
-      }
-
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getMovements'
@@ -332,14 +304,7 @@ class ReportService extends Api {
   async getFundingOfferHistoryCsv (space, args, cb) {
     try {
       checkParams(args)
-      const { hasJobInQueue, userId } = await hasJobInQueueWithStatusBy(this, args)
-
-      if (hasJobInQueue) {
-        cb(null, { hasJobInQueue: true })
-
-        return
-      }
-
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getFundingOfferHistory'
@@ -376,14 +341,7 @@ class ReportService extends Api {
   async getFundingLoanHistoryCsv (space, args, cb) {
     try {
       checkParams(args)
-      const { hasJobInQueue, userId } = await hasJobInQueueWithStatusBy(this, args)
-
-      if (hasJobInQueue) {
-        cb(null, { hasJobInQueue: true })
-
-        return
-      }
-
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getFundingLoanHistory'
@@ -424,14 +382,7 @@ class ReportService extends Api {
   async getFundingCreditHistoryCsv (space, args, cb) {
     try {
       checkParams(args)
-      const { hasJobInQueue, userId } = await hasJobInQueueWithStatusBy(this, args)
-
-      if (hasJobInQueue) {
-        cb(null, { hasJobInQueue: true })
-
-        return
-      }
-
+      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getFundingCreditHistory'
