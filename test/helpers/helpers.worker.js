@@ -57,7 +57,8 @@ const startWorkers = (logs, isRootWrk, countWrk = 1) => {
       const wrk = runWorker({
         wtype: 'wrk-report-service-api',
         apiPort,
-        dbID
+        dbID,
+        isSpamRestrictionMode: false
       })
 
       wrksReportServiceApi.push(wrk)

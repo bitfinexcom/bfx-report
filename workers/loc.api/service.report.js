@@ -174,7 +174,7 @@ class ReportService extends Api {
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
           id: '#',
-          pair: 'PAIR',
+          symbol: 'PAIR',
           execAmount: 'AMOUNT',
           execPrice: 'PRICE',
           fee: 'FEE',
@@ -182,7 +182,7 @@ class ReportService extends Api {
         },
         formatSettings: {
           mtsCreate: 'date',
-          pair: 'symbol'
+          symbol: 'symbol'
         }
       }
 

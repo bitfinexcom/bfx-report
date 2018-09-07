@@ -29,7 +29,7 @@ class WrkReportServiceApi extends WrkApi {
     const group = this.group
     const conf = this.conf[group]
 
-    if (this.ctx.isSpamRestrictionMode !== 'undefined') {
+    if (typeof this.ctx.isSpamRestrictionMode !== 'undefined') {
       conf.isSpamRestrictionMode = !!this.ctx.isSpamRestrictionMode
     } else if (typeof argv.isSpamRestrictionMode !== 'undefined') {
       conf.isSpamRestrictionMode = !!argv.isSpamRestrictionMode
