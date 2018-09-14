@@ -6,6 +6,7 @@ const {
   getParams,
   checkParams,
   getCsvStoreStatus,
+  convertPairsToCoins,
   hasJobInQueueWithStatusBy
 } = require('./helpers')
 
@@ -62,23 +63,19 @@ class ReportService extends Api {
 
   async getSymbols (space, args, cb) {
     try {
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const pairs = await rest.symbols()
-      const coins = []
-
-      for (const pair in pairs) {
-        const f = pairs[pair].substring(0, 3)
-        if (!coins.includes(f)) coins.push(f)
-        const s = pairs[pair].substring(3, 6)
-        if (!coins.includes(s)) coins.push(s)
-      }
-
-      const result = { coins, pairs }
+      const pairs = await this._getSymbols(args)
+      const result = convertPairsToCoins(pairs)
 
       cb(null, result)
     } catch (err) {
       cb(err)
     }
+  }
+
+  _getSymbols (args) {
+    const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+
+    return rest.symbols()
   }
 
   async getLedgers (space, args, cb) {
