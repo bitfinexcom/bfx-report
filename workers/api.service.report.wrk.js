@@ -3,24 +3,58 @@
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
 const _ = require('lodash')
-const argv = require('yargs').argv
+const path = require('path')
+const argv = require('yargs')
+  .option('dbID', {
+    type: 'number',
+    default: 1
+  })
+  .option('csvFolder', {
+    type: 'string'
+  })
+  .option('syncMode', {
+    type: 'boolean'
+  })
+  .option('isSpamRestrictionMode', {
+    type: 'boolean'
+  })
+  .option('isEnableScheduler', {
+    type: 'boolean'
+  })
+  .option('dbDriver', {
+    choices: ['sqlite'],
+    type: 'string'
+  })
+  .help('help')
+  .argv
 
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
+const sync = require('./loc.api/sync')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
     super(conf, ctx)
 
     this.loadConf('service.report', 'report')
+    this._setArgsOfCommandLineToConf([
+      'syncMode',
+      'isSpamRestrictionMode',
+      'isEnableScheduler',
+      'dbDriver'
+    ])
 
     this.init()
     this.start()
   }
 
   getApiConf () {
+    const group = this.group
+    const conf = this.conf[group]
+    const suffix = conf.syncMode ? `.${conf.dbDriver}` : ''
+
     return {
-      path: 'service.report'
+      path: `service.report${suffix}`
     }
   }
 
@@ -29,18 +63,33 @@ class WrkReportServiceApi extends WrkApi {
     const group = this.group
     const conf = this.conf[group]
 
-    if (typeof this.ctx.isSpamRestrictionMode !== 'undefined') {
-      conf.isSpamRestrictionMode = !!this.ctx.isSpamRestrictionMode
-    } else if (typeof argv.isSpamRestrictionMode !== 'undefined') {
-      conf.isSpamRestrictionMode = !!argv.isSpamRestrictionMode
-    }
-
     if (type === 'api_bfx') {
       ctx.lokue_processor = this.lokue_processor
       ctx.lokue_aggregator = this.lokue_aggregator
+
+      if (conf.syncMode) {
+        const dbFacNs = this.getFacNs(`db-${conf.dbDriver}`, 'm0')
+
+        ctx.scheduler_sync = this.scheduler_sync
+        ctx[dbFacNs] = this[dbFacNs]
+      }
     }
 
     return ctx
+  }
+
+  _setArgsOfCommandLineToConf (names = []) {
+    const group = this.group
+    const conf = this.conf[group]
+
+    names.forEach(name => {
+      if (typeof argv[name] !== 'undefined') {
+        conf[name] = argv[name]
+        this.ctx[name] = argv[name]
+      } else if (typeof this.ctx[name] !== 'undefined') {
+        conf[name] = this.ctx[name]
+      }
+    })
   }
 
   init () {
@@ -49,6 +98,8 @@ class WrkReportServiceApi extends WrkApi {
     const persist = true
     const dbID = this.ctx.dbID || argv.dbID || 1
     const name = `queue_${dbID}`
+    const group = this.group
+    const conf = this.conf[group]
 
     const facs = [
       [
@@ -66,6 +117,26 @@ class WrkReportServiceApi extends WrkApi {
         { persist, name }
       ]
     ]
+
+    if (conf.syncMode) {
+      facs.push(
+        [
+          'fac',
+          'bfx-facs-scheduler',
+          'sync',
+          'sync',
+          { label: 'sync' }
+        ],
+        [
+          'fac',
+          `bfx-facs-db-${conf.dbDriver}`,
+          'm0',
+          'm0',
+          { name: 'sync' }
+        ]
+      )
+    }
+
     this.setInitFacs(facs)
   }
 
@@ -74,7 +145,7 @@ class WrkReportServiceApi extends WrkApi {
       next => {
         super._start(next)
       },
-      next => {
+      async next => {
         const processorQueue = this.lokue_processor.q
         const aggregatorQueue = this.lokue_aggregator.q
         const group = this.group
@@ -83,6 +154,24 @@ class WrkReportServiceApi extends WrkApi {
 
         if (!reportService.ctx) {
           reportService.ctx = reportService.caller.getCtx()
+        }
+
+        if (conf.syncMode) {
+          if (reportService._databaseInitialize) {
+            await reportService._databaseInitialize()
+          }
+
+          if (conf.isEnableScheduler) {
+            const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
+            const name = 'sync'
+
+            sync.setReportService(reportService)
+
+            this.scheduler_sync.add(name, sync, rule)
+
+            const job = this.scheduler_sync.mem.get(name)
+            job.rule = rule
+          }
         }
 
         processor.setReportService(reportService)
