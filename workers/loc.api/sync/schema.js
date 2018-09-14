@@ -4,177 +4,205 @@ const _models = new Map([
   [
     'users',
     {
-      _id: '',
-      email: '',
-      apiKey: '',
-      apiSecret: '',
-      active: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      email: 'VARCHAR(255)',
+      apiKey: 'VARCHAR(255)',
+      apiSecret: 'VARCHAR(255)',
+      active: 'INT'
     }
   ],
   [
     'ledgers',
     {
-      _id: '',
-      id: '',
-      currency: '',
-      mts: '',
-      amount: '',
-      balance: '',
-      description: '',
-      user_id: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      currency: 'VARCHAR(255)',
+      mts: 'BIGINT',
+      amount: 'DECIMAL(22,12)',
+      balance: 'DECIMAL(22,12)',
+      description: 'TEXT',
+      user_id: `INT NOT NULL, CONSTRAINT ledgers_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
     }
   ],
   [
     'trades',
     {
-      _id: '',
-      id: '',
-      symbol: '',
-      mtsCreate: '',
-      orderID: '',
-      execAmount: '',
-      execPrice: '',
-      orderType: '',
-      orderPrice: '',
-      maker: '',
-      fee: '',
-      feeCurrency: '',
-      user_id: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      symbol: 'VARCHAR(255)',
+      mtsCreate: 'BIGINT',
+      orderID: 'BIGINT',
+      execAmount: 'DECIMAL(22,12)',
+      execPrice: 'DECIMAL(22,12)',
+      orderType: 'VARCHAR(255)',
+      orderPrice: 'DECIMAL(22,12)',
+      maker: 'INT',
+      fee: 'DECIMAL(22,12)',
+      feeCurrency: 'VARCHAR(255)',
+      user_id: `INT NOT NULL, CONSTRAINT trades_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
     }
   ],
   [
     'orders',
     {
-      _id: '',
-      id: '',
-      gid: '',
-      cid: '',
-      symbol: '',
-      mtsCreate: '',
-      mtsUpdate: '',
-      amount: '',
-      amountOrig: '',
-      type: '',
-      typePrev: '',
-      flags: '',
-      status: '',
-      price: '',
-      priceAvg: '',
-      priceTrailing: '',
-      priceAuxLimit: '',
-      notify: '',
-      placedId: '',
-      _lastAmount: '',
-      user_id: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      gid: 'BIGINT',
+      cid: 'BIGINT',
+      symbol: 'VARCHAR(255)',
+      mtsCreate: 'BIGINT',
+      mtsUpdate: 'BIGINT',
+      amount: 'DECIMAL(22,12)',
+      amountOrig: 'DECIMAL(22,12)',
+      type: 'VARCHAR(255)',
+      typePrev: 'VARCHAR(255)',
+      flags: 'INT',
+      status: 'VARCHAR(255)',
+      price: 'DECIMAL(22,12)',
+      priceAvg: 'DECIMAL(22,12)',
+      priceTrailing: 'DECIMAL(22,12)',
+      priceAuxLimit: 'DECIMAL(22,12)',
+      notify: 'INT',
+      placedId: 'BIGINT',
+      _lastAmount: 'DECIMAL(22,12)',
+      user_id: `INT NOT NULL, CONSTRAINT orders_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
     }
   ],
   [
     'movements',
     {
-      _id: '',
-      id: '',
-      currency: '',
-      currencyName: '',
-      mtsStarted: '',
-      mtsUpdated: '',
-      status: '',
-      amount: '',
-      fees: '',
-      destinationAddress: '',
-      transactionId: '',
-      user_id: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      currency: 'VARCHAR(255)',
+      currencyName: 'VARCHAR(255)',
+      mtsStarted: 'BIGINT',
+      mtsUpdated: 'BIGINT',
+      status: 'VARCHAR(255)',
+      amount: 'DECIMAL(22,12)',
+      fees: 'DECIMAL(22,12)',
+      destinationAddress: 'VARCHAR(255)',
+      transactionId: 'VARCHAR(255)',
+      user_id: `INT NOT NULL, CONSTRAINT movements_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
     }
   ],
   [
     'fundingOfferHistory',
     {
-      _id: '',
-      id: '',
-      symbol: '',
-      mtsCreate: '',
-      mtsUpdate: '',
-      amount: '',
-      amountOrig: '',
-      type: '',
-      flags: '',
-      status: '',
-      rate: '',
-      period: '',
-      notify: '',
-      hidden: '',
-      renew: '',
-      rateReal: '',
-      user_id: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      symbol: 'VARCHAR(255)',
+      mtsCreate: 'BIGINT',
+      mtsUpdate: 'BIGINT',
+      amount: 'DECIMAL(22,12)',
+      amountOrig: 'DECIMAL(22,12)',
+      type: 'VARCHAR(255)',
+      flags: 'TEXT',
+      status: 'TEXT',
+      rate: 'DECIMAL(22,12)',
+      period: 'INT',
+      notify: 'INT',
+      hidden: 'INT',
+      renew: 'INT',
+      rateReal: 'INT',
+      user_id: `INT NOT NULL, CONSTRAINT fundingOfferHistory_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
     }
   ],
   [
     'fundingLoanHistory',
     {
-      _id: '',
-      id: '',
-      symbol: '',
-      side: '',
-      mtsCreate: '',
-      mtsUpdate: '',
-      amount: '',
-      flags: '',
-      status: '',
-      rate: '',
-      period: '',
-      mtsOpening: '',
-      mtsLastPayout: '',
-      notify: '',
-      hidden: '',
-      renew: '',
-      rateReal: '',
-      noClose: '',
-      user_id: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      symbol: 'VARCHAR(255)',
+      side: 'INT',
+      mtsCreate: 'BIGINT',
+      mtsUpdate: 'BIGINT',
+      amount: 'DECIMAL(22,12)',
+      flags: 'TEXT',
+      status: 'TEXT',
+      rate: 'DECIMAL(22,12)',
+      period: 'INT',
+      mtsOpening: 'BIGINT',
+      mtsLastPayout: 'BIGINT',
+      notify: 'INT',
+      hidden: 'INT',
+      renew: 'INT',
+      rateReal: 'INT',
+      noClose: 'INT',
+      user_id: `INT NOT NULL, CONSTRAINT fundingLoanHistory_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
     }
   ],
   [
     'fundingCreditHistory',
     {
-      _id: '',
-      id: '',
-      symbol: '',
-      side: '',
-      mtsCreate: '',
-      mtsUpdate: '',
-      amount: '',
-      flags: '',
-      status: '',
-      rate: '',
-      period: '',
-      mtsOpening: '',
-      mtsLastPayout: '',
-      notify: '',
-      hidden: '',
-      renew: '',
-      rateReal: '',
-      noClose: '',
-      positionPair: '',
-      user_id: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      symbol: 'VARCHAR(255)',
+      side: 'INT',
+      mtsCreate: 'BIGINT',
+      mtsUpdate: 'BIGINT',
+      amount: 'DECIMAL(22,12)',
+      flags: 'TEXT',
+      status: 'TEXT',
+      rate: 'DECIMAL(22,12)',
+      period: 'INT',
+      mtsOpening: 'BIGINT',
+      mtsLastPayout: 'BIGINT',
+      notify: 'INT',
+      hidden: 'INT',
+      renew: 'INT',
+      rateReal: 'INT',
+      noClose: 'INT',
+      positionPair: 'VARCHAR(255)',
+      user_id: `INT NOT NULL, CONSTRAINT fundingCreditHistory_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
     }
   ],
   [
     'symbols',
     {
-      _id: '',
-      pairs: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      pairs: 'VARCHAR(255)'
     }
   ],
   [
     'scheduler',
     {
-      _id: '',
-      isEnable: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      isEnable: 'INT'
     }
   ],
   [
     'syncMode',
     {
-      _id: '',
-      isEnable: ''
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      isEnable: 'INT'
     }
   ]
 ])
