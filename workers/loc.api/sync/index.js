@@ -9,8 +9,13 @@ const {
 let reportService = null
 let isFirstRun = true
 
+const progressHandler = (progress) => {
+  setProgress(reportService, progress)
+}
+
 module.exports = async () => {
   const isEnable = await reportService.isEnableScheduler()
+  let dataInserter = null
 
   if (
     (getProgress(reportService) < 100 && !isFirstRun) ||
@@ -23,11 +28,17 @@ module.exports = async () => {
   setProgress(reportService, 0)
 
   try {
-    const dataInserter = new DataInserter(reportService)
+    dataInserter = new DataInserter(reportService)
+    dataInserter.on('progress', progressHandler)
+
     await dataInserter.insertNewDataToDbMultiUser()
   } catch (err) {
     setProgress(reportService, err.toString())
     console.log('Scheduler error: ', err)
+  }
+
+  if (dataInserter) {
+    dataInserter.removeListener('progress', progressHandler)
   }
 }
 

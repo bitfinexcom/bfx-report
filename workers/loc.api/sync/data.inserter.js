@@ -3,10 +3,7 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
 
-const {
-  setProgress,
-  collObjToArr
-} = require('./helpers')
+const { collObjToArr } = require('./helpers')
 const { getMethodCollMap } = require('./schema')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
@@ -60,7 +57,6 @@ class DataInserter extends EventEmitter {
       !(this._auth instanceof Map) ||
       this._auth.size === 0
     ) {
-      setProgress(this.reportService, MESS_ERR_UNAUTH)
       this.emit('progress', MESS_ERR_UNAUTH)
 
       return
@@ -84,7 +80,6 @@ class DataInserter extends EventEmitter {
       typeof auth.apiKey !== 'string' ||
       typeof auth.apiSecret !== 'string'
     ) {
-      setProgress(this.reportService, MESS_ERR_UNAUTH)
       this.emit('progress', MESS_ERR_UNAUTH)
 
       return
@@ -99,11 +94,9 @@ class DataInserter extends EventEmitter {
 
       count += 1
       const progress = Math.round((count / methodCollMap.size) * 100 * userProgress)
-      setProgress(this.reportService, progress)
       this.emit('progress', progress)
     }
 
-    setProgress(this.reportService, 100)
     this.emit('progress', 100)
   }
 
