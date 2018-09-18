@@ -35,12 +35,16 @@ const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
 const email = 'fake@email.fake'
+const limit = 10000
 
 describe('Queue load', () => {
   before(async function () {
     this.timeout(20000)
 
-    mockRESTv2Srv = createMockRESTv2SrvWithDate(date)
+    mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, null, {
+      'ledgers': { limit },
+      'user_info': null
+    })
 
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
@@ -104,7 +108,7 @@ describe('Queue load', () => {
             symbol: 'BTC',
             end,
             start,
-            limit: 10000,
+            limit,
             email
           },
           id: 5

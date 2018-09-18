@@ -230,6 +230,7 @@ class DataInserter extends EventEmitter {
 
     let res = null
     let count = 0
+    let timeOfPrevIteration = 0
 
     while (true) {
       try {
@@ -256,7 +257,12 @@ class DataInserter extends EventEmitter {
       ) break
 
       const currTime = lastItem[dateFieldName]
+      timeOfPrevIteration = currTime
       let isAllData = false
+
+      if (currTime >= timeOfPrevIteration) {
+        isAllData = true
+      }
 
       if (_args.params.start >= currTime) {
         res = res.filter((item) => _args.params.start <= item[dateFieldName])

@@ -198,7 +198,7 @@ class SqliteDAO extends DAO {
     const user = await this.checkAuthInDb(args)
     const methodColl = this._getMethodCollMap().get(method)
     const params = { ...args.params }
-    params.limit = getLimitNotMoreThan(args.params.limit, methodColl.maxLimit)
+    params.limit = getLimitNotMoreThan(params.limit, methodColl.maxLimit)
 
     const exclude = ['_id']
     const fields = []

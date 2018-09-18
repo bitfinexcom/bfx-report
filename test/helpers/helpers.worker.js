@@ -32,21 +32,28 @@ const startHelpers = (
   })
 }
 
-const startWorkers = (logs, isRootWrk, countWrk = 1) => {
-  let apiPort = 13381
-  let dbID = 1
-
+const startWorkers = (
+  logs,
+  isRootWrk,
+  countWrk = 1,
+  conf = {}
+) => {
+  const _conf = {
+    env: 'development',
+    wtype: 'wrk-report-service-api',
+    apiPort: 13381,
+    dbID: 1,
+    syncMode: false,
+    isSpamRestrictionMode: false,
+    ...conf
+  }
   for (let i = 0; i < countWrk; i += 1) {
     if (isRootWrk) {
+      const args = Object.keys(_conf).map(key => `--${key}=${_conf[key]}`)
+
       const wrkIpc = fork(
         path.join(__dirname, '../..', 'worker.js'),
-        [
-          '--env=development',
-          '--wtype=wrk-report-service-api',
-          `--apiPort=${apiPort}`,
-          `--dbID=${dbID}`,
-          '--isSpamRestrictionMode=0'
-        ],
+        args,
         {
           silent: !logs
         }
@@ -54,18 +61,13 @@ const startWorkers = (logs, isRootWrk, countWrk = 1) => {
 
       ipc.push(wrkIpc)
     } else {
-      const wrk = runWorker({
-        wtype: 'wrk-report-service-api',
-        apiPort,
-        dbID,
-        isSpamRestrictionMode: false
-      })
+      const wrk = runWorker(_conf)
 
       wrksReportServiceApi.push(wrk)
     }
 
-    apiPort += 1
-    dbID += 1
+    _conf.apiPort += 1
+    _conf.dbID += 1
   }
 
   ipc.push(...startHelpers(logs))

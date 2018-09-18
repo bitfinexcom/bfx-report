@@ -32,10 +32,11 @@ const runWorker = (
     apiPort: 1337,
     debug: false,
     dbID: 1,
+    syncMode: false,
     isSpamRestrictionMode: false
   }
 ) => {
-  const { wtype, env, dbID, isSpamRestrictionMode } = cmd
+  const { wtype, env } = cmd
 
   const conf = _.merge(
     {},
@@ -43,12 +44,11 @@ const runWorker = (
   )
 
   const wref = wtype.split('-').reverse()
+  const worker = path.join(serviceRoot, '/workers/', wref.join('.')
+  )
   const ctx = {
     root: serviceRoot,
-    wtype,
-    env,
-    dbID,
-    isSpamRestrictionMode
+    worker
   }
 
   _.each(cmd, (v, k) => {
@@ -60,11 +60,7 @@ const runWorker = (
   pname.push(process.pid)
   process.title = pname.join('-')
 
-  const HandlerClass = require(path.join(
-    serviceRoot,
-    '/workers/',
-    wref.join('.')
-  ))
+  const HandlerClass = require(worker)
   const hnd = new HandlerClass(conf, ctx)
 
   return hnd
