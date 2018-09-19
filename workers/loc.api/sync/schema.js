@@ -312,7 +312,7 @@ const _methodCollMap = new Map([
       name: 'symbols',
       maxLimit: 5000,
       field: 'pairs',
-      sotr: [['pairs', 1]],
+      sort: [['pairs', 1]],
       hasNewData: false,
       type: 'array',
       model: { ..._models.get('symbols') }

@@ -3,7 +3,10 @@
 const { isEmpty } = require('lodash')
 
 const DAO = require('./dao')
-const { checkParamsAuth } = require('../../helpers')
+const {
+  checkParamsAuth,
+  getLimitNotMoreThan
+} = require('../../helpers')
 
 class SqliteDAO extends DAO {
   _run (sql, params = []) {
@@ -191,7 +194,95 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async findInCollBy () {}
+  async findInCollBy (method, args) {
+    const user = await this.checkAuthInDb(args)
+    const methodColl = this._getMethodCollMap().get(method)
+    const params = { ...args.params }
+    params.limit = getLimitNotMoreThan(args.params.limit, methodColl.maxLimit)
+
+    const exclude = ['_id']
+    const fields = []
+    const values = {
+      $limit: params.limit
+    }
+    let where = ''
+    const sort = []
+
+    if (methodColl.type === 'array:object') {
+      sort.push(`${methodColl.dateFieldName} DESC`)
+      values['$start'] = params.start ? params.start : 0
+      values['$end'] = params.end ? params.end : (new Date()).getTime()
+      where += `WHERE ${methodColl.dateFieldName} >= $start
+        AND ${methodColl.dateFieldName} <= $end \n`
+
+      if (params.symbol) {
+        values['$symbol'] = params.symbol
+        where += `AND ${methodColl.symbolFieldName} = $symbol \n`
+      }
+    } else if (
+      typeof methodColl.sort !== 'undefined' &&
+      Array.isArray(methodColl.sort)
+    ) {
+      methodColl.sort.forEach(item => {
+        if (
+          Array.isArray(item) &&
+          typeof item[0] === 'string' &&
+          typeof item[1] === 'number'
+        ) {
+          sort.push(`${item[0]} ${item[1] > 0 ? 'ASC' : 'DESC'}`)
+        }
+      })
+    }
+
+    if (methodColl.type !== 'array') {
+      exclude.push('user_id')
+      values['$user_id'] = user._id
+      where += `AND user_id = $user_id`
+    }
+
+    Object.keys(methodColl.model).forEach(field => {
+      if (exclude.every(item => item !== field)) {
+        fields.push(field)
+      }
+    })
+
+    const sql = `SELECT ${fields.join(', ')} FROM ${methodColl.name}
+      ${where}
+      ORDER BY ${sort.join(', ')}
+      LIMIT $limit`
+
+    const res = await this._all(sql, values)
+
+    return this._convertDataType(res)
+  }
+
+  _convertDataType (
+    arr = [],
+    boolFields = ['notify', 'hidden', 'renew', 'noClose', 'maker']
+  ) {
+    arr.forEach(obj => {
+      Object.keys(obj).forEach(key => {
+        if (
+          obj &&
+          typeof obj === 'object'
+        ) {
+          if (
+            typeof obj[key] === 'string' &&
+            /^null$/.test(obj[key])
+          ) {
+            obj[key] = null
+          } else if (
+            typeof obj[key] === 'number' &&
+            boolFields.some(item => item === key)
+          ) {
+            obj[key] = !!obj[key]
+          }
+        }
+      })
+    })
+
+    return arr
+  }
 
   /**
    * @override
@@ -265,7 +356,18 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async deactivateUser () {}
+  async deactivateUser (auth) {
+    const res = await this._updateCollBy('users', ['apiKey', 'apiSecret'], {
+      ...auth,
+      active: 0
+    })
+
+    if (res && res.changes < 1) {
+      throw new Error('ERR_AUTH_UNAUTHORIZED')
+    }
+
+    return res
+  }
 
   /**
    * @override
@@ -317,13 +419,52 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async updateStateOf () {}
+  async updateStateOf (name, isEnable = 1) {
+    const elems = await this.getElemsInCollBy(name)
+    const data = {
+      isEnable: isEnable ? 1 : 0
+    }
 
-  /** // TODO: Dummy data
+    if (elems.length > 1) {
+      await this.removeElemsFromDb(name, null, {
+        _id: elems.filter((item, i) => i !== 0)
+      })
+    }
+
+    if (isEmpty(elems)) {
+      return this.insertElemsToDb(
+        name,
+        null,
+        [data]
+      )
+    }
+
+    const res = await this._updateCollBy(name, ['_id'], {
+      ...data,
+      _id: elems[0]._id
+    })
+
+    if (res && res.changes < 1) {
+      throw new Error(`ERR_CAN_NOT_UPDATE_STATE_OF_${name.toUpperCase()}`)
+    }
+
+    return res
+  }
+
+  /**
    * @override
    */
-  async getFirstElemInCollBy () {
-    return { isEnable: true }
+  getFirstElemInCollBy (collName, filter = {}) {
+    const values = {}
+    const where = Object.keys(filter).reduce((accum, curr, i) => {
+      const key = `$${curr}`
+      values[key] = filter[curr]
+      return `${accum}${i > 0 ? ' AND ' : ''}${curr} = ${key}`
+    }, 'WHERE ')
+
+    const sql = `SELECT * FROM ${collName} ${isEmpty(filter) ? '' : where}`
+
+    return this._get(sql, values)
   }
 }
 
