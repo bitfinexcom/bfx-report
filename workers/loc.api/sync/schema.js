@@ -21,7 +21,8 @@ const _models = new Map([
       amount: 'DECIMAL(22,12)',
       balance: 'DECIMAL(22,12)',
       description: 'TEXT',
-      user_id: `INT NOT NULL, CONSTRAINT ledgers_fk_#{field}
+      user_id: `INT NOT NULL,
+        CONSTRAINT ledgers_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
@@ -43,7 +44,8 @@ const _models = new Map([
       maker: 'INT',
       fee: 'DECIMAL(22,12)',
       feeCurrency: 'VARCHAR(255)',
-      user_id: `INT NOT NULL, CONSTRAINT trades_fk_#{field}
+      user_id: `INT NOT NULL,
+        CONSTRAINT trades_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
@@ -73,7 +75,8 @@ const _models = new Map([
       notify: 'INT',
       placedId: 'BIGINT',
       _lastAmount: 'DECIMAL(22,12)',
-      user_id: `INT NOT NULL, CONSTRAINT orders_fk_#{field}
+      user_id: `INT NOT NULL,
+        CONSTRAINT orders_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
@@ -94,7 +97,8 @@ const _models = new Map([
       fees: 'DECIMAL(22,12)',
       destinationAddress: 'VARCHAR(255)',
       transactionId: 'VARCHAR(255)',
-      user_id: `INT NOT NULL, CONSTRAINT movements_fk_#{field}
+      user_id: `INT NOT NULL,
+        CONSTRAINT movements_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
@@ -120,7 +124,8 @@ const _models = new Map([
       hidden: 'INT',
       renew: 'INT',
       rateReal: 'INT',
-      user_id: `INT NOT NULL, CONSTRAINT fundingOfferHistory_fk_#{field}
+      user_id: `INT NOT NULL,
+        CONSTRAINT fundingOfferHistory_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
@@ -148,7 +153,8 @@ const _models = new Map([
       renew: 'INT',
       rateReal: 'INT',
       noClose: 'INT',
-      user_id: `INT NOT NULL, CONSTRAINT fundingLoanHistory_fk_#{field}
+      user_id: `INT NOT NULL,
+        CONSTRAINT fundingLoanHistory_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
@@ -177,7 +183,8 @@ const _models = new Map([
       rateReal: 'INT',
       noClose: 'INT',
       positionPair: 'VARCHAR(255)',
-      user_id: `INT NOT NULL, CONSTRAINT fundingCreditHistory_fk_#{field}
+      user_id: `INT NOT NULL,
+        CONSTRAINT fundingCreditHistory_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
@@ -305,7 +312,7 @@ const _methodCollMap = new Map([
       name: 'symbols',
       maxLimit: 5000,
       field: 'pairs',
-      sotr: [['pairs', 1]],
+      sort: [['pairs', 1]],
       hasNewData: false,
       type: 'array',
       model: { ..._models.get('symbols') }

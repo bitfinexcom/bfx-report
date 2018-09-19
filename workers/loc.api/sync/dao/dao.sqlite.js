@@ -220,10 +220,10 @@ class SqliteDAO extends DAO {
         where += `AND ${methodColl.symbolFieldName} = $symbol \n`
       }
     } else if (
-      typeof methodColl.sotr !== 'undefined' &&
-      Array.isArray(methodColl.sotr)
+      typeof methodColl.sort !== 'undefined' &&
+      Array.isArray(methodColl.sort)
     ) {
-      methodColl.sotr.forEach(item => {
+      methodColl.sort.forEach(item => {
         if (
           Array.isArray(item) &&
           typeof item[0] === 'string' &&
