@@ -41,12 +41,14 @@ const getParams = (args, maxLimit) => {
 
 const checkParams = (args) => {
   if (
-    !args.params ||
-    typeof args.params !== 'object' ||
-    (args.params.limit && !Number.isInteger(args.params.limit)) ||
-    (args.params.start && !Number.isInteger(args.params.start)) ||
-    (args.params.end && !Number.isInteger(args.params.end)) ||
-    (args.params.symbol && typeof args.params.symbol !== 'string')
+    args.params &&
+    (
+      typeof args.params !== 'object' ||
+      (args.params.limit && !Number.isInteger(args.params.limit)) ||
+      (args.params.start && !Number.isInteger(args.params.start)) ||
+      (args.params.end && !Number.isInteger(args.params.end)) ||
+      (args.params.symbol && typeof args.params.symbol !== 'string')
+    )
   ) {
     throw new Error('ERR_ARGS_NO_PARAMS')
   }
@@ -54,6 +56,7 @@ const checkParams = (args) => {
 
 const checkParamsAuth = (args) => {
   if (
+    !args.auth ||
     typeof args.auth !== 'object' ||
     typeof args.auth.apiKey !== 'string' ||
     typeof args.auth.apiSecret !== 'string'

@@ -5,7 +5,7 @@ const async = require('async')
 const _ = require('lodash')
 const path = require('path')
 const argv = require('yargs')
-  .option('dbID', {
+  .option('dbId', {
     type: 'number',
     default: 1
   })
@@ -96,8 +96,8 @@ class WrkReportServiceApi extends WrkApi {
     super.init()
 
     const persist = true
-    const dbID = this.ctx.dbID || argv.dbID || 1
-    const name = `queue_${dbID}`
+    const dbId = this.ctx.dbId || argv.dbId || 1
+    const name = `queue_${dbId}`
     const group = this.group
     const conf = this.conf[group]
 
