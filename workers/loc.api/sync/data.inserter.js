@@ -169,17 +169,10 @@ class DataInserter extends EventEmitter {
         diffDbToApi
       } = await this._getDiffElemsFromApiAndDb(method, item.name, item.field, auth)
 
-      let count = 0
-
-      if (Array.isArray(diffApiToDb)) {
-        if (!Array.isArray(diffDbToApi)) {
-          count = 1
-        } else {
-          count = diffApiToDb.push(...diffDbToApi)
-        }
-      }
-
-      if (count > 0) {
+      if (
+        !_.isEmpty(diffApiToDb) ||
+        !_.isEmpty(diffDbToApi)
+      ) {
         methodCollMap.get(method).hasNewData = true
       }
     }
