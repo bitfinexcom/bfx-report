@@ -31,7 +31,7 @@ const runWorker = (
     env: 'development',
     apiPort: 1337,
     debug: false,
-    dbID: 1,
+    dbId: 1,
     syncMode: false,
     isSpamRestrictionMode: false
   }

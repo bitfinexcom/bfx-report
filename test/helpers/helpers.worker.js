@@ -42,7 +42,7 @@ const startWorkers = (
     env: 'development',
     wtype: 'wrk-report-service-api',
     apiPort: 13381,
-    dbID: 1,
+    dbId: 1,
     syncMode: false,
     isSpamRestrictionMode: false,
     ...conf
@@ -67,7 +67,7 @@ const startWorkers = (
     }
 
     _conf.apiPort += 1
-    _conf.dbID += 1
+    _conf.dbId += 1
   }
 
   ipc.push(...startHelpers(logs))

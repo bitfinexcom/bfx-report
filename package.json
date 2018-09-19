@@ -103,8 +103,8 @@
   "scripts": {
     "start": "better-npm-run start:prod",
     "startDev": "better-npm-run start:dev",
-    "startWorker": "node worker.js --env=production --wtype=wrk-report-service-api --apiPort 1337 --dbID 1 --isEnableScheduler true",
-    "startWorkerDev": "nodemon worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337 --dbID 1 --isEnableScheduler true",
+    "startWorker": "node worker.js --env=production --wtype=wrk-report-service-api --apiPort 1337 --dbId 1 --isEnableScheduler true",
+    "startWorkerDev": "nodemon worker.js --env=development --wtype=wrk-report-service-api --apiPort 1337 --dbId 1 --isEnableScheduler true",
     "startSimulEnv": "node test/simulate/simulate-enviroment.js",
     "test": "better-npm-run test",
     "testDev": "better-npm-run testDev"
