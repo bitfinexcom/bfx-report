@@ -218,7 +218,8 @@ class ReportService extends Api {
         columnsCsv: {
           description: 'DESCRIPTION',
           currency: 'CURRENCY',
-          amount: 'AMOUNT',
+          credit: 'CREDIT',
+          debit: 'DEBIT',
           balance: 'BALANCE',
           mts: 'DATE'
         },
@@ -291,6 +292,7 @@ class ReportService extends Api {
         columnsCsv: {
           id: '#',
           mtsUpdated: 'DATE',
+          currency: 'CURRENCY',
           status: 'STATUS',
           amount: 'AMOUNT',
           destinationAddress: 'DESCRIPTION'
@@ -323,17 +325,19 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
-          symbol: 'SYMBOL',
+          id: '#',
+          symbol: 'CURRENCY',
           amount: 'AMOUNT',
-          amountOrig: 'AMOUNT ORIG',
+          amountOrig: 'ORIGINAL AMOUNT',
           type: 'TYPE',
           status: 'STATUS',
-          rate: 'RATE',
+          rate: 'RATE(% PER DAY)',
           period: 'PERIOD',
           mtsUpdate: 'DATE'
         },
         formatSettings: {
-          mtsUpdate: 'date'
+          mtsUpdate: 'date',
+          symbol: 'symbol'
         }
       }
 
@@ -360,21 +364,23 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
-          symbol: 'SYMBOL',
+          id: '#',
+          symbol: 'CURRENCY',
           side: 'SIDE',
           amount: 'AMOUNT',
           status: 'STATUS',
-          rate: 'RATE',
+          rate: 'RATE(% PER DAY)',
           period: 'PERIOD',
-          mtsOpening: 'OPENING',
-          mtsLastPayout: 'LAST PAYOUT',
-          noClose: 'NO CLOSE',
+          mtsOpening: 'OPENED',
+          mtsLastPayout: 'CLOSED',
           mtsUpdate: 'DATE'
         },
         formatSettings: {
+          side: 'side',
           mtsUpdate: 'date',
           mtsOpening: 'date',
-          mtsLastPayout: 'date'
+          mtsLastPayout: 'date',
+          symbol: 'symbol'
         }
       }
 
@@ -401,22 +407,24 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
-          symbol: 'SYMBOL',
+          id: '#',
+          symbol: 'CURRENCY',
           side: 'SIDE',
           amount: 'AMOUNT',
           status: 'STATUS',
-          rate: 'RATE',
+          rate: 'RATE(% PER DAY)',
           period: 'PERIOD',
-          mtsOpening: 'OPENING',
-          mtsLastPayout: 'LAST PAYOUT',
-          noClose: 'NO CLOSE',
+          mtsOpening: 'OPENED',
+          mtsLastPayout: 'CLOSED',
           positionPair: 'POSITION PAIR',
           mtsUpdate: 'DATE'
         },
         formatSettings: {
+          side: 'side',
           mtsUpdate: 'date',
           mtsOpening: 'date',
-          mtsLastPayout: 'date'
+          mtsLastPayout: 'date',
+          symbol: 'symbol'
         }
       }
 
