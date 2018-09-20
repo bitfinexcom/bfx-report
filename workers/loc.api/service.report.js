@@ -218,7 +218,8 @@ class ReportService extends Api {
         columnsCsv: {
           description: 'DESCRIPTION',
           currency: 'CURRENCY',
-          amount: 'AMOUNT',
+          credit: 'CREDIT',
+          debit: 'DEBIT',
           balance: 'BALANCE',
           mts: 'DATE'
         },
