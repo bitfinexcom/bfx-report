@@ -91,7 +91,22 @@ const _delay = (mc = 80000) => {
 
 const _formatters = {
   date: val => Number.isInteger(val) ? moment(val).format('DD-MM-YYYY HH:mm:ss') : val,
-  symbol: symbol => `${symbol.slice(1, 4)}/${symbol.slice(4, 7)}`
+  symbol: symbol => `${symbol.slice(1, 4)}${symbol[4] ? '/' : ''}${symbol.slice(4, 7)}`,
+  side: side => {
+    let msg
+
+    if (side === 1) {
+      msg = 'provided'
+    } else if (side === 0) {
+      msg = 'both'
+    } else if (side === -1) {
+      msg = 'taken'
+    } else {
+      msg = 'null'
+    }
+
+    return msg
+  }
 }
 
 const _dataFormatter = (obj, formatSettings) => {
