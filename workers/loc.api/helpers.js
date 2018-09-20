@@ -45,9 +45,20 @@ const checkParams = (args) => {
     typeof args.params !== 'object' ||
     (args.params.limit && !Number.isInteger(args.params.limit)) ||
     (args.params.start && !Number.isInteger(args.params.start)) ||
-    (args.params.end && !Number.isInteger(args.params.end))
+    (args.params.end && !Number.isInteger(args.params.end)) ||
+    (args.params.symbol && typeof args.params.symbol !== 'string')
   ) {
     throw new Error('ERR_ARGS_NO_PARAMS')
+  }
+}
+
+const checkParamsAuth = (args) => {
+  if (
+    typeof args.auth !== 'object' ||
+    typeof args.auth.apiKey !== 'string' ||
+    typeof args.auth.apiSecret !== 'string'
+  ) {
+    throw new Error('ERR_AUTH_UNAUTHORIZED')
   }
 }
 
@@ -75,7 +86,10 @@ const hasJobInQueueWithStatusBy = async (
   const group = wrk.group
   const conf = wrk.conf[group]
 
-  if (!conf.isSpamRestrictionMode) {
+  if (
+    conf.syncMode ||
+    !conf.isSpamRestrictionMode
+  ) {
     return userInfo.id
   }
 
@@ -113,6 +127,7 @@ module.exports = {
   getLimitNotMoreThan,
   getParams,
   checkParams,
+  checkParamsAuth,
   getCsvStoreStatus,
   hasJobInQueueWithStatusBy
 }

@@ -13,5 +13,7 @@
     "signedUrlExpireTime": 28800
   },
   "isSpamRestrictionMode": true,
-  "isElectronjsEnv": false
+  "isElectronjsEnv": false,
+  "dbDriver": "sqlite",
+  "syncMode": false
 }

@@ -15,6 +15,16 @@ class ReportService extends Api {
     return space
   }
 
+  isSyncMode (space, args, cb = () => { }) {
+    const wrk = this.ctx.grc_bfx.caller
+    const group = wrk.group
+    const conf = wrk.conf[group]
+
+    cb(null, conf.syncMode)
+
+    return conf.syncMode
+  }
+
   _getUserInfo (args) {
     const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
 
