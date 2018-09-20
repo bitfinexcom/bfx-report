@@ -89,17 +89,9 @@ const _delay = (mc = 80000) => {
   })
 }
 
-const _formaters = {
-  date: val => Number.isInteger(val) ? moment(val).format('DD/MM/YYYY, h:mm:ss A') : val,
-  symbol: val => {
-    const symbolsMap = [
-      { tBTCUSD: 'BTC/USD' }
-    ]
-
-    let res = symbolsMap.find(item => item[val] !== 'undefined')
-    res = typeof res === 'object' ? res[val] : val
-    return res
-  }
+const _formatters = {
+  date: val => Number.isInteger(val) ? moment(val).format('DD-MM-YYYY HH:mm:ss') : val,
+  symbol: symbol => `${symbol.slice(1, 4)}/${symbol.slice(4, 7)}`
 }
 
 const _dataFormatter = (obj, formatSettings) => {
@@ -116,9 +108,9 @@ const _dataFormatter = (obj, formatSettings) => {
     try {
       if (
         typeof obj[key] !== 'undefined' &&
-        typeof _formaters[val] === 'function'
+        typeof _formatters[val] === 'function'
       ) {
-        res[key] = _formaters[val](obj[key])
+        res[key] = _formatters[val](obj[key])
       }
     } catch (err) {}
   })
