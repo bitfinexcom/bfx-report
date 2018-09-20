@@ -31,6 +31,11 @@ class DAO {
   /**
    * @abstract
    */
+  async findInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
   async insertOrUpdateUser () { throw new Error('NOT_IMPLEMENTED') }
 
   /**

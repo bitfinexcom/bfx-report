@@ -1,9 +1,16 @@
 'use strict'
 
+const { promisify } = require('util')
 const { isEmpty } = require('lodash')
 
 const ReportService = require('./service.report')
-const { checkParamsAuth } = require('./helpers')
+const {
+  checkParams,
+  checkParamsAuth,
+  convertPairsToCoins
+} = require('./helpers')
+const { collObjToArr } = require('./sync/helpers')
+const { getMethodCollMap } = require('./sync/schema')
 const sync = require('./sync')
 
 class MediatorReportService extends ReportService {
@@ -130,6 +137,229 @@ class MediatorReportService extends ReportService {
     const isEnableScheduler = await this.isEnableScheduler()
 
     cb(null, isEnableScheduler ? wrk.syncProgress : false)
+  }
+
+  /**
+   * @override
+   */
+  async getEmail (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getEmail(space, args, cb)
+
+      return
+    }
+
+    try {
+      const user = await this.dao.checkAuthInDb(args)
+
+      cb(null, user.email)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
+  async getSymbols (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getSymbols(space, args, cb)
+
+      return
+    }
+
+    try {
+      checkParams(args)
+
+      const method = '_getSymbols'
+      const { field } = getMethodCollMap().get(method)
+      const symbols = await this.dao.findInCollBy(method, args)
+      const pairs = collObjToArr(symbols, field)
+      const res = convertPairsToCoins(pairs)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
+  async getLedgers (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getLedgers(space, args, cb)
+
+      return
+    }
+
+    try {
+      checkParams(args)
+
+      const res = await this.dao.findInCollBy('_getLedgers', args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
+  async getTrades (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getTrades(space, args, cb)
+
+      return
+    }
+
+    try {
+      checkParams(args)
+
+      const res = await this.dao.findInCollBy('_getTrades', args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
+  async getOrders (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getOrders(space, args, cb)
+
+      return
+    }
+
+    try {
+      checkParams(args)
+
+      const res = await this.dao.findInCollBy('_getOrders', args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
+  async getMovements (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getMovements(space, args, cb)
+
+      return
+    }
+
+    try {
+      checkParams(args)
+
+      const res = await this.dao.findInCollBy('_getMovements', args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
+  async getFundingOfferHistory (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getFundingOfferHistory(space, args, cb)
+
+      return
+    }
+
+    try {
+      checkParams(args)
+
+      const res = await this.dao.findInCollBy('_getFundingOfferHistory', args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
+  async getFundingLoanHistory (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getFundingLoanHistory(space, args, cb)
+
+      return
+    }
+
+    try {
+      checkParams(args)
+
+      const res = await this.dao.findInCollBy('_getFundingLoanHistory', args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
+  async getFundingCreditHistory (space, args, cb) {
+    if (!await this.isSyncModeWithDbData()) {
+      super.getFundingCreditHistory(space, args, cb)
+
+      return
+    }
+
+    try {
+      checkParams(args)
+
+      const res = await this.dao.findInCollBy('_getFundingCreditHistory', args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  _getEmail (args) {
+    return promisify(super.getEmail.bind(this))(null, args)
+  }
+
+  _getLedgers (args) {
+    return promisify(super.getLedgers.bind(this))(null, args)
+  }
+
+  _getTrades (args) {
+    return promisify(super.getTrades.bind(this))(null, args)
+  }
+
+  _getOrders (args) {
+    return promisify(super.getOrders.bind(this))(null, args)
+  }
+
+  _getMovements (args) {
+    return promisify(super.getMovements.bind(this))(null, args)
+  }
+
+  _getFundingOfferHistory (args) {
+    return promisify(super.getFundingOfferHistory.bind(this))(null, args)
+  }
+
+  _getFundingLoanHistory (args) {
+    return promisify(super.getFundingLoanHistory.bind(this))(null, args)
+  }
+
+  _getFundingCreditHistory (args) {
+    return promisify(super.getFundingCreditHistory.bind(this))(null, args)
   }
 
   async _checkAuthInApi (args) {

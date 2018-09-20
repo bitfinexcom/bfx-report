@@ -58,6 +58,11 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
+  async findInCollBy () {}
+
+  /**
+   * @override
+   */
   async insertOrUpdateUser () {}
 
   /**
