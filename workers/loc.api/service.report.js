@@ -423,7 +423,8 @@ class ReportService extends Api {
           side: 'side',
           mtsUpdate: 'date',
           mtsOpening: 'date',
-          mtsLastPayout: 'date'
+          mtsLastPayout: 'date',
+          symbol: 'symbol'
         }
       }
 

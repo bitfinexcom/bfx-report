@@ -96,13 +96,13 @@ const _formatters = {
     let msg
 
     if (side === 1) {
-      msg = 'provided'
+      msg = 'PROVIDED'
     } else if (side === 0) {
-      msg = 'both'
+      msg = 'BOTH'
     } else if (side === -1) {
-      msg = 'taken'
+      msg = 'TAKEN'
     } else {
-      msg = 'null'
+      msg = 'NULL'
     }
 
     return msg
