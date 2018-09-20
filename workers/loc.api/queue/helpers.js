@@ -89,16 +89,23 @@ const _delay = (mc = 80000) => {
   })
 }
 
-const _formaters = {
-  date: val => Number.isInteger(val) ? moment(val).format('DD/MM/YYYY, h:mm:ss A') : val,
-  symbol: val => {
-    const symbolsMap = [
-      { tBTCUSD: 'BTC/USD' }
-    ]
+const _formatters = {
+  date: val => Number.isInteger(val) ? moment(val).format('DD-MM-YYYY HH:mm:ss') : val,
+  symbol: symbol => `${symbol.slice(1, 4)}${symbol[4] ? '/' : ''}${symbol.slice(4, 7)}`,
+  side: side => {
+    let msg
 
-    let res = symbolsMap.find(item => item[val] !== 'undefined')
-    res = typeof res === 'object' ? res[val] : val
-    return res
+    if (side === 1) {
+      msg = 'PROVIDED'
+    } else if (side === 0) {
+      msg = 'BOTH'
+    } else if (side === -1) {
+      msg = 'TAKEN'
+    } else {
+      msg = 'NULL'
+    }
+
+    return msg
   }
 }
 
@@ -116,9 +123,9 @@ const _dataFormatter = (obj, formatSettings) => {
     try {
       if (
         typeof obj[key] !== 'undefined' &&
-        typeof _formaters[val] === 'function'
+        typeof _formatters[val] === 'function'
       ) {
-        res[key] = _formaters[val](obj[key])
+        res[key] = _formatters[val](obj[key])
       }
     } catch (err) {}
   })
@@ -126,9 +133,48 @@ const _dataFormatter = (obj, formatSettings) => {
   return res
 }
 
-const _write = (res, stream, formatSettings) => {
+const _normalizers = {
+  getLedgers: (obj) => {
+    const res = {}
+
+    Object.entries(obj).forEach(([key, val]) => {
+      if (key !== 'amount') {
+        res[key] = val
+
+        return
+      }
+
+      res.credit = parseFloat(val) > 0 ? val : ''
+      res.debit = parseFloat(val) < 0 ? Math.abs(val) : ''
+    })
+
+    return res
+  }
+}
+
+const _dataNormalizer = (obj, method) => {
+  if (
+    typeof obj !== 'object' ||
+    typeof _normalizers[method] !== 'function'
+  ) {
+    return obj
+  }
+
+  let res = _.cloneDeep(obj)
+
+  try {
+    res = _normalizers[method](res)
+  } catch (err) {}
+
+  return res
+}
+
+const _write = (res, stream, formatSettings, method) => {
   res.forEach((item) => {
-    stream.write(_dataFormatter(item, formatSettings))
+    let _item = _dataNormalizer(item, method)
+    _item = _dataFormatter(_item, formatSettings)
+
+    stream.write(_item)
   })
 }
 
@@ -213,7 +259,7 @@ const writeDataToStream = async (reportService, stream, job) => {
       isAllData = true
     }
 
-    _write(res, stream, formatSettings)
+    _write(res, stream, formatSettings, method)
 
     count += res.length
     const needElems = _args.params.limit - count
