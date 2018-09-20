@@ -52,7 +52,7 @@ const _mockData = new Map([
       12345,
       null,
       null,
-      null,
+      false,
       -0.00001,
       'BTC'
     ]]
@@ -61,7 +61,7 @@ const _mockData = new Map([
     'orders',
     [[
       12345,
-      null,
+      12345,
       12345,
       'tBTCUSD',
       (new Date()).getTime(),
@@ -83,7 +83,7 @@ const _mockData = new Map([
       null,
       null,
       null,
-      0,
+      false,
       null,
       null
     ]]
@@ -107,11 +107,11 @@ const _mockData = new Map([
       -0.000001,
       null,
       null,
-      '1riatSLRHtKNngkdXreobR76b53LETtpyT',
+      '0x047633e8e976dc13a81ac3e45564f6b83d10aeb9',
       null,
       null,
       null,
-      null,
+      '0x754687b3cbee7cdc4b29107e325455c682dfc320ca0c4233c313263a27282760',
       null
     ]]
   ],
@@ -219,39 +219,41 @@ const createMockRESTv2SrvWithAllData = () => {
   return srv
 }
 
-const _setDateTo = (key, dataItem, date = new Date()) => {
+const _setDateTo = (key, dataItem, date = new Date().getTime()) => {
+  const _date = Math.round(date)
+
   switch (key) {
     case 'ledgers':
-      dataItem[3] = date.getTime()
+      dataItem[3] = _date
       break
 
     case 'trades':
-      dataItem[2] = date.getTime()
+      dataItem[2] = _date
       break
 
     case 'orders':
-      dataItem[4] = date.getTime()
-      dataItem[5] = date.getTime()
+      dataItem[4] = _date
+      dataItem[5] = _date
       break
 
     case 'movements':
-      dataItem[5] = date.getTime()
-      dataItem[6] = date.getTime()
+      dataItem[5] = _date
+      dataItem[6] = _date
       break
 
     case 'f_offer_hist':
-      dataItem[2] = date.getTime()
-      dataItem[3] = date.getTime()
+      dataItem[2] = _date
+      dataItem[3] = _date
       break
 
     case 'f_loan_hist':
-      dataItem[3] = date.getTime()
-      dataItem[4] = date.getTime()
+      dataItem[3] = _date
+      dataItem[4] = _date
       break
 
     case 'f_credit_hist':
-      dataItem[3] = date.getTime()
-      dataItem[4] = date.getTime()
+      dataItem[3] = _date
+      dataItem[4] = _date
       break
   }
 
@@ -259,7 +261,9 @@ const _setDateTo = (key, dataItem, date = new Date()) => {
 }
 
 const createMockRESTv2SrvWithDate = (
-  date = new Date(),
+  start = new Date().getTime(),
+  end = start,
+  limit = null,
   opts = {
     'ledgers': { limit: 5000 },
     'trades': { limit: 1500 },
@@ -281,12 +285,24 @@ const createMockRESTv2SrvWithDate = (
       return
     }
 
-    const dataItem = _getMockData(key)[0].slice()
+    const _limit = limit || val.limit
+    const step = (end - start) / _limit
+    let date = start
 
-    _setDateTo(key, dataItem, date)
+    const data = Array(_limit).fill(null).map((item, i) => {
+      if (_limit === (i + 1)) {
+        date = end
+      } else if (i > 0) {
+        date += step
+      }
 
-    const data = Array(val.limit).fill(dataItem)
-    srv.setResponse(key, data)
+      const dataItem = _getMockData(key)[0].slice()
+      _setDateTo(key, dataItem, date)
+
+      return dataItem
+    })
+
+    srv.setResponse(key, data.reverse())
   })
 
   return srv

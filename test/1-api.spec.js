@@ -44,6 +44,24 @@ describe('API', () => {
     await rmDB(dbDirPath)
   })
 
+  it('it should be successfully performed by the isSyncMode method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        method: 'isSyncMode',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isNotOk(res.body.result)
+  })
+
   it('it should be successfully auth', async function () {
     this.timeout(5000)
 
@@ -120,6 +138,54 @@ describe('API', () => {
     assert.isObject(res.body)
     assert.isString(res.body.result)
     assert.propertyVal(res.body, 'id', 5)
+  })
+
+  it('it should be successfully performed by the getEmail method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getEmail',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result === 'fake@email.fake')
+  })
+
+  it('it should be successfully performed by the getSymbols method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getSymbols',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.pairs)
+    assert.isArray(res.body.result.coins)
+    assert.lengthOf(res.body.result.pairs, 11)
+
+    res.body.result.pairs.forEach(item => {
+      assert.isString(item)
+    })
+    res.body.result.coins.forEach(item => {
+      assert.isString(item)
+    })
   })
 
   it('it should be successfully performed by the getFundingOfferHistory method', async function () {
