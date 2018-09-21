@@ -20,8 +20,9 @@ const tempDirPath = path.join(__dirname, 'temp')
 const rootDir = path.dirname(require.main.filename)
 const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
+const isElectronjsEnv = argv.isElectronjsEnv
 
-const _checkAndCreateDir = async (dirPath, isElectronjsEnv = false) => {
+const _checkAndCreateDir = async (dirPath) => {
   const basePath = path.join(dirPath, '..')
 
   try {
@@ -44,21 +45,21 @@ const _checkAndCreateDir = async (dirPath, isElectronjsEnv = false) => {
   }
 }
 
-const createUniqueFileName = async (isElectronjsEnv, count = 0) => {
+const createUniqueFileName = async (count = 0) => {
   count += 1
 
   if (count > 20) {
     return Promise.reject(new Error('ERR_CREATE_UNIQUE_FILE_NAME'))
   }
 
-  await _checkAndCreateDir(tempDirPath, isElectronjsEnv)
+  await _checkAndCreateDir(tempDirPath)
 
   const uniqueFileName = `${uuidv4()}.csv`
 
   const files = await readdir(tempDirPath)
 
   if (files.some(file => file === uniqueFileName)) {
-    return createUniqueFileName(isElectronjsEnv, count)
+    return createUniqueFileName(count)
   }
 
   return Promise.resolve(path.join(tempDirPath, uniqueFileName))
@@ -327,8 +328,8 @@ const hasS3AndSendgrid = async reportService => {
   return !!(countS3Services && countSendgridServices)
 }
 
-const moveFileToLocalStorage = async (filePath, name, start, end, isElectronjsEnv = false) => {
-  await _checkAndCreateDir(localStorageDirPath, isElectronjsEnv)
+const moveFileToLocalStorage = async (filePath, name, start, end) => {
+  await _checkAndCreateDir(localStorageDirPath)
 
   const fileName = _getCompleteFileName(name, start, end)
   const newFilePath = path.join(localStorageDirPath, fileName)
