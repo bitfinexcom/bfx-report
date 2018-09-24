@@ -34,7 +34,9 @@ module.exports = async () => {
     await dataInserter.insertNewDataToDbMultiUser()
   } catch (err) {
     setProgress(reportService, err.toString())
-    console.log('Scheduler error: ', err)
+
+    const logger = reportService.ctx.grc_bfx.caller.logger
+    logger.error(err.stack || err)
   }
 
   if (dataInserter) {
