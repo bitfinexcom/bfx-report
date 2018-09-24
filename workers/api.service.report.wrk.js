@@ -28,6 +28,7 @@ const argv = require('yargs')
   .help('help')
   .argv
 
+const logger = require('./loc.api/logger')
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
 const sync = require('./loc.api/sync')
@@ -35,6 +36,8 @@ const sync = require('./loc.api/sync')
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
     super(conf, ctx)
+
+    this.logger = logger
 
     this.loadConf('service.report', 'report')
     this._setArgsOfCommandLineToConf([
