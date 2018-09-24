@@ -51,7 +51,7 @@ describe('Sync mode with SQLite', () => {
     await rmDB(dbDirPath)
     const env = await startEnviroment(false, false, 1, {
       syncMode: true,
-      isEnableScheduler: true,
+      isSchedulerEnabled: true,
       dbDriver: 'sqlite'
     })
 
@@ -168,14 +168,14 @@ describe('Sync mode with SQLite', () => {
     assert.isOk(res.body.result)
   })
 
-  it('it should be successfully performed by the isEnableScheduler method', async function () {
+  it('it should be successfully performed by the isSchedulerEnabled method', async function () {
     this.timeout(5000)
 
     const res = await agent
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
-        method: 'isEnableScheduler',
+        method: 'isSchedulerEnabled',
         id: 5
       })
       .expect('Content-Type', /json/)
@@ -1339,14 +1339,14 @@ describe('Sync mode with SQLite', () => {
     assert.isOk(res.body.result)
   })
 
-  it('it should be successfully performed by the isEnableScheduler method', async function () {
+  it('it should be successfully performed by the isSchedulerEnabled method', async function () {
     this.timeout(5000)
 
     const res = await agent
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
-        method: 'isEnableScheduler',
+        method: 'isSchedulerEnabled',
         id: 5
       })
       .expect('Content-Type', /json/)

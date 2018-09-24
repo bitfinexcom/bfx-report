@@ -14,7 +14,7 @@ const progressHandler = (progress) => {
 }
 
 module.exports = async () => {
-  const isEnable = await reportService.isEnableScheduler()
+  const isEnable = await reportService.isSchedulerEnabled()
   let dataInserter = null
 
   if (

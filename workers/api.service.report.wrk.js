@@ -18,7 +18,7 @@ const argv = require('yargs')
   .option('isSpamRestrictionMode', {
     type: 'boolean'
   })
-  .option('isEnableScheduler', {
+  .option('isSchedulerEnabled', {
     type: 'boolean'
   })
   .option('dbDriver', {
@@ -43,7 +43,7 @@ class WrkReportServiceApi extends WrkApi {
     this._setArgsOfCommandLineToConf([
       'syncMode',
       'isSpamRestrictionMode',
-      'isEnableScheduler',
+      'isSchedulerEnabled',
       'dbDriver'
     ])
 
@@ -164,7 +164,7 @@ class WrkReportServiceApi extends WrkApi {
             await reportService._databaseInitialize()
           }
 
-          if (conf.isEnableScheduler) {
+          if (conf.isSchedulerEnabled) {
             const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
             const name = 'sync'
 

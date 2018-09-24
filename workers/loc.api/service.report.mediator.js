@@ -118,7 +118,7 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async isEnableScheduler (space, args, cb) {
+  async isSchedulerEnabled (space, args, cb) {
     try {
       const firstElem = await this.dao.getFirstElemInCollBy('scheduler', { isEnable: 1 })
 
@@ -134,9 +134,9 @@ class MediatorReportService extends ReportService {
 
   async getSyncProgress (space, args, cb = () => { }) {
     const wrk = this.ctx.grc_bfx.caller
-    const isEnableScheduler = await this.isEnableScheduler()
+    const isSchedulerEnabled = await this.isSchedulerEnabled()
 
-    cb(null, isEnableScheduler ? wrk.syncProgress : false)
+    cb(null, isSchedulerEnabled ? wrk.syncProgress : false)
   }
 
   /**
