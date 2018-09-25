@@ -164,11 +164,11 @@ class WrkReportServiceApi extends WrkApi {
             await reportService._databaseInitialize()
           }
 
+          sync.setReportService(reportService)
+
           if (conf.isSchedulerEnabled) {
             const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
             const name = 'sync'
-
-            sync.setReportService(reportService)
 
             this.scheduler_sync.add(name, sync, rule)
 
