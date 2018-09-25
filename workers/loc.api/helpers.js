@@ -138,6 +138,15 @@ const hasJobInQueueWithStatusBy = async (
   return userInfo.id
 }
 
+const toString = (obj) => {
+  try {
+    const txt = JSON.stringify(obj)
+    return txt
+  } catch (e) {
+    return obj && obj.toString()
+  }
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -146,5 +155,6 @@ module.exports = {
   checkParamsAuth,
   getCsvStoreStatus,
   convertPairsToCoins,
-  hasJobInQueueWithStatusBy
+  hasJobInQueueWithStatusBy,
+  toString
 }

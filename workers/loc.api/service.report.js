@@ -1,13 +1,15 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
+
 const {
   getREST,
   getParams,
   checkParams,
   getCsvStoreStatus,
   convertPairsToCoins,
-  hasJobInQueueWithStatusBy
+  hasJobInQueueWithStatusBy,
+  toString
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -38,7 +40,7 @@ class ReportService extends Api {
 
       cb(null, result.email)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getEmail', cb)
     }
   }
 
@@ -57,7 +59,7 @@ class ReportService extends Api {
         cb(null, amount)
       })
     } catch (err) {
-      cb(err)
+      this._err(err, 'lookUpFunction', cb)
     }
   }
 
@@ -68,7 +70,7 @@ class ReportService extends Api {
 
       cb(null, result)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getSymbols', cb)
     }
   }
 
@@ -87,7 +89,7 @@ class ReportService extends Api {
 
       cb(null, result)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getLedgers', cb)
     }
   }
 
@@ -100,7 +102,7 @@ class ReportService extends Api {
 
       cb(null, result)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getTrades', cb)
     }
   }
 
@@ -113,7 +115,7 @@ class ReportService extends Api {
 
       cb(null, result)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getOrders', cb)
     }
   }
 
@@ -125,7 +127,7 @@ class ReportService extends Api {
       const result = await rest.movements(...params)
       cb(null, result)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getMovements', cb)
     }
   }
 
@@ -137,7 +139,7 @@ class ReportService extends Api {
       const result = await rest.fundingOfferHistory(...params)
       cb(null, result)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getFundingOfferHistory', cb)
     }
   }
 
@@ -149,7 +151,7 @@ class ReportService extends Api {
       const result = await rest.fundingLoanHistory(...params)
       cb(null, result)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getFundingLoanHistory', cb)
     }
   }
 
@@ -161,7 +163,7 @@ class ReportService extends Api {
       const result = await rest.fundingCreditHistory(...params)
       cb(null, result)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getFundingCreditHistory', cb)
     }
   }
 
@@ -197,7 +199,7 @@ class ReportService extends Api {
 
       cb(null, status)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getTradesCsv', cb)
     }
   }
 
@@ -232,7 +234,7 @@ class ReportService extends Api {
 
       cb(null, status)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getLedgersCsv', cb)
     }
   }
 
@@ -271,7 +273,7 @@ class ReportService extends Api {
 
       cb(null, status)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getOrdersCsv', cb)
     }
   }
 
@@ -306,7 +308,7 @@ class ReportService extends Api {
 
       cb(null, status)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getMovementsCsv', cb)
     }
   }
 
@@ -345,7 +347,7 @@ class ReportService extends Api {
 
       cb(null, status)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getFundingOfferHistoryCsv', cb)
     }
   }
 
@@ -388,7 +390,7 @@ class ReportService extends Api {
 
       cb(null, status)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getFundingLoanHistoryCsv', cb)
     }
   }
 
@@ -432,8 +434,23 @@ class ReportService extends Api {
 
       cb(null, status)
     } catch (err) {
-      cb(err)
+      this._err(err, 'getFundingCreditHistoryCsv', cb)
     }
+  }
+
+  _err (err, caller, cb) {
+    const options = toString(err.options)
+    const logTxtErr = `
+    function: ${caller}
+    statusCode: ${err.statusCode}
+    name: ${err.name}
+    message: ${err.message}
+    options: ${options}
+
+    `
+    const logger = this.ctx.grc_bfx.caller.logger
+    logger.error(logTxtErr)
+    cb(err)
   }
 }
 
