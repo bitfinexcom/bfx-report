@@ -428,6 +428,112 @@ describe('Queue', () => {
     assert.isNotOk(fs.existsSync(procRes.filePath))
   })
 
+  it('it should be successfully performed by the getMovementsCsv method, where amount > 0', async function () {
+    this.timeout(3 * 60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovementsCsv',
+        params: {
+          symbol: 'BTC',
+          end,
+          start,
+          limit: 10000,
+          email,
+          isDeposits: true
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'name',
+      'filePath',
+      'email',
+      'endDate',
+      'startDate',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isFinite(procRes.endDate)
+    assert.isFinite(procRes.startDate)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
+  it('it should be successfully performed by the getMovementsCsv method, where amount < 0', async function () {
+    this.timeout(3 * 60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovementsCsv',
+        params: {
+          symbol: 'BTC',
+          end,
+          start,
+          limit: 10000,
+          email,
+          isWithdrawals: true
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'name',
+      'filePath',
+      'email',
+      'endDate',
+      'startDate',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isFinite(procRes.endDate)
+    assert.isFinite(procRes.startDate)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
   it('it should not be successfully auth by the getLedgersCsv method', async function () {
     this.timeout(60000)
 
