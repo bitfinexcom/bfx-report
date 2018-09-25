@@ -8,10 +8,9 @@ const {
 } = require('./helpers')
 
 let reportService = null
-let isFirstRun = true
 
-const progressHandler = (progress) => {
-  setProgress(reportService, progress)
+const progressHandler = async (progress) => {
+  await setProgress(reportService, progress)
 }
 
 module.exports = async () => {
@@ -21,15 +20,13 @@ module.exports = async () => {
     const isEnable = await reportService.isSchedulerEnabled()
 
     if (
-      (getProgress(reportService) < 100 && !isFirstRun) ||
+      (await getProgress(reportService) < 100) ||
       !isEnable
     ) {
       return
     }
 
-    isFirstRun = false
-
-    setProgress(reportService, 0)
+    await setProgress(reportService, 0)
     await reportService.dao.updateStateOf('syncMode', false)
 
     dataInserter = new DataInserter(reportService)
@@ -37,7 +34,7 @@ module.exports = async () => {
 
     await dataInserter.insertNewDataToDbMultiUser()
   } catch (err) {
-    logErrorAndSetProgress(reportService, err)
+    await logErrorAndSetProgress(reportService, err)
   }
 
   if (dataInserter) {
@@ -47,7 +44,7 @@ module.exports = async () => {
   try {
     await reportService.dao.updateStateOf('syncMode', true)
   } catch (err) {
-    logErrorAndSetProgress(reportService, err)
+    await logErrorAndSetProgress(reportService, err)
   }
 }
 

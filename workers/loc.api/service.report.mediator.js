@@ -9,7 +9,10 @@ const {
   checkParamsAuth,
   convertPairsToCoins
 } = require('./helpers')
-const { collObjToArr } = require('./sync/helpers')
+const {
+  collObjToArr,
+  getProgress
+} = require('./sync/helpers')
 const { getMethodCollMap } = require('./sync/schema')
 const sync = require('./sync')
 
@@ -132,11 +135,19 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async getSyncProgress (space, args, cb = () => { }) {
-    const wrk = this.ctx.grc_bfx.caller
-    const isSchedulerEnabled = await this.isSchedulerEnabled()
+  async getSyncProgress (space, args, cb) {
+    try {
+      const isSchedulerEnabled = await this.isSchedulerEnabled()
+      const res = isSchedulerEnabled
+        ? await getProgress(this)
+        : false
 
-    cb(null, isSchedulerEnabled ? wrk.syncProgress : false)
+      if (!cb) return res
+      cb(null, res)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
   }
 
   /**

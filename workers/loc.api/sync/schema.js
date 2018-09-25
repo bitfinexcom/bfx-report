@@ -211,6 +211,13 @@ const _models = new Map([
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       isEnable: 'INT'
     }
+  ],
+  [
+    'progress',
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      value: 'VARCHAR(255)'
+    }
   ]
 ])
 

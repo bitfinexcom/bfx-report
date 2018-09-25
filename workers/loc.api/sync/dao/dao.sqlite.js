@@ -466,6 +466,42 @@ class SqliteDAO extends DAO {
 
     return this._get(sql, values)
   }
+
+  /**
+   * @override
+   */
+  async updateProgress (value) {
+    const name = 'progress'
+    const elems = await this.getElemsInCollBy(name)
+    const data = {
+      value: JSON.stringify(value)
+    }
+
+    if (elems.length > 1) {
+      await this.removeElemsFromDb(name, null, {
+        _id: elems.filter((item, i) => i !== 0)
+      })
+    }
+
+    if (isEmpty(elems)) {
+      return this.insertElemsToDb(
+        name,
+        null,
+        [data]
+      )
+    }
+
+    const res = await this._updateCollBy(name, ['_id'], {
+      ...data,
+      _id: elems[0]._id
+    })
+
+    if (res && res.changes < 1) {
+      throw new Error(`ERR_CAN_NOT_UPDATE_${name.toUpperCase()}`)
+    }
+
+    return res
+  }
 }
 
 module.exports = SqliteDAO
