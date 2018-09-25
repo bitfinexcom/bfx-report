@@ -189,6 +189,27 @@ const _getDateString = mc => {
   return (new Date(mc)).toDateString().split(' ').join('-')
 }
 
+const _filterMovementsByAmount = (res, args) => {
+  if (
+    args.params.isDeposits ||
+    args.params.isWithdrawals
+  ) {
+    const _res = res.filter((item) => {
+      return args.params.isDeposits
+        ? item.amount > 0
+        : item.amount < 0
+    })
+
+    if (_res.length === 0) {
+      return false
+    }
+
+    return _res
+  }
+
+  return res
+}
+
 const writeDataToStream = async (reportService, stream, job) => {
   if (typeof job === 'string') {
     _writeMessageToStream(reportService, stream, job)
@@ -235,6 +256,16 @@ const writeDataToStream = async (reportService, stream, job) => {
       if (count > 0) queue.emit('progress', 100)
 
       break
+    }
+
+    if (method === 'getMovements') {
+      res = _filterMovementsByAmount(res, _args)
+
+      if (!res) {
+        if (count > 0) queue.emit('progress', 100)
+
+        break
+      }
     }
 
     const lastItem = res[res.length - 1]
