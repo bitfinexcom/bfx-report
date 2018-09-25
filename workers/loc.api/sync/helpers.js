@@ -25,8 +25,16 @@ const collObjToArr = (coll = [], fieldName) => {
   return res
 }
 
+const logErrorAndSetProgress = (reportService, err) => {
+  const logger = reportService.ctx.grc_bfx.caller.logger
+
+  setProgress(reportService, err.toString())
+  logger.error(err.stack || err)
+}
+
 module.exports = {
   setProgress,
   getProgress,
-  collObjToArr
+  collObjToArr,
+  logErrorAndSetProgress
 }
