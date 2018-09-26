@@ -9,36 +9,28 @@ const {
 
 let reportService = null
 
-const progressHandler = async (progress) => {
-  await setProgress(reportService, progress)
-}
-
 module.exports = async () => {
   let dataInserter = null
 
   try {
     const isEnable = await reportService.isSchedulerEnabled()
+    const currProgress = await getProgress(reportService)
 
     if (
-      (await getProgress(reportService) < 100) ||
+      (currProgress < 100) ||
       !isEnable
     ) {
-      return
+      return getProgress(reportService)
     }
 
     await setProgress(reportService, 0)
     await reportService.dao.updateStateOf('syncMode', false)
 
     dataInserter = new DataInserter(reportService)
-    dataInserter.on('progress', progressHandler)
 
     await dataInserter.insertNewDataToDbMultiUser()
   } catch (err) {
     await logErrorAndSetProgress(reportService, err)
-  }
-
-  if (dataInserter) {
-    dataInserter.removeListener('progress', progressHandler)
   }
 
   try {
@@ -46,6 +38,8 @@ module.exports = async () => {
   } catch (err) {
     await logErrorAndSetProgress(reportService, err)
   }
+
+  return getProgress(reportService)
 }
 
 module.exports.setReportService = (rService) => {

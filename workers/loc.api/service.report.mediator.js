@@ -98,10 +98,10 @@ class MediatorReportService extends ReportService {
     try {
       await this.dao.checkAuthInDb(args)
       await this.dao.updateStateOf('scheduler', true)
-      sync().then(() => {}).catch(() => {})
+      const res = await this.syncNow()
 
-      if (!cb) return true
-      cb(null, true)
+      if (!cb) return res
+      cb(null, res)
     } catch (err) {
       if (!cb) throw err
       cb(err)
@@ -141,6 +141,22 @@ class MediatorReportService extends ReportService {
       const res = isSchedulerEnabled
         ? await getProgress(this)
         : false
+
+      if (!cb) return res
+      cb(null, res)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
+  }
+
+  async syncNow (space, args, cb) {
+    try {
+      if (cb) {
+        await this.dao.checkAuthInDb(args)
+      }
+
+      const res = await sync()
 
       if (!cb) return res
       cb(null, res)
