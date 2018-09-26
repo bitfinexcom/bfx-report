@@ -161,7 +161,11 @@ class WrkReportServiceApi extends WrkApi {
 
         if (conf.syncMode) {
           if (reportService._databaseInitialize) {
-            await reportService._databaseInitialize()
+            try {
+              await reportService._databaseInitialize()
+            } catch (err) {
+              this.logger.error(err.stack || err)
+            }
           }
 
           sync.setReportService(reportService)
