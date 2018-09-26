@@ -232,6 +232,7 @@ const _methodCollMap = new Map([
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mts'],
       model: { ..._models.get('ledgers') }
     }
   ],
@@ -245,6 +246,7 @@ const _methodCollMap = new Map([
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsCreate', 'orderID'],
       model: { ..._models.get('trades') }
     }
   ],
@@ -258,6 +260,7 @@ const _methodCollMap = new Map([
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('orders') }
     }
   ],
@@ -271,6 +274,7 @@ const _methodCollMap = new Map([
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdated'],
       model: { ..._models.get('movements') }
     }
   ],
@@ -284,6 +288,7 @@ const _methodCollMap = new Map([
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingOfferHistory') }
     }
   ],
@@ -297,6 +302,7 @@ const _methodCollMap = new Map([
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingLoanHistory') }
     }
   ],
@@ -310,6 +316,7 @@ const _methodCollMap = new Map([
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingCreditHistory') }
     }
   ],

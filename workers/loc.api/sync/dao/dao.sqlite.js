@@ -94,6 +94,16 @@ class SqliteDAO extends DAO {
 
         await this._run(sql)
       }
+
+      if (
+        item.fieldsOfUniqueIndex &&
+        Array.isArray(item.fieldsOfUniqueIndex)
+      ) {
+        let sql = `CREATE UNIQUE INDEX IF NOT EXISTS ${item.name}_${item.fieldsOfUniqueIndex.join('_')}
+          ON ${item.name}(${item.fieldsOfUniqueIndex.join(', ')})`
+
+        await this._run(sql)
+      }
     }
   }
 
