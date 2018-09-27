@@ -246,7 +246,7 @@ const _methodCollMap = new Map([
       hasNewData: false,
       start: 0,
       type: 'array:object',
-      fieldsOfUniqueIndex: ['id', 'mtsCreate', 'orderID'],
+      fieldsOfUniqueIndex: ['id', 'mtsCreate', 'orderID', 'fee'],
       model: { ..._models.get('trades') }
     }
   ],
