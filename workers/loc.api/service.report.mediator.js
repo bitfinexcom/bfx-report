@@ -170,13 +170,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getEmail (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getEmail(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getEmail(space, args, cb)
+
+        return
+      }
+
       const user = await this.dao.checkAuthInDb(args)
 
       cb(null, user.email)
@@ -189,13 +189,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getSymbols (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getSymbols(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getSymbols(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const method = '_getSymbols'
@@ -214,13 +214,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getLedgers (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getLedgers(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getLedgers(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getLedgers', args)
@@ -235,13 +235,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getTrades (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getTrades(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getTrades(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getTrades', args)
@@ -256,13 +256,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getOrders (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getOrders(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getOrders(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getOrders', args)
@@ -277,13 +277,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getMovements (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getMovements(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getMovements(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getMovements', args)
@@ -298,13 +298,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getFundingOfferHistory (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getFundingOfferHistory(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getFundingOfferHistory(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getFundingOfferHistory', args)
@@ -319,13 +319,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getFundingLoanHistory (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getFundingLoanHistory(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getFundingLoanHistory(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getFundingLoanHistory', args)
@@ -340,13 +340,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getFundingCreditHistory (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getFundingCreditHistory(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getFundingCreditHistory(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getFundingCreditHistory', args)
