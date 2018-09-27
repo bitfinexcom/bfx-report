@@ -4,13 +4,16 @@ const DataInserter = require('./data.inserter')
 const {
   setProgress,
   getProgress,
-  logErrorAndSetProgress
+  logErrorAndSetProgress,
+  isNeedToRedirectRequestsToApi,
+  redirectRequestsToApi
 } = require('./helpers')
 
 let reportService = null
 
 module.exports = async () => {
   let dataInserter = null
+  let _isNeedToRedirectRequestsToApi = false
 
   try {
     const isEnable = await reportService.isSchedulerEnabled()
@@ -24,7 +27,8 @@ module.exports = async () => {
     }
 
     await setProgress(reportService, 0)
-    await reportService.dao.updateStateOf('syncMode', false)
+    _isNeedToRedirectRequestsToApi = await isNeedToRedirectRequestsToApi(reportService)
+    await redirectRequestsToApi(reportService, _isNeedToRedirectRequestsToApi, true)
 
     dataInserter = new DataInserter(reportService)
 
@@ -34,7 +38,7 @@ module.exports = async () => {
   }
 
   try {
-    await reportService.dao.updateStateOf('syncMode', true)
+    await redirectRequestsToApi(reportService, _isNeedToRedirectRequestsToApi, false)
   } catch (err) {
     await logErrorAndSetProgress(reportService, err)
   }

@@ -41,9 +41,27 @@ const logErrorAndSetProgress = async (reportService, err) => {
   logger.error(err.stack || err)
 }
 
+const redirectRequestsToApi = async (
+  reportService,
+  isNeedToRedirectRequestsToApi,
+  state = true
+) => {
+  if (isNeedToRedirectRequestsToApi) {
+    await reportService.dao.updateStateOf('syncMode', !state)
+  }
+}
+
+const isNeedToRedirectRequestsToApi = async (reportService) => {
+  const firstElem = await reportService.dao.getFirstElemInCollBy('syncMode')
+
+  return !isEmpty(firstElem) && !!firstElem.isEnable
+}
+
 module.exports = {
   setProgress,
   getProgress,
   collObjToArr,
-  logErrorAndSetProgress
+  logErrorAndSetProgress,
+  redirectRequestsToApi,
+  isNeedToRedirectRequestsToApi
 }
