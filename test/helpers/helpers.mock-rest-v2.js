@@ -219,39 +219,56 @@ const createMockRESTv2SrvWithAllData = () => {
   return srv
 }
 
-const _setDateTo = (key, dataItem, date = new Date().getTime()) => {
-  const _date = Math.round(date)
+const _setDataTo = (
+  key,
+  dataItem,
+  data = {
+    date: new Date().getTime(),
+    id: 12345,
+    fee: 0.1
+  }
+) => {
+  const _date = Math.round(data.date)
 
   switch (key) {
     case 'ledgers':
+      dataItem[0] = data.id
       dataItem[3] = _date
       break
 
     case 'trades':
+      dataItem[0] = data.id
       dataItem[2] = _date
+      dataItem[3] = data.id
+      dataItem[9] = data.fee
       break
 
     case 'orders':
+      dataItem[0] = data.id
       dataItem[4] = _date
       dataItem[5] = _date
       break
 
     case 'movements':
+      dataItem[0] = data.id
       dataItem[5] = _date
       dataItem[6] = _date
       break
 
     case 'f_offer_hist':
+      dataItem[0] = data.id
       dataItem[2] = _date
       dataItem[3] = _date
       break
 
     case 'f_loan_hist':
+      dataItem[0] = data.id
       dataItem[3] = _date
       dataItem[4] = _date
       break
 
     case 'f_credit_hist':
+      dataItem[0] = data.id
       dataItem[3] = _date
       dataItem[4] = _date
       break
@@ -288,16 +305,28 @@ const createMockRESTv2SrvWithDate = (
     const _limit = limit || val.limit
     const step = (end - start) / _limit
     let date = start
+    let id = 12345
+    let fee = 0.1
 
     const data = Array(_limit).fill(null).map((item, i) => {
       if (_limit === (i + 1)) {
         date = end
       } else if (i > 0) {
         date += step
+        id += 1
+        fee += 0.1
       }
 
       const dataItem = _getMockData(key)[0].slice()
-      _setDateTo(key, dataItem, date)
+      _setDataTo(
+        key,
+        dataItem,
+        {
+          date,
+          id,
+          fee
+        }
+      )
 
       return dataItem
     })
