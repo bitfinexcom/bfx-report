@@ -259,7 +259,7 @@ class DataInserter extends EventEmitter {
       let isAllData = false
 
       if (currTime >= timeOfPrevIteration) {
-        isAllData = true
+        break
       }
 
       if (_args.params.start >= currTime) {
