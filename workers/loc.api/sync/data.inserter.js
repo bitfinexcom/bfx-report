@@ -125,7 +125,7 @@ class DataInserter extends EventEmitter {
       const lastElemFromDb = await this.dao.getLastElemFromDb(
         item.name,
         { ...auth },
-        item.dateFieldName
+        item.sort
       )
       const lastElemFromApi = await this.reportService[method](args)
 
@@ -352,7 +352,9 @@ class DataInserter extends EventEmitter {
     const _elDb = Array.isArray(elDb) ? elDb[0] : elDb
     const _elApi = Array.isArray(elApi) ? elApi[0] : elApi
 
-    return _elDb[dateFieldName] < _elApi[dateFieldName] || _elDb[dateFieldName]
+    return (_elDb[dateFieldName] < _elApi[dateFieldName])
+      ? _elDb[dateFieldName]
+      : false
   }
 
   _getMethodArgMap (

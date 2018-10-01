@@ -110,12 +110,26 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async getLastElemFromDb (name, auth, dateFieldName) {
+  async getLastElemFromDb (name, auth, sort = []) {
+    const _sort = []
+
+    if (Array.isArray(sort)) {
+      sort.forEach(item => {
+        if (
+          Array.isArray(item) &&
+          typeof item[0] === 'string' &&
+          typeof item[1] === 'number'
+        ) {
+          _sort.push(`${item[0]} ${item[1] > 0 ? 'ASC' : 'DESC'}`)
+        }
+      })
+    }
+
     const sql = `SELECT ${name}.* FROM ${name}
       INNER JOIN users ON users._id = ${name}.user_id
       WHERE users.apiKey = $apiKey
       AND users.apiSecret = $apiSecret
-      ORDER BY ${dateFieldName} DESC`
+      ORDER BY ${_sort.join(', ')}`
 
     return this._get(sql, {
       $apiKey: auth.apiKey,
@@ -220,7 +234,6 @@ class SqliteDAO extends DAO {
     const sort = []
 
     if (methodColl.type === 'array:object') {
-      sort.push(`${methodColl.dateFieldName} DESC`)
       values['$start'] = params.start ? params.start : 0
       values['$end'] = params.end ? params.end : (new Date()).getTime()
       where += `WHERE ${methodColl.dateFieldName} >= $start
@@ -230,7 +243,8 @@ class SqliteDAO extends DAO {
         values['$symbol'] = params.symbol
         where += `AND ${methodColl.symbolFieldName} = $symbol \n`
       }
-    } else if (
+    }
+    if (
       typeof methodColl.sort !== 'undefined' &&
       Array.isArray(methodColl.sort)
     ) {
