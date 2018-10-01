@@ -12,7 +12,7 @@ const {
 } = helpers.responses
 
 const _isAuthError = (err) => {
-  return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
+  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
 }
 
 const _isHasJobInQueueError = (err) => {
@@ -36,9 +36,31 @@ const checkAuth = async (req, res) => {
     success(200, { result: true, id }, res)
   } catch (err) {
     if (_isAuthError(err)) {
-      failureUnauthorized(res, id)
+      try {
+        const isSyncMode = await gClientService.request({
+          ...query,
+          action: 'isSyncModeConfig'
+        })
 
-      return
+        if (!isSyncMode) {
+          throw err
+        }
+
+        await gClientService.request({
+          ...query,
+          action: 'login'
+        })
+
+        success(200, { result: true, id }, res)
+
+        return
+      } catch (err) {
+        if (_isAuthError(err)) {
+          failureUnauthorized(res, id)
+
+          return
+        }
+      }
     }
 
     failureInternalServerError(res, id)
