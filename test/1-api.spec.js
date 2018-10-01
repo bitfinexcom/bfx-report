@@ -44,14 +44,14 @@ describe('API', () => {
     await rmDB(dbDirPath)
   })
 
-  it('it should be successfully performed by the isSyncMode method', async function () {
+  it('it should be successfully performed by the isSyncModeConfig method', async function () {
     this.timeout(5000)
 
     const res = await agent
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
-        method: 'isSyncMode',
+        method: 'isSyncModeConfig',
         id: 5
       })
       .expect('Content-Type', /json/)

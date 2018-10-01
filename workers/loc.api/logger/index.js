@@ -7,6 +7,7 @@ const { createLogger, format, transports } = require('winston')
 const { combine, timestamp, label, printf, align } = format
 
 const isProdEnv = argv.env === 'production' || process.env.NODE_ENV === 'production'
+const isTestEnv = argv.env === 'test' || process.env.NODE_ENV === 'test'
 const isElectronjsEnv = argv.isElectronjsEnv
 const basePath = '../../../logs'
 const ext = '.log'
@@ -71,7 +72,7 @@ const logger = createLogger({
   format: _combineFormat(),
   transports: baseTransports,
   exceptionHandlers,
-  silent: isElectronjsEnv,
+  silent: isElectronjsEnv || isTestEnv,
   exitOnError: false
 })
 

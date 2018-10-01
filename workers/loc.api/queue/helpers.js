@@ -81,7 +81,7 @@ const _isRateLimitError = (err) => {
 }
 
 const isAuthError = (err) => {
-  return /apikey: digest invalid/.test(err.toString())
+  return /(apikey: digest invalid)|(apikey: invalid)/.test(err.toString())
 }
 
 const _delay = (mc = 80000) => {
