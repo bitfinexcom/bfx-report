@@ -80,7 +80,7 @@ class MediatorReportService extends ReportService {
 
       let res = !isEmpty(firstElem) && !!firstElem.isEnable
 
-      const isSyncMode = await this.isSyncMode()
+      const isSyncMode = await this.isSyncModeConfig()
 
       if (isEmpty(firstElem) && isSyncMode) {
         res = true

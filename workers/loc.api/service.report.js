@@ -18,7 +18,7 @@ class ReportService extends Api {
     return space
   }
 
-  isSyncMode (space, args, cb = () => { }) {
+  isSyncModeConfig (space, args, cb = () => { }) {
     const wrk = this.ctx.grc_bfx.caller
     const group = wrk.group
     const conf = wrk.conf[group]
