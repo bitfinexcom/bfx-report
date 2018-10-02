@@ -187,6 +187,54 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
+  async insertElemsToDbIfNotExists (name, data = []) {
+    try {
+      await this._run('BEGIN TRANSACTION')
+
+      for (const obj of data) {
+        const keys = Object.keys(obj)
+
+        if (keys.length === 0) {
+          continue
+        }
+
+        const fields = keys.join(', ')
+        const values = {}
+        let where = 'WHERE '
+        const placeholders = keys
+          .map((item, i) => {
+            const key = `$${item}`
+            where += `${i > 0 ? ' AND ' : ''}${item} = ${key}`
+
+            if (typeof obj[item] === 'boolean') {
+              values[key] = +obj[item]
+            } else if (typeof obj[item] === 'object') {
+              values[key] = JSON.stringify(obj[item])
+            } else {
+              values[key] = obj[item]
+            }
+
+            return `${key}`
+          })
+          .join(', ')
+
+        const sql = `INSERT INTO ${name}(${fields}) SELECT ${placeholders}
+                      WHERE NOT EXISTS(SELECT 1 FROM ${name} ${where})`
+
+        await this._run(sql, values)
+      }
+
+      await this._run('COMMIT')
+    } catch (err) {
+      await this._run('ROLLBACK')
+
+      throw err
+    }
+  }
+
+  /**
+   * @override
+   */
   async checkAuthInDb (args) {
     checkParamsAuth(args)
 
@@ -394,10 +442,7 @@ class SqliteDAO extends DAO {
     return res
   }
 
-  /**
-   * @override
-   */
-  getElemsInCollBy (collName) {
+  _getElemsInCollBy (collName) {
     const sql = `SELECT * FROM ${collName}`
 
     return this._all(sql)
@@ -444,8 +489,37 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
+  async removeElemsFromDbIfNotInLists (name, lists) {
+    const values = {}
+    let where = Object.keys(lists).reduce((accum, curr, i) => {
+      if (!Array.isArray(lists[curr])) {
+        throw new Error('ERR_LIST_IS_NOT_ARRAY')
+      }
+
+      let key = `$${curr}`
+
+      key = '('
+      key += lists[curr].map((item, i) => {
+        const subKey = `$${curr}_${i}`
+        values[subKey] = item
+
+        return subKey
+      }).join(', ')
+      key += ')'
+
+      return `${accum}${i > 0 ? ' AND ' : ''}${curr} NOT IN ${key}`
+    }, 'WHERE ')
+
+    const sql = `DELETE FROM ${name} ${where}`
+
+    await this._run(sql, values)
+  }
+
+  /**
+   * @override
+   */
   async updateStateOf (name, isEnable = 1) {
-    const elems = await this.getElemsInCollBy(name)
+    const elems = await this._getElemsInCollBy(name)
     const data = {
       isEnable: isEnable ? 1 : 0
     }
@@ -497,7 +571,7 @@ class SqliteDAO extends DAO {
    */
   async updateProgress (value) {
     const name = 'progress'
-    const elems = await this.getElemsInCollBy(name)
+    const elems = await this._getElemsInCollBy(name)
     const data = {
       value: JSON.stringify(value)
     }

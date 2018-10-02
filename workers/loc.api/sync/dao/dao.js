@@ -61,11 +61,6 @@ class DAO {
   /**
    * @abstract
    */
-  async getElemsInCollBy () { throw new Error('NOT_IMPLEMENTED') }
-
-  /**
-   * @abstract
-   */
   async removeElemsFromDb () { throw new Error('NOT_IMPLEMENTED') }
 
   /**
@@ -82,6 +77,16 @@ class DAO {
    * @abstract
    */
   async updateProgress () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async insertElemsToDbIfNotExists () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async removeElemsFromDbIfNotInLists () { throw new Error('NOT_IMPLEMENTED') }
 }
 
 module.exports = DAO
