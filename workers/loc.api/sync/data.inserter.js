@@ -3,7 +3,7 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
 
-const { collObjToArr, setProgress } = require('./helpers')
+const { setProgress } = require('./helpers')
 const { getMethodCollMap } = require('./schema')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
@@ -96,7 +96,7 @@ class DataInserter extends EventEmitter {
 
     for (const [method, item] of methodCollMap) {
       await this._insertApiDataArrObjTypeToDb(auth, method, item)
-      await this._insertApiDataArrTypeToDb(auth, method, item)
+      await this._updateApiDataArrTypeToDb(auth, method, item)
 
       count += 1
       const progress = Math.round((count / methodCollMap.size) * 100 * userProgress)
@@ -110,7 +110,6 @@ class DataInserter extends EventEmitter {
     const methodCollMap = this._getMethodCollMap()
 
     await this._checkNewDataArrObjType(auth, methodCollMap)
-    await this._checkNewDataArrType(auth, methodCollMap)
 
     return new Map([...methodCollMap].filter(([key, value]) => value.hasNewData))
   }
@@ -155,43 +154,6 @@ class DataInserter extends EventEmitter {
     }
 
     return methodCollMap
-  }
-
-  async _checkNewDataArrType (auth, methodCollMap) {
-    for (let [method, item] of this._methodCollMap) {
-      if (!this._isArrTypeOfColl(item)) {
-        continue
-      }
-
-      const {
-        diffApiToDb,
-        diffDbToApi
-      } = await this._getDiffElemsFromApiAndDb(method, item.name, item.field, auth)
-
-      if (
-        !_.isEmpty(diffApiToDb) ||
-        !_.isEmpty(diffDbToApi)
-      ) {
-        methodCollMap.get(method).hasNewData = true
-      }
-    }
-
-    return methodCollMap
-  }
-
-  async _getDiffElemsFromApiAndDb (method, collName, fieldName, auth) {
-    const args = this._getMethodArgMap(method, { ...auth }, null, null, null)
-    const elemsFromApi = await this.reportService[method](args)
-    const collElemsFromDb = await this.dao.getElemsInCollBy(collName)
-    const elemsFromDb = collObjToArr(collElemsFromDb, fieldName)
-
-    const diffApiToDb = _.difference(elemsFromApi, elemsFromDb)
-    const diffDbToApi = _.difference(elemsFromDb, elemsFromApi)
-
-    return {
-      diffApiToDb,
-      diffDbToApi
-    }
   }
 
   _isArrObjTypeOfColl (coll) {
@@ -291,7 +253,7 @@ class DataInserter extends EventEmitter {
     }
   }
 
-  async _insertApiDataArrTypeToDb (
+  async _updateApiDataArrTypeToDb (
     auth,
     methodApi,
     schema
@@ -310,40 +272,20 @@ class DataInserter extends EventEmitter {
       field
     } = schema
 
-    const {
-      diffApiToDb,
-      diffDbToApi
-    } = await this._getDiffElemsFromApiAndDb(methodApi, collName, field, auth)
+    const args = this._getMethodArgMap(methodApi, { ...auth }, null, null, null)
+    const elemsFromApi = await this.reportService[methodApi](args)
 
     if (
-      Array.isArray(diffDbToApi) &&
-      diffDbToApi.length > 0
+      Array.isArray(elemsFromApi) &&
+      elemsFromApi.length > 0
     ) {
-      const dataForRemove = {}
-      dataForRemove[field] = diffDbToApi
-
-      await this.dao.removeElemsFromDb(
+      await this.dao.removeElemsFromDbIfNotInLists(
         collName,
-        null,
-        dataForRemove
+        { [field]: elemsFromApi }
       )
-    }
-
-    if (
-      Array.isArray(diffApiToDb) &&
-      diffApiToDb.length > 0
-    ) {
-      const res = diffApiToDb.map(item => {
-        const obj = {}
-        obj[field] = item
-
-        return obj
-      })
-
-      await this.dao.insertElemsToDb(
+      await this.dao.insertElemsToDbIfNotExists(
         collName,
-        null,
-        res
+        elemsFromApi.map(item => ({ [field]: item }))
       )
     }
   }
