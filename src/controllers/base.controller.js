@@ -27,6 +27,22 @@ const checkAuth = async (req, res) => {
   }
 
   try {
+    const isSyncMode = await gClientService.request({
+      ...query,
+      action: 'isSyncModeConfig'
+    })
+
+    if (isSyncMode) {
+      await gClientService.request({
+        ...query,
+        action: 'login'
+      })
+
+      success(200, { result: true, id }, res)
+
+      return
+    }
+
     const result = await gClientService.request(query)
 
     if (!result) {
@@ -36,31 +52,9 @@ const checkAuth = async (req, res) => {
     success(200, { result: true, id }, res)
   } catch (err) {
     if (_isAuthError(err)) {
-      try {
-        const isSyncMode = await gClientService.request({
-          ...query,
-          action: 'isSyncModeConfig'
-        })
+      failureUnauthorized(res, id)
 
-        if (!isSyncMode) {
-          throw err
-        }
-
-        await gClientService.request({
-          ...query,
-          action: 'login'
-        })
-
-        success(200, { result: true, id }, res)
-
-        return
-      } catch (err) {
-        if (_isAuthError(err)) {
-          failureUnauthorized(res, id)
-
-          return
-        }
-      }
+      return
     }
 
     failureInternalServerError(res, id)

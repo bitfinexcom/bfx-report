@@ -7,7 +7,9 @@ const ReportService = require('./service.report')
 const {
   checkParams,
   checkParamsAuth,
-  convertPairsToCoins
+  convertPairsToCoins,
+  isAuthError,
+  isEnotfoundError
 } = require('./helpers')
 const {
   collObjToArr,
@@ -19,7 +21,15 @@ const sync = require('./sync')
 class MediatorReportService extends ReportService {
   async login (space, args, cb) {
     try {
-      const email = await this._checkAuthInApi(args)
+      let email = null
+
+      try {
+        email = await this._checkAuthInApi(args)
+      } catch (err) {
+        if (isAuthError(err)) {
+          throw err
+        }
+      }
 
       const res = {
         ...args.auth,
@@ -44,6 +54,32 @@ class MediatorReportService extends ReportService {
       cb(null, true)
     } catch (err) {
       if (!cb) throw err
+      cb(err)
+    }
+  }
+
+  async pingApi (space, args, cb) {
+    try {
+      await this._getSymbols()
+
+      if (!cb) return true
+      cb(null, true)
+    } catch (err) {
+      const wrk = this.ctx.grc_bfx.caller
+      const group = wrk.group
+      const conf = wrk.conf[group]
+
+      const _err = isEnotfoundError(err)
+        ? new Error(`The server ${conf.restUrl} is not available`)
+        : null
+
+      if (!cb) throw _err || err
+      if (_err) {
+        cb(null, false)
+
+        return
+      }
+
       cb(err)
     }
   }
