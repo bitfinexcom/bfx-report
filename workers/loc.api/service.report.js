@@ -65,7 +65,7 @@ class ReportService extends Api {
 
   async getSymbols (space, args, cb) {
     try {
-      const pairs = await this._getSymbols(args)
+      const pairs = await this._getSymbols()
       const result = convertPairsToCoins(pairs)
 
       cb(null, result)
@@ -74,8 +74,8 @@ class ReportService extends Api {
     }
   }
 
-  _getSymbols (args) {
-    const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+  _getSymbols () {
+    const rest = getREST({}, this.ctx.grc_bfx.caller)
 
     return rest.symbols()
   }

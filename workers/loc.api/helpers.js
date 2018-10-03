@@ -151,6 +151,10 @@ const isAuthError = (err) => {
   return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
 }
 
+const isEnotfoundError = (err) => {
+  return /ENOTFOUND/.test(err.toString())
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -161,5 +165,6 @@ module.exports = {
   convertPairsToCoins,
   hasJobInQueueWithStatusBy,
   toString,
-  isAuthError
+  isAuthError,
+  isEnotfoundError
 }
