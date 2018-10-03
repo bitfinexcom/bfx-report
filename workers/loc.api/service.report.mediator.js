@@ -7,7 +7,8 @@ const ReportService = require('./service.report')
 const {
   checkParams,
   checkParamsAuth,
-  convertPairsToCoins
+  convertPairsToCoins,
+  isAuthError
 } = require('./helpers')
 const {
   collObjToArr,
@@ -19,7 +20,15 @@ const sync = require('./sync')
 class MediatorReportService extends ReportService {
   async login (space, args, cb) {
     try {
-      const email = await this._checkAuthInApi(args)
+      let email = null
+
+      try {
+        email = await this._checkAuthInApi(args)
+      } catch (err) {
+        if (isAuthError(err)) {
+          throw err
+        }
+      }
 
       const res = {
         ...args.auth,
