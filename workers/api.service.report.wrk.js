@@ -163,6 +163,8 @@ class WrkReportServiceApi extends WrkApi {
           if (reportService._databaseInitialize) {
             try {
               await reportService._databaseInitialize()
+              await reportService.dao.updateStateOf('syncMode', true)
+              await reportService.dao.updateStateOf('scheduler', true)
             } catch (err) {
               this.logger.error(err.stack || err)
             }
