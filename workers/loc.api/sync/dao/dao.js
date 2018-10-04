@@ -56,6 +56,11 @@ class DAO {
   /**
    * @abstract
    */
+  async updateUserByAuth () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
   async deactivateUser () { throw new Error('NOT_IMPLEMENTED') }
 
   /**

@@ -8,7 +8,8 @@ const _models = new Map([
       email: 'VARCHAR(255)',
       apiKey: 'VARCHAR(255)',
       apiSecret: 'VARCHAR(255)',
-      active: 'INT'
+      active: 'INT',
+      isDataFromDb: 'INT'
     }
   ],
   [

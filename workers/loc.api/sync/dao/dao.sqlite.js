@@ -1,6 +1,6 @@
 'use strict'
 
-const { isEmpty } = require('lodash')
+const { isEmpty, pick } = require('lodash')
 
 const DAO = require('./dao')
 const {
@@ -235,12 +235,15 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async checkAuthInDb (args) {
+  async checkAuthInDb (args, isCheckActiveState = true) {
     checkParamsAuth(args)
 
     const user = await this._getUserByAuth(args.auth)
 
-    if (isEmpty(user) || !user.active) {
+    if (
+      isEmpty(user) ||
+      (isCheckActiveState && !user.active)
+    ) {
       throw new Error('ERR_AUTH_UNAUTHORIZED')
     }
 
@@ -257,8 +260,9 @@ class SqliteDAO extends DAO {
       $apiSecret: auth.apiSecret
     })
 
-    if (res && typeof res.active === 'boolean') {
+    if (res && typeof res === 'object') {
       res.active = !!res.active
+      res.isDataFromDb = !!res.isDataFromDb
     }
 
     return res
@@ -407,7 +411,8 @@ class SqliteDAO extends DAO {
           email: data.email,
           apiKey: data.apiKey,
           apiSecret: data.apiSecret,
-          active: 1
+          active: 1,
+          isDataFromDb: 1
         }]
       )
     }
@@ -436,15 +441,24 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async deactivateUser (auth) {
-    const res = await this._updateCollBy('users', ['apiKey', 'apiSecret'], {
-      ...auth,
-      active: 0
-    })
+  async updateUserByAuth (data) {
+    const res = await this._updateCollBy('users', ['apiKey', 'apiSecret'], data)
 
     if (res && res.changes < 1) {
       throw new Error('ERR_AUTH_UNAUTHORIZED')
     }
+
+    return res
+  }
+
+  /**
+   * @override
+   */
+  async deactivateUser (auth) {
+    const res = await this.updateUserByAuth({
+      ...pick(auth, ['apiKey', 'apiSecret']),
+      active: 0
+    })
 
     return res
   }

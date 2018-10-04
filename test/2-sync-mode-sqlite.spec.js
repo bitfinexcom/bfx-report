@@ -157,6 +157,7 @@ describe('Sync mode with SQLite', () => {
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
+        auth,
         method: 'isSyncModeWithDbData',
         id: 5
       })
@@ -1439,6 +1440,7 @@ describe('Sync mode with SQLite', () => {
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
+        auth,
         method: 'isSyncModeWithDbData',
         id: 5
       })

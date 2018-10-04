@@ -155,6 +155,10 @@ const isEnotfoundError = (err) => {
   return /ENOTFOUND/.test(err.toString())
 }
 
+const isEaiAgainError = (err) => {
+  return /EAI_AGAIN/.test(err.toString())
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -166,5 +170,6 @@ module.exports = {
   hasJobInQueueWithStatusBy,
   toString,
   isAuthError,
-  isEnotfoundError
+  isEnotfoundError,
+  isEaiAgainError
 }
