@@ -58,6 +58,18 @@ class MediatorReportService extends ReportService {
     }
   }
 
+  async checkAuthInDb (space, args, cb) {
+    try {
+      const { email } = await this.dao.checkAuthInDb(args)
+
+      if (!cb) return email
+      cb(null, email)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
+  }
+
   async pingApi (space, args, cb) {
     try {
       await this._getSymbols()
