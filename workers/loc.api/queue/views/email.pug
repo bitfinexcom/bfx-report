@@ -15,18 +15,17 @@ div(style='border-collapse: collapse;margin: 0;padding: 0;background-color: #eee
               tr
                 td(align='left')
                   h1(style='font-size: 24px;color: #a6a6a6;line-height: 150%;font-weight: lighter;')
-                    | Data Is Ready
+                    | Your report is ready
               tr
                 td
                   p(style='color: #606060;font-size: 15px;line-height: 150%;')
-                    | Your download link
+                    | The report you request is ready for download.
+                  p(style='color: #606060;font-size: 15px;line-height: 150%;')
+                    | File name:
                     |
                     b
                       | #{fileName}
                     |
-                    | is ready.
-                  p(style='color: #606060;font-size: 15px;line-height: 150%;')
-                    | Please click the button below to download.
                   p(style='color: #606060;font-size: 15px;line-height: 150%;')
                     | If you did not initiate this action and you suspect that your account may be compromised, please
                     |
@@ -40,7 +39,7 @@ div(style='border-collapse: collapse;margin: 0;padding: 0;background-color: #eee
                     tbody
                       tr
                         td
-                          a(href=public_url, target='_blank', style='background-color: #f5f5f5;border-radius: 2px;border: solid 1px #e5e5e5;box-sizing: border-box;cursor: pointer;display: inline-block;font-size: 12px;margin-top: 30px;margin-bottom:20px;padding: 12px 25px;color: #53aae5;text-decoration: none;text-transform: uppercase;word-wrap: break-word;') Download CSV
+                          a(href=public_url, target='_blank', style='background-color: #3498db;border: solid 1px #3498db;border-radius: 5px;box-sizing: border-box;color: #ffffff;cursor: pointer;display: inline-block;font-size: 14px;font-weight: bold;margin-top: 30px;margin-bottom:20px;padding: 12px 25px;text-decoration: none;text-transform: capitalize;') Download CSV
               tr
                 td(align='left')
                   div(style='font-size: 13px;line-height: 150%;color:#999;padding:9px 0;')
