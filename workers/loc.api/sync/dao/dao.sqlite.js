@@ -396,6 +396,10 @@ class SqliteDAO extends DAO {
     const user = await this._getUserByAuth(data)
 
     if (isEmpty(user)) {
+      if (!data.email) {
+        throw new Error('ERR_AUTH_UNAUTHORIZED')
+      }
+
       return this.insertElemsToDb(
         'users',
         null,
@@ -413,7 +417,10 @@ class SqliteDAO extends DAO {
       active: 1
     }
 
-    if (user.email !== data.email) {
+    if (
+      data.email &&
+      user.email !== data.email
+    ) {
       newData.email = data.email
     }
 

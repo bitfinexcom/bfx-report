@@ -26,6 +26,8 @@ module.exports = async () => {
       return getProgress(reportService)
     }
 
+    await reportService.pingApi()
+
     await setProgress(reportService, 0)
     _isNeedToRedirectRequestsToApi = await isNeedToRedirectRequestsToApi(reportService)
     await redirectRequestsToApi(reportService, _isNeedToRedirectRequestsToApi, true)
