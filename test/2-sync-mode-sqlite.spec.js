@@ -112,6 +112,25 @@ describe('Sync mode with SQLite', () => {
     assert.isOk(res.body.result === email)
   })
 
+  it('it should be successfully performed by the checkAuthInDb method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'checkAuthInDb',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result === email)
+  })
+
   it('it should be successfully performed by the enableSyncMode method', async function () {
     this.timeout(5000)
 
