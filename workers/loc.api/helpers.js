@@ -47,7 +47,8 @@ const checkParams = (args) => {
       (args.params.limit && !Number.isInteger(args.params.limit)) ||
       (args.params.start && !Number.isInteger(args.params.start)) ||
       (args.params.end && !Number.isInteger(args.params.end)) ||
-      (args.params.symbol && typeof args.params.symbol !== 'string')
+      (args.params.symbol && typeof args.params.symbol !== 'string') ||
+      (args.params.timezone && !Number.isInteger(args.params.timezone))
     )
   ) {
     throw new Error('ERR_ARGS_NO_PARAMS')
@@ -159,6 +160,19 @@ const isEaiAgainError = (err) => {
   return /EAI_AGAIN/.test(err.toString())
 }
 
+const getDateTitle = (args, name = 'DATE') => {
+  const timezone = args.params.timezone
+  let str = ''
+
+  if (timezone) {
+    const prefix = timezone > 0 ? '+' : ''
+
+    str = ` ${prefix}${timezone}`
+  }
+
+  return `${name} (UTC${str})`
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -171,5 +185,6 @@ module.exports = {
   toString,
   isAuthError,
   isEnotfoundError,
-  isEaiAgainError
+  isEaiAgainError,
+  getDateTitle
 }
