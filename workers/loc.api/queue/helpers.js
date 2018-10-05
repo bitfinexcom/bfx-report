@@ -91,7 +91,11 @@ const _delay = (mc = 80000) => {
 }
 
 const _formatters = {
-  date: val => Number.isInteger(val) ? moment(val).format('DD-MM-YYYY HH:mm:ss') : val,
+  date: (val, { timezone = 0 }) => {
+    return Number.isInteger(val)
+      ? moment(val).utcOffset(timezone).format('DD-MM-YYYY HH:mm:ss')
+      : val
+  },
   symbol: symbol => `${symbol.slice(1, 4)}${symbol[4] ? '/' : ''}${symbol.slice(4, 7)}`,
   side: side => {
     let msg
@@ -110,7 +114,7 @@ const _formatters = {
   }
 }
 
-const _dataFormatter = (obj, formatSettings) => {
+const _dataFormatter = (obj, formatSettings, params) => {
   if (
     typeof obj !== 'object' ||
     typeof formatSettings !== 'object'
@@ -126,7 +130,7 @@ const _dataFormatter = (obj, formatSettings) => {
         typeof obj[key] !== 'undefined' &&
         typeof _formatters[val] === 'function'
       ) {
-        res[key] = _formatters[val](obj[key])
+        res[key] = _formatters[val](obj[key], params)
       }
     } catch (err) {}
   })
@@ -170,10 +174,10 @@ const _dataNormalizer = (obj, method) => {
   return res
 }
 
-const _write = (res, stream, formatSettings, method) => {
+const _write = (res, stream, formatSettings, method, params) => {
   res.forEach((item) => {
     let _item = _dataNormalizer(item, method)
-    _item = _dataFormatter(_item, formatSettings)
+    _item = _dataFormatter(_item, formatSettings, params)
 
     stream.write(_item)
   })
@@ -291,7 +295,7 @@ const writeDataToStream = async (reportService, stream, job) => {
       isAllData = true
     }
 
-    _write(res, stream, formatSettings, method)
+    _write(res, stream, formatSettings, method, { ..._args.params })
 
     count += res.length
     const needElems = _args.params.limit - count
