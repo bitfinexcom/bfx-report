@@ -60,7 +60,6 @@ class SqliteDAO extends DAO {
       await this._createTablesIfNotExists()
       await this._createIndexisIfNotExists()
       await this._run('COMMIT')
-      await this.updateProgress('SYNCHRONIZATION_HAS_NOT_STARTED_YET')
     } catch (err) {
       await this._run('ROLLBACK')
 

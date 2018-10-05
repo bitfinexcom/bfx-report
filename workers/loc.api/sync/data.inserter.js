@@ -3,7 +3,7 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
 
-const { setProgress } = require('./helpers')
+const { setProgress, delay } = require('./helpers')
 const { getMethodCollMap } = require('./schema')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
@@ -198,7 +198,7 @@ class DataInserter extends EventEmitter {
         res = await this.reportService[methodApi](currIterationArgs)
       } catch (err) {
         if (this._isRateLimitError(err)) {
-          await this._delay()
+          await delay()
           res = await this.reportService[methodApi](currIterationArgs)
         } else throw err
       }
@@ -318,12 +318,6 @@ class DataInserter extends EventEmitter {
 
   _getMethodCollMap () {
     return new Map(this._methodCollMap)
-  }
-
-  _delay (mc = 80000) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, mc)
-    })
   }
 
   _isRateLimitError (err) {

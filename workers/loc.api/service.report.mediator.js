@@ -4,6 +4,7 @@ const { promisify } = require('util')
 const { isEmpty, pick } = require('lodash')
 
 const ReportService = require('./service.report')
+const DAO = require('./sync/dao/dao')
 const {
   checkParams,
   checkParamsAuth,
@@ -14,7 +15,8 @@ const {
 } = require('./helpers')
 const {
   collObjToArr,
-  getProgress
+  getProgress,
+  delay
 } = require('./sync/helpers')
 const { getMethodCollMap } = require('./sync/schema')
 const sync = require('./sync')
@@ -100,6 +102,7 @@ class MediatorReportService extends ReportService {
   async enableSyncMode (space, args, cb) {
     try {
       checkParamsAuth(args)
+      await this.dao.updateStateOf('syncMode', true)
       await this.dao.updateUserByAuth({
         ...pick(args.auth, ['apiKey', 'apiSecret']),
         isDataFromDb: 1
@@ -134,21 +137,10 @@ class MediatorReportService extends ReportService {
       const user = await this.dao.checkAuthInDb(args, false)
       const firstElem = await this.dao.getFirstElemInCollBy('syncMode')
 
-      let res = !isEmpty(firstElem) &&
+      const res = !isEmpty(firstElem) &&
         !isEmpty(user) &&
         !!firstElem.isEnable &&
         user.isDataFromDb
-
-      const isSyncMode = await this.isSyncModeConfig()
-
-      if (
-        isEmpty(firstElem) &&
-        isSyncMode &&
-        !isEmpty(user) &&
-        user.isDataFromDb
-      ) {
-        res = true
-      }
 
       if (!cb) return res
       cb(null, res)
@@ -220,7 +212,32 @@ class MediatorReportService extends ReportService {
         await this.dao.checkAuthInDb(args)
       }
 
-      const res = await sync()
+      let res = await sync()
+
+      if (typeof res === 'number' && res < 100) {
+        let count = 0
+
+        while (true) {
+          count += 1
+
+          await delay(1000)
+
+          if (count > 30) {
+            res = 'Synchronization is not complete'
+
+            break
+          }
+
+          if (
+            typeof res !== 'number' ||
+            res >= 100
+          ) {
+            break
+          }
+
+          res = await this.getSyncProgress()
+        }
+      }
 
       if (!cb) return res
       cb(null, res)
@@ -465,11 +482,25 @@ class MediatorReportService extends ReportService {
     return email
   }
 
+  async _syncModeInitialize () {
+    await this._databaseInitialize()
+
+    await this.dao.updateProgress('SYNCHRONIZATION_HAS_NOT_STARTED_YET')
+    await this.dao.updateStateOf('syncMode', true)
+    await this.dao.updateStateOf('scheduler', true)
+  }
+
   /**
    * @abstract
    */
-  async _databaseInitialize () {
-    throw new Error('NOT_IMPLEMENTED')
+  async _databaseInitialize (dao) {
+    if (!dao || !(dao instanceof DAO)) {
+      throw new Error('ERR_DAO_NOT_INITIALIZED')
+    }
+
+    this.dao = dao
+
+    await this.dao.databaseInitialize()
   }
 }
 
