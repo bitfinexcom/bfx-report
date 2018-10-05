@@ -7,16 +7,29 @@ const ReportService = require('./service.report')
 const {
   checkParams,
   checkParamsAuth,
-  convertPairsToCoins
+  convertPairsToCoins,
+  isAuthError,
+  isEnotfoundError
 } = require('./helpers')
-const { collObjToArr } = require('./sync/helpers')
+const {
+  collObjToArr,
+  getProgress
+} = require('./sync/helpers')
 const { getMethodCollMap } = require('./sync/schema')
 const sync = require('./sync')
 
 class MediatorReportService extends ReportService {
   async login (space, args, cb) {
     try {
-      const email = await this._checkAuthInApi(args)
+      let email = null
+
+      try {
+        email = await this._checkAuthInApi(args)
+      } catch (err) {
+        if (isAuthError(err)) {
+          throw err
+        }
+      }
 
       const res = {
         ...args.auth,
@@ -41,6 +54,44 @@ class MediatorReportService extends ReportService {
       cb(null, true)
     } catch (err) {
       if (!cb) throw err
+      cb(err)
+    }
+  }
+
+  async checkAuthInDb (space, args, cb) {
+    try {
+      const { email } = await this.dao.checkAuthInDb(args)
+
+      if (!cb) return email
+      cb(null, email)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
+  }
+
+  async pingApi (space, args, cb) {
+    try {
+      await this._getSymbols()
+
+      if (!cb) return true
+      cb(null, true)
+    } catch (err) {
+      const wrk = this.ctx.grc_bfx.caller
+      const group = wrk.group
+      const conf = wrk.conf[group]
+
+      const _err = isEnotfoundError(err)
+        ? new Error(`The server ${conf.restUrl} is not available`)
+        : null
+
+      if (!cb) throw _err || err
+      if (_err) {
+        cb(null, false)
+
+        return
+      }
+
       cb(err)
     }
   }
@@ -77,7 +128,7 @@ class MediatorReportService extends ReportService {
 
       let res = !isEmpty(firstElem) && !!firstElem.isEnable
 
-      const isSyncMode = await this.isSyncMode()
+      const isSyncMode = await this.isSyncModeConfig()
 
       if (isEmpty(firstElem) && isSyncMode) {
         res = true
@@ -95,10 +146,10 @@ class MediatorReportService extends ReportService {
     try {
       await this.dao.checkAuthInDb(args)
       await this.dao.updateStateOf('scheduler', true)
-      sync().then(() => {}).catch(() => {})
+      const res = await this.syncNow()
 
-      if (!cb) return true
-      cb(null, true)
+      if (!cb) return res
+      cb(null, res)
     } catch (err) {
       if (!cb) throw err
       cb(err)
@@ -118,7 +169,7 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async isEnableScheduler (space, args, cb) {
+  async isSchedulerEnabled (space, args, cb) {
     try {
       const firstElem = await this.dao.getFirstElemInCollBy('scheduler', { isEnable: 1 })
 
@@ -132,24 +183,48 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async getSyncProgress (space, args, cb = () => { }) {
-    const wrk = this.ctx.grc_bfx.caller
-    const isEnableScheduler = await this.isEnableScheduler()
+  async getSyncProgress (space, args, cb) {
+    try {
+      const isSchedulerEnabled = await this.isSchedulerEnabled()
+      const res = isSchedulerEnabled
+        ? await getProgress(this)
+        : false
 
-    cb(null, isEnableScheduler ? wrk.syncProgress : false)
+      if (!cb) return res
+      cb(null, res)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
+  }
+
+  async syncNow (space, args, cb) {
+    try {
+      if (cb) {
+        await this.dao.checkAuthInDb(args)
+      }
+
+      const res = await sync()
+
+      if (!cb) return res
+      cb(null, res)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
   }
 
   /**
    * @override
    */
   async getEmail (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getEmail(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getEmail(space, args, cb)
+
+        return
+      }
+
       const user = await this.dao.checkAuthInDb(args)
 
       cb(null, user.email)
@@ -162,13 +237,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getSymbols (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getSymbols(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getSymbols(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const method = '_getSymbols'
@@ -187,13 +262,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getLedgers (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getLedgers(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getLedgers(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getLedgers', args)
@@ -208,13 +283,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getTrades (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getTrades(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getTrades(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getTrades', args)
@@ -229,13 +304,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getOrders (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getOrders(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getOrders(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getOrders', args)
@@ -250,13 +325,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getMovements (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getMovements(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getMovements(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getMovements', args)
@@ -271,13 +346,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getFundingOfferHistory (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getFundingOfferHistory(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getFundingOfferHistory(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getFundingOfferHistory', args)
@@ -292,13 +367,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getFundingLoanHistory (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getFundingLoanHistory(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getFundingLoanHistory(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getFundingLoanHistory', args)
@@ -313,13 +388,13 @@ class MediatorReportService extends ReportService {
    * @override
    */
   async getFundingCreditHistory (space, args, cb) {
-    if (!await this.isSyncModeWithDbData()) {
-      super.getFundingCreditHistory(space, args, cb)
-
-      return
-    }
-
     try {
+      if (!await this.isSyncModeWithDbData()) {
+        super.getFundingCreditHistory(space, args, cb)
+
+        return
+      }
+
       checkParams(args)
 
       const res = await this.dao.findInCollBy('_getFundingCreditHistory', args)

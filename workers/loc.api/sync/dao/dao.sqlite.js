@@ -60,6 +60,7 @@ class SqliteDAO extends DAO {
       await this._createTablesIfNotExists()
       await this._createIndexisIfNotExists()
       await this._run('COMMIT')
+      await this.updateProgress('SYNCHRONIZATION_HAS_NOT_STARTED_YET')
     } catch (err) {
       await this._run('ROLLBACK')
 
@@ -93,18 +94,42 @@ class SqliteDAO extends DAO {
 
         await this._run(sql)
       }
+
+      if (
+        item.fieldsOfUniqueIndex &&
+        Array.isArray(item.fieldsOfUniqueIndex)
+      ) {
+        let sql = `CREATE UNIQUE INDEX IF NOT EXISTS ${item.name}_${item.fieldsOfUniqueIndex.join('_')}
+          ON ${item.name}(${item.fieldsOfUniqueIndex.join(', ')})`
+
+        await this._run(sql)
+      }
     }
   }
 
   /**
    * @override
    */
-  async getLastElemFromDb (name, auth, dateFieldName) {
+  async getLastElemFromDb (name, auth, sort = []) {
+    const _sort = []
+
+    if (Array.isArray(sort)) {
+      sort.forEach(item => {
+        if (
+          Array.isArray(item) &&
+          typeof item[0] === 'string' &&
+          typeof item[1] === 'number'
+        ) {
+          _sort.push(`${item[0]} ${item[1] > 0 ? 'ASC' : 'DESC'}`)
+        }
+      })
+    }
+
     const sql = `SELECT ${name}.* FROM ${name}
       INNER JOIN users ON users._id = ${name}.user_id
       WHERE users.apiKey = $apiKey
       AND users.apiSecret = $apiSecret
-      ORDER BY ${dateFieldName} DESC`
+      ORDER BY ${_sort.join(', ')}`
 
     return this._get(sql, {
       $apiKey: auth.apiKey,
@@ -209,7 +234,6 @@ class SqliteDAO extends DAO {
     const sort = []
 
     if (methodColl.type === 'array:object') {
-      sort.push(`${methodColl.dateFieldName} DESC`)
       values['$start'] = params.start ? params.start : 0
       values['$end'] = params.end ? params.end : (new Date()).getTime()
       where += `WHERE ${methodColl.dateFieldName} >= $start
@@ -219,7 +243,8 @@ class SqliteDAO extends DAO {
         values['$symbol'] = params.symbol
         where += `AND ${methodColl.symbolFieldName} = $symbol \n`
       }
-    } else if (
+    }
+    if (
       typeof methodColl.sort !== 'undefined' &&
       Array.isArray(methodColl.sort)
     ) {
@@ -323,6 +348,10 @@ class SqliteDAO extends DAO {
     const user = await this._getUserByAuth(data)
 
     if (isEmpty(user)) {
+      if (!data.email) {
+        throw new Error('ERR_AUTH_UNAUTHORIZED')
+      }
+
       return this.insertElemsToDb(
         'users',
         null,
@@ -340,7 +369,10 @@ class SqliteDAO extends DAO {
       active: 1
     }
 
-    if (user.email !== data.email) {
+    if (
+      data.email &&
+      user.email !== data.email
+    ) {
       newData.email = data.email
     }
 
@@ -465,6 +497,42 @@ class SqliteDAO extends DAO {
     const sql = `SELECT * FROM ${collName} ${isEmpty(filter) ? '' : where}`
 
     return this._get(sql, values)
+  }
+
+  /**
+   * @override
+   */
+  async updateProgress (value) {
+    const name = 'progress'
+    const elems = await this.getElemsInCollBy(name)
+    const data = {
+      value: JSON.stringify(value)
+    }
+
+    if (elems.length > 1) {
+      await this.removeElemsFromDb(name, null, {
+        _id: elems.filter((item, i) => i !== 0)
+      })
+    }
+
+    if (isEmpty(elems)) {
+      return this.insertElemsToDb(
+        name,
+        null,
+        [data]
+      )
+    }
+
+    const res = await this._updateCollBy(name, ['_id'], {
+      ...data,
+      _id: elems[0]._id
+    })
+
+    if (res && res.changes < 1) {
+      throw new Error(`ERR_CAN_NOT_UPDATE_${name.toUpperCase()}`)
+    }
+
+    return res
   }
 }
 

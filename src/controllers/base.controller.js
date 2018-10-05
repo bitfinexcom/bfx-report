@@ -12,7 +12,7 @@ const {
 } = helpers.responses
 
 const _isAuthError = (err) => {
-  return /(apikey: digest invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
+  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
 }
 
 const _isHasJobInQueueError = (err) => {
@@ -27,6 +27,22 @@ const checkAuth = async (req, res) => {
   }
 
   try {
+    const isSyncMode = await gClientService.request({
+      ...query,
+      action: 'isSyncModeConfig'
+    })
+
+    if (isSyncMode) {
+      await gClientService.request({
+        ...query,
+        action: 'login'
+      })
+
+      success(200, { result: true, id }, res)
+
+      return
+    }
+
     const result = await gClientService.request(query)
 
     if (!result) {

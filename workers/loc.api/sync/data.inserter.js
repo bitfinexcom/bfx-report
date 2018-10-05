@@ -3,7 +3,7 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
 
-const { collObjToArr } = require('./helpers')
+const { collObjToArr, setProgress } = require('./helpers')
 const { getMethodCollMap } = require('./schema')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
@@ -18,6 +18,12 @@ class DataInserter extends EventEmitter {
       ? new Map(methodCollMap)
       : getMethodCollMap()
     this._auth = null
+  }
+
+  async setProgress (progress) {
+    await setProgress(this.reportService, progress)
+
+    this.emit('progress', progress)
   }
 
   async getAuthFromDb () {
@@ -57,7 +63,7 @@ class DataInserter extends EventEmitter {
       !(this._auth instanceof Map) ||
       this._auth.size === 0
     ) {
-      this.emit('progress', MESS_ERR_UNAUTH)
+      await this.setProgress(MESS_ERR_UNAUTH)
 
       return
     }
@@ -80,7 +86,7 @@ class DataInserter extends EventEmitter {
       typeof auth.apiKey !== 'string' ||
       typeof auth.apiSecret !== 'string'
     ) {
-      this.emit('progress', MESS_ERR_UNAUTH)
+      await this.setProgress(MESS_ERR_UNAUTH)
 
       return
     }
@@ -94,10 +100,10 @@ class DataInserter extends EventEmitter {
 
       count += 1
       const progress = Math.round((count / methodCollMap.size) * 100 * userProgress)
-      this.emit('progress', progress)
+      await this.setProgress(progress)
     }
 
-    this.emit('progress', 100)
+    await this.setProgress(100)
   }
 
   async checkNewData (auth) {
@@ -119,7 +125,7 @@ class DataInserter extends EventEmitter {
       const lastElemFromDb = await this.dao.getLastElemFromDb(
         item.name,
         { ...auth },
-        item.dateFieldName
+        item.sort
       )
       const lastElemFromApi = await this.reportService[method](args)
 
@@ -223,7 +229,7 @@ class DataInserter extends EventEmitter {
 
     let res = null
     let count = 0
-    let timeOfPrevIteration = 0
+    let timeOfPrevIteration = _args.params.end
 
     while (true) {
       try {
@@ -250,11 +256,10 @@ class DataInserter extends EventEmitter {
       ) break
 
       const currTime = lastItem[dateFieldName]
-      timeOfPrevIteration = currTime
       let isAllData = false
 
       if (currTime >= timeOfPrevIteration) {
-        isAllData = true
+        break
       }
 
       if (_args.params.start >= currTime) {
@@ -280,6 +285,7 @@ class DataInserter extends EventEmitter {
         break
       }
 
+      timeOfPrevIteration = currTime
       currIterationArgs.params.end = lastItem[dateFieldName] - 1
       if (needElems) currIterationArgs.params.limit = needElems
     }
@@ -346,7 +352,9 @@ class DataInserter extends EventEmitter {
     const _elDb = Array.isArray(elDb) ? elDb[0] : elDb
     const _elApi = Array.isArray(elApi) ? elApi[0] : elApi
 
-    return _elDb[dateFieldName] < _elApi[dateFieldName] || _elDb[dateFieldName]
+    return (_elDb[dateFieldName] < _elApi[dateFieldName])
+      ? _elDb[dateFieldName]
+      : false
   }
 
   _getMethodArgMap (

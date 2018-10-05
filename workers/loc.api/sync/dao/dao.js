@@ -77,6 +77,11 @@ class DAO {
    * @abstract
    */
   async getFirstElemInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async updateProgress () { throw new Error('NOT_IMPLEMENTED') }
 }
 
 module.exports = DAO

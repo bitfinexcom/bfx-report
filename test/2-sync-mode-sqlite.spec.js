@@ -51,7 +51,7 @@ describe('Sync mode with SQLite', () => {
     await rmDB(dbDirPath)
     const env = await startEnviroment(false, false, 1, {
       syncMode: true,
-      isEnableScheduler: true,
+      isSchedulerEnabled: true,
       dbDriver: 'sqlite'
     })
 
@@ -75,14 +75,14 @@ describe('Sync mode with SQLite', () => {
     } catch (err) { }
   })
 
-  it('it should be successfully performed by the isSyncMode method', async function () {
+  it('it should be successfully performed by the isSyncModeConfig method', async function () {
     this.timeout(5000)
 
     const res = await agent
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
-        method: 'isSyncMode',
+        method: 'isSyncModeConfig',
         id: 5
       })
       .expect('Content-Type', /json/)
@@ -102,6 +102,25 @@ describe('Sync mode with SQLite', () => {
       .send({
         auth,
         method: 'login',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result === email)
+  })
+
+  it('it should be successfully performed by the checkAuthInDb method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'checkAuthInDb',
         id: 5
       })
       .expect('Content-Type', /json/)
@@ -150,7 +169,7 @@ describe('Sync mode with SQLite', () => {
   })
 
   it('it should be successfully performed by the enableScheduler method', async function () {
-    this.timeout(5000)
+    this.timeout(60000)
 
     const res = await agent
       .post(`${basePath}/get-data`)
@@ -165,17 +184,17 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
+    assert.isNumber(res.body.result)
   })
 
-  it('it should be successfully performed by the isEnableScheduler method', async function () {
+  it('it should be successfully performed by the isSchedulerEnabled method', async function () {
     this.timeout(5000)
 
     const res = await agent
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
-        method: 'isEnableScheduler',
+        method: 'isSchedulerEnabled',
         id: 5
       })
       .expect('Content-Type', /json/)
@@ -213,6 +232,25 @@ describe('Sync mode with SQLite', () => {
 
       await delay()
     }
+  })
+
+  it('it should be successfully performed by the syncNow method', async function () {
+    this.timeout(60000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'syncNow',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isNumber(res.body.result)
   })
 
   it('it should be successfully auth', async function () {
@@ -1339,14 +1377,14 @@ describe('Sync mode with SQLite', () => {
     assert.isOk(res.body.result)
   })
 
-  it('it should be successfully performed by the isEnableScheduler method', async function () {
+  it('it should be successfully performed by the isSchedulerEnabled method', async function () {
     this.timeout(5000)
 
     const res = await agent
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
-        method: 'isEnableScheduler',
+        method: 'isSchedulerEnabled',
         id: 5
       })
       .expect('Content-Type', /json/)

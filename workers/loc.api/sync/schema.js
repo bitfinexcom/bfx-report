@@ -211,6 +211,13 @@ const _models = new Map([
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       isEnable: 'INT'
     }
+  ],
+  [
+    'progress',
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      value: 'VARCHAR(255)'
+    }
   ]
 ])
 
@@ -222,9 +229,11 @@ const _methodCollMap = new Map([
       maxLimit: 5000,
       dateFieldName: 'mts',
       symbolFieldName: 'currency',
+      sort: [['mts', -1]],
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mts'],
       model: { ..._models.get('ledgers') }
     }
   ],
@@ -235,9 +244,11 @@ const _methodCollMap = new Map([
       maxLimit: 1500,
       dateFieldName: 'mtsCreate',
       symbolFieldName: 'symbol',
+      sort: [['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsCreate', 'orderID', 'fee'],
       model: { ..._models.get('trades') }
     }
   ],
@@ -248,9 +259,11 @@ const _methodCollMap = new Map([
       maxLimit: 5000,
       dateFieldName: 'mtsUpdate',
       symbolFieldName: 'symbol',
+      sort: [['mtsUpdate', -1], ['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('orders') }
     }
   ],
@@ -261,9 +274,11 @@ const _methodCollMap = new Map([
       maxLimit: 25,
       dateFieldName: 'mtsUpdated',
       symbolFieldName: 'currency',
+      sort: [['mtsUpdated', -1], ['mtsStarted', -1]],
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdated'],
       model: { ..._models.get('movements') }
     }
   ],
@@ -274,9 +289,11 @@ const _methodCollMap = new Map([
       maxLimit: 5000,
       dateFieldName: 'mtsUpdate',
       symbolFieldName: 'symbol',
+      sort: [['mtsUpdate', -1], ['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingOfferHistory') }
     }
   ],
@@ -287,9 +304,11 @@ const _methodCollMap = new Map([
       maxLimit: 5000,
       dateFieldName: 'mtsUpdate',
       symbolFieldName: 'symbol',
+      sort: [['mtsUpdate', -1], ['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingLoanHistory') }
     }
   ],
@@ -300,9 +319,11 @@ const _methodCollMap = new Map([
       maxLimit: 5000,
       dateFieldName: 'mtsUpdate',
       symbolFieldName: 'symbol',
+      sort: [['mtsUpdate', -1], ['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
       type: 'array:object',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingCreditHistory') }
     }
   ],

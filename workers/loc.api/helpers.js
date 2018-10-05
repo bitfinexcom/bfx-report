@@ -47,7 +47,8 @@ const checkParams = (args) => {
       (args.params.limit && !Number.isInteger(args.params.limit)) ||
       (args.params.start && !Number.isInteger(args.params.start)) ||
       (args.params.end && !Number.isInteger(args.params.end)) ||
-      (args.params.symbol && typeof args.params.symbol !== 'string')
+      (args.params.symbol && typeof args.params.symbol !== 'string') ||
+      (args.params.timezone && !Number.isInteger(args.params.timezone))
     )
   ) {
     throw new Error('ERR_ARGS_NO_PARAMS')
@@ -147,6 +148,27 @@ const toString = (obj) => {
   }
 }
 
+const isAuthError = (err) => {
+  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
+}
+
+const isEnotfoundError = (err) => {
+  return /ENOTFOUND/.test(err.toString())
+}
+
+const getDateTitle = (args, name = 'DATE') => {
+  const timezone = args.params.timezone
+  let str = ''
+
+  if (timezone) {
+    const prefix = timezone > 0 ? '+' : ''
+
+    str = ` ${prefix}${timezone}`
+  }
+
+  return `${name} (UTC${str})`
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -156,5 +178,8 @@ module.exports = {
   getCsvStoreStatus,
   convertPairsToCoins,
   hasJobInQueueWithStatusBy,
-  toString
+  toString,
+  isAuthError,
+  isEnotfoundError,
+  getDateTitle
 }
