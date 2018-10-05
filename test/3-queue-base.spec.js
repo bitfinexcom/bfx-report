@@ -237,6 +237,7 @@ describe('Queue', () => {
           end,
           start,
           limit: 1000,
+          timezone: -3,
           email
         },
         id: 5
