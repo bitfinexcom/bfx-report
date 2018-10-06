@@ -160,7 +160,7 @@ describe('API', () => {
   })
 
   it('it should be successfully performed by the getSymbols method', async function () {
-    this.timeout(5000000)
+    this.timeout(5000)
 
     const res = await agent
       .post(`${basePath}/get-data`)
