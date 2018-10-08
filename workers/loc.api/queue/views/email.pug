@@ -2,19 +2,76 @@ if isUnauth
   p
     | Your file could not be completed, please try again
 else
-  p
-    | Your download link
-    b(style='padding-left:5px;padding-right:5px;')
-      | #{fileName}
-    | is ready
-  p
-    | Click the button below to download
-table.btn.btn-primary(border='0', cellpadding='0', cellspacing='0', style='margin-top:30px;margin-bottom:30px;width: 100%;')
-  tbody
-    tr
-      td(align='center')
-        table(border='0', cellpadding='0', cellspacing='0')
-          tbody
-            tr
-              td
-                a(href=public_url, target='_blank', style='background-color: #3498db;border: solid 1px #3498db;border-radius: 5px;box-sizing: border-box;color: #ffffff;cursor: pointer;display: inline-block;font-size: 14px;font-weight: bold;margin: 0;padding: 12px 25px;text-decoration: none;text-transform: capitalize;') Download CSV
+div(style='border-collapse: collapse;margin: 0;padding: 0;background-color: #d4d4d4;height: 100%!important;width: 100%!important')
+  table(border='0', cellpadding='0', cellspacing='0', width='100%', style='background-color: #eee;')
+    tbody
+      tr
+        td(align='center')
+          img(src='https://www.bitfinex.com/assets/logo3.png', alt='Bitfinex', style='max-width: 230px;padding:30px;display:inline;vertical-align:bottom;border:0;outline:none;text-decoration:none')
+      tr
+        td(align='center', valign='top')
+          table(border='0', cellpadding='0', cellspacing='0' style='padding: 20px;background-color:white;max-width: 600px;')
+            tbody
+              tr
+                td(align='left')
+                  h1(style='font-size: 24px;color: #a6a6a6;line-height: 150%;font-weight: lighter;')
+                    | Your report is ready
+              tr
+                td
+                  p(style='color: #606060;font-size: 15px;line-height: 150%;')
+                    | The report you request is ready for download.
+                  p(style='color: #606060;font-size: 15px;line-height: 150%;')
+                    | File name:
+                    |
+                    b
+                      | #{fileName}
+                    |
+                  p(style='color: #606060;font-size: 15px;line-height: 150%;')
+                    | If you did not initiate this action and you suspect that your account may be compromised, please
+                    |
+                    a(href='https://www.bitfinex.com/freeze', target='_blank', style='text-decoration: none; color: #4995c4')
+                      | freeze your account
+                    |
+                    | and contract support.
+              tr
+                td(align='center')
+                  table(border='0', cellpadding='0', cellspacing='0')
+                    tbody
+                      tr
+                        td
+                          a(href=public_url, target='_blank', style='background-color: #3498db;border: solid 1px #3498db;border-radius: 5px;box-sizing: border-box;color: #ffffff;cursor: pointer;display: inline-block;font-size: 14px;font-weight: bold;margin-top: 30px;margin-bottom:20px;padding: 12px 25px;text-decoration: none;text-transform: capitalize;') Download CSV
+              tr
+                td(align='left')
+                  div(style='font-size: 13px;line-height: 150%;color:#999;padding:9px 0;')
+                    | Regards,
+                    br
+                    | The Bitfinex Team
+                    br
+                    a(href='https://www.bitfinex.com', target='_blank', style='text-decoration: none; color:#c4bccb') https://www.bitfinex.com
+  table(border='0', cellpadding='0', cellspacing='0', width='100%', style='background-color: #d4d4d4;')
+    tbody
+      tr
+        td(align='center', style='padding: 9px 18px;line-height: 125%;text-align: center;')
+          p(style='font-size: 11px;word-wrap: break-word;color:#999999;font-weight: normal;padding-top: 9px')
+            | Mobile apps now available
+          a(href='https://itunes.apple.com/us/app/bitfinex/id1079033582', title='Apple Appstore', target='_blank')
+            img(src='https://www.bitfinex.com/assets/appstore.png', alt='Apple Appstore', style='max-width: 135px;padding:10px;display:inline;vertical-align:bottom;border:0;outline:none;text-decoration:none', width='135', align='middle')
+          a(href='https://play.google.com/store/apps/details?id=com.bitfinex.bfxapp', title='Google Play Store', target='_blank')
+            img(src='https://www.bitfinex.com/assets/play.png', alt='Google Play Store', style='max-width: 135px;padding:10px;display:inline;vertical-align:bottom;border:0;outline:none;text-decoration:none', width='135', align='middle')
+          br
+          a(href="https://www.bitfinex.com/app", style='font-size: 11px;word-wrap: break-word;color:#999999;font-weight: normal;text-decoration: underline', target='_blank') Read more about the mobile apps
+          br
+          br
+          em(style='font-size: 11px;word-wrap: break-word;color:#999999;font-weight: normal;')
+            Copyright © 2013-2018 iFinex Inc. All rights reserved.
+          br
+          br
+          spa(style='font-size: 11px;word-wrap: break-word;color:#999999;font-weight: normal;')
+            | Want to change your email settings?
+          br
+          spa(style='font-size: 11px;word-wrap: break-word;color:#999999;font-weight: normal;')
+            | You can
+            |
+            a(href="https://www.bitfinex.com/account", style='font-size: 11px;word-wrap: break-word;color:#999999;font-weight: normal;text-decoration: underline', target='_blank') update your preferences
+            |
+            | in your account settings.
