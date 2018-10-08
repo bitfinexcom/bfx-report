@@ -176,7 +176,6 @@ class ReportService extends Api {
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getTrades'
-
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
@@ -185,12 +184,13 @@ class ReportService extends Api {
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
           id: '#',
-          orderID: 'ORDER ID',
           symbol: 'PAIR',
           execAmount: 'AMOUNT',
           execPrice: 'PRICE',
           fee: 'FEE',
-          mtsCreate: 'DATE'
+          feeCurrency: 'FEE_CURRENCY',
+          mtsCreate: 'DATE',
+          orderID: 'ORDER ID'
         },
         formatSettings: {
           mtsCreate: 'date',
