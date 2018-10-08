@@ -184,6 +184,7 @@ class ReportService extends Api {
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
           id: '#',
+          orderID: 'ORDER ID',
           symbol: 'PAIR',
           execAmount: 'AMOUNT',
           execPrice: 'PRICE',
@@ -220,6 +221,7 @@ class ReportService extends Api {
         propNameForPagination: 'mts',
         columnsCsv: {
           description: 'DESCRIPTION',
+          wallet: 'WALLET',
           currency: 'CURRENCY',
           credit: 'CREDIT',
           debit: 'DEBIT',
