@@ -9,7 +9,7 @@ const {
   getCsvStoreStatus,
   hasJobInQueueWithStatusBy,
   toString,
-  getDateTitle
+  parseOrders
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -112,7 +112,8 @@ class ReportService extends Api {
       const maxLimit = 5000
       const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.orderHistory(...params)
+      const raw = await rest.orderHistory(...params)
+      const result = parseOrders(raw)
 
       cb(null, result)
     } catch (err) {
@@ -189,7 +190,7 @@ class ReportService extends Api {
           execAmount: 'AMOUNT',
           execPrice: 'PRICE',
           fee: 'FEE',
-          mtsCreate: getDateTitle(args)
+          mtsCreate: 'DATE'
         },
         formatSettings: {
           mtsCreate: 'date',
@@ -226,7 +227,7 @@ class ReportService extends Api {
           credit: 'CREDIT',
           debit: 'DEBIT',
           balance: 'BALANCE',
-          mts: getDateTitle(args)
+          mts: 'DATE'
         },
         formatSettings: {
           mts: 'date'
@@ -260,10 +261,10 @@ class ReportService extends Api {
           symbol: 'PAIR',
           type: 'TYPE',
           amount: 'AMOUNT',
-          amountOrig: 'ORIGINAL AMOUNT',
+          amountExecuted: 'EXECUTED AMOUNT',
           price: 'PRICE',
-          priceAvg: 'AVG PRICE',
-          mtsUpdate: getDateTitle(args, 'UPDATE'),
+          priceAvg: 'AVERAGE EXECUTION PRICE',
+          mtsUpdate: 'UPDATED',
           status: 'STATUS'
         },
         formatSettings: {
@@ -296,7 +297,7 @@ class ReportService extends Api {
         propNameForPagination: 'mtsUpdated',
         columnsCsv: {
           id: '#',
-          mtsUpdated: getDateTitle(args),
+          mtsUpdated: 'DATE',
           currency: 'CURRENCY',
           status: 'STATUS',
           amount: 'AMOUNT',
@@ -338,7 +339,7 @@ class ReportService extends Api {
           status: 'STATUS',
           rate: 'RATE(% PER DAY)',
           period: 'PERIOD',
-          mtsUpdate: getDateTitle(args)
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
           mtsUpdate: 'date',
@@ -376,9 +377,9 @@ class ReportService extends Api {
           status: 'STATUS',
           rate: 'RATE(% PER DAY)',
           period: 'PERIOD',
-          mtsOpening: getDateTitle(args, 'OPENED'),
-          mtsLastPayout: getDateTitle(args, 'CLOSED'),
-          mtsUpdate: getDateTitle(args)
+          mtsOpening: 'OPENED',
+          mtsLastPayout: 'CLOSED',
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
           side: 'side',
@@ -419,10 +420,10 @@ class ReportService extends Api {
           status: 'STATUS',
           rate: 'RATE(% PER DAY)',
           period: 'PERIOD',
-          mtsOpening: getDateTitle(args, 'OPENED'),
-          mtsLastPayout: getDateTitle(args, 'CLOSED'),
+          mtsOpening: 'OPENED',
+          mtsLastPayout: 'CLOSED',
           positionPair: 'POSITION PAIR',
-          mtsUpdate: getDateTitle(args)
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
           side: 'side',
