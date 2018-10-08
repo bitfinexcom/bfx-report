@@ -22,6 +22,7 @@ const _models = new Map([
       amount: 'DECIMAL(22,12)',
       balance: 'DECIMAL(22,12)',
       description: 'TEXT',
+      wallet: 'VARCHAR(255)',
       user_id: `INT NOT NULL,
         CONSTRAINT ledgers_fk_#{field}
         FOREIGN KEY (#{field})
