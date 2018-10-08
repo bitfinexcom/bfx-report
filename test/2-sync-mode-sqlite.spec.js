@@ -545,7 +545,8 @@ describe('Sync mode with SQLite', () => {
         'mts',
         'amount',
         'balance',
-        'description'
+        'description',
+        'wallet'
       ])
     }
   })
@@ -578,7 +579,8 @@ describe('Sync mode with SQLite', () => {
         'mts',
         'amount',
         'balance',
-        'description'
+        'description',
+        'wallet'
       ])
     }
   })
