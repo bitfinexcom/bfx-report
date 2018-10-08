@@ -177,14 +177,16 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.pairs)
-    assert.isArray(res.body.result.coins)
+    assert.isArray(res.body.result.currencies)
     assert.lengthOf(res.body.result.pairs, 11)
 
     res.body.result.pairs.forEach(item => {
       assert.isString(item)
     })
-    res.body.result.coins.forEach(item => {
-      assert.isString(item)
+    res.body.result.currencies.forEach(item => {
+      assert.isObject(item)
+      assert.isString(item.id)
+      assert.isString(item.name)
     })
   })
 

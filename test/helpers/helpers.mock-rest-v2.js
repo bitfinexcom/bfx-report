@@ -193,6 +193,16 @@ const _mockData = new Map([
       false,
       null
     ]]
+  ],
+  [
+    'currencies',
+    [[
+      ['USD', 'US Dollar'],
+      ['BTC', 'Bitcoin'],
+      ['LTC', 'Litecoin'],
+      ['DSH', 'Dash'],
+      ['ETH', 'Ethereum']
+    ]]
   ]
 ])
 

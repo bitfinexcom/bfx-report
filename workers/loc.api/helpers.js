@@ -78,19 +78,6 @@ const getCsvStoreStatus = async (reportService, args) => {
   return { isSendEmail: true }
 }
 
-const convertPairsToCoins = (pairs) => {
-  const coins = []
-
-  for (const pair in pairs) {
-    const f = pairs[pair].substring(0, 3)
-    if (!coins.includes(f)) coins.push(f)
-    const s = pairs[pair].substring(3, 6)
-    if (!coins.includes(s)) coins.push(s)
-  }
-
-  return { coins, pairs }
-}
-
 const hasJobInQueueWithStatusBy = async (
   reportService,
   args,
@@ -180,7 +167,6 @@ module.exports = {
   checkParams,
   checkParamsAuth,
   getCsvStoreStatus,
-  convertPairsToCoins,
   hasJobInQueueWithStatusBy,
   toString,
   isAuthError,

@@ -7,7 +7,6 @@ const {
   getParams,
   checkParams,
   getCsvStoreStatus,
-  convertPairsToCoins,
   hasJobInQueueWithStatusBy,
   toString,
   getDateTitle
@@ -66,9 +65,10 @@ class ReportService extends Api {
 
   async getSymbols (space, args, cb) {
     try {
-      const pairs = await this._getSymbols()
-      const result = convertPairsToCoins(pairs)
-
+      const rest = getREST({}, this.ctx.grc_bfx.caller)
+      const pairs = await rest.symbols()
+      const currencies = await rest.currencies()
+      const result = { pairs, currencies }
       cb(null, result)
     } catch (err) {
       this._err(err, 'getSymbols', cb)
@@ -184,6 +184,7 @@ class ReportService extends Api {
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
           id: '#',
+          orderID: 'ORDER ID',
           symbol: 'PAIR',
           execAmount: 'AMOUNT',
           execPrice: 'PRICE',
@@ -220,6 +221,7 @@ class ReportService extends Api {
         propNameForPagination: 'mts',
         columnsCsv: {
           description: 'DESCRIPTION',
+          wallet: 'WALLET',
           currency: 'CURRENCY',
           credit: 'CREDIT',
           debit: 'DEBIT',
