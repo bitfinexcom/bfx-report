@@ -222,12 +222,11 @@ class ReportService extends Api {
         propNameForPagination: 'mts',
         columnsCsv: {
           description: 'DESCRIPTION',
-          wallet: 'WALLET',
           currency: 'CURRENCY',
-          credit: 'CREDIT',
-          debit: 'DEBIT',
+          amount: 'AMOUNT',
           balance: 'BALANCE',
-          mts: 'DATE'
+          mts: 'DATE',
+          wallet: 'WALLET'
         },
         formatSettings: {
           mts: 'date'
