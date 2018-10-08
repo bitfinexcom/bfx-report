@@ -87,7 +87,7 @@ class SqliteDAO extends DAO {
     for (let currItem of this._getMethodCollMap()) {
       const item = currItem[1]
 
-      if (item.type === 'array:object') {
+      if (item.type === 'insertable:array:objects') {
         let sql = `CREATE INDEX IF NOT EXISTS ${item.name}_${item.dateFieldName}_${item.symbolFieldName}
           ON ${item.name}(${item.dateFieldName}, ${item.symbolFieldName})`
 
@@ -284,7 +284,7 @@ class SqliteDAO extends DAO {
     let where = ''
     const sort = []
 
-    if (methodColl.type === 'array:object') {
+    if (methodColl.type === 'insertable:array:objects') {
       values['$start'] = params.start ? params.start : 0
       values['$end'] = params.end ? params.end : (new Date()).getTime()
       where += `WHERE ${methodColl.dateFieldName} >= $start
@@ -310,7 +310,10 @@ class SqliteDAO extends DAO {
       })
     }
 
-    if (methodColl.type !== 'array') {
+    if (
+      method !== '_getCurrencies' &&
+      method !== '_getSymbols'
+    ) {
       exclude.push('user_id')
       values['$user_id'] = user._id
       where += `AND user_id = $user_id`
@@ -516,9 +519,8 @@ class SqliteDAO extends DAO {
         throw new Error('ERR_LIST_IS_NOT_ARRAY')
       }
 
-      let key = `$${curr}`
+      let key = '('
 
-      key = '('
       key += lists[curr].map((item, i) => {
         const subKey = `$${curr}_${i}`
         values[subKey] = item

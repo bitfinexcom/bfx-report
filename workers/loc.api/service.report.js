@@ -65,10 +65,10 @@ class ReportService extends Api {
 
   async getSymbols (space, args, cb) {
     try {
-      const rest = getREST({}, this.ctx.grc_bfx.caller)
-      const pairs = await rest.symbols()
-      const currencies = await rest.currencies()
+      const pairs = await this._getSymbols()
+      const currencies = await this._getCurrencies()
       const result = { pairs, currencies }
+
       cb(null, result)
     } catch (err) {
       this._err(err, 'getSymbols', cb)
@@ -79,6 +79,12 @@ class ReportService extends Api {
     const rest = getREST({}, this.ctx.grc_bfx.caller)
 
     return rest.symbols()
+  }
+
+  _getCurrencies () {
+    const rest = getREST({}, this.ctx.grc_bfx.caller)
+
+    return rest.currencies()
   }
 
   async getLedgers (space, args, cb) {

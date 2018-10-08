@@ -8,7 +8,6 @@ const DAO = require('./sync/dao/dao')
 const {
   checkParams,
   checkParamsAuth,
-  convertPairsToCoins,
   isAuthError,
   isEnotfoundError,
   isEaiAgainError
@@ -279,11 +278,13 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const method = '_getSymbols'
-      const { field } = getMethodCollMap().get(method)
-      const symbols = await this.dao.findInCollBy(method, args)
+      const symbolsMethod = '_getSymbols'
+      const currenciesMethod = '_getCurrencies'
+      const { field } = getMethodCollMap().get(symbolsMethod)
+      const symbols = await this.dao.findInCollBy(symbolsMethod, args)
+      const currencies = await this.dao.findInCollBy(currenciesMethod, args)
       const pairs = collObjToArr(symbols, field)
-      const res = convertPairsToCoins(pairs)
+      const res = { pairs, currencies }
 
       cb(null, res)
     } catch (err) {

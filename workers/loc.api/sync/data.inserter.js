@@ -96,6 +96,7 @@ class DataInserter extends EventEmitter {
 
     for (const [method, item] of methodCollMap) {
       await this._insertApiDataArrObjTypeToDb(auth, method, item)
+      await this._updateApiDataArrObjTypeToDb(auth, method, item)
       await this._updateApiDataArrTypeToDb(auth, method, item)
 
       count += 1
@@ -116,7 +117,7 @@ class DataInserter extends EventEmitter {
 
   async _checkNewDataArrObjType (auth, methodCollMap) {
     for (let [method, item] of this._methodCollMap) {
-      if (!this._isArrObjTypeOfColl(item)) {
+      if (!this._isInsertableArrObjTypeOfColl(item)) {
         continue
       }
 
@@ -156,12 +157,16 @@ class DataInserter extends EventEmitter {
     return methodCollMap
   }
 
-  _isArrObjTypeOfColl (coll) {
-    return coll.type === 'array:object'
+  _isInsertableArrObjTypeOfColl (coll) {
+    return coll.type === 'insertable:array:objects'
   }
 
-  _isArrTypeOfColl (coll) {
-    return coll.type === 'array'
+  _isUpdatableArrObjTypeOfColl (coll) {
+    return coll.type === 'updatable:array:objects'
+  }
+
+  _isUpdatableArrTypeOfColl (coll) {
+    return coll.type === 'updatable:array'
   }
 
   async _insertApiDataArrObjTypeToDb (
@@ -169,7 +174,7 @@ class DataInserter extends EventEmitter {
     methodApi,
     schema
   ) {
-    if (!this._isArrObjTypeOfColl(schema)) {
+    if (!this._isInsertableArrObjTypeOfColl(schema)) {
       return
     }
     if (
@@ -258,7 +263,7 @@ class DataInserter extends EventEmitter {
     methodApi,
     schema
   ) {
-    if (!this._isArrTypeOfColl(schema)) {
+    if (!this._isUpdatableArrTypeOfColl(schema)) {
       return
     }
     if (
@@ -286,6 +291,50 @@ class DataInserter extends EventEmitter {
       await this.dao.insertElemsToDbIfNotExists(
         collName,
         elemsFromApi.map(item => ({ [field]: item }))
+      )
+    }
+  }
+
+  async _updateApiDataArrObjTypeToDb (
+    auth,
+    methodApi,
+    schema
+  ) {
+    if (!this._isUpdatableArrObjTypeOfColl(schema)) {
+      return
+    }
+    if (
+      typeof this.reportService[methodApi] !== 'function'
+    ) {
+      throw new Error('ERR_METHOD_NOT_FOUND')
+    }
+
+    const {
+      name: collName,
+      fields,
+      model
+    } = schema
+
+    const args = this._getMethodArgMap(methodApi, { ...auth }, null, null, null)
+    const elemsFromApi = await this.reportService[methodApi](args)
+
+    if (
+      Array.isArray(elemsFromApi) &&
+      elemsFromApi.length > 0
+    ) {
+      const lists = fields.reduce((obj, curr) => {
+        obj[curr] = elemsFromApi.map(item => item[curr])
+
+        return obj
+      }, {})
+
+      await this.dao.removeElemsFromDbIfNotInLists(
+        collName,
+        lists
+      )
+      await this.dao.insertElemsToDbIfNotExists(
+        collName,
+        this._normalizeApiData(elemsFromApi, model)
       )
     }
   }
