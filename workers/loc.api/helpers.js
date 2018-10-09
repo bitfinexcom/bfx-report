@@ -3,6 +3,7 @@
 const bfxFactory = require('./bfx.factory')
 const { hasS3AndSendgrid } = require('./queue/helpers')
 const _ = require('lodash')
+const LRU = require('lru')
 
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
@@ -153,6 +154,8 @@ const parseFields = (res, opts) => {
   }, [])
 }
 
+const accountCache = new LRU({maxAge: 900000, max: 1})
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -164,5 +167,6 @@ module.exports = {
   toString,
   isAuthError,
   isEnotfoundError,
-  parseFields
+  parseFields,
+  accountCache
 }

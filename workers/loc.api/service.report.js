@@ -9,7 +9,8 @@ const {
   getCsvStoreStatus,
   hasJobInQueueWithStatusBy,
   toString,
-  parseFields
+  parseFields,
+  accountCache
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -65,10 +66,14 @@ class ReportService extends Api {
 
   async getSymbols (space, args, cb) {
     try {
+      const cache = accountCache.get('symbols')
+      if (cache) return cb(null, cache)
       const rest = getREST({}, this.ctx.grc_bfx.caller)
       const pairs = await rest.symbols()
       const currencies = await rest.currencies()
       const result = { pairs, currencies }
+      accountCache.set('symbols', result)
+
       cb(null, result)
     } catch (err) {
       this._err(err, 'getSymbols', cb)
