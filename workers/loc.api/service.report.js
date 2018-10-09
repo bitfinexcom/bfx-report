@@ -113,7 +113,7 @@ class ReportService extends Api {
       const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const raw = await rest.orderHistory(...params)
-      const result = parseFields(raw, { rate: true })
+      const result = parseFields(raw, { executed: true })
 
       cb(null, result)
     } catch (err) {
