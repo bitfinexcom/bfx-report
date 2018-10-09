@@ -73,7 +73,7 @@ const checkParamsAuth = (args) => {
 }
 
 const getCsvStoreStatus = async (reportService, args) => {
-  if (typeof args.params.email !== 'string') {
+  if (!args.params || typeof args.params.email !== 'string') {
     return { isSaveLocaly: true }
   }
 
