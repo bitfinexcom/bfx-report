@@ -296,14 +296,18 @@ class ReportService extends Api {
         propNameForPagination: 'mtsUpdated',
         columnsCsv: {
           id: '#',
-          mtsUpdated: 'DATE',
           currency: 'CURRENCY',
+          currencyName: 'METHOD',
           status: 'STATUS',
           amount: 'AMOUNT',
-          destinationAddress: 'DESCRIPTION'
+          destinationAddress: 'DESCRIPTION',
+          transactionId: 'TXID',
+          mtsStarted: 'CREATED',
+          mtsUpdated: 'UPDATED'
         },
         formatSettings: {
-          mtsUpdated: 'date'
+          mtsUpdated: 'date',
+          mtsStarted: 'date'
         }
       }
 
