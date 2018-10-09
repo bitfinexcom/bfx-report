@@ -138,46 +138,9 @@ const _dataFormatter = (obj, formatSettings, params) => {
   return res
 }
 
-const _normalizers = {
-  getLedgers: (obj) => {
-    const res = {}
-
-    Object.entries(obj).forEach(([key, val]) => {
-      if (key !== 'amount') {
-        res[key] = val
-
-        return
-      }
-
-      res.credit = parseFloat(val) > 0 ? val : ''
-      res.debit = parseFloat(val) < 0 ? Math.abs(val) : ''
-    })
-
-    return res
-  }
-}
-
-const _dataNormalizer = (obj, method) => {
-  if (
-    typeof obj !== 'object' ||
-    typeof _normalizers[method] !== 'function'
-  ) {
-    return obj
-  }
-
-  let res = _.cloneDeep(obj)
-
-  try {
-    res = _normalizers[method](res)
-  } catch (err) {}
-
-  return res
-}
-
 const _write = (res, stream, formatSettings, method, params) => {
   res.forEach((item) => {
-    let _item = _dataNormalizer(item, method)
-    _item = _dataFormatter(_item, formatSettings, params)
+    const _item = _dataFormatter(item, formatSettings, params)
 
     stream.write(_item)
   })

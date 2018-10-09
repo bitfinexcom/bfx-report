@@ -2,6 +2,8 @@
 
 const bfxFactory = require('./bfx.factory')
 const { hasS3AndSendgrid } = require('./queue/helpers')
+const _ = require('lodash')
+const LRU = require('lru')
 
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
@@ -143,18 +145,16 @@ const isEnotfoundError = (err) => {
   return /ENOTFOUND/.test(err.toString())
 }
 
-const getDateTitle = (args, name = 'DATE') => {
-  const timezone = args.params.timezone
-  let str = ''
-
-  if (timezone) {
-    const prefix = timezone > 0 ? '+' : ''
-
-    str = ` ${prefix}${timezone}`
-  }
-
-  return `${name} (UTC${str})`
+const parseFields = (res, opts) => {
+  const { executed, rate } = opts
+  return _.transform(res, (result, obj, key) => {
+    if (executed) obj.amountExecuted = obj.amountOrig - obj.amount
+    if (rate) obj.rate = obj.rate || 'Flash Return Rate'
+    result.push(obj)
+  }, [])
 }
+
+const accountCache = new LRU({maxAge: 900000, max: 1})
 
 module.exports = {
   getREST,
@@ -167,5 +167,6 @@ module.exports = {
   toString,
   isAuthError,
   isEnotfoundError,
-  getDateTitle
+  parseFields,
+  accountCache
 }
