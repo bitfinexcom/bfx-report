@@ -361,7 +361,7 @@ class SqliteDAO extends DAO {
           ) {
             const val = parseFloat(obj[key])
 
-            obj[key] = isFinite(val) ? val : val
+            obj[key] = isFinite(val) ? val : obj[key]
           }
         }
       })
