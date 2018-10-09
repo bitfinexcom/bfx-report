@@ -5,7 +5,7 @@ const path = require('path')
 const fs = require('fs')
 const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
-const moment = require('moment')
+const moment = require('moment-timezone')
 const pug = require('pug')
 const argv = require('yargs').argv
 
@@ -92,9 +92,15 @@ const _delay = (mc = 80000) => {
 
 const _formatters = {
   date: (val, { timezone = 0 }) => {
-    return Number.isInteger(val)
-      ? moment(val).utcOffset(timezone).format('DD-MM-YYYY HH:mm:ss')
-      : val
+    if (Number.isInteger(val)) {
+      const format = 'YY-MM-DD HH:mm:ss'
+
+      return _.isNumber(timezone)
+        ? moment(val).utcOffset(timezone).format(format)
+        : moment(val).tz(timezone).format(format)
+    }
+
+    return val
   },
   symbol: symbol => `${symbol.slice(1, 4)}${symbol[4] ? '/' : ''}${symbol.slice(4, 7)}`,
   side: side => {

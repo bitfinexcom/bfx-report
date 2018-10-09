@@ -290,6 +290,7 @@ describe('Queue', () => {
           end,
           start,
           limit: 1000,
+          timezone: 'America/Los_Angeles',
           email
         },
         id: 5

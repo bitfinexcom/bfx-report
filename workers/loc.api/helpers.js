@@ -50,7 +50,11 @@ const checkParams = (args) => {
       (args.params.start && !Number.isInteger(args.params.start)) ||
       (args.params.end && !Number.isInteger(args.params.end)) ||
       (args.params.symbol && typeof args.params.symbol !== 'string') ||
-      (args.params.timezone && !Number.isInteger(args.params.timezone))
+      (
+        args.params.timezone &&
+        !_.isNumber(args.params.timezone) &&
+        typeof args.params.timezone !== 'string'
+      )
     )
   ) {
     throw new Error('ERR_ARGS_NO_PARAMS')
