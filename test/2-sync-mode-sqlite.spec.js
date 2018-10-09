@@ -405,7 +405,8 @@ describe('Sync mode with SQLite', () => {
         'notify',
         'hidden',
         'renew',
-        'rateReal'
+        'rateReal',
+        'amountExecuted'
       ])
     }
   })
@@ -675,7 +676,8 @@ describe('Sync mode with SQLite', () => {
         'priceTrailing',
         'priceAuxLimit',
         'notify',
-        'placedId'
+        'placedId',
+        'amountExecuted'
       ])
     }
   })

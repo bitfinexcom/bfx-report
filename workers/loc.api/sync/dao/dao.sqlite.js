@@ -355,6 +355,13 @@ class SqliteDAO extends DAO {
             boolFields.some(item => item === key)
           ) {
             obj[key] = !!obj[key]
+          } else if (
+            typeof obj[key] === 'string' &&
+            key === 'rate'
+          ) {
+            const val = parseFloat(obj[key])
+
+            obj[key] = isFinite(val) ? val : val
           }
         }
       })

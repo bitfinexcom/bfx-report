@@ -77,6 +77,7 @@ const _models = new Map([
       notify: 'INT',
       placedId: 'BIGINT',
       _lastAmount: 'DECIMAL(22,12)',
+      amountExecuted: 'DECIMAL(22,12)',
       user_id: `INT NOT NULL,
         CONSTRAINT orders_fk_#{field}
         FOREIGN KEY (#{field})
@@ -120,12 +121,13 @@ const _models = new Map([
       type: 'VARCHAR(255)',
       flags: 'TEXT',
       status: 'TEXT',
-      rate: 'DECIMAL(22,12)',
+      rate: 'VARCHAR(255)',
       period: 'INT',
       notify: 'INT',
       hidden: 'INT',
       renew: 'INT',
       rateReal: 'INT',
+      amountExecuted: 'DECIMAL(22,12)',
       user_id: `INT NOT NULL,
         CONSTRAINT fundingOfferHistory_fk_#{field}
         FOREIGN KEY (#{field})
@@ -146,7 +148,7 @@ const _models = new Map([
       amount: 'DECIMAL(22,12)',
       flags: 'TEXT',
       status: 'TEXT',
-      rate: 'DECIMAL(22,12)',
+      rate: 'VARCHAR(255)',
       period: 'INT',
       mtsOpening: 'BIGINT',
       mtsLastPayout: 'BIGINT',
@@ -175,7 +177,7 @@ const _models = new Map([
       amount: 'DECIMAL(22,12)',
       flags: 'TEXT',
       status: 'TEXT',
-      rate: 'DECIMAL(22,12)',
+      rate: 'VARCHAR(255)',
       period: 'INT',
       mtsOpening: 'BIGINT',
       mtsLastPayout: 'BIGINT',
