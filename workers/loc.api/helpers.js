@@ -144,18 +144,12 @@ const isEnotfoundError = (err) => {
   return /ENOTFOUND/.test(err.toString())
 }
 
-const parseOrders = (res) => {
-  return _.transform(res, (result, order, key) => {
-    order.amountExecuted = order.amountOrig - order.amount
-    result.push(order)
-  }, [])
-}
-
-const parseFunding = (res) => {
-  return _.transform(res, (result, funding, key) => {
-    funding.amountExecuted = funding.amountOrig - funding.amount
-    funding.rate = funding.rate || 'Flash Return Rate'
-    result.push(funding)
+const parseFields = (res, opts) => {
+  const { executed, rate } = opts
+  return _.transform(res, (result, obj, key) => {
+    if (executed) obj.amountExecuted = obj.amountOrig - obj.amount
+    if (rate) obj.rate = obj.rate || 'Flash Return Rate'
+    result.push(obj)
   }, [])
 }
 
@@ -170,6 +164,5 @@ module.exports = {
   toString,
   isAuthError,
   isEnotfoundError,
-  parseOrders,
-  parseFunding
+  parseFields
 }

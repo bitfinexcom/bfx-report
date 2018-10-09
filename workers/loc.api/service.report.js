@@ -9,8 +9,7 @@ const {
   getCsvStoreStatus,
   hasJobInQueueWithStatusBy,
   toString,
-  parseOrders,
-  parseFunding
+  parseFields
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -114,7 +113,7 @@ class ReportService extends Api {
       const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const raw = await rest.orderHistory(...params)
-      const result = parseOrders(raw)
+      const result = parseFields(raw, { rate: true })
 
       cb(null, result)
     } catch (err) {
@@ -140,7 +139,7 @@ class ReportService extends Api {
       const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const raw = await rest.fundingOfferHistory(...params)
-      const result = parseFunding(raw)
+      const result = parseFields(raw, { executed: true, rate: true })
       cb(null, result)
     } catch (err) {
       this._err(err, 'getFundingOfferHistory', cb)
@@ -152,7 +151,8 @@ class ReportService extends Api {
       const maxLimit = 5000
       const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.fundingLoanHistory(...params)
+      const raw = await rest.fundingLoanHistory(...params)
+      const result = parseFields(raw, { rate: true })
       cb(null, result)
     } catch (err) {
       this._err(err, 'getFundingLoanHistory', cb)
@@ -164,7 +164,8 @@ class ReportService extends Api {
       const maxLimit = 5000
       const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.fundingCreditHistory(...params)
+      const raw = await rest.fundingCreditHistory(...params)
+      const result = parseFields(raw, { rate: true })
       cb(null, result)
     } catch (err) {
       this._err(err, 'getFundingCreditHistory', cb)
@@ -379,14 +380,14 @@ class ReportService extends Api {
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
-          side: 'SIDE',
           amount: 'AMOUNT',
-          status: 'STATUS',
-          rate: 'RATE(% PER DAY)',
           period: 'PERIOD',
+          rate: 'RATE(% PER DAY)',
           mtsOpening: 'OPENED',
           mtsLastPayout: 'CLOSED',
-          mtsUpdate: 'DATE'
+          mtsUpdate: 'DATE',
+          side: 'SIDE',
+          status: 'STATUS'
         },
         formatSettings: {
           side: 'side',
@@ -422,15 +423,15 @@ class ReportService extends Api {
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
-          side: 'SIDE',
           amount: 'AMOUNT',
-          status: 'STATUS',
-          rate: 'RATE(% PER DAY)',
           period: 'PERIOD',
+          rate: 'RATE(% PER DAY)',
           mtsOpening: 'OPENED',
           mtsLastPayout: 'CLOSED',
-          positionPair: 'POSITION PAIR',
-          mtsUpdate: 'DATE'
+          mtsUpdate: 'DATE',
+          side: 'SIDE',
+          status: 'STATUS',
+          positionPair: 'POSITION PAIR'
         },
         formatSettings: {
           side: 'side',
