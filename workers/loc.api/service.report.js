@@ -9,7 +9,8 @@ const {
   getCsvStoreStatus,
   hasJobInQueueWithStatusBy,
   toString,
-  parseOrders
+  parseOrders,
+  parseFunding
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -138,7 +139,8 @@ class ReportService extends Api {
       const maxLimit = 5000
       const params = getParams(args, maxLimit)
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.fundingOfferHistory(...params)
+      const raw = await rest.fundingOfferHistory(...params)
+      const result = parseFunding(raw)
       cb(null, result)
     } catch (err) {
       this._err(err, 'getFundingOfferHistory', cb)
@@ -336,15 +338,17 @@ class ReportService extends Api {
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
-          amount: 'AMOUNT',
-          amountOrig: 'ORIGINAL AMOUNT',
           type: 'TYPE',
-          status: 'STATUS',
+          amount: 'AMOUNT',
+          amountExecuted: 'EXECUTED AMOUNT',
           rate: 'RATE(% PER DAY)',
-          period: 'PERIOD',
-          mtsUpdate: 'DATE'
+          mtsCreate: 'CREATED',
+          mtsUpdate: 'UPDATED',
+          status: 'STATUS',
+          period: 'PERIOD'
         },
         formatSettings: {
+          mtsCreate: 'date',
           mtsUpdate: 'date',
           symbol: 'symbol'
         }

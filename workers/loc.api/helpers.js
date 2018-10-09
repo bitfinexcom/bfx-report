@@ -151,6 +151,14 @@ const parseOrders = (res) => {
   }, [])
 }
 
+const parseFunding = (res) => {
+  return _.transform(res, (result, funding, key) => {
+    funding.amountExecuted = funding.amountOrig - funding.amount
+    funding.rate = funding.rate || 'Flash Return Rate'
+    result.push(funding)
+  }, [])
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -162,5 +170,6 @@ module.exports = {
   toString,
   isAuthError,
   isEnotfoundError,
-  parseOrders
+  parseOrders,
+  parseFunding
 }
