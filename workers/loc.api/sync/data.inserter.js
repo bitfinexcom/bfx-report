@@ -185,15 +185,14 @@ class DataInserter extends EventEmitter {
     let res = null
 
     while (true) {
-      countRateLimitError += 1
-      countNonceSmallError += 1
-
       try {
         res = await this.reportService[methodApi](args)
 
         break
       } catch (err) {
         if (isRateLimitError(err)) {
+          countRateLimitError += 1
+
           if (countRateLimitError > 1) {
             throw err
           }
@@ -202,6 +201,8 @@ class DataInserter extends EventEmitter {
 
           continue
         } else if (isNonceSmallError(err)) {
+          countNonceSmallError += 1
+
           if (countNonceSmallError > 20) {
             throw err
           }

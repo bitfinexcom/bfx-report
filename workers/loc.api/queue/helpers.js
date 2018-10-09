@@ -16,16 +16,19 @@ const readFile = promisify(fs.readFile)
 const rename = promisify(fs.rename)
 const chmod = promisify(fs.chmod)
 
-const {
-  isRateLimitError,
-  isNonceSmallError
-} = require('../helpers')
-
 const tempDirPath = path.join(__dirname, 'temp')
 const rootDir = path.dirname(require.main.filename)
 const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 const isElectronjsEnv = argv.isElectronjsEnv
+
+const isRateLimitError = (err) => {
+  return /ERR_RATE_LIMIT/.test(err.toString())
+}
+
+const isNonceSmallError = (err) => {
+  return /nonce: small/.test(err.toString())
+}
 
 const _checkAndCreateDir = async (dirPath) => {
   const basePath = path.join(dirPath, '..')
@@ -180,29 +183,20 @@ const _filterMovementsByAmount = (res, args) => {
   return res
 }
 
-const _getDataFromApi = async (reportService, method, args) => {
-  if (
-    typeof reportService[method] !== 'function'
-  ) {
-    throw new Error('ERR_METHOD_NOT_FOUND')
-  }
-
-  const getData = promisify(reportService[method].bind(reportService))
-
+const _getDataFromApi = async (getData, args) => {
   let countRateLimitError = 0
   let countNonceSmallError = 0
   let res = null
 
   while (true) {
-    countRateLimitError += 1
-    countNonceSmallError += 1
-
     try {
       res = await getData(null, args)
 
       break
     } catch (err) {
       if (isRateLimitError(err)) {
+        countRateLimitError += 1
+
         if (countRateLimitError > 1) {
           throw err
         }
@@ -211,6 +205,8 @@ const _getDataFromApi = async (reportService, method, args) => {
 
         continue
       } else if (isNonceSmallError(err)) {
+        countNonceSmallError += 1
+
         if (countNonceSmallError > 20) {
           throw err
         }
@@ -233,6 +229,11 @@ const writeDataToStream = async (reportService, stream, job) => {
   }
 
   const method = job.data.name
+
+  if (typeof reportService[method] !== 'function') {
+    throw new Error('ERR_METHOD_NOT_FOUND')
+  }
+
   const queue = reportService.ctx.lokue_aggregator.q
 
   const _args = _.cloneDeep(job.data.args)
@@ -245,13 +246,15 @@ const writeDataToStream = async (reportService, stream, job) => {
 
   const currIterationArgs = _.cloneDeep(_args)
 
+  const getData = promisify(reportService[method].bind(reportService))
+
   let res = null
   let count = 0
 
   while (true) {
     queue.emit('progress', 0)
 
-    res = await _getDataFromApi(reportService, method, currIterationArgs)
+    res = await _getDataFromApi(getData, currIterationArgs)
 
     if (!res || !Array.isArray(res) || res.length === 0) {
       if (count > 0) queue.emit('progress', 100)
