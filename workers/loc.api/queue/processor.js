@@ -8,9 +8,10 @@ const unlink = promisify(fs.unlink)
 const {
   createUniqueFileName,
   writableToPromise,
-  writeDataToStream,
-  isAuthError
+  writeDataToStream
 } = require('./helpers')
+
+const { isAuthError } = require('../helpers')
 
 let reportService = null
 

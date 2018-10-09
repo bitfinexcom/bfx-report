@@ -16,6 +16,11 @@ const readFile = promisify(fs.readFile)
 const rename = promisify(fs.rename)
 const chmod = promisify(fs.chmod)
 
+const {
+  isRateLimitError,
+  isNonceSmallError
+} = require('../helpers')
+
 const tempDirPath = path.join(__dirname, 'temp')
 const rootDir = path.dirname(require.main.filename)
 const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
@@ -74,14 +79,6 @@ const writableToPromise = stream => {
       reject(err)
     })
   })
-}
-
-const _isRateLimitError = (err) => {
-  return /ERR_RATE_LIMIT/.test(err.toString())
-}
-
-const isAuthError = (err) => {
-  return /(apikey: digest invalid)|(apikey: invalid)/.test(err.toString())
 }
 
 const _delay = (mc = 80000) => {
@@ -183,6 +180,51 @@ const _filterMovementsByAmount = (res, args) => {
   return res
 }
 
+const _getDataFromApi = async (reportService, method, args) => {
+  if (
+    typeof reportService[method] !== 'function'
+  ) {
+    throw new Error('ERR_METHOD_NOT_FOUND')
+  }
+
+  const getData = promisify(reportService[method].bind(reportService))
+
+  let countRateLimitError = 0
+  let countNonceSmallError = 0
+  let res = null
+
+  while (true) {
+    countRateLimitError += 1
+    countNonceSmallError += 1
+
+    try {
+      res = await getData(null, args)
+
+      break
+    } catch (err) {
+      if (isRateLimitError(err)) {
+        if (countRateLimitError > 1) {
+          throw err
+        }
+
+        await _delay()
+
+        continue
+      } else if (isNonceSmallError(err)) {
+        if (countNonceSmallError > 20) {
+          throw err
+        }
+
+        await _delay(1000)
+
+        continue
+      } else throw err
+    }
+  }
+
+  return res
+}
+
 const writeDataToStream = async (reportService, stream, job) => {
   if (typeof job === 'string') {
     _writeMessageToStream(reportService, stream, job)
@@ -191,11 +233,6 @@ const writeDataToStream = async (reportService, stream, job) => {
   }
 
   const method = job.data.name
-
-  if (typeof reportService[method] !== 'function') {
-    throw new Error('ERR_METHOD_NOT_FOUND')
-  }
-
   const queue = reportService.ctx.lokue_aggregator.q
 
   const _args = _.cloneDeep(job.data.args)
@@ -208,22 +245,13 @@ const writeDataToStream = async (reportService, stream, job) => {
 
   const currIterationArgs = _.cloneDeep(_args)
 
-  const getData = promisify(reportService[method].bind(reportService))
-
   let res = null
   let count = 0
 
   while (true) {
     queue.emit('progress', 0)
 
-    try {
-      res = await getData(null, currIterationArgs)
-    } catch (err) {
-      if (_isRateLimitError(err)) {
-        await _delay()
-        res = await getData(null, currIterationArgs)
-      } else throw err
-    }
+    res = await _getDataFromApi(reportService, method, currIterationArgs)
 
     if (!res || !Array.isArray(res) || res.length === 0) {
       if (count > 0) queue.emit('progress', 100)
@@ -424,7 +452,6 @@ module.exports = {
   createUniqueFileName,
   writableToPromise,
   writeDataToStream,
-  isAuthError,
   uploadS3,
   sendMail,
   moveFileToLocalStorage,

@@ -142,7 +142,7 @@ const toString = (obj) => {
 }
 
 const isAuthError = (err) => {
-  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
+  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
 }
 
 const isEnotfoundError = (err) => {
@@ -151,6 +151,14 @@ const isEnotfoundError = (err) => {
 
 const isEaiAgainError = (err) => {
   return /EAI_AGAIN/.test(err.toString())
+}
+
+const isRateLimitError = (err) => {
+  return /ERR_RATE_LIMIT/.test(err.toString())
+}
+
+const isNonceSmallError = (err) => {
+  return /nonce: small/.test(err.toString())
 }
 
 const parseFields = (res, opts) => {
@@ -176,6 +184,8 @@ module.exports = {
   isAuthError,
   isEnotfoundError,
   isEaiAgainError,
+  isRateLimitError,
+  isNonceSmallError,
   parseFields,
   accountCache
 }

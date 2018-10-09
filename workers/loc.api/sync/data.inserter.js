@@ -4,6 +4,10 @@ const EventEmitter = require('events')
 const _ = require('lodash')
 
 const { setProgress, delay } = require('./helpers')
+const {
+  isRateLimitError,
+  isNonceSmallError
+} = require('../helpers')
 const { getMethodCollMap } = require('./schema')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
@@ -127,7 +131,7 @@ class DataInserter extends EventEmitter {
         { ...auth },
         item.sort
       )
-      const lastElemFromApi = await this.reportService[method](args)
+      const lastElemFromApi = await this._getDataFromApi(method, args)
 
       methodCollMap.get(method).hasNewData = false
 
@@ -169,6 +173,49 @@ class DataInserter extends EventEmitter {
     return coll.type === 'updatable:array'
   }
 
+  async _getDataFromApi (methodApi, args) {
+    if (
+      typeof this.reportService[methodApi] !== 'function'
+    ) {
+      throw new Error('ERR_METHOD_NOT_FOUND')
+    }
+
+    let countRateLimitError = 0
+    let countNonceSmallError = 0
+    let res = null
+
+    while (true) {
+      countRateLimitError += 1
+      countNonceSmallError += 1
+
+      try {
+        res = await this.reportService[methodApi](args)
+
+        break
+      } catch (err) {
+        if (isRateLimitError(err)) {
+          if (countRateLimitError > 1) {
+            throw err
+          }
+
+          await delay()
+
+          continue
+        } else if (isNonceSmallError(err)) {
+          if (countNonceSmallError > 20) {
+            throw err
+          }
+
+          await delay(1000)
+
+          continue
+        } else throw err
+      }
+    }
+
+    return res
+  }
+
   async _insertApiDataArrObjTypeToDb (
     auth,
     methodApi,
@@ -176,11 +223,6 @@ class DataInserter extends EventEmitter {
   ) {
     if (!this._isInsertableArrObjTypeOfColl(schema)) {
       return
-    }
-    if (
-      typeof this.reportService[methodApi] !== 'function'
-    ) {
-      throw new Error('ERR_METHOD_NOT_FOUND')
     }
 
     const {
@@ -199,14 +241,7 @@ class DataInserter extends EventEmitter {
     let timeOfPrevIteration = _args.params.end
 
     while (true) {
-      try {
-        res = await this.reportService[methodApi](currIterationArgs)
-      } catch (err) {
-        if (this._isRateLimitError(err)) {
-          await delay()
-          res = await this.reportService[methodApi](currIterationArgs)
-        } else throw err
-      }
+      res = await this._getDataFromApi(methodApi, currIterationArgs)
 
       if (
         !res ||
@@ -266,11 +301,6 @@ class DataInserter extends EventEmitter {
     if (!this._isUpdatableArrTypeOfColl(schema)) {
       return
     }
-    if (
-      typeof this.reportService[methodApi] !== 'function'
-    ) {
-      throw new Error('ERR_METHOD_NOT_FOUND')
-    }
 
     const {
       name: collName,
@@ -278,7 +308,7 @@ class DataInserter extends EventEmitter {
     } = schema
 
     const args = this._getMethodArgMap(methodApi, { ...auth }, null, null, null)
-    const elemsFromApi = await this.reportService[methodApi](args)
+    const elemsFromApi = await this._getDataFromApi(methodApi, args)
 
     if (
       Array.isArray(elemsFromApi) &&
@@ -303,11 +333,6 @@ class DataInserter extends EventEmitter {
     if (!this._isUpdatableArrObjTypeOfColl(schema)) {
       return
     }
-    if (
-      typeof this.reportService[methodApi] !== 'function'
-    ) {
-      throw new Error('ERR_METHOD_NOT_FOUND')
-    }
 
     const {
       name: collName,
@@ -316,7 +341,7 @@ class DataInserter extends EventEmitter {
     } = schema
 
     const args = this._getMethodArgMap(methodApi, { ...auth }, null, null, null)
-    const elemsFromApi = await this.reportService[methodApi](args)
+    const elemsFromApi = await this._getDataFromApi(methodApi, args)
 
     if (
       Array.isArray(elemsFromApi) &&
@@ -367,10 +392,6 @@ class DataInserter extends EventEmitter {
 
   _getMethodCollMap () {
     return new Map(this._methodCollMap)
-  }
-
-  _isRateLimitError (err) {
-    return /ERR_RATE_LIMIT/.test(err.toString())
   }
 
   _normalizeApiData (data = [], model) {
