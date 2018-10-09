@@ -1,19 +1,21 @@
 'use strict'
 
 const { promisify } = require('util')
-const { isEmpty } = require('lodash')
+const { isEmpty, pick } = require('lodash')
 
 const ReportService = require('./service.report')
+const DAO = require('./sync/dao/dao')
 const {
   checkParams,
   checkParamsAuth,
-  convertPairsToCoins,
   isAuthError,
-  isEnotfoundError
+  isEnotfoundError,
+  isEaiAgainError
 } = require('./helpers')
 const {
   collObjToArr,
-  getProgress
+  getProgress,
+  delay
 } = require('./sync/helpers')
 const { getMethodCollMap } = require('./sync/schema')
 const sync = require('./sync')
@@ -81,7 +83,7 @@ class MediatorReportService extends ReportService {
       const group = wrk.group
       const conf = wrk.conf[group]
 
-      const _err = isEnotfoundError(err)
+      const _err = isEnotfoundError(err) || isEaiAgainError(err)
         ? new Error(`The server ${conf.restUrl} is not available`)
         : null
 
@@ -98,8 +100,12 @@ class MediatorReportService extends ReportService {
 
   async enableSyncMode (space, args, cb) {
     try {
-      await this.dao.checkAuthInDb(args)
+      checkParamsAuth(args)
       await this.dao.updateStateOf('syncMode', true)
+      await this.dao.updateUserByAuth({
+        ...pick(args.auth, ['apiKey', 'apiSecret']),
+        isDataFromDb: 1
+      })
 
       if (!cb) return true
       cb(null, true)
@@ -111,8 +117,11 @@ class MediatorReportService extends ReportService {
 
   async disableSyncMode (space, args, cb) {
     try {
-      await this.dao.checkAuthInDb(args)
-      await this.dao.updateStateOf('syncMode', false)
+      checkParamsAuth(args)
+      await this.dao.updateUserByAuth({
+        ...pick(args.auth, ['apiKey', 'apiSecret']),
+        isDataFromDb: 0
+      })
 
       if (!cb) return true
       cb(null, true)
@@ -124,21 +133,19 @@ class MediatorReportService extends ReportService {
 
   async isSyncModeWithDbData (space, args, cb) {
     try {
+      const user = await this.dao.checkAuthInDb(args, false)
       const firstElem = await this.dao.getFirstElemInCollBy('syncMode')
 
-      let res = !isEmpty(firstElem) && !!firstElem.isEnable
-
-      const isSyncMode = await this.isSyncModeConfig()
-
-      if (isEmpty(firstElem) && isSyncMode) {
-        res = true
-      }
+      const res = !isEmpty(firstElem) &&
+        !isEmpty(user) &&
+        !!firstElem.isEnable &&
+        user.isDataFromDb
 
       if (!cb) return res
       cb(null, res)
     } catch (err) {
-      if (!cb) return false
-      cb(null, false)
+      if (!cb) throw err
+      cb(err)
     }
   }
 
@@ -204,7 +211,32 @@ class MediatorReportService extends ReportService {
         await this.dao.checkAuthInDb(args)
       }
 
-      const res = await sync()
+      let res = await sync()
+
+      if (typeof res === 'number' && res < 100) {
+        let count = 0
+
+        while (true) {
+          count += 1
+
+          await delay(1000)
+
+          if (count > 30) {
+            res = 'Synchronization is not complete'
+
+            break
+          }
+
+          if (
+            typeof res !== 'number' ||
+            res >= 100
+          ) {
+            break
+          }
+
+          res = await this.getSyncProgress()
+        }
+      }
 
       if (!cb) return res
       cb(null, res)
@@ -219,7 +251,7 @@ class MediatorReportService extends ReportService {
    */
   async getEmail (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getEmail(space, args, cb)
 
         return
@@ -238,7 +270,7 @@ class MediatorReportService extends ReportService {
    */
   async getSymbols (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getSymbols(space, args, cb)
 
         return
@@ -246,11 +278,13 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const method = '_getSymbols'
-      const { field } = getMethodCollMap().get(method)
-      const symbols = await this.dao.findInCollBy(method, args)
+      const symbolsMethod = '_getSymbols'
+      const currenciesMethod = '_getCurrencies'
+      const { field } = getMethodCollMap().get(symbolsMethod)
+      const symbols = await this.dao.findInCollBy(symbolsMethod, args)
+      const currencies = await this.dao.findInCollBy(currenciesMethod, args)
       const pairs = collObjToArr(symbols, field)
-      const res = convertPairsToCoins(pairs)
+      const res = { pairs, currencies }
 
       cb(null, res)
     } catch (err) {
@@ -263,7 +297,7 @@ class MediatorReportService extends ReportService {
    */
   async getLedgers (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getLedgers(space, args, cb)
 
         return
@@ -284,7 +318,7 @@ class MediatorReportService extends ReportService {
    */
   async getTrades (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getTrades(space, args, cb)
 
         return
@@ -305,7 +339,7 @@ class MediatorReportService extends ReportService {
    */
   async getOrders (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getOrders(space, args, cb)
 
         return
@@ -326,7 +360,7 @@ class MediatorReportService extends ReportService {
    */
   async getMovements (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getMovements(space, args, cb)
 
         return
@@ -347,7 +381,7 @@ class MediatorReportService extends ReportService {
    */
   async getFundingOfferHistory (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getFundingOfferHistory(space, args, cb)
 
         return
@@ -368,7 +402,7 @@ class MediatorReportService extends ReportService {
    */
   async getFundingLoanHistory (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getFundingLoanHistory(space, args, cb)
 
         return
@@ -389,7 +423,7 @@ class MediatorReportService extends ReportService {
    */
   async getFundingCreditHistory (space, args, cb) {
     try {
-      if (!await this.isSyncModeWithDbData()) {
+      if (!await this.isSyncModeWithDbData(space, args)) {
         super.getFundingCreditHistory(space, args, cb)
 
         return
@@ -449,11 +483,25 @@ class MediatorReportService extends ReportService {
     return email
   }
 
+  async _syncModeInitialize () {
+    await this._databaseInitialize()
+
+    await this.dao.updateProgress('SYNCHRONIZATION_HAS_NOT_STARTED_YET')
+    await this.dao.updateStateOf('syncMode', true)
+    await this.dao.updateStateOf('scheduler', true)
+  }
+
   /**
    * @abstract
    */
-  async _databaseInitialize () {
-    throw new Error('NOT_IMPLEMENTED')
+  async _databaseInitialize (dao) {
+    if (!dao || !(dao instanceof DAO)) {
+      throw new Error('ERR_DAO_NOT_INITIALIZED')
+    }
+
+    this.dao = dao
+
+    await this.dao.databaseInitialize()
   }
 }
 

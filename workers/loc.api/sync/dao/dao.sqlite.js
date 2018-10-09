@@ -1,6 +1,6 @@
 'use strict'
 
-const { isEmpty } = require('lodash')
+const { isEmpty, pick } = require('lodash')
 
 const DAO = require('./dao')
 const {
@@ -60,7 +60,6 @@ class SqliteDAO extends DAO {
       await this._createTablesIfNotExists()
       await this._createIndexisIfNotExists()
       await this._run('COMMIT')
-      await this.updateProgress('SYNCHRONIZATION_HAS_NOT_STARTED_YET')
     } catch (err) {
       await this._run('ROLLBACK')
 
@@ -88,7 +87,7 @@ class SqliteDAO extends DAO {
     for (let currItem of this._getMethodCollMap()) {
       const item = currItem[1]
 
-      if (item.type === 'array:object') {
+      if (item.type === 'insertable:array:objects') {
         let sql = `CREATE INDEX IF NOT EXISTS ${item.name}_${item.dateFieldName}_${item.symbolFieldName}
           ON ${item.name}(${item.dateFieldName}, ${item.symbolFieldName})`
 
@@ -187,12 +186,63 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async checkAuthInDb (args) {
+  async insertElemsToDbIfNotExists (name, data = []) {
+    try {
+      await this._run('BEGIN TRANSACTION')
+
+      for (const obj of data) {
+        const keys = Object.keys(obj)
+
+        if (keys.length === 0) {
+          continue
+        }
+
+        const fields = keys.join(', ')
+        const values = {}
+        let where = 'WHERE '
+        const placeholders = keys
+          .map((item, i) => {
+            const key = `$${item}`
+            where += `${i > 0 ? ' AND ' : ''}${item} = ${key}`
+
+            if (typeof obj[item] === 'boolean') {
+              values[key] = +obj[item]
+            } else if (typeof obj[item] === 'object') {
+              values[key] = JSON.stringify(obj[item])
+            } else {
+              values[key] = obj[item]
+            }
+
+            return `${key}`
+          })
+          .join(', ')
+
+        const sql = `INSERT INTO ${name}(${fields}) SELECT ${placeholders}
+                      WHERE NOT EXISTS(SELECT 1 FROM ${name} ${where})`
+
+        await this._run(sql, values)
+      }
+
+      await this._run('COMMIT')
+    } catch (err) {
+      await this._run('ROLLBACK')
+
+      throw err
+    }
+  }
+
+  /**
+   * @override
+   */
+  async checkAuthInDb (args, isCheckActiveState = true) {
     checkParamsAuth(args)
 
     const user = await this._getUserByAuth(args.auth)
 
-    if (isEmpty(user) || !user.active) {
+    if (
+      isEmpty(user) ||
+      (isCheckActiveState && !user.active)
+    ) {
       throw new Error('ERR_AUTH_UNAUTHORIZED')
     }
 
@@ -209,8 +259,9 @@ class SqliteDAO extends DAO {
       $apiSecret: auth.apiSecret
     })
 
-    if (res && typeof res.active === 'boolean') {
+    if (res && typeof res === 'object') {
       res.active = !!res.active
+      res.isDataFromDb = !!res.isDataFromDb
     }
 
     return res
@@ -233,7 +284,7 @@ class SqliteDAO extends DAO {
     let where = ''
     const sort = []
 
-    if (methodColl.type === 'array:object') {
+    if (methodColl.type === 'insertable:array:objects') {
       values['$start'] = params.start ? params.start : 0
       values['$end'] = params.end ? params.end : (new Date()).getTime()
       where += `WHERE ${methodColl.dateFieldName} >= $start
@@ -259,7 +310,10 @@ class SqliteDAO extends DAO {
       })
     }
 
-    if (methodColl.type !== 'array') {
+    if (
+      method !== '_getCurrencies' &&
+      method !== '_getSymbols'
+    ) {
       exclude.push('user_id')
       values['$user_id'] = user._id
       where += `AND user_id = $user_id`
@@ -301,6 +355,13 @@ class SqliteDAO extends DAO {
             boolFields.some(item => item === key)
           ) {
             obj[key] = !!obj[key]
+          } else if (
+            typeof obj[key] === 'string' &&
+            key === 'rate'
+          ) {
+            const val = parseFloat(obj[key])
+
+            obj[key] = isFinite(val) ? val : obj[key]
           }
         }
       })
@@ -359,7 +420,8 @@ class SqliteDAO extends DAO {
           email: data.email,
           apiKey: data.apiKey,
           apiSecret: data.apiSecret,
-          active: 1
+          active: 1,
+          isDataFromDb: 1
         }]
       )
     }
@@ -388,11 +450,8 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async deactivateUser (auth) {
-    const res = await this._updateCollBy('users', ['apiKey', 'apiSecret'], {
-      ...auth,
-      active: 0
-    })
+  async updateUserByAuth (data) {
+    const res = await this._updateCollBy('users', ['apiKey', 'apiSecret'], data)
 
     if (res && res.changes < 1) {
       throw new Error('ERR_AUTH_UNAUTHORIZED')
@@ -404,7 +463,16 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  getElemsInCollBy (collName) {
+  async deactivateUser (auth) {
+    const res = await this.updateUserByAuth({
+      ...pick(auth, ['apiKey', 'apiSecret']),
+      active: 0
+    })
+
+    return res
+  }
+
+  _getElemsInCollBy (collName) {
     const sql = `SELECT * FROM ${collName}`
 
     return this._all(sql)
@@ -451,8 +519,36 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
+  async removeElemsFromDbIfNotInLists (name, lists) {
+    const values = {}
+    let where = Object.keys(lists).reduce((accum, curr, i) => {
+      if (!Array.isArray(lists[curr])) {
+        throw new Error('ERR_LIST_IS_NOT_ARRAY')
+      }
+
+      let key = '('
+
+      key += lists[curr].map((item, i) => {
+        const subKey = `$${curr}_${i}`
+        values[subKey] = item
+
+        return subKey
+      }).join(', ')
+      key += ')'
+
+      return `${accum}${i > 0 ? ' AND ' : ''}${curr} NOT IN ${key}`
+    }, 'WHERE ')
+
+    const sql = `DELETE FROM ${name} ${where}`
+
+    await this._run(sql, values)
+  }
+
+  /**
+   * @override
+   */
   async updateStateOf (name, isEnable = 1) {
-    const elems = await this.getElemsInCollBy(name)
+    const elems = await this._getElemsInCollBy(name)
     const data = {
       isEnable: isEnable ? 1 : 0
     }
@@ -504,7 +600,7 @@ class SqliteDAO extends DAO {
    */
   async updateProgress (value) {
     const name = 'progress'
-    const elems = await this.getElemsInCollBy(name)
+    const elems = await this._getElemsInCollBy(name)
     const data = {
       value: JSON.stringify(value)
     }

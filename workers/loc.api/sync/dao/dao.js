@@ -56,12 +56,12 @@ class DAO {
   /**
    * @abstract
    */
-  async deactivateUser () { throw new Error('NOT_IMPLEMENTED') }
+  async updateUserByAuth () { throw new Error('NOT_IMPLEMENTED') }
 
   /**
    * @abstract
    */
-  async getElemsInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+  async deactivateUser () { throw new Error('NOT_IMPLEMENTED') }
 
   /**
    * @abstract
@@ -82,6 +82,16 @@ class DAO {
    * @abstract
    */
   async updateProgress () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async insertElemsToDbIfNotExists () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async removeElemsFromDbIfNotInLists () { throw new Error('NOT_IMPLEMENTED') }
 }
 
 module.exports = DAO

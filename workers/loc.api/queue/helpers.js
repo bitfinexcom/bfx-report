@@ -5,7 +5,7 @@ const path = require('path')
 const fs = require('fs')
 const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
-const moment = require('moment')
+const moment = require('moment-timezone')
 const pug = require('pug')
 const argv = require('yargs').argv
 
@@ -21,6 +21,14 @@ const rootDir = path.dirname(require.main.filename)
 const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 const isElectronjsEnv = argv.isElectronjsEnv
+
+const isRateLimitError = (err) => {
+  return /ERR_RATE_LIMIT/.test(err.toString())
+}
+
+const isNonceSmallError = (err) => {
+  return /nonce: small/.test(err.toString())
+}
 
 const _checkAndCreateDir = async (dirPath) => {
   const basePath = path.join(dirPath, '..')
@@ -76,14 +84,6 @@ const writableToPromise = stream => {
   })
 }
 
-const _isRateLimitError = (err) => {
-  return /ERR_RATE_LIMIT/.test(err.toString())
-}
-
-const isAuthError = (err) => {
-  return /(apikey: digest invalid)|(apikey: invalid)/.test(err.toString())
-}
-
 const _delay = (mc = 80000) => {
   return new Promise((resolve) => {
     setTimeout(resolve, mc)
@@ -92,9 +92,15 @@ const _delay = (mc = 80000) => {
 
 const _formatters = {
   date: (val, { timezone = 0 }) => {
-    return Number.isInteger(val)
-      ? moment(val).utcOffset(timezone).format('DD-MM-YYYY HH:mm:ss')
-      : val
+    if (Number.isInteger(val)) {
+      const format = 'YY-MM-DD HH:mm:ss'
+
+      return _.isNumber(timezone)
+        ? moment(val).utcOffset(timezone).format(format)
+        : moment(val).tz(timezone).format(format)
+    }
+
+    return val
   },
   symbol: symbol => `${symbol.slice(1, 4)}${symbol[4] ? '/' : ''}${symbol.slice(4, 7)}`,
   side: side => {
@@ -177,6 +183,44 @@ const _filterMovementsByAmount = (res, args) => {
   return res
 }
 
+const _getDataFromApi = async (getData, args) => {
+  let countRateLimitError = 0
+  let countNonceSmallError = 0
+  let res = null
+
+  while (true) {
+    try {
+      res = await getData(null, args)
+
+      break
+    } catch (err) {
+      if (isRateLimitError(err)) {
+        countRateLimitError += 1
+
+        if (countRateLimitError > 1) {
+          throw err
+        }
+
+        await _delay()
+
+        continue
+      } else if (isNonceSmallError(err)) {
+        countNonceSmallError += 1
+
+        if (countNonceSmallError > 20) {
+          throw err
+        }
+
+        await _delay(1000)
+
+        continue
+      } else throw err
+    }
+  }
+
+  return res
+}
+
 const writeDataToStream = async (reportService, stream, job) => {
   if (typeof job === 'string') {
     _writeMessageToStream(reportService, stream, job)
@@ -210,14 +254,7 @@ const writeDataToStream = async (reportService, stream, job) => {
   while (true) {
     queue.emit('progress', 0)
 
-    try {
-      res = await getData(null, currIterationArgs)
-    } catch (err) {
-      if (_isRateLimitError(err)) {
-        await _delay()
-        res = await getData(null, currIterationArgs)
-      } else throw err
-    }
+    res = await _getDataFromApi(getData, currIterationArgs)
 
     if (!res || !Array.isArray(res) || res.length === 0) {
       if (count > 0) queue.emit('progress', 100)
@@ -418,7 +455,6 @@ module.exports = {
   createUniqueFileName,
   writableToPromise,
   writeDataToStream,
-  isAuthError,
   uploadS3,
   sendMail,
   moveFileToLocalStorage,

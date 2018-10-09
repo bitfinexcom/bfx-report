@@ -43,18 +43,15 @@ const logErrorAndSetProgress = async (reportService, err) => {
 
 const redirectRequestsToApi = async (
   reportService,
-  isNeedToRedirectRequestsToApi,
   state = true
 ) => {
-  if (isNeedToRedirectRequestsToApi) {
-    await reportService.dao.updateStateOf('syncMode', !state)
-  }
+  await reportService.dao.updateStateOf('syncMode', !state)
 }
 
-const isNeedToRedirectRequestsToApi = async (reportService) => {
-  const firstElem = await reportService.dao.getFirstElemInCollBy('syncMode')
-
-  return !isEmpty(firstElem) && !!firstElem.isEnable
+const delay = (mc = 80000) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, mc)
+  })
 }
 
 module.exports = {
@@ -63,5 +60,5 @@ module.exports = {
   collObjToArr,
   logErrorAndSetProgress,
   redirectRequestsToApi,
-  isNeedToRedirectRequestsToApi
+  delay
 }

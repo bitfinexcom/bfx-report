@@ -5,7 +5,6 @@ const {
   setProgress,
   getProgress,
   logErrorAndSetProgress,
-  isNeedToRedirectRequestsToApi,
   redirectRequestsToApi
 } = require('./helpers')
 
@@ -13,7 +12,6 @@ let reportService = null
 
 module.exports = async () => {
   let dataInserter = null
-  let _isNeedToRedirectRequestsToApi = false
 
   try {
     const isEnable = await reportService.isSchedulerEnabled()
@@ -29,8 +27,7 @@ module.exports = async () => {
     await reportService.pingApi()
 
     await setProgress(reportService, 0)
-    _isNeedToRedirectRequestsToApi = await isNeedToRedirectRequestsToApi(reportService)
-    await redirectRequestsToApi(reportService, _isNeedToRedirectRequestsToApi, true)
+    await redirectRequestsToApi(reportService, true)
 
     dataInserter = new DataInserter(reportService)
 
@@ -40,7 +37,7 @@ module.exports = async () => {
   }
 
   try {
-    await redirectRequestsToApi(reportService, _isNeedToRedirectRequestsToApi, false)
+    await redirectRequestsToApi(reportService, false)
   } catch (err) {
     await logErrorAndSetProgress(reportService, err)
   }

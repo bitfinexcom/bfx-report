@@ -300,13 +300,17 @@ const createMockRESTv2SrvWithDate = (
     'f_loan_hist': { limit: 5000 },
     'f_credit_hist': { limit: 5000 },
     'user_info': null,
-    'symbols': null
+    'symbols': null,
+    'currencies': null
   }
 ) => {
   const srv = _createMockRESTv2Srv()
 
   Object.entries(opts).forEach(([key, val]) => {
-    if (!Array.isArray(_getMockData(key)[0])) {
+    if (
+      !Array.isArray(_getMockData(key)[0]) ||
+      val === null
+    ) {
       srv.setResponse(key, _getMockData(key).slice())
 
       return
