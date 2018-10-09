@@ -67,10 +67,11 @@ class ReportService extends Api {
   async getSymbols (space, args, cb) {
     try {
       const cache = accountCache.get('symbols')
+
       if (cache) return cb(null, cache)
-      const rest = getREST({}, this.ctx.grc_bfx.caller)
-      const pairs = await rest.symbols()
-      const currencies = await rest.currencies()
+
+      const pairs = await this._getSymbols()
+      const currencies = await this._getCurrencies()
       const result = { pairs, currencies }
       accountCache.set('symbols', result)
 
@@ -84,6 +85,12 @@ class ReportService extends Api {
     const rest = getREST({}, this.ctx.grc_bfx.caller)
 
     return rest.symbols()
+  }
+
+  _getCurrencies () {
+    const rest = getREST({}, this.ctx.grc_bfx.caller)
+
+    return rest.currencies()
   }
 
   async getLedgers (space, args, cb) {
@@ -267,7 +274,7 @@ class ReportService extends Api {
           id: '#',
           symbol: 'PAIR',
           type: 'TYPE',
-          amount: 'AMOUNT',
+          amountOrig: 'AMOUNT',
           amountExecuted: 'EXECUTED AMOUNT',
           price: 'PRICE',
           priceAvg: 'AVERAGE EXECUTION PRICE',
@@ -345,7 +352,7 @@ class ReportService extends Api {
           id: '#',
           symbol: 'CURRENCY',
           type: 'TYPE',
-          amount: 'AMOUNT',
+          amountOrig: 'AMOUNT',
           amountExecuted: 'EXECUTED AMOUNT',
           rate: 'RATE(% PER DAY)',
           mtsCreate: 'CREATED',

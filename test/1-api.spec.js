@@ -233,7 +233,8 @@ describe('API', () => {
         'notify',
         'hidden',
         'renew',
-        'rateReal'
+        'rateReal',
+        'amountExecuted'
       ])
     }
   })
@@ -373,7 +374,8 @@ describe('API', () => {
         'mts',
         'amount',
         'balance',
-        'description'
+        'description',
+        'wallet'
       ])
     }
   })
@@ -406,7 +408,8 @@ describe('API', () => {
         'mts',
         'amount',
         'balance',
-        'description'
+        'description',
+        'wallet'
       ])
     }
   })
@@ -501,7 +504,8 @@ describe('API', () => {
         'priceTrailing',
         'priceAuxLimit',
         'notify',
-        'placedId'
+        'placedId',
+        'amountExecuted'
       ])
     }
   })

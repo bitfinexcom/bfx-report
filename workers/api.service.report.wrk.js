@@ -160,14 +160,10 @@ class WrkReportServiceApi extends WrkApi {
         }
 
         if (conf.syncMode) {
-          if (reportService._databaseInitialize) {
-            try {
-              await reportService._databaseInitialize()
-              await reportService.dao.updateStateOf('syncMode', true)
-              await reportService.dao.updateStateOf('scheduler', true)
-            } catch (err) {
-              this.logger.error(err.stack || err)
-            }
+          try {
+            await reportService._syncModeInitialize()
+          } catch (err) {
+            this.logger.error(err.stack || err)
           }
 
           sync.setReportService(reportService)

@@ -3,7 +3,11 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
 
-const { collObjToArr, setProgress } = require('./helpers')
+const { setProgress, delay } = require('./helpers')
+const {
+  isRateLimitError,
+  isNonceSmallError
+} = require('../helpers')
 const { getMethodCollMap } = require('./schema')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
@@ -96,7 +100,8 @@ class DataInserter extends EventEmitter {
 
     for (const [method, item] of methodCollMap) {
       await this._insertApiDataArrObjTypeToDb(auth, method, item)
-      await this._insertApiDataArrTypeToDb(auth, method, item)
+      await this._updateApiDataArrObjTypeToDb(auth, method, item)
+      await this._updateApiDataArrTypeToDb(auth, method, item)
 
       count += 1
       const progress = Math.round((count / methodCollMap.size) * 100 * userProgress)
@@ -110,14 +115,13 @@ class DataInserter extends EventEmitter {
     const methodCollMap = this._getMethodCollMap()
 
     await this._checkNewDataArrObjType(auth, methodCollMap)
-    await this._checkNewDataArrType(auth, methodCollMap)
 
     return new Map([...methodCollMap].filter(([key, value]) => value.hasNewData))
   }
 
   async _checkNewDataArrObjType (auth, methodCollMap) {
     for (let [method, item] of this._methodCollMap) {
-      if (!this._isArrObjTypeOfColl(item)) {
+      if (!this._isInsertableArrObjTypeOfColl(item)) {
         continue
       }
 
@@ -127,7 +131,7 @@ class DataInserter extends EventEmitter {
         { ...auth },
         item.sort
       )
-      const lastElemFromApi = await this.reportService[method](args)
+      const lastElemFromApi = await this._getDataFromApi(method, args)
 
       methodCollMap.get(method).hasNewData = false
 
@@ -157,49 +161,60 @@ class DataInserter extends EventEmitter {
     return methodCollMap
   }
 
-  async _checkNewDataArrType (auth, methodCollMap) {
-    for (let [method, item] of this._methodCollMap) {
-      if (!this._isArrTypeOfColl(item)) {
-        continue
-      }
+  _isInsertableArrObjTypeOfColl (coll) {
+    return coll.type === 'insertable:array:objects'
+  }
 
-      const {
-        diffApiToDb,
-        diffDbToApi
-      } = await this._getDiffElemsFromApiAndDb(method, item.name, item.field, auth)
+  _isUpdatableArrObjTypeOfColl (coll) {
+    return coll.type === 'updatable:array:objects'
+  }
 
-      if (
-        !_.isEmpty(diffApiToDb) ||
-        !_.isEmpty(diffDbToApi)
-      ) {
-        methodCollMap.get(method).hasNewData = true
+  _isUpdatableArrTypeOfColl (coll) {
+    return coll.type === 'updatable:array'
+  }
+
+  async _getDataFromApi (methodApi, args) {
+    if (
+      typeof this.reportService[methodApi] !== 'function'
+    ) {
+      throw new Error('ERR_METHOD_NOT_FOUND')
+    }
+
+    let countRateLimitError = 0
+    let countNonceSmallError = 0
+    let res = null
+
+    while (true) {
+      try {
+        res = await this.reportService[methodApi](args)
+
+        break
+      } catch (err) {
+        if (isRateLimitError(err)) {
+          countRateLimitError += 1
+
+          if (countRateLimitError > 1) {
+            throw err
+          }
+
+          await delay()
+
+          continue
+        } else if (isNonceSmallError(err)) {
+          countNonceSmallError += 1
+
+          if (countNonceSmallError > 20) {
+            throw err
+          }
+
+          await delay(1000)
+
+          continue
+        } else throw err
       }
     }
 
-    return methodCollMap
-  }
-
-  async _getDiffElemsFromApiAndDb (method, collName, fieldName, auth) {
-    const args = this._getMethodArgMap(method, { ...auth }, null, null, null)
-    const elemsFromApi = await this.reportService[method](args)
-    const collElemsFromDb = await this.dao.getElemsInCollBy(collName)
-    const elemsFromDb = collObjToArr(collElemsFromDb, fieldName)
-
-    const diffApiToDb = _.difference(elemsFromApi, elemsFromDb)
-    const diffDbToApi = _.difference(elemsFromDb, elemsFromApi)
-
-    return {
-      diffApiToDb,
-      diffDbToApi
-    }
-  }
-
-  _isArrObjTypeOfColl (coll) {
-    return coll.type === 'array:object'
-  }
-
-  _isArrTypeOfColl (coll) {
-    return coll.type === 'array'
+    return res
   }
 
   async _insertApiDataArrObjTypeToDb (
@@ -207,13 +222,8 @@ class DataInserter extends EventEmitter {
     methodApi,
     schema
   ) {
-    if (!this._isArrObjTypeOfColl(schema)) {
+    if (!this._isInsertableArrObjTypeOfColl(schema)) {
       return
-    }
-    if (
-      typeof this.reportService[methodApi] !== 'function'
-    ) {
-      throw new Error('ERR_METHOD_NOT_FOUND')
     }
 
     const {
@@ -232,14 +242,7 @@ class DataInserter extends EventEmitter {
     let timeOfPrevIteration = _args.params.end
 
     while (true) {
-      try {
-        res = await this.reportService[methodApi](currIterationArgs)
-      } catch (err) {
-        if (this._isRateLimitError(err)) {
-          await this._delay()
-          res = await this.reportService[methodApi](currIterationArgs)
-        } else throw err
-      }
+      res = await this._getDataFromApi(methodApi, currIterationArgs)
 
       if (
         !res ||
@@ -291,18 +294,13 @@ class DataInserter extends EventEmitter {
     }
   }
 
-  async _insertApiDataArrTypeToDb (
+  async _updateApiDataArrTypeToDb (
     auth,
     methodApi,
     schema
   ) {
-    if (!this._isArrTypeOfColl(schema)) {
+    if (!this._isUpdatableArrTypeOfColl(schema)) {
       return
-    }
-    if (
-      typeof this.reportService[methodApi] !== 'function'
-    ) {
-      throw new Error('ERR_METHOD_NOT_FOUND')
     }
 
     const {
@@ -310,40 +308,59 @@ class DataInserter extends EventEmitter {
       field
     } = schema
 
-    const {
-      diffApiToDb,
-      diffDbToApi
-    } = await this._getDiffElemsFromApiAndDb(methodApi, collName, field, auth)
+    const args = this._getMethodArgMap(methodApi, { ...auth }, null, null, null)
+    const elemsFromApi = await this._getDataFromApi(methodApi, args)
 
     if (
-      Array.isArray(diffDbToApi) &&
-      diffDbToApi.length > 0
+      Array.isArray(elemsFromApi) &&
+      elemsFromApi.length > 0
     ) {
-      const dataForRemove = {}
-      dataForRemove[field] = diffDbToApi
-
-      await this.dao.removeElemsFromDb(
+      await this.dao.removeElemsFromDbIfNotInLists(
         collName,
-        null,
-        dataForRemove
+        { [field]: elemsFromApi }
+      )
+      await this.dao.insertElemsToDbIfNotExists(
+        collName,
+        elemsFromApi.map(item => ({ [field]: item }))
       )
     }
+  }
+
+  async _updateApiDataArrObjTypeToDb (
+    auth,
+    methodApi,
+    schema
+  ) {
+    if (!this._isUpdatableArrObjTypeOfColl(schema)) {
+      return
+    }
+
+    const {
+      name: collName,
+      fields,
+      model
+    } = schema
+
+    const args = this._getMethodArgMap(methodApi, { ...auth }, null, null, null)
+    const elemsFromApi = await this._getDataFromApi(methodApi, args)
 
     if (
-      Array.isArray(diffApiToDb) &&
-      diffApiToDb.length > 0
+      Array.isArray(elemsFromApi) &&
+      elemsFromApi.length > 0
     ) {
-      const res = diffApiToDb.map(item => {
-        const obj = {}
-        obj[field] = item
+      const lists = fields.reduce((obj, curr) => {
+        obj[curr] = elemsFromApi.map(item => item[curr])
 
         return obj
-      })
+      }, {})
 
-      await this.dao.insertElemsToDb(
+      await this.dao.removeElemsFromDbIfNotInLists(
         collName,
-        null,
-        res
+        lists
+      )
+      await this.dao.insertElemsToDbIfNotExists(
+        collName,
+        this._normalizeApiData(elemsFromApi, model)
       )
     }
   }
@@ -376,16 +393,6 @@ class DataInserter extends EventEmitter {
 
   _getMethodCollMap () {
     return new Map(this._methodCollMap)
-  }
-
-  _delay (mc = 80000) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, mc)
-    })
-  }
-
-  _isRateLimitError (err) {
-    return /ERR_RATE_LIMIT/.test(err.toString())
   }
 
   _normalizeApiData (data = [], model) {

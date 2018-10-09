@@ -50,7 +50,11 @@ const checkParams = (args) => {
       (args.params.start && !Number.isInteger(args.params.start)) ||
       (args.params.end && !Number.isInteger(args.params.end)) ||
       (args.params.symbol && typeof args.params.symbol !== 'string') ||
-      (args.params.timezone && !Number.isInteger(args.params.timezone))
+      (
+        args.params.timezone &&
+        !_.isNumber(args.params.timezone) &&
+        typeof args.params.timezone !== 'string'
+      )
     )
   ) {
     throw new Error('ERR_ARGS_NO_PARAMS')
@@ -69,7 +73,7 @@ const checkParamsAuth = (args) => {
 }
 
 const getCsvStoreStatus = async (reportService, args) => {
-  if (typeof args.params.email !== 'string') {
+  if (!args.params || typeof args.params.email !== 'string') {
     return { isSaveLocaly: true }
   }
 
@@ -138,11 +142,23 @@ const toString = (obj) => {
 }
 
 const isAuthError = (err) => {
-  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
+  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
 }
 
 const isEnotfoundError = (err) => {
   return /ENOTFOUND/.test(err.toString())
+}
+
+const isEaiAgainError = (err) => {
+  return /EAI_AGAIN/.test(err.toString())
+}
+
+const isRateLimitError = (err) => {
+  return /ERR_RATE_LIMIT/.test(err.toString())
+}
+
+const isNonceSmallError = (err) => {
+  return /nonce: small/.test(err.toString())
 }
 
 const parseFields = (res, opts) => {
@@ -167,6 +183,9 @@ module.exports = {
   toString,
   isAuthError,
   isEnotfoundError,
+  isEaiAgainError,
+  isRateLimitError,
+  isNonceSmallError,
   parseFields,
   accountCache
 }

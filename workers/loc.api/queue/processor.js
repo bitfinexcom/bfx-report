@@ -8,9 +8,10 @@ const unlink = promisify(fs.unlink)
 const {
   createUniqueFileName,
   writableToPromise,
-  writeDataToStream,
-  isAuthError
+  writeDataToStream
 } = require('./helpers')
+
+const { isAuthError } = require('../helpers')
 
 let reportService = null
 
@@ -20,6 +21,13 @@ module.exports = async job => {
 
   try {
     filePath = await createUniqueFileName()
+
+    if (
+      !job.data.args.params &&
+      typeof job.data.args.params !== 'object'
+    ) {
+      job.data.args.params = {}
+    }
 
     const isUnauth = job.data.isUnauth || false
     const write = isUnauth ? 'Your file could not be completed, please try again' : job

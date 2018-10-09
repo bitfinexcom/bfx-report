@@ -8,7 +8,8 @@ const _models = new Map([
       email: 'VARCHAR(255)',
       apiKey: 'VARCHAR(255)',
       apiSecret: 'VARCHAR(255)',
-      active: 'INT'
+      active: 'INT',
+      isDataFromDb: 'INT'
     }
   ],
   [
@@ -21,6 +22,7 @@ const _models = new Map([
       amount: 'DECIMAL(22,12)',
       balance: 'DECIMAL(22,12)',
       description: 'TEXT',
+      wallet: 'VARCHAR(255)',
       user_id: `INT NOT NULL,
         CONSTRAINT ledgers_fk_#{field}
         FOREIGN KEY (#{field})
@@ -75,6 +77,7 @@ const _models = new Map([
       notify: 'INT',
       placedId: 'BIGINT',
       _lastAmount: 'DECIMAL(22,12)',
+      amountExecuted: 'DECIMAL(22,12)',
       user_id: `INT NOT NULL,
         CONSTRAINT orders_fk_#{field}
         FOREIGN KEY (#{field})
@@ -118,12 +121,13 @@ const _models = new Map([
       type: 'VARCHAR(255)',
       flags: 'TEXT',
       status: 'TEXT',
-      rate: 'DECIMAL(22,12)',
+      rate: 'VARCHAR(255)',
       period: 'INT',
       notify: 'INT',
       hidden: 'INT',
       renew: 'INT',
       rateReal: 'INT',
+      amountExecuted: 'DECIMAL(22,12)',
       user_id: `INT NOT NULL,
         CONSTRAINT fundingOfferHistory_fk_#{field}
         FOREIGN KEY (#{field})
@@ -144,7 +148,7 @@ const _models = new Map([
       amount: 'DECIMAL(22,12)',
       flags: 'TEXT',
       status: 'TEXT',
-      rate: 'DECIMAL(22,12)',
+      rate: 'VARCHAR(255)',
       period: 'INT',
       mtsOpening: 'BIGINT',
       mtsLastPayout: 'BIGINT',
@@ -173,7 +177,7 @@ const _models = new Map([
       amount: 'DECIMAL(22,12)',
       flags: 'TEXT',
       status: 'TEXT',
-      rate: 'DECIMAL(22,12)',
+      rate: 'VARCHAR(255)',
       period: 'INT',
       mtsOpening: 'BIGINT',
       mtsLastPayout: 'BIGINT',
@@ -196,6 +200,14 @@ const _models = new Map([
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       pairs: 'VARCHAR(255)'
+    }
+  ],
+  [
+    'currencies',
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'VARCHAR(255)',
+      name: 'VARCHAR(255)'
     }
   ],
   [
@@ -232,7 +244,7 @@ const _methodCollMap = new Map([
       sort: [['mts', -1]],
       hasNewData: false,
       start: 0,
-      type: 'array:object',
+      type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mts'],
       model: { ..._models.get('ledgers') }
     }
@@ -247,7 +259,7 @@ const _methodCollMap = new Map([
       sort: [['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
-      type: 'array:object',
+      type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsCreate', 'orderID', 'fee'],
       model: { ..._models.get('trades') }
     }
@@ -262,7 +274,7 @@ const _methodCollMap = new Map([
       sort: [['mtsUpdate', -1], ['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
-      type: 'array:object',
+      type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('orders') }
     }
@@ -277,7 +289,7 @@ const _methodCollMap = new Map([
       sort: [['mtsUpdated', -1], ['mtsStarted', -1]],
       hasNewData: false,
       start: 0,
-      type: 'array:object',
+      type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdated'],
       model: { ..._models.get('movements') }
     }
@@ -292,7 +304,7 @@ const _methodCollMap = new Map([
       sort: [['mtsUpdate', -1], ['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
-      type: 'array:object',
+      type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingOfferHistory') }
     }
@@ -307,7 +319,7 @@ const _methodCollMap = new Map([
       sort: [['mtsUpdate', -1], ['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
-      type: 'array:object',
+      type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingLoanHistory') }
     }
@@ -322,7 +334,7 @@ const _methodCollMap = new Map([
       sort: [['mtsUpdate', -1], ['mtsCreate', -1]],
       hasNewData: false,
       start: 0,
-      type: 'array:object',
+      type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get('fundingCreditHistory') }
     }
@@ -334,9 +346,21 @@ const _methodCollMap = new Map([
       maxLimit: 5000,
       field: 'pairs',
       sort: [['pairs', 1]],
-      hasNewData: false,
-      type: 'array',
+      hasNewData: true,
+      type: 'updatable:array',
       model: { ..._models.get('symbols') }
+    }
+  ],
+  [
+    '_getCurrencies',
+    {
+      name: 'currencies',
+      maxLimit: 5000,
+      fields: ['id', 'name'],
+      sort: [['name', 1]],
+      hasNewData: true,
+      type: 'updatable:array:objects',
+      model: { ..._models.get('currencies') }
     }
   ]
 ])
