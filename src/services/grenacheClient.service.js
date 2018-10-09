@@ -45,7 +45,7 @@ const request = (query, ...args) => {
   let _args = []
 
   if (typeof args[0] === 'function') {
-    _args[0] = { timeout: 10000 }
+    _args[0] = { timeout: 90000 }
     _args[1] = args[0]
   }
 
