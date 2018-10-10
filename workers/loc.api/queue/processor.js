@@ -20,14 +20,21 @@ module.exports = async job => {
   const processorQueue = reportService.ctx.lokue_processor.q
 
   try {
-    filePath = await createUniqueFileName()
-
     if (
       !job.data.args.params &&
       typeof job.data.args.params !== 'object'
     ) {
       job.data.args.params = {}
     }
+
+    const {
+      isZip,
+      email,
+      end: endDate,
+      start: startDate
+    } = job.data.args.params
+
+    filePath = await createUniqueFileName()
 
     const isUnauth = job.data.isUnauth || false
     const write = isUnauth ? 'Your file could not be completed, please try again' : job
@@ -55,10 +62,11 @@ module.exports = async job => {
       userId: job.data.userId,
       name: job.data.name,
       filePath,
-      email: job.data.args.params.email,
-      endDate: job.data.args.params.end,
-      startDate: job.data.args.params.start,
-      isUnauth
+      email,
+      endDate,
+      startDate,
+      isUnauth,
+      isZip
     })
   } catch (err) {
     try {

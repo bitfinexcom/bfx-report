@@ -7,12 +7,12 @@ const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
 const moment = require('moment-timezone')
 const pug = require('pug')
+const archiver = require('archiver')
 const argv = require('yargs').argv
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
-const readFile = promisify(fs.readFile)
 const rename = promisify(fs.rename)
 const chmod = promisify(fs.chmod)
 
@@ -53,7 +53,7 @@ const _checkAndCreateDir = async (dirPath) => {
   }
 }
 
-const createUniqueFileName = async (count = 0) => {
+const createUniqueFileName = async (isZip = false, count = 0) => {
   count += 1
 
   if (count > 20) {
@@ -62,12 +62,12 @@ const createUniqueFileName = async (count = 0) => {
 
   await _checkAndCreateDir(tempDirPath)
 
-  const uniqueFileName = `${uuidv4()}.csv`
+  const uniqueFileName = `${uuidv4()}.${isZip ? 'zip' : 'csv'}`
 
   const files = await readdir(tempDirPath)
 
   if (files.some(file => file === uniqueFileName)) {
-    return createUniqueFileName(count)
+    return createUniqueFileName(isZip, count)
   }
 
   return Promise.resolve(path.join(tempDirPath, uniqueFileName))
@@ -341,12 +341,13 @@ const _getBaseName = queueName => {
   return _fileNamesMap.get(queueName)
 }
 
-const _getCompleteFileName = (queueName, start, end) => {
+const _getCompleteFileName = (queueName, start, end, ext = 'csv') => {
   const baseName = _getBaseName(queueName)
   const timestamp = (new Date()).toISOString().split(':').join('-')
   const startDate = start ? _getDateString(start) : _getDateString(0)
   const endDate = end ? _getDateString(end) : _getDateString((new Date()).getTime())
-  const fileName = `${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
+  const _ext = ext ? `.${ext}` : ''
+  const fileName = `${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
   return fileName
 }
 
@@ -384,10 +385,47 @@ const moveFileToLocalStorage = async (filePath, name, start, end) => {
   }
 }
 
-const uploadS3 = async (reportService, configs, filePath, queueName, start, end) => {
+const _streamToBuffer = (stream) => {
+  const bufs = []
+
+  return new Promise((resolve, reject) => {
+    stream.on('data', (data) => {
+      bufs.push(data)
+    })
+    stream.once('end', () => {
+      resolve(Buffer.concat(bufs))
+    })
+    stream.once('error', err => {
+      reject(err)
+    })
+  })
+}
+
+const uploadS3 = async (reportService, configs, filePath, queueName, start, end, isZip) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const buffer = await readFile(filePath)
-  const fileName = _getCompleteFileName(queueName, start, end)
+  const fileNameWithoutExt = _getCompleteFileName(queueName, start, end, false)
+  const fileName = `${fileNameWithoutExt}.${isZip ? 'zip' : 'csv'}`
+  const stream = fs.createReadStream(filePath)
+  let zipFilePath = null
+  let buffer = null
+
+  if (isZip) {
+    zipFilePath = await createUniqueFileName(true)
+    const writable = fs.createWriteStream(zipFilePath)
+    const archive = archiver('zip', {
+      zlib: { level: 9 }
+    })
+
+    archive.pipe(writable)
+    archive.append(stream, { name: `${fileNameWithoutExt}.csv` })
+
+    const promise = _streamToBuffer(archive)
+    archive.finalize()
+
+    buffer = await promise
+  } else {
+    buffer = await _streamToBuffer(stream)
+  }
 
   const opts = {
     ...configs,
@@ -414,7 +452,8 @@ const uploadS3 = async (reportService, configs, filePath, queueName, start, end)
 
         resolve({
           ...data,
-          fileName
+          fileName,
+          zipFilePath
         })
       }
     )
