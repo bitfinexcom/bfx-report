@@ -3,6 +3,7 @@
     "rest:report:api"
   ],
   "restUrl": "https://api.bitfinex.com",
+  "company": "bitfinex",
   "emailConf": {
     "from": "Bitfinex <no-reply@bitfinex.com>",
     "subject": "Download report"

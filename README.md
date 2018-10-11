@@ -20,6 +20,7 @@ npm install
 cp config/default.json.example config/default.json
 cp config/common.json.example config/common.json
 cp config/service.report.json.example config/service.report.json
+cp config/schedule.json.example config/schedule.json
 cp config/facs/grc.config.json.example config/facs/grc.config.json
 ```
 
@@ -34,6 +35,7 @@ vim config/common.json
 ```console
 vim config/service.report.json
 ## set restUrl value
+## set company value, example: ( bitfinex / ethfinex / eosfinex ) or leave it blank for general information
 ```
 
 ## Other Requirements

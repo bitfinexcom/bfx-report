@@ -24,6 +24,7 @@ const createBFX = ({ apiKey = '', apiSecret = '', authToken = '', ip = '', conf 
     : { apiKey, apiSecret }
   return new BFX({
     ...auth,
+    company: conf.company,
     rest: {
       url: isTestEnv ? 'http://localhost:9999' : conf.restUrl
     }
