@@ -442,6 +442,7 @@ const uploadS3 = async (
     zipFilePath = await createUniqueFileName(true)
     const writable = fs.createWriteStream(zipFilePath)
     const archive = archiver('zip', {
+      comment: fileNameWithoutExt,
       zlib: { level: 9 }
     })
 
