@@ -37,7 +37,9 @@ module.exports = async job => {
     filePath = await createUniqueFileName()
 
     const isUnauth = job.data.isUnauth || false
-    const write = isUnauth ? 'Your file could not be completed, please try again' : job
+    const write = isUnauth
+      ? 'Your file could not be completed, please try again'
+      : job
     const writable = fs.createWriteStream(filePath)
     const writablePromise = writableToPromise(writable)
     const stringifier = stringify({

@@ -49,11 +49,23 @@ module.exports = async job => {
       s3Data.isUnauth = isUnauth
       zipFilePath = s3Data.zipFilePath
 
-      await sendMail(reportService, emailConf, email, 'email.pug', s3Data)
+      await sendMail(
+        reportService,
+        emailConf,
+        email,
+        'email.pug',
+        s3Data
+      )
       await unlink(filePath)
+
       if (zipFilePath) await unlink(zipFilePath)
     } else {
-      await moveFileToLocalStorage(filePath, name, startDate, endDate)
+      await moveFileToLocalStorage(
+        filePath,
+        name,
+        startDate,
+        endDate
+      )
     }
 
     job.done()
@@ -65,6 +77,7 @@ module.exports = async job => {
     } else {
       try {
         await unlink(job.data.filePath)
+
         if (zipFilePath) await unlink(zipFilePath)
       } catch (e) {
 
