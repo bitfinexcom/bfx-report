@@ -91,9 +91,9 @@ const _delay = (mc = 80000) => {
 }
 
 const _formatters = {
-  date: (val, { timezone = 0 }) => {
+  date: (val, { timezone = 0, dateFormat = 'YY-MM-DD' }) => {
     if (Number.isInteger(val)) {
-      const format = 'YY-MM-DD HH:mm:ss'
+      const format = `${dateFormat} HH:mm:ss`
 
       return _.isNumber(timezone)
         ? moment(val).utcOffset(timezone).format(format)
