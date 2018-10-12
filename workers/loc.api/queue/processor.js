@@ -28,7 +28,6 @@ module.exports = async job => {
     }
 
     const {
-      isZip,
       email,
       end: endDate,
       start: startDate
@@ -67,8 +66,7 @@ module.exports = async job => {
       email,
       endDate,
       startDate,
-      isUnauth,
-      isZip
+      isUnauth
     })
   } catch (err) {
     try {

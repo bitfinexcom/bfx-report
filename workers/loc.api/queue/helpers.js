@@ -7,7 +7,6 @@ const uuidv4 = require('uuid/v4')
 const _ = require('lodash')
 const moment = require('moment-timezone')
 const pug = require('pug')
-const archiver = require('archiver')
 const argv = require('yargs').argv
 
 const access = promisify(fs.access)
@@ -53,7 +52,7 @@ const _checkAndCreateDir = async (dirPath) => {
   }
 }
 
-const createUniqueFileName = async (isZip = false, count = 0) => {
+const createUniqueFileName = async (count = 0) => {
   count += 1
 
   if (count > 20) {
@@ -62,12 +61,12 @@ const createUniqueFileName = async (isZip = false, count = 0) => {
 
   await _checkAndCreateDir(tempDirPath)
 
-  const uniqueFileName = `${uuidv4()}.${isZip ? 'zip' : 'csv'}`
+  const uniqueFileName = `${uuidv4()}.csv`
 
   const files = await readdir(tempDirPath)
 
   if (files.some(file => file === uniqueFileName)) {
-    return createUniqueFileName(isZip, count)
+    return createUniqueFileName(count)
   }
 
   return Promise.resolve(path.join(tempDirPath, uniqueFileName))
@@ -91,9 +90,9 @@ const _delay = (mc = 80000) => {
 }
 
 const _formatters = {
-  date: (val, { timezone = 0 }) => {
+  date: (val, { timezone = 0, dateFormat = 'YY-MM-DD' }) => {
     if (Number.isInteger(val)) {
-      const format = 'YY-MM-DD HH:mm:ss'
+      const format = `${dateFormat} HH:mm:ss`
 
       return _.isNumber(timezone)
         ? moment(val).utcOffset(timezone).format(format)
@@ -401,30 +400,13 @@ const moveFileToLocalStorage = async (
   }
 }
 
-const _streamToBuffer = (stream) => {
-  const bufs = []
-
-  return new Promise((resolve, reject) => {
-    stream.on('data', (data) => {
-      bufs.push(data)
-    })
-    stream.once('end', () => {
-      resolve(Buffer.concat(bufs))
-    })
-    stream.once('error', err => {
-      reject(err)
-    })
-  })
-}
-
 const uploadS3 = async (
   reportService,
   configs,
   filePath,
   queueName,
   start,
-  end,
-  isZip
+  end
 ) => {
   const grcBfx = reportService.ctx.grc_bfx
   const fileNameWithoutExt = _getCompleteFileName(
@@ -433,34 +415,20 @@ const uploadS3 = async (
     end,
     false
   )
-  const fileName = `${fileNameWithoutExt}.${isZip ? 'zip' : 'csv'}`
+  const wrk = this.ctx.grc_bfx.caller
+  const group = wrk.group
+  const conf = wrk.conf[group]
+  const isGzip = conf.isGzip
+  const deflateFac = this.ctx.deflate_gzip
+  const fileName = `${fileNameWithoutExt}.${isGzip ? 'gzip' : 'csv'}`
+
   const stream = fs.createReadStream(filePath)
-  let zipFilePath = null
-  let buffer = null
-
-  if (isZip) {
-    zipFilePath = await createUniqueFileName(true)
-    const writable = fs.createWriteStream(zipFilePath)
-    const archive = archiver('zip', {
-      comment: fileNameWithoutExt,
-      zlib: { level: 9 }
-    })
-
-    archive.pipe(writable)
-    archive.append(stream, { name: `${fileNameWithoutExt}.csv` })
-
-    const promise = _streamToBuffer(archive)
-    archive.finalize()
-
-    buffer = await promise
-  } else {
-    buffer = await _streamToBuffer(stream)
-  }
+  const buffer = await deflateFac.createBuffGzip(stream, isGzip)
 
   const opts = {
     ...configs,
     contentDisposition: `attachment; filename="${fileName}"`,
-    contentType: 'text/csv'
+    contentType: isGzip ? 'application/gzip' : 'text/csv'
   }
   const parsedData = [
     buffer.toString('hex'),
@@ -482,8 +450,7 @@ const uploadS3 = async (
 
         resolve({
           ...data,
-          fileName,
-          zipFilePath
+          fileName
         })
       }
     )

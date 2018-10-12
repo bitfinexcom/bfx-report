@@ -118,6 +118,13 @@ class WrkReportServiceApi extends WrkApi {
         'aggregator',
         'aggregator',
         { persist, name }
+      ],
+      [
+        'fac',
+        'deflate',
+        'gzip',
+        'gzip',
+        { level: 9 }
       ]
     ]
 

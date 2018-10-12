@@ -16,7 +16,6 @@ let reportService = null
 
 module.exports = async job => {
   const aggregatorQueue = reportService.ctx.lokue_aggregator.q
-  let zipFilePath = null
 
   try {
     const {
@@ -26,7 +25,6 @@ module.exports = async job => {
       endDate,
       startDate,
       isUnauth,
-      isZip,
       s3Conf,
       emailConf
     } = job.data
@@ -43,11 +41,9 @@ module.exports = async job => {
         filePath,
         name,
         startDate,
-        endDate,
-        isZip
+        endDate
       )
       s3Data.isUnauth = isUnauth
-      zipFilePath = s3Data.zipFilePath
 
       await sendMail(
         reportService,
@@ -57,8 +53,6 @@ module.exports = async job => {
         s3Data
       )
       await unlink(filePath)
-
-      if (zipFilePath) await unlink(zipFilePath)
     } else {
       await moveFileToLocalStorage(
         filePath,
@@ -77,8 +71,6 @@ module.exports = async job => {
     } else {
       try {
         await unlink(job.data.filePath)
-
-        if (zipFilePath) await unlink(zipFilePath)
       } catch (e) {
 
       }

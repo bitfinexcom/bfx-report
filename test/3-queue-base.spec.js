@@ -343,8 +343,7 @@ describe('Queue', () => {
           end,
           start,
           limit: 1000,
-          email,
-          isZip: true
+          email
         },
         id: 5
       })
