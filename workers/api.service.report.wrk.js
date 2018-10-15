@@ -121,7 +121,7 @@ class WrkReportServiceApi extends WrkApi {
       ],
       [
         'fac',
-        'deflate',
+        'bfx-facs-deflate',
         'gzip',
         'gzip',
         { level: 9 }
