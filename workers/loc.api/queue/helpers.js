@@ -409,18 +409,16 @@ const uploadS3 = async (
   end
 ) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const fileNameWithoutExt = _getCompleteFileName(
+  const wrk = grcBfx.caller
+  const isGzip = wrk.conf[wrk.group].isGzip
+  const deflateFac = wrk.deflate_gzip
+
+  const fileName = _getCompleteFileName(
     queueName,
     start,
     end,
-    false
+    isGzip ? 'csv.gz' : 'csv'
   )
-  const wrk = this.ctx.grc_bfx.caller
-  const group = wrk.group
-  const conf = wrk.conf[group]
-  const isGzip = conf.isGzip
-  const deflateFac = this.ctx.deflate_gzip
-  const fileName = `${fileNameWithoutExt}.${isGzip ? 'gzip' : 'csv'}`
 
   const stream = fs.createReadStream(filePath)
   const buffer = await deflateFac.createBuffGzip(stream, isGzip)
