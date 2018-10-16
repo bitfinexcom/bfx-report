@@ -11,11 +11,17 @@ const bodyParser = require('body-parser')
 
 module.exports = { app }
 
-const { headersMiddleware } = require('./src/middlewares')
-const { corsService, logDebugService, logService } = require('./src/services')
-const responses = require('./src/services/helpers/responses')
+const {
+  headersMiddleware,
+  errorsMiddleware,
+  notFoundMiddleware
+} = require('./src/middlewares')
+const {
+  corsService,
+  logDebugService,
+  logService
+} = require('./src/services')
 const { logger } = logService
-
 const routes = require('./src/routes')
 
 const port = config.get('app.port')
@@ -40,18 +46,8 @@ if (
 
 app.use('/api/', routes)
 
-app.use((req, res, next) => {
-  responses.failure(404, 'Not found', res)
-})
-
-app.use((err, req, res, next) => {
-  logger.error('Found %s at %s', 'error', err)
-  responses.failure(
-    err.statusCode ? err.statusCode : 500,
-    err.message || err.statusMessage || 'Internal Server Error',
-    res
-  )
-})
+app.use(notFoundMiddleware)
+app.use(errorsMiddleware)
 
 const server = app.listen(port, host, () => {
   const host = server.address().address
