@@ -1,13 +1,13 @@
 'use strict'
 
-const express = require('express')
+const { Router } = require('express')
 
-const router = express.Router()
+const router = new Router()
 module.exports = router
 
+const { asyncErrorCatcher } = require('../services/helpers')
 const controllers = require('../controllers')
-
-const { baseController } = controllers
+const baseController = asyncErrorCatcher(controllers.baseController)
 
 router.post('/check-auth', baseController.checkAuth)
 router.post('/check-stored-locally', baseController.checkStoredLocally)

@@ -4,20 +4,7 @@ const {
   grenacheClientService: gClientService,
   helpers
 } = require('../services')
-const {
-  success,
-  failureInternalServerError,
-  failureUnauthorized,
-  failureHasJobInQueue
-} = helpers.responses
-
-const _isAuthError = (err) => {
-  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
-}
-
-const _isHasJobInQueueError = (err) => {
-  return /ERR_HAS_JOB_IN_QUEUE/.test(err.toString())
-}
+const { success } = helpers.responses
 
 const checkAuth = async (req, res) => {
   const id = req.body.id || null
@@ -26,39 +13,29 @@ const checkAuth = async (req, res) => {
     args: [req.body]
   }
 
-  try {
-    const isSyncMode = await gClientService.request({
+  const isSyncMode = await gClientService.request({
+    ...query,
+    action: 'isSyncModeConfig'
+  })
+
+  if (isSyncMode) {
+    await gClientService.request({
       ...query,
-      action: 'isSyncModeConfig'
+      action: 'login'
     })
 
-    if (isSyncMode) {
-      await gClientService.request({
-        ...query,
-        action: 'login'
-      })
-
-      success(200, { result: true, id }, res)
-
-      return
-    }
-
-    const result = await gClientService.request(query)
-
-    if (!result) {
-      throw new Error('ERR_AUTH_UNAUTHORIZED')
-    }
-
     success(200, { result: true, id }, res)
-  } catch (err) {
-    if (_isAuthError(err)) {
-      failureUnauthorized(res, id)
 
-      return
-    }
-
-    failureInternalServerError(res, id)
+    return
   }
+
+  const result = await gClientService.request(query)
+
+  if (!result) {
+    throw new Error('ERR_AUTH_UNAUTHORIZED')
+  }
+
+  success(200, { result: true, id }, res)
 }
 
 const checkStoredLocally = async (req, res) => {
@@ -80,25 +57,15 @@ const checkStoredLocally = async (req, res) => {
     args: [req.body]
   }
 
-  try {
-    const countS3Services = await gClientService.request(queryS3)
-    const countSendgridServices = await gClientService.request(querySendgrid)
-    let result = false
+  const countS3Services = await gClientService.request(queryS3)
+  const countSendgridServices = await gClientService.request(querySendgrid)
+  let result = false
 
-    if (countS3Services && countSendgridServices) {
-      result = await gClientService.request(queryGetEmail)
-    }
-
-    success(200, { result, id }, res)
-  } catch (err) {
-    if (_isAuthError(err)) {
-      failureUnauthorized(res, id)
-
-      return
-    }
-
-    failureInternalServerError(res, id)
+  if (countS3Services && countSendgridServices) {
+    result = await gClientService.request(queryGetEmail)
   }
+
+  success(200, { result, id }, res)
 }
 
 const getData = async (req, res) => {
@@ -110,24 +77,9 @@ const getData = async (req, res) => {
     args: [body]
   }
 
-  try {
-    const result = await gClientService.request(query)
+  const result = await gClientService.request(query)
 
-    success(200, { result, id }, res)
-  } catch (err) {
-    if (_isAuthError(err)) {
-      failureUnauthorized(res, id)
-
-      return
-    }
-    if (_isHasJobInQueueError(err)) {
-      failureHasJobInQueue(res, id)
-
-      return
-    }
-
-    failureInternalServerError(res, id)
-  }
+  success(200, { result, id }, res)
 }
 
 module.exports = {

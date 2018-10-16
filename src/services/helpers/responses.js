@@ -20,39 +20,7 @@ const failure = (statusCode, errorMessage, res, id = null) => {
   return res
 }
 
-const failureAccessDenied = (res, id = null) => {
-  const statusCode = 403
-  const errorMessage = 'Access Denied'
-
-  return failure(statusCode, errorMessage, res, id)
-}
-
-const failureUnauthorized = (res, id = null) => {
-  const statusCode = 401
-  const errorMessage = 'Unauthorized'
-
-  return failure(statusCode, errorMessage, res, id)
-}
-
-const failureHasJobInQueue = (res, id = null) => {
-  const statusCode = 401
-  const errorMessage = 'Spam restriction mode, user already has an export on queue'
-
-  return failure(statusCode, errorMessage, res, id)
-}
-
-const failureInternalServerError = (res, id = null) => {
-  const statusCode = 500
-  const errorMessage = 'Internal Server Error'
-
-  return failure(statusCode, errorMessage, res, id)
-}
-
 module.exports = {
   success,
-  failure,
-  failureAccessDenied,
-  failureUnauthorized,
-  failureInternalServerError,
-  failureHasJobInQueue
+  failure
 }
