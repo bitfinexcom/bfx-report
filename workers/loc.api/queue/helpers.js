@@ -12,7 +12,6 @@ const argv = require('yargs').argv
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
-const readFile = promisify(fs.readFile)
 const rename = promisify(fs.rename)
 const chmod = promisify(fs.chmod)
 
@@ -91,9 +90,9 @@ const _delay = (mc = 80000) => {
 }
 
 const _formatters = {
-  date: (val, { timezone = 0 }) => {
+  date: (val, { timezone = 0, dateFormat = 'YY-MM-DD' }) => {
     if (Number.isInteger(val)) {
-      const format = 'YY-MM-DD HH:mm:ss'
+      const format = `${dateFormat} HH:mm:ss`
 
       return _.isNumber(timezone)
         ? moment(val).utcOffset(timezone).format(format)
@@ -102,7 +101,8 @@ const _formatters = {
 
     return val
   },
-  symbol: symbol => `${symbol.slice(1, 4)}${symbol[4] ? '/' : ''}${symbol.slice(4, 7)}`,
+  symbol: symbol => `${symbol.slice(1, 4)}${symbol[4]
+    ? '/' : ''}${symbol.slice(4, 7)}`,
   side: side => {
     let msg
 
@@ -341,17 +341,28 @@ const _getBaseName = queueName => {
   return _fileNamesMap.get(queueName)
 }
 
-const _getCompleteFileName = (queueName, start, end) => {
+const _getCompleteFileName = (
+  queueName,
+  start,
+  end,
+  ext = 'csv'
+) => {
   const baseName = _getBaseName(queueName)
   const timestamp = (new Date()).toISOString().split(':').join('-')
-  const startDate = start ? _getDateString(start) : _getDateString(0)
-  const endDate = end ? _getDateString(end) : _getDateString((new Date()).getTime())
-  const fileName = `${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}.csv`
+  const startDate = start
+    ? _getDateString(start)
+    : _getDateString(0)
+  const endDate = end
+    ? _getDateString(end)
+    : _getDateString((new Date()).getTime())
+  const _ext = ext ? `.${ext}` : ''
+  const fileName = `${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
   return fileName
 }
 
 const hasS3AndSendgrid = async reportService => {
-  const lookUpFn = promisify(reportService.lookUpFunction.bind(reportService))
+  const lookUpFn = promisify(reportService.lookUpFunction
+    .bind(reportService))
 
   const countS3Services = await lookUpFn(null, {
     params: { service: 'rest:ext:s3' }
@@ -363,7 +374,12 @@ const hasS3AndSendgrid = async reportService => {
   return !!(countS3Services && countSendgridServices)
 }
 
-const moveFileToLocalStorage = async (filePath, name, start, end) => {
+const moveFileToLocalStorage = async (
+  filePath,
+  name,
+  start,
+  end
+) => {
   await _checkAndCreateDir(localStorageDirPath)
 
   const fileName = _getCompleteFileName(name, start, end)
@@ -384,15 +400,33 @@ const moveFileToLocalStorage = async (filePath, name, start, end) => {
   }
 }
 
-const uploadS3 = async (reportService, configs, filePath, queueName, start, end) => {
+const uploadS3 = async (
+  reportService,
+  configs,
+  filePath,
+  queueName,
+  start,
+  end
+) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const buffer = await readFile(filePath)
-  const fileName = _getCompleteFileName(queueName, start, end)
+  const wrk = grcBfx.caller
+  const isGzip = wrk.conf[wrk.group].isGzip
+  const deflateFac = wrk.deflate_gzip
+
+  const fileName = _getCompleteFileName(
+    queueName,
+    start,
+    end,
+    isGzip ? 'csv.gz' : 'csv'
+  )
+
+  const stream = fs.createReadStream(filePath)
+  const buffer = await deflateFac.createBuffGzip(stream, isGzip)
 
   const opts = {
     ...configs,
     contentDisposition: `attachment; filename="${fileName}"`,
-    contentType: 'text/csv'
+    contentType: isGzip ? 'application/gzip' : 'text/csv'
   }
   const parsedData = [
     buffer.toString('hex'),
@@ -424,7 +458,10 @@ const uploadS3 = async (reportService, configs, filePath, queueName, start, end)
 const sendMail = (reportService, configs, to, viewName, data) => {
   const grcBfx = reportService.ctx.grc_bfx
   const text = `Download (${data.fileName}): ${data.public_url}`
-  const html = pug.renderFile(path.join(basePathToViews, viewName), data)
+  const html = pug.renderFile(
+    path.join(basePathToViews, viewName),
+    data
+  )
   const mailOptions = {
     to,
     text,

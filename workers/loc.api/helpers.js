@@ -4,6 +4,7 @@ const bfxFactory = require('./bfx.factory')
 const { hasS3AndSendgrid } = require('./queue/helpers')
 const _ = require('lodash')
 const LRU = require('lru')
+const Ajv = require('ajv')
 
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
@@ -41,23 +42,39 @@ const getParams = (args, maxLimit) => {
   return params
 }
 
+const _paramsSchema = {
+  type: 'object',
+  properties: {
+    limit: {
+      type: 'integer'
+    },
+    start: {
+      type: 'integer'
+    },
+    end: {
+      type: 'integer'
+    },
+    symbol: {
+      type: 'string'
+    },
+    timezone: {
+      type: ['number', 'string']
+    },
+    dateFormat: {
+      type: 'string',
+      enum: ['DD-MM-YY', 'MM-DD-YY', 'YY-MM-DD']
+    }
+  }
+}
+
 const checkParams = (args) => {
+  const ajv = new Ajv()
+
   if (
     args.params &&
-    (
-      typeof args.params !== 'object' ||
-      (args.params.limit && !Number.isInteger(args.params.limit)) ||
-      (args.params.start && !Number.isInteger(args.params.start)) ||
-      (args.params.end && !Number.isInteger(args.params.end)) ||
-      (args.params.symbol && typeof args.params.symbol !== 'string') ||
-      (
-        args.params.timezone &&
-        !_.isNumber(args.params.timezone) &&
-        typeof args.params.timezone !== 'string'
-      )
-    )
+    !ajv.validate(_paramsSchema, args.params)
   ) {
-    throw new Error('ERR_ARGS_NO_PARAMS')
+    throw new Error(`ERR_ARGS_NO_PARAMS ${JSON.stringify(ajv.errors)}`)
   }
 }
 

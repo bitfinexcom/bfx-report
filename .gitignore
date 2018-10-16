@@ -16,3 +16,4 @@ csv/
 logs
 package-lock.json
 workers/loc.api/queue/temp/*.csv
+workers/loc.api/queue/temp/*.zip

@@ -18,19 +18,48 @@ module.exports = async job => {
   const aggregatorQueue = reportService.ctx.lokue_aggregator.q
 
   try {
-    const data = job.data
-    const filePath = data.filePath
-    const name = data.name
-    const isUnauth = job.data.isUnauth || false
-    const isEnableToSendEmail = typeof data.email === 'string' && await hasS3AndSendgrid(reportService)
+    const {
+      name,
+      filePath,
+      email,
+      endDate,
+      startDate,
+      isUnauth,
+      s3Conf,
+      emailConf
+    } = job.data
+
+    const isEnableToSendEmail = (
+      typeof email === 'string' &&
+      await hasS3AndSendgrid(reportService)
+    )
 
     if (isEnableToSendEmail) {
-      const s3Data = await uploadS3(reportService, data.s3Conf, filePath, name, data.startDate, data.endDate)
+      const s3Data = await uploadS3(
+        reportService,
+        s3Conf,
+        filePath,
+        name,
+        startDate,
+        endDate
+      )
       s3Data.isUnauth = isUnauth
-      await sendMail(reportService, data.emailConf, data.email, 'email.pug', s3Data)
-      await unlink(data.filePath)
+
+      await sendMail(
+        reportService,
+        emailConf,
+        email,
+        'email.pug',
+        s3Data
+      )
+      await unlink(filePath)
     } else {
-      await moveFileToLocalStorage(filePath, name, data.startDate, data.endDate)
+      await moveFileToLocalStorage(
+        filePath,
+        name,
+        startDate,
+        endDate
+      )
     }
 
     job.done()
