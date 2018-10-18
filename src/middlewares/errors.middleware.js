@@ -20,7 +20,7 @@ const _isNonceSmallError = (err) => {
 }
 
 module.exports = (err, req, res, next) => {
-  const id = req.body.id || null
+  const id = (req.body && req.body.id) || null
 
   logger.error('Found %s at %s', 'error', err)
 
