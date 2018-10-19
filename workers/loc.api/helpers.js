@@ -1,10 +1,12 @@
 'use strict'
 
-const bfxFactory = require('./bfx.factory')
-const { hasS3AndSendgrid } = require('./queue/helpers')
 const _ = require('lodash')
 const LRU = require('lru')
 const Ajv = require('ajv')
+const moment = require('moment-timezone')
+
+const bfxFactory = require('./bfx.factory')
+const { hasS3AndSendgrid } = require('./queue/helpers')
 
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
@@ -189,6 +191,67 @@ const parseFields = (res, opts) => {
 
 const accountCache = new LRU({maxAge: 900000, max: 1})
 
+const _getTimezoneName = (name) => {
+  let _name = name
+  const aliases = [
+    ['Kiev', ['Kyiv']]
+  ]
+
+  aliases.some(item => {
+    if (item[1].some(alias => alias === name)) {
+      _name = item[0]
+
+      return true
+    }
+  })
+
+  const arr = _name.split(/[_-\s,./\\|]/g)
+  const regExp = new RegExp(`${arr.join('.*')}`, 'gi')
+  const zoneNames = moment.tz.names()
+
+  for (const zone of zoneNames) {
+    if (regExp.test(zone)) {
+      return zone
+    }
+  }
+}
+
+const _getTimezoneOffset = (timezoneName) => {
+  const strTimezoneOffset = moment.tz(timezoneName).format('Z')
+  const timezoneOffset = parseFloat(strTimezoneOffset)
+
+  return isFinite(timezoneOffset)
+    ? timezoneOffset
+    : strTimezoneOffset
+}
+
+const getTimezoneConf = (name) => {
+  const timezoneName = _getTimezoneName(name)
+  const timezoneOffset = _getTimezoneOffset(timezoneName)
+  return timezoneName
+    ? {
+      timezoneName,
+      timezoneOffset
+    }
+    : null
+}
+
+const refreshObj = (
+  oldObj,
+  newObj,
+  currObj,
+  props = []
+) => {
+  props.forEach(prop => {
+    if (
+      currObj[prop] &&
+      oldObj[prop] !== currObj[prop]
+    ) {
+      newObj[prop] = currObj[prop]
+    }
+  })
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -204,5 +267,7 @@ module.exports = {
   isRateLimitError,
   isNonceSmallError,
   parseFields,
-  accountCache
+  accountCache,
+  getTimezoneConf,
+  refreshObj
 }
