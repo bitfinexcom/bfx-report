@@ -214,6 +214,8 @@ const _getTimezoneName = (name) => {
       return zone
     }
   }
+
+  return 'UTC'
 }
 
 const _getTimezoneOffset = (timezoneName) => {
@@ -233,7 +235,10 @@ const getTimezoneConf = (name) => {
       timezoneName,
       timezoneOffset
     }
-    : null
+    : {
+      timezoneName: 'UTC',
+      timezoneOffset: 0
+    }
 }
 
 const refreshObj = (
