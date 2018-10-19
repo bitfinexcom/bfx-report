@@ -10,7 +10,8 @@ const {
   checkParamsAuth,
   isAuthError,
   isEnotfoundError,
-  isEaiAgainError
+  isEaiAgainError,
+  getTimezoneConf
 } = require('./helpers')
 const {
   collObjToArr,
@@ -23,10 +24,13 @@ const sync = require('./sync')
 class MediatorReportService extends ReportService {
   async login (space, args, cb) {
     try {
-      let email = null
+      let userInfo = {
+        email: null,
+        timezone: null
+      }
 
       try {
-        email = await this._checkAuthInApi(args)
+        userInfo = await this._checkAuthInApi(args)
       } catch (err) {
         if (isAuthError(err)) {
           throw err
@@ -35,13 +39,13 @@ class MediatorReportService extends ReportService {
 
       const res = {
         ...args.auth,
-        email
+        ...userInfo
       }
 
       await this.dao.insertOrUpdateUser(res)
 
-      if (!cb) return email
-      cb(null, email)
+      if (!cb) return userInfo.email
+      cb(null, userInfo.email)
     } catch (err) {
       if (!cb) throw err
       cb(err)
@@ -268,6 +272,26 @@ class MediatorReportService extends ReportService {
   /**
    * @override
    */
+  async getUsersTimeConf (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getUsersTimeConf(space, args, cb)
+
+        return
+      }
+
+      const { timezone } = await this.dao.checkAuthInDb(args)
+      const res = getTimezoneConf(timezone)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
   async getSymbols (space, args, cb) {
     try {
       if (!await this.isSyncModeWithDbData(space, args)) {
@@ -439,10 +463,6 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  _getEmail (args) {
-    return promisify(super.getEmail.bind(this))(null, args)
-  }
-
   _getLedgers (args) {
     return promisify(super.getLedgers.bind(this))(null, args)
   }
@@ -474,13 +494,19 @@ class MediatorReportService extends ReportService {
   async _checkAuthInApi (args) {
     checkParamsAuth(args)
 
-    const email = await this._getEmail(args)
+    const {
+      email,
+      timezone
+    } = await this._getUserInfo(args)
 
     if (!email) {
       throw new Error('ERR_AUTH_UNAUTHORIZED')
     }
 
-    return email
+    return {
+      email,
+      timezone
+    }
   }
 
   async _syncModeInitialize () {

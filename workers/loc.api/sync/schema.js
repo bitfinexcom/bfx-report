@@ -9,7 +9,8 @@ const _models = new Map([
       apiKey: 'VARCHAR(255)',
       apiSecret: 'VARCHAR(255)',
       active: 'INT',
-      isDataFromDb: 'INT'
+      isDataFromDb: 'INT',
+      timezone: 'VARCHAR(255)'
     }
   ],
   [

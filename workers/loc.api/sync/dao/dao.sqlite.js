@@ -5,7 +5,8 @@ const { isEmpty, pick } = require('lodash')
 const DAO = require('./dao')
 const {
   checkParamsAuth,
-  getLimitNotMoreThan
+  getLimitNotMoreThan,
+  refreshObj
 } = require('../../helpers')
 
 class SqliteDAO extends DAO {
@@ -417,9 +418,15 @@ class SqliteDAO extends DAO {
         'users',
         null,
         [{
-          email: data.email,
-          apiKey: data.apiKey,
-          apiSecret: data.apiSecret,
+          ...pick(
+            data,
+            [
+              'apiKey',
+              'apiSecret',
+              'email',
+              'timezone'
+            ]
+          ),
           active: 1,
           isDataFromDb: 1
         }]
@@ -431,12 +438,12 @@ class SqliteDAO extends DAO {
       active: 1
     }
 
-    if (
-      data.email &&
-      user.email !== data.email
-    ) {
-      newData.email = data.email
-    }
+    refreshObj(
+      user,
+      newData,
+      data,
+      ['email', 'timezone']
+    )
 
     const res = await this._updateCollBy('users', ['_id'], newData)
 

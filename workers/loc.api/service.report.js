@@ -10,7 +10,8 @@ const {
   hasJobInQueueWithStatusBy,
   toString,
   parseFields,
-  accountCache
+  accountCache,
+  getTimezoneConf
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -42,6 +43,17 @@ class ReportService extends Api {
       cb(null, result.email)
     } catch (err) {
       this._err(err, 'getEmail', cb)
+    }
+  }
+
+  async getUsersTimeConf (space, args, cb) {
+    try {
+      const { timezone } = await this._getUserInfo(args)
+      const result = getTimezoneConf(timezone)
+
+      cb(null, result)
+    } catch (err) {
+      this._err(err, 'getUsersTimeConf', cb)
     }
   }
 
