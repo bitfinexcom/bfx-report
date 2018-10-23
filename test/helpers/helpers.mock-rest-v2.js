@@ -63,6 +63,15 @@ const _mockData = new Map([
     ]]
   ],
   [
+    'public_trades',
+    [[
+      12345,
+      (new Date()).getTime(),
+      0.01,
+      12345
+    ]]
+  ],
+  [
     'orders',
     [[
       12345,
@@ -258,6 +267,11 @@ const _setDataTo = (
       dataItem[9] = data.fee
       break
 
+    case 'public_trades':
+      dataItem[0] = data.id
+      dataItem[1] = _date
+      break
+
     case 'orders':
       dataItem[0] = data.id
       dataItem[4] = _date
@@ -299,6 +313,7 @@ const createMockRESTv2SrvWithDate = (
   opts = {
     'ledgers': { limit: 5000 },
     'trades': { limit: 1500 },
+    'public_trades': { limit: 1000 },
     'orders': { limit: 5000 },
     'movements': { limit: 25 },
     'f_offer_hist': { limit: 5000 },
