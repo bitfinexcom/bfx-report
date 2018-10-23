@@ -159,6 +159,26 @@ describe('API', () => {
     assert.isOk(res.body.result === 'fake@email.fake')
   })
 
+  it('it should be successfully performed by the getUsersTimeConf method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getUsersTimeConf',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isString(res.body.result.timezoneName)
+    assert.isNumber(res.body.result.timezoneOffset)
+  })
+
   it('it should be successfully performed by the getSymbols method', async function () {
     this.timeout(5000)
 
