@@ -478,6 +478,42 @@ describe('API', () => {
     }
   })
 
+  it('it should be successfully performed by the getPublicTrades method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        method: 'getPublicTrades',
+        params: {
+          symbol: 'tBTCUSD',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    if (res.body.result.length > 0) {
+      let resItem = res.body.result[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'id',
+        'mts',
+        'amount',
+        'price'
+      ])
+    }
+  })
+
   it('it should be successfully performed by the getOrders method', async function () {
     this.timeout(5000)
 

@@ -40,7 +40,10 @@ const rmAllFiles = async (dir) => {
 const queueToPromise = (queue) => {
   return new Promise((resolve, reject) => {
     queue.once('error:base', reject)
-    queue.once('completed', resolve)
+    queue.once('completed', res => {
+      queue.removeListener('error:base', reject)
+      resolve(res)
+    })
   })
 }
 
@@ -59,6 +62,7 @@ const queueToPromiseMulti = (queue, count, cb = () => { }) => {
 
       if (currCount >= count) {
         queue.removeListener('completed', onCompleted)
+        queue.removeListener('error:base', reject)
         resolve()
       }
     }
@@ -84,6 +88,7 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
       if (currCount >= count) {
         queues.forEach(queue => {
           queue.removeListener('completed', onCompleted)
+          queue.removeListener('error:base', reject)
         })
 
         resolve()

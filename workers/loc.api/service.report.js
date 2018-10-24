@@ -131,6 +131,19 @@ class ReportService extends Api {
     }
   }
 
+  async getPublicTrades (space, args, cb) {
+    try {
+      const maxLimit = 1000
+      const params = getParams(args, maxLimit, ['symbol'])
+      const rest = getREST({}, this.ctx.grc_bfx.caller)
+      const result = await rest.trades(...params)
+
+      cb(null, result)
+    } catch (err) {
+      this._err(err, 'getPublicTrades', cb)
+    }
+  }
+
   async getOrders (space, args, cb) {
     try {
       const maxLimit = 5000
@@ -230,6 +243,38 @@ class ReportService extends Api {
       cb(null, status)
     } catch (err) {
       this._err(err, 'getTradesCsv', cb)
+    }
+  }
+
+  async getPublicTradesCsv (space, args, cb) {
+    try {
+      checkParams(args, ['symbol'])
+      const userId = await hasJobInQueueWithStatusBy(this, args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getPublicTrades'
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        userId,
+        name: method,
+        args,
+        propNameForPagination: 'mts',
+        columnsCsv: {
+          id: '#',
+          amount: 'AMOUNT',
+          price: 'PRICE',
+          mts: 'DATE'
+        },
+        formatSettings: {
+          mts: 'date'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getPublicTradesCsv', cb)
     }
   }
 

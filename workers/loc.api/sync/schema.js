@@ -56,6 +56,16 @@ const _models = new Map([
     }
   ],
   [
+    'publicTrades',
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      mts: 'BIGINT',
+      amount: 'DECIMAL(22,12)',
+      price: 'DECIMAL(22,12)'
+    }
+  ],
+  [
     'orders',
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',

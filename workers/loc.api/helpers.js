@@ -26,12 +26,36 @@ const getLimitNotMoreThan = (limit, maxLimit = 25) => {
   return Math.min(num, maxLimit)
 }
 
-const getParams = (args, maxLimit) => {
+const getParams = (
+  args,
+  maxLimit,
+  requireFields
+) => {
   const params = []
-  if (args.params) {
-    if (typeof args.params !== 'object') {
-      throw new Error('ERR_ARGS_NO_PARAMS')
+
+  checkParams(
+    args,
+    requireFields,
+    {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'integer'
+        },
+        start: {
+          type: 'integer'
+        },
+        end: {
+          type: 'integer'
+        },
+        symbol: {
+          type: 'string'
+        }
+      }
     }
+  )
+
+  if (args.params) {
     params.push(
       ...[
         args.params.symbol,
@@ -41,6 +65,7 @@ const getParams = (args, maxLimit) => {
       ]
     )
   }
+
   return params
 }
 
@@ -69,12 +94,34 @@ const _paramsSchema = {
   }
 }
 
-const checkParams = (args) => {
+const checkParams = (
+  args,
+  requireFields = [],
+  schema = _paramsSchema
+) => {
   const ajv = new Ajv()
+  const _schema = _.cloneDeep(schema)
+
+  if (
+    Array.isArray(requireFields) &&
+    requireFields.length > 0
+  ) {
+    if (!args.params) {
+      throw new Error('ERR_ARGS_NO_PARAMS')
+    }
+
+    if (!Array.isArray(_schema.required)) {
+      _schema.required = []
+    }
+
+    requireFields.forEach(field => {
+      _schema.required.push(field)
+    })
+  }
 
   if (
     args.params &&
-    !ajv.validate(_paramsSchema, args.params)
+    !ajv.validate(_schema, args.params)
   ) {
     throw new Error(`ERR_ARGS_NO_PARAMS ${JSON.stringify(ajv.errors)}`)
   }
