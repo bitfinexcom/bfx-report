@@ -192,7 +192,7 @@ const parseFields = (res, opts) => {
 const accountCache = new LRU({maxAge: 900000, max: 1})
 
 const _getTimezoneName = (name) => {
-  let _name = name
+  let _name = name || 'UTC'
   const aliases = [
     ['Kiev', ['Kyiv']]
   ]
