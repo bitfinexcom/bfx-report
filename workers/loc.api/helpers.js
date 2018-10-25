@@ -155,8 +155,6 @@ const hasJobInQueueWithStatusBy = async (
   args,
   statuses = ['ACTIVE', 'PROCESSING']
 ) => {
-  const userInfo = await reportService._getUserInfo(args)
-
   const ctx = reportService.ctx
   const wrk = ctx.grc_bfx.caller
   const group = wrk.group
@@ -166,8 +164,10 @@ const hasJobInQueueWithStatusBy = async (
     conf.syncMode ||
     !conf.isSpamRestrictionMode
   ) {
-    return userInfo.id
+    return null
   }
+
+  const userInfo = await reportService._getUserInfo(args)
 
   const procQ = ctx.lokue_processor.q
   const aggrQ = ctx.lokue_aggregator.q
