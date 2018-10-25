@@ -21,16 +21,14 @@ module.exports = async job => {
     const {
       name,
       filePath,
-      email,
-      endDate,
-      startDate,
+      params,
       isUnauth,
       s3Conf,
       emailConf
     } = job.data
 
     const isEnableToSendEmail = (
-      typeof email === 'string' &&
+      typeof params.email === 'string' &&
       await hasS3AndSendgrid(reportService)
     )
 
@@ -40,15 +38,14 @@ module.exports = async job => {
         s3Conf,
         filePath,
         name,
-        startDate,
-        endDate
+        { ...params }
       )
       s3Data.isUnauth = isUnauth
 
       await sendMail(
         reportService,
         emailConf,
-        email,
+        params.email,
         'email.pug',
         s3Data
       )
@@ -57,8 +54,7 @@ module.exports = async job => {
       await moveFileToLocalStorage(
         filePath,
         name,
-        startDate,
-        endDate
+        { ...params }
       )
     }
 

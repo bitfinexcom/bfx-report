@@ -97,17 +97,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -149,17 +147,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -201,17 +197,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -254,17 +248,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -307,17 +299,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -360,17 +350,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -412,17 +400,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -464,17 +450,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -517,17 +501,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -570,17 +552,15 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userId',
       'name',
       'filePath',
-      'email',
-      'endDate',
-      'startDate',
+      'params',
       'isUnauth'
     ])
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
-    assert.isFinite(procRes.endDate)
-    assert.isFinite(procRes.startDate)
+    assert.isObject(procRes.params)
     assert.isBoolean(procRes.isUnauth)
     assert.isOk(fs.existsSync(procRes.filePath))
 
@@ -628,17 +608,15 @@ describe('Queue', () => {
       procRes => {
         assert.isObject(procRes)
         assert.containsAllKeys(procRes, [
+          'userId',
           'name',
           'filePath',
-          'email',
-          'endDate',
-          'startDate',
+          'params',
           'isUnauth'
         ])
         assert.isString(procRes.name)
         assert.isString(procRes.filePath)
-        assert.isFinite(procRes.endDate)
-        assert.isFinite(procRes.startDate)
+        assert.isObject(procRes.params)
         assert.isBoolean(procRes.isUnauth)
         assert.isOk(fs.existsSync(procRes.filePath))
       }
