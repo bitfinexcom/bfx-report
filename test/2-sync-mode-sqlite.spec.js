@@ -650,6 +650,43 @@ describe('Sync mode with SQLite', () => {
     }
   })
 
+  it('it should be successfully performed by the getPublicTrades method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPublicTrades',
+        params: {
+          symbol: 'tBTCUSD',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    if (res.body.result.length > 0) {
+      let resItem = res.body.result[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'id',
+        'mts',
+        'amount',
+        'price'
+      ])
+    }
+  })
+
   it('it should be successfully performed by the getOrders method', async function () {
     this.timeout(5000)
 
@@ -1050,6 +1087,59 @@ describe('Sync mode with SQLite', () => {
           end,
           start,
           limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'name',
+      'filePath',
+      'email',
+      'endDate',
+      'startDate',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isFinite(procRes.endDate)
+    assert.isFinite(procRes.startDate)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
+  it('it should be successfully performed by the getPublicTradesCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPublicTradesCsv',
+        params: {
+          symbol: 'tBTCUSD',
+          end,
+          start,
+          limit: 1000,
+          timezone: 'America/Los_Angeles',
           email
         },
         id: 5
