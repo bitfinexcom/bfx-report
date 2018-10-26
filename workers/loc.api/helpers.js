@@ -1,5 +1,6 @@
 'use strict'
 
+const { promisify } = require('util')
 const _ = require('lodash')
 const LRU = require('lru')
 const Ajv = require('ajv')
@@ -10,7 +11,7 @@ const { hasS3AndSendgrid } = require('./queue/helpers')
 
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
-    throw new Error('ERR_ARGS_NO_AUTH_DATA')
+    throw new Error('ERR_AUTH_UNAUTHORIZED')
   }
 
   const group = wrkReportServiceApi.group
@@ -155,8 +156,6 @@ const hasJobInQueueWithStatusBy = async (
   args,
   statuses = ['ACTIVE', 'PROCESSING']
 ) => {
-  const userInfo = await reportService._getUserInfo(args)
-
   const ctx = reportService.ctx
   const wrk = ctx.grc_bfx.caller
   const group = wrk.group
@@ -166,8 +165,12 @@ const hasJobInQueueWithStatusBy = async (
     conf.syncMode ||
     !conf.isSpamRestrictionMode
   ) {
-    return userInfo.id
+    await promisify(reportService.getEmail.bind(reportService))(null, args)
+
+    return null
   }
+
+  const userInfo = await reportService._getUserInfo(args)
 
   const procQ = ctx.lokue_processor.q
   const aggrQ = ctx.lokue_aggregator.q
