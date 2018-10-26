@@ -6,7 +6,8 @@ const DAO = require('./dao')
 const {
   checkParamsAuth,
   getLimitNotMoreThan,
-  refreshObj
+  refreshObj,
+  tryParseJSON
 } = require('../../helpers')
 
 class SqliteDAO extends DAO {
@@ -50,6 +51,45 @@ class SqliteDAO extends DAO {
         resolve(rows)
       })
     })
+  }
+
+  _serializeVal (val) {
+    if (typeof val === 'boolean') {
+      return +val
+    } else if (typeof val === 'object') {
+      return JSON.stringify(val)
+    }
+
+    return val
+  }
+
+  _deserializeVal (
+    val,
+    key,
+    boolFields = ['notify', 'hidden', 'renew', 'noClose', 'maker']
+  ) {
+    if (
+      typeof val === 'string' &&
+      /^null$/.test(val)
+    ) {
+      return null
+    } else if (
+      typeof val === 'number' &&
+      boolFields.some(item => item === key)
+    ) {
+      return !!val
+    } else if (
+      typeof val === 'string' &&
+      key === 'rate'
+    ) {
+      const _val = parseFloat(val)
+
+      return isFinite(_val) ? _val : val
+    } else if (tryParseJSON(val)) {
+      return tryParseJSON(val)
+    }
+
+    return val
   }
 
   /**
@@ -159,13 +199,7 @@ class SqliteDAO extends DAO {
           .map((item) => {
             const key = `$${item}`
 
-            if (typeof obj[item] === 'boolean') {
-              values[key] = +obj[item]
-            } else if (typeof obj[item] === 'object') {
-              values[key] = JSON.stringify(obj[item])
-            } else {
-              values[key] = obj[item]
-            }
+            values[key] = this._serializeVal(obj[item])
 
             return `${key}`
           })
@@ -206,13 +240,7 @@ class SqliteDAO extends DAO {
             const key = `$${item}`
             where += `${i > 0 ? ' AND ' : ''}${item} = ${key}`
 
-            if (typeof obj[item] === 'boolean') {
-              values[key] = +obj[item]
-            } else if (typeof obj[item] === 'object') {
-              values[key] = JSON.stringify(obj[item])
-            } else {
-              values[key] = obj[item]
-            }
+            values[key] = this._serializeVal(obj[item])
 
             return `${key}`
           })
@@ -338,7 +366,7 @@ class SqliteDAO extends DAO {
 
   _convertDataType (
     arr = [],
-    boolFields = ['notify', 'hidden', 'renew', 'noClose', 'maker']
+    boolFields
   ) {
     arr.forEach(obj => {
       Object.keys(obj).forEach(key => {
@@ -346,24 +374,11 @@ class SqliteDAO extends DAO {
           obj &&
           typeof obj === 'object'
         ) {
-          if (
-            typeof obj[key] === 'string' &&
-            /^null$/.test(obj[key])
-          ) {
-            obj[key] = null
-          } else if (
-            typeof obj[key] === 'number' &&
-            boolFields.some(item => item === key)
-          ) {
-            obj[key] = !!obj[key]
-          } else if (
-            typeof obj[key] === 'string' &&
-            key === 'rate'
-          ) {
-            const val = parseFloat(obj[key])
-
-            obj[key] = isFinite(val) ? val : obj[key]
-          }
+          obj[key] = this._deserializeVal(
+            obj[key],
+            key,
+            boolFields
+          )
         }
       })
     })
@@ -537,13 +552,13 @@ class SqliteDAO extends DAO {
 
       key += lists[curr].map((item, i) => {
         const subKey = `$${curr}_${i}`
-        values[subKey] = item
+        values[subKey] = this._serializeVal(item)
 
         return subKey
       }).join(', ')
       key += ')'
 
-      return `${accum}${i > 0 ? ' AND ' : ''}${curr} NOT IN ${key}`
+      return `${accum}${i > 0 ? ' OR ' : ''}${curr} NOT IN ${key}`
     }, 'WHERE ')
 
     const sql = `DELETE FROM ${name} ${where}`
