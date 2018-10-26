@@ -607,7 +607,7 @@ describe('Queue', () => {
         id: 5
       })
       .expect('Content-Type', /json/)
-      .expect(500)
+      .expect(401)
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
