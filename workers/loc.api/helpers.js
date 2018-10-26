@@ -307,6 +307,22 @@ const refreshObj = (
   })
 }
 
+const tryParseJSON = jsonString => {
+  try {
+    if (typeof jsonString !== 'string') {
+      return false
+    }
+
+    const obj = JSON.parse(jsonString)
+
+    if (obj && typeof obj === 'object') {
+      return obj
+    }
+  } catch (e) { }
+
+  return false
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -324,5 +340,6 @@ module.exports = {
   parseFields,
   accountCache,
   getTimezoneConf,
-  refreshObj
+  refreshObj,
+  tryParseJSON
 }

@@ -218,7 +218,9 @@ const _models = new Map([
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'VARCHAR(255)',
-      name: 'VARCHAR(255)'
+      name: 'VARCHAR(255)',
+      pool: 'VARCHAR(255)',
+      explorer: 'TEXT'
     }
   ],
   [
@@ -367,7 +369,7 @@ const _methodCollMap = new Map([
     {
       name: 'currencies',
       maxLimit: 5000,
-      fields: ['id', 'name'],
+      fields: ['id', 'name', 'pool', 'explorer'],
       sort: [['name', 1]],
       hasNewData: true,
       type: 'updatable:array:objects',
