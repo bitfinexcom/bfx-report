@@ -88,15 +88,20 @@ const _delay = (mc = 80000) => {
     setTimeout(resolve, mc)
   })
 }
-
+const _validTxtTimeZone = (val, timezone, format) => {
+  try {
+    return moment(val).tz(timezone).format(format)
+  } catch (e) { // if txt timezone dont exists throws an error
+    return moment(val).utcOffset(0).format(format)
+  }
+}
 const _formatters = {
   date: (val, { timezone = 0, dateFormat = 'YY-MM-DD' }) => {
     if (Number.isInteger(val)) {
       const format = `${dateFormat} HH:mm:ss`
-
       return _.isNumber(timezone)
         ? moment(val).utcOffset(timezone).format(format)
-        : moment(val).tz(timezone).format(format)
+        : _validTxtTimeZone(val, timezone, format)
     }
 
     return val
