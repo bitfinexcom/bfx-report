@@ -27,12 +27,6 @@ module.exports = async job => {
       job.data.args.params = {}
     }
 
-    const {
-      email,
-      end: endDate,
-      start: startDate
-    } = job.data.args.params
-
     filePath = await createUniqueFileName()
 
     const isUnauth = job.data.isUnauth || false
@@ -63,9 +57,7 @@ module.exports = async job => {
       userId: job.data.userId,
       name: job.data.name,
       filePath,
-      email,
-      endDate,
-      startDate,
+      params: job.data.args.params,
       isUnauth
     })
   } catch (err) {
