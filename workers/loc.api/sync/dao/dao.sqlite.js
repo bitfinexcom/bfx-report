@@ -379,26 +379,6 @@ class SqliteDAO extends DAO {
             key,
             boolFields
           )
-          // if (
-          //   typeof obj[key] === 'string' &&
-          //   /^null$/.test(obj[key])
-          // ) {
-          //   obj[key] = null
-          // } else if (
-          //   typeof obj[key] === 'number' &&
-          //   boolFields.some(item => item === key)
-          // ) {
-          //   obj[key] = !!obj[key]
-          // } else if (
-          //   typeof obj[key] === 'string' &&
-          //   key === 'rate'
-          // ) {
-          //   const val = parseFloat(obj[key])
-
-          //   obj[key] = isFinite(val) ? val : obj[key]
-          // } else if (tryParseJSON(obj[key])) {
-          //   obj[key] = tryParseJSON(obj[key])
-          // }
         }
       })
     })
