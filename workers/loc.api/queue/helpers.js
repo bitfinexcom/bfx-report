@@ -88,13 +88,15 @@ const _delay = (mc = 80000) => {
     setTimeout(resolve, mc)
   })
 }
+
 const _validTxtTimeZone = (val, timezone, format) => {
   try {
     return moment(val).tz(timezone).format(format)
-  } catch (e) { // if txt timezone dont exists throws an error
+  } catch (e) {
     return moment(val).utcOffset(0).format(format)
   }
 }
+
 const _formatters = {
   date: (val, { timezone = 0, dateFormat = 'YY-MM-DD' }) => {
     if (Number.isInteger(val)) {
@@ -149,11 +151,43 @@ const _dataFormatter = (obj, formatSettings, params) => {
   return res
 }
 
+const _normalizers = {
+  getPublicTrades: (obj, params) => {
+    if (
+      params &&
+      typeof params === 'object' &&
+      typeof params.symbol === 'string'
+    ) {
+      obj.symbol = params.symbol
+    }
+
+    return obj
+  }
+}
+
+const _dataNormalizer = (obj, method, params) => {
+  if (
+    typeof obj !== 'object' ||
+    typeof _normalizers[method] !== 'function'
+  ) {
+    return obj
+  }
+
+  let res = _.cloneDeep(obj)
+
+  try {
+    res = _normalizers[method](res, params)
+  } catch (err) {}
+
+  return res
+}
+
 const _write = (res, stream, formatSettings, method, params) => {
   res.forEach((item) => {
-    const _item = _dataFormatter(item, formatSettings, params)
+    const _item = _dataNormalizer(item, method, params)
+    const res = _dataFormatter(_item, formatSettings, params)
 
-    stream.write(_item)
+    stream.write(res)
   })
 }
 

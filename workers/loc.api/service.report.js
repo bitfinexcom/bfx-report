@@ -261,12 +261,14 @@ class ReportService extends Api {
         propNameForPagination: 'mts',
         columnsCsv: {
           id: '#',
-          amount: 'AMOUNT',
+          mts: 'DATE',
           price: 'PRICE',
-          mts: 'DATE'
+          amount: 'AMOUNT',
+          symbol: 'PAIR'
         },
         formatSettings: {
-          mts: 'date'
+          mts: 'date',
+          symbol: 'symbol'
         }
       }
 
