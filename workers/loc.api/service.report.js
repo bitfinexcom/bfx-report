@@ -11,7 +11,8 @@ const {
   toString,
   parseFields,
   accountCache,
-  getTimezoneConf
+  getTimezoneConf,
+  checkTimeLimit
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -249,6 +250,7 @@ class ReportService extends Api {
   async getPublicTradesCsv (space, args, cb) {
     try {
       checkParams(args, ['symbol'])
+      checkTimeLimit(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 

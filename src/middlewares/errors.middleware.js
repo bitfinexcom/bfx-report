@@ -19,6 +19,10 @@ const _isNonceSmallError = (err) => {
   return /nonce: small/.test(err.toString())
 }
 
+const _isTimeFrameMoreThanMonthError = (err) => {
+  return /ERR_TIME_FRAME_MORE_THAN_MONTH/.test(err.toString())
+}
+
 module.exports = (err, req, res, next) => {
   const id = (req.body && req.body.id) || null
 
@@ -34,6 +38,10 @@ module.exports = (err, req, res, next) => {
   }
   if (_isNonceSmallError(err)) {
     err.statusMessage = 'Nonces error, key are updated, please get new keys to operate'
+  }
+  if (_isTimeFrameMoreThanMonthError(err)) {
+    err.statusCode = 400
+    err.statusMessage = 'For public trades export please select a time frame smaller than a month'
   }
 
   failure(

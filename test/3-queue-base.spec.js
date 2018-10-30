@@ -331,7 +331,7 @@ describe('Queue', () => {
         params: {
           symbol: 'tBTCUSD',
           end,
-          start,
+          start: (new Date()).setDate(date.getDate() - 27),
           limit: 1000,
           timezone: 'America/Los_Angeles',
           email
@@ -365,6 +365,35 @@ describe('Queue', () => {
     await aggrPromise
 
     assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
+  it('it should not be successfully performed by the getPublicTradesCsv method, time frame more then a month', async function () {
+    this.timeout(60000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPublicTradesCsv',
+        params: {
+          symbol: 'tBTCUSD',
+          end,
+          start,
+          limit: 1000,
+          timezone: 'America/Los_Angeles',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(400)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 400)
+    assert.propertyVal(res.body.error, 'message', 'For public trades export please select a time frame smaller than a month')
+    assert.propertyVal(res.body, 'id', 5)
   })
 
   it('it should be successfully performed by the getOrdersCsv method', async function () {
