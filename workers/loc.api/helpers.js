@@ -128,6 +128,27 @@ const checkParams = (
   }
 }
 
+const _setDefaultTimeIfNotExist = (args) => {
+  args.params.end = args.params.end
+    ? args.params.end
+    : (new Date()).getTime()
+  args.params.start = args.params.start
+    ? args.params.start
+    : 0
+}
+
+const checkTimeLimit = (args) => {
+  _setDefaultTimeIfNotExist(args)
+
+  const { start, end } = args.params
+  const startDate = moment(start)
+  const endDate = moment(end)
+
+  if (start >= end || endDate.diff(startDate, 'months') >= 1) {
+    throw new Error('ERR_TIME_FRAME_MORE_THAN_MONTH')
+  }
+}
+
 const checkParamsAuth = (args) => {
   if (
     !args.auth ||
@@ -341,5 +362,6 @@ module.exports = {
   accountCache,
   getTimezoneConf,
   refreshObj,
-  tryParseJSON
+  tryParseJSON,
+  checkTimeLimit
 }
