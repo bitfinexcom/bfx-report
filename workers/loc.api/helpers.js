@@ -144,7 +144,7 @@ const checkTimeLimit = (args) => {
   const startDate = moment(start)
   const endDate = moment(end)
 
-  if (start >= end || endDate.diff(startDate, 'months') >= 1) {
+  if (start >= end || endDate.diff(startDate, 'months') > 1) {
     throw new Error('ERR_TIME_FRAME_MORE_THAN_MONTH')
   }
 }
