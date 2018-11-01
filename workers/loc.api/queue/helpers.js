@@ -277,8 +277,8 @@ const writeDataToStream = async (reportService, stream, job) => {
 
   const _args = _.cloneDeep(job.data.args)
   _args.params.end = _args.params.end
-    ? _args.params.end
-    : (new Date()).getTime()
+    ? Math.min(_args.params.end, Date.now())
+    : Date.now()
   _args.params.start = _args.params.start
     ? _args.params.start
     : 0

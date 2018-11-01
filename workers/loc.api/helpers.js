@@ -27,6 +27,10 @@ const getLimitNotMoreThan = (limit, maxLimit = 25) => {
   return Math.min(num, maxLimit)
 }
 
+const _getDateNotMoreNow = (date, now = Date.now()) => {
+  return getLimitNotMoreThan(date, now)
+}
+
 const getParams = (
   args,
   maxLimit,
@@ -61,7 +65,7 @@ const getParams = (
       ...[
         args.params.symbol,
         args.params.start,
-        args.params.end,
+        _getDateNotMoreNow(args.params.end),
         getLimitNotMoreThan(args.params.limit, maxLimit)
       ]
     )
@@ -129,9 +133,7 @@ const checkParams = (
 }
 
 const _setDefaultTimeIfNotExist = (args) => {
-  args.params.end = args.params.end
-    ? args.params.end
-    : (new Date()).getTime()
+  args.params.end = _getDateNotMoreNow(args.params.end)
   args.params.start = args.params.start
     ? args.params.start
     : 0
