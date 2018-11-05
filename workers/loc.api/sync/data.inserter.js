@@ -238,8 +238,8 @@ class DataInserter extends EventEmitter {
     const currIterationArgs = _.cloneDeep(_args)
 
     let res = null
+    let prevLastItem = {}
     let count = 0
-    let timeOfPrevIteration = _args.params.end
 
     while (true) {
       res = await this._getDataFromApi(methodApi, currIterationArgs)
@@ -250,9 +250,23 @@ class DataInserter extends EventEmitter {
         res.length === 0
       ) break
 
+      const prevLastItemIndex = res.findIndex(item => {
+        return _.isEqual(
+          _.pick(prevLastItem, Object.keys(model)),
+          _.pick(item, Object.keys(model))
+        )
+      })
+
+      if (prevLastItemIndex !== -1) {
+        res.splice(0, prevLastItemIndex + 1)
+
+        if (res.length === 0) break
+      }
+
       const lastItem = res[res.length - 1]
 
       if (
+        !lastItem ||
         typeof lastItem !== 'object' ||
         !lastItem[dateFieldName] ||
         !Number.isInteger(lastItem[dateFieldName])
@@ -260,10 +274,6 @@ class DataInserter extends EventEmitter {
 
       const currTime = lastItem[dateFieldName]
       let isAllData = false
-
-      if (currTime >= timeOfPrevIteration) {
-        break
-      }
 
       if (_args.params.start >= currTime) {
         res = res.filter((item) => _args.params.start <= item[dateFieldName])
@@ -288,8 +298,8 @@ class DataInserter extends EventEmitter {
         break
       }
 
-      timeOfPrevIteration = currTime
-      currIterationArgs.params.end = lastItem[dateFieldName] - 1
+      prevLastItem = lastItem
+      currIterationArgs.params.end = lastItem[dateFieldName]
       if (needElems) currIterationArgs.params.limit = needElems
     }
   }

@@ -288,6 +288,7 @@ const writeDataToStream = async (reportService, stream, job) => {
   const getData = promisify(reportService[method].bind(reportService))
 
   let res = null
+  let prevLastItem = {}
   let count = 0
 
   while (true) {
@@ -295,10 +296,34 @@ const writeDataToStream = async (reportService, stream, job) => {
 
     res = await _getDataFromApi(getData, currIterationArgs)
 
-    if (!res || !Array.isArray(res) || res.length === 0) {
+    if (
+      !res ||
+      !Array.isArray(res) ||
+      res.length === 0 ||
+      !res[0] ||
+      typeof res[0] !== 'object'
+    ) {
       if (count > 0) queue.emit('progress', 100)
 
       break
+    }
+
+    const _model = Object.keys(res[0]).filter(item => /^(?!_)/.test(item))
+    const prevLastItemIndex = res.findIndex(item => {
+      return _.isEqual(
+        _.pick(prevLastItem, _model),
+        _.pick(item, _model)
+      )
+    })
+
+    if (prevLastItemIndex !== -1) {
+      res.splice(0, prevLastItemIndex + 1)
+
+      if (res.length === 0) {
+        if (count > 0) queue.emit('progress', 100)
+
+        break
+      }
     }
 
     if (method === 'getMovements') {
@@ -316,6 +341,7 @@ const writeDataToStream = async (reportService, stream, job) => {
     const formatSettings = job.data.formatSettings
 
     if (
+      !lastItem ||
       typeof lastItem !== 'object' ||
       !lastItem[propName] ||
       !Number.isInteger(lastItem[propName])
@@ -347,7 +373,8 @@ const writeDataToStream = async (reportService, stream, job) => {
 
     _progress(queue, currTime, _args.params)
 
-    currIterationArgs.params.end = lastItem[propName] - 1
+    prevLastItem = lastItem
+    currIterationArgs.params.end = lastItem[propName]
     if (needElems) currIterationArgs.params.limit = needElems
   }
 
