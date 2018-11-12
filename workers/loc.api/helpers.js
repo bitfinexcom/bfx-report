@@ -60,12 +60,14 @@ const getParams = (
     }
   )
 
+  _setDefaultTimeIfNotExist(args)
+
   if (args.params) {
     params.push(
       ...[
         args.params.symbol,
         args.params.start,
-        _getDateNotMoreNow(args.params.end),
+        args.params.end,
         getLimitNotMoreThan(args.params.limit, maxLimit)
       ]
     )
@@ -346,6 +348,38 @@ const tryParseJSON = jsonString => {
   return false
 }
 
+const prepareResponse = async (
+  args,
+  wrk,
+  methodApi,
+  maxLimit,
+  datePropName,
+  requireFields
+) => {
+  const params = getParams(args, maxLimit, requireFields)
+  const rest = getREST(args.auth, wrk)
+  const res = await rest[methodApi].bind(rest)(...params)
+  const max = params[3]
+  const nextPage = Array.isArray(res) && res.length === max
+
+  if (nextPage) {
+    const date = res[res.length - 1][datePropName]
+
+    while (
+      res[res.length - 1] &&
+      date === res[res.length - 1][datePropName]
+    ) {
+      res.pop()
+    }
+
+    if (!args.params.notThrowError && res.length === 0) {
+      throw new Error('A greater limit is needed as to show the data correctly')
+    }
+  }
+
+  return { res, nextPage }
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -365,5 +399,6 @@ module.exports = {
   getTimezoneConf,
   refreshObj,
   tryParseJSON,
-  checkTimeLimit
+  checkTimeLimit,
+  prepareResponse
 }
