@@ -395,7 +395,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'fUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -404,10 +404,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -444,7 +446,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'fUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -453,10 +455,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -494,7 +498,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'fUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -503,10 +507,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -545,7 +551,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'BTC',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -554,10 +560,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -588,10 +596,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -619,7 +629,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'tBTCUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -628,10 +638,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -663,7 +675,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'tBTCUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -672,10 +684,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -700,7 +714,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'tBTCUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -709,10 +723,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -752,7 +768,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'BTC',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -761,10 +777,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -798,10 +816,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -838,6 +858,33 @@ describe('Sync mode with SQLite', () => {
     assert.isObject(res.body.error)
     assert.propertyVal(res.body.error, 'code', 500)
     assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+    assert.propertyVal(res.body, 'id', 5)
+  })
+
+  it('it should not be successfully performed by the getMovements method, a greater limit is needed', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovements',
+        params: {
+          symbol: 'BTC',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(400)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 400)
+    assert.propertyVal(res.body.error, 'message', 'A greater limit is needed as to show the data correctly')
     assert.propertyVal(res.body, 'id', 5)
   })
 

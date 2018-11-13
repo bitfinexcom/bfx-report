@@ -229,7 +229,7 @@ const _getDataFromApi = async (getData, args) => {
 
   while (true) {
     try {
-      res = await getData(null, args)
+      res = await getData(null, _.cloneDeep(args))
 
       break
     } catch (err) {

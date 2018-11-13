@@ -346,19 +346,18 @@ const tryParseJSON = jsonString => {
   return false
 }
 
-const prepareResponse = async (
-  args,
-  wrk,
-  methodApi,
-  maxLimit,
+const prepareResponse = (
+  res,
   datePropName,
-  requireFields
+  limit = 1000,
+  notThrowError = false,
+  notCheckNextPage = false
 ) => {
-  const params = getParams(args, maxLimit, requireFields)
-  const rest = getREST(args.auth, wrk)
-  const res = await rest[methodApi].bind(rest)(...params)
-  const max = params[3]
-  const nextPage = Array.isArray(res) && res.length === max
+  const nextPage = (
+    !notCheckNextPage &&
+    Array.isArray(res) &&
+    res.length === limit
+  )
 
   if (nextPage) {
     const date = res[res.length - 1][datePropName]
@@ -370,12 +369,33 @@ const prepareResponse = async (
       res.pop()
     }
 
-    if (!args.params.notThrowError && res.length === 0) {
+    if (!notThrowError && res.length === 0) {
       throw new Error('ERR_GREATER_LIMIT_IS_NEEDED')
     }
   }
 
   return { res, nextPage }
+}
+
+const prepareApiResponse = async (
+  args,
+  wrk,
+  methodApi,
+  maxLimit,
+  datePropName,
+  requireFields
+) => {
+  const params = getParams(args, maxLimit, requireFields)
+  const rest = getREST(args.auth, wrk)
+  const res = await rest[methodApi].bind(rest)(...params)
+
+  return prepareResponse(
+    res,
+    datePropName,
+    params[3],
+    args.params && args.params.notThrowError,
+    args.params && args.params.notCheckNextPage
+  )
 }
 
 module.exports = {
@@ -398,5 +418,6 @@ module.exports = {
   refreshObj,
   tryParseJSON,
   checkTimeLimit,
-  prepareResponse
+  prepareResponse,
+  prepareApiResponse
 }

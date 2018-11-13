@@ -12,7 +12,7 @@ const {
   accountCache,
   getTimezoneConf,
   checkTimeLimit,
-  prepareResponse
+  prepareApiResponse
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -108,7 +108,7 @@ class ReportService extends Api {
 
   async getLedgers (space, args, cb) {
     try {
-      const res = await prepareResponse(
+      const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'ledgers',
@@ -124,7 +124,7 @@ class ReportService extends Api {
 
   async getTrades (space, args, cb) {
     try {
-      const res = await prepareResponse(
+      const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'accountTrades',
@@ -142,7 +142,7 @@ class ReportService extends Api {
     try {
       args.auth = {}
 
-      const res = await prepareResponse(
+      const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'trades',
@@ -159,7 +159,7 @@ class ReportService extends Api {
 
   async getOrders (space, args, cb) {
     try {
-      const res = await prepareResponse(
+      const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'orderHistory',
@@ -176,7 +176,7 @@ class ReportService extends Api {
 
   async getMovements (space, args, cb) {
     try {
-      const res = await prepareResponse(
+      const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'movements',
@@ -192,7 +192,7 @@ class ReportService extends Api {
 
   async getFundingOfferHistory (space, args, cb) {
     try {
-      const res = await prepareResponse(
+      const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'fundingOfferHistory',
@@ -209,7 +209,7 @@ class ReportService extends Api {
 
   async getFundingLoanHistory (space, args, cb) {
     try {
-      const res = await prepareResponse(
+      const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'fundingLoanHistory',
@@ -226,7 +226,7 @@ class ReportService extends Api {
 
   async getFundingCreditHistory (space, args, cb) {
     try {
-      const res = await prepareResponse(
+      const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'fundingCreditHistory',

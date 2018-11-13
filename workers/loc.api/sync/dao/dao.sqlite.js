@@ -7,7 +7,8 @@ const {
   checkParamsAuth,
   getLimitNotMoreThan,
   refreshObj,
-  tryParseJSON
+  tryParseJSON,
+  prepareResponse
 } = require('../../helpers')
 
 class SqliteDAO extends DAO {
@@ -299,7 +300,7 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async findInCollBy (method, args) {
+  async findInCollBy (method, args, isPrepareResponse) {
     const user = await this.checkAuthInDb(args)
     const methodColl = this._getMethodCollMap().get(method)
     const params = { ...args.params }
@@ -359,9 +360,19 @@ class SqliteDAO extends DAO {
       ORDER BY ${sort.join(', ')}
       LIMIT $limit`
 
-    const res = await this._all(sql, values)
+    const _res = await this._all(sql, values)
+    let res = this._convertDataType(_res)
 
-    return this._convertDataType(res)
+    if (isPrepareResponse) {
+      res = prepareResponse(
+        res,
+        methodColl.dateFieldName,
+        params.limit,
+        params.notThrowError
+      )
+    }
+
+    return res
   }
 
   _convertDataType (
