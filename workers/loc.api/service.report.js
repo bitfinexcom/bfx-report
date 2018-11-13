@@ -140,6 +140,8 @@ class ReportService extends Api {
 
   async getPublicTrades (space, args, cb) {
     try {
+      args.auth = {}
+
       const res = await prepareResponse(
         args,
         this.ctx.grc_bfx.caller,

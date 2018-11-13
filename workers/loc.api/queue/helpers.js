@@ -260,11 +260,21 @@ const _getDataFromApi = async (getData, args) => {
   return res
 }
 
+const _setDefaultPrams = (args) => {
+  args.params.notThrowError = true
+  args.params.end = args.params.end
+    ? Math.min(args.params.end, Date.now())
+    : Date.now()
+  args.params.start = args.params.start
+    ? args.params.start
+    : 0
+}
+
 const writeDataToStream = async (reportService, stream, job) => {
   if (typeof job === 'string') {
     _writeMessageToStream(reportService, stream, job)
 
-    return Promise.resolve()
+    return
   }
 
   const method = job.data.name
@@ -276,54 +286,29 @@ const writeDataToStream = async (reportService, stream, job) => {
   const queue = reportService.ctx.lokue_aggregator.q
 
   const _args = _.cloneDeep(job.data.args)
-  _args.params.end = _args.params.end
-    ? Math.min(_args.params.end, Date.now())
-    : Date.now()
-  _args.params.start = _args.params.start
-    ? _args.params.start
-    : 0
-
+  _setDefaultPrams(_args)
   const currIterationArgs = _.cloneDeep(_args)
 
   const getData = promisify(reportService[method].bind(reportService))
 
-  let res = null
-  let prevLastItem = {}
   let count = 0
 
   while (true) {
     queue.emit('progress', 0)
 
-    res = await _getDataFromApi(getData, currIterationArgs)
+    let { res, nextPage } = await _getDataFromApi(
+      getData,
+      currIterationArgs
+    )
 
     if (
       !res ||
       !Array.isArray(res) ||
-      res.length === 0 ||
-      !res[0] ||
-      typeof res[0] !== 'object'
+      res.length === 0
     ) {
       if (count > 0) queue.emit('progress', 100)
 
       break
-    }
-
-    const _model = Object.keys(res[0]).filter(item => /^(?!_)/.test(item))
-    const prevLastItemIndex = res.findIndex(item => {
-      return _.isEqual(
-        _.pick(prevLastItem, _model),
-        _.pick(item, _model)
-      )
-    })
-
-    if (prevLastItemIndex !== -1) {
-      res.splice(0, prevLastItemIndex + 1)
-
-      if (res.length === 0) {
-        if (count > 0) queue.emit('progress', 100)
-
-        break
-      }
     }
 
     if (method === 'getMovements') {
@@ -360,12 +345,22 @@ const writeDataToStream = async (reportService, stream, job) => {
       isAllData = true
     }
 
-    _write(res, stream, formatSettings, method, { ..._args.params })
+    _write(
+      res,
+      stream,
+      formatSettings,
+      method,
+      { ..._args.params }
+    )
 
     count += res.length
     const needElems = _args.params.limit - count
 
-    if (isAllData || needElems <= 0) {
+    if (
+      isAllData ||
+      needElems <= 0 ||
+      !nextPage
+    ) {
       queue.emit('progress', 100)
 
       break
@@ -373,12 +368,8 @@ const writeDataToStream = async (reportService, stream, job) => {
 
     _progress(queue, currTime, _args.params)
 
-    prevLastItem = lastItem
-    currIterationArgs.params.end = lastItem[propName]
-    if (needElems) currIterationArgs.params.limit = needElems
+    currIterationArgs.params.end = lastItem[propName] - 1
   }
-
-  return Promise.resolve()
 }
 
 const _writeMessageToStream = (reportService, stream, message) => {

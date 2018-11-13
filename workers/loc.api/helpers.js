@@ -60,14 +60,12 @@ const getParams = (
     }
   )
 
-  _setDefaultTimeIfNotExist(args)
-
   if (args.params) {
     params.push(
       ...[
         args.params.symbol,
         args.params.start,
-        args.params.end,
+        _getDateNotMoreNow(args.params.end),
         getLimitNotMoreThan(args.params.limit, maxLimit)
       ]
     )
@@ -373,7 +371,7 @@ const prepareResponse = async (
     }
 
     if (!args.params.notThrowError && res.length === 0) {
-      throw new Error('A greater limit is needed as to show the data correctly')
+      throw new Error('ERR_GREATER_LIMIT_IS_NEEDED')
     }
   }
 

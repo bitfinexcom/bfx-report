@@ -23,6 +23,10 @@ const _isTimeFrameMoreThanMonthError = (err) => {
   return /ERR_TIME_FRAME_MORE_THAN_MONTH/.test(err.toString())
 }
 
+const _isGreaterLimitNeededError = (err) => {
+  return /ERR_GREATER_LIMIT_IS_NEEDED/.test(err.toString())
+}
+
 module.exports = (err, req, res, next) => {
   const id = (req.body && req.body.id) || null
 
@@ -42,6 +46,10 @@ module.exports = (err, req, res, next) => {
   if (_isTimeFrameMoreThanMonthError(err)) {
     err.statusCode = 400
     err.statusMessage = 'For public trades export please select a time frame smaller than a month'
+  }
+  if (_isGreaterLimitNeededError(err)) {
+    err.statusCode = 400
+    err.statusMessage = 'A greater limit is needed as to show the data correctly'
   }
 
   failure(
