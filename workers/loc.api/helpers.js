@@ -346,6 +346,58 @@ const tryParseJSON = jsonString => {
   return false
 }
 
+const prepareResponse = (
+  res,
+  datePropName,
+  limit = 1000,
+  notThrowError = false,
+  notCheckNextPage = false
+) => {
+  const nextPage = (
+    !notCheckNextPage &&
+    Array.isArray(res) &&
+    res.length === limit
+  )
+
+  if (nextPage) {
+    const date = res[res.length - 1][datePropName]
+
+    while (
+      res[res.length - 1] &&
+      date === res[res.length - 1][datePropName]
+    ) {
+      res.pop()
+    }
+
+    if (!notThrowError && res.length === 0) {
+      throw new Error('ERR_GREATER_LIMIT_IS_NEEDED')
+    }
+  }
+
+  return { res, nextPage }
+}
+
+const prepareApiResponse = async (
+  args,
+  wrk,
+  methodApi,
+  maxLimit,
+  datePropName,
+  requireFields
+) => {
+  const params = getParams(args, maxLimit, requireFields)
+  const rest = getREST(args.auth, wrk)
+  const res = await rest[methodApi].bind(rest)(...params)
+
+  return prepareResponse(
+    res,
+    datePropName,
+    params[3],
+    args.params && args.params.notThrowError,
+    args.params && args.params.notCheckNextPage
+  )
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -365,5 +417,7 @@ module.exports = {
   getTimezoneConf,
   refreshObj,
   tryParseJSON,
-  checkTimeLimit
+  checkTimeLimit,
+  prepareResponse,
+  prepareApiResponse
 }
