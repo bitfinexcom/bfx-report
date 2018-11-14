@@ -370,8 +370,8 @@ class ReportService extends Api {
           amountExecuted: 'EXECUTED AMOUNT',
           price: 'PRICE',
           priceAvg: 'AVERAGE EXECUTION PRICE',
-          mtsUpdate: 'UPDATED',
           mtsCreate: 'CREATED',
+          mtsUpdate: 'UPDATED',
           status: 'STATUS'
         },
         formatSettings: {
