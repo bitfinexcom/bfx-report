@@ -125,13 +125,15 @@ class DataInserter extends EventEmitter {
         continue
       }
 
-      const args = this._getMethodArgMap(method, { ...auth }, 1)
+      const args = this._getMethodArgMap(method, auth, 1)
+      args.params.notThrowError = true
+      args.params.notCheckNextPage = true
       const lastElemFromDb = await this.dao.getLastElemFromDb(
         item.name,
         { ...auth },
         item.sort
       )
-      const lastElemFromApi = await this._getDataFromApi(method, args)
+      const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
 
       methodCollMap.get(method).hasNewData = false
 
@@ -186,7 +188,7 @@ class DataInserter extends EventEmitter {
 
     while (true) {
       try {
-        res = await this.reportService[methodApi](args)
+        res = await this.reportService[methodApi](_.cloneDeep(args))
 
         break
       } catch (err) {
@@ -233,35 +235,24 @@ class DataInserter extends EventEmitter {
       model
     } = schema
 
-    const args = this._getMethodArgMap(methodApi, { ...auth }, 10000000, start)
+    const args = this._getMethodArgMap(methodApi, auth, 10000000, start)
     const _args = _.cloneDeep(args)
+    _args.params.notThrowError = true
     const currIterationArgs = _.cloneDeep(_args)
 
-    let res = null
-    let prevLastItem = {}
     let count = 0
 
     while (true) {
-      res = await this._getDataFromApi(methodApi, currIterationArgs)
+      let { res, nextPage } = await this._getDataFromApi(
+        methodApi,
+        currIterationArgs
+      )
 
       if (
         !res ||
         !Array.isArray(res) ||
         res.length === 0
       ) break
-
-      const prevLastItemIndex = res.findIndex(item => {
-        return _.isEqual(
-          _.pick(prevLastItem, Object.keys(model)),
-          _.pick(item, Object.keys(model))
-        )
-      })
-
-      if (prevLastItemIndex !== -1) {
-        res.splice(0, prevLastItemIndex + 1)
-
-        if (res.length === 0) break
-      }
 
       const lastItem = res[res.length - 1]
 
@@ -294,13 +285,15 @@ class DataInserter extends EventEmitter {
       count += res.length
       const needElems = _args.params.limit - count
 
-      if (isAllData || needElems <= 0) {
+      if (
+        isAllData ||
+        needElems <= 0 ||
+        !nextPage
+      ) {
         break
       }
 
-      prevLastItem = lastItem
-      currIterationArgs.params.end = lastItem[dateFieldName]
-      if (needElems) currIterationArgs.params.limit = needElems
+      currIterationArgs.params.end = lastItem[dateFieldName] - 1
     }
   }
 
@@ -318,7 +311,7 @@ class DataInserter extends EventEmitter {
       field
     } = schema
 
-    const args = this._getMethodArgMap(methodApi, { ...auth }, null, null, null)
+    const args = this._getMethodArgMap(methodApi, auth, null, null, null)
     const elemsFromApi = await this._getDataFromApi(methodApi, args)
 
     if (
@@ -351,7 +344,7 @@ class DataInserter extends EventEmitter {
       model
     } = schema
 
-    const args = this._getMethodArgMap(methodApi, { ...auth }, null, null, null)
+    const args = this._getMethodArgMap(methodApi, auth, null, null, null)
     const elemsFromApi = await this._getDataFromApi(methodApi, args)
 
     if (
@@ -386,13 +379,17 @@ class DataInserter extends EventEmitter {
 
   _getMethodArgMap (
     method,
-    auth = { apiKey: '', apiSecret: '' },
+    auth,
     limit,
     start = 0,
     end = (new Date()).getTime()
   ) {
     return {
-      auth,
+      auth: {
+        apiKey: '',
+        apiSecret: '',
+        ...auth
+      },
       params: {
         limit: limit !== null ? limit : this._methodCollMap.get(method).maxLimit,
         end,

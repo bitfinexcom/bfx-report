@@ -329,7 +329,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const res = await this.dao.findInCollBy('_getLedgers', args)
+      const res = await this.dao.findInCollBy('_getLedgers', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -350,7 +350,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const res = await this.dao.findInCollBy('_getTrades', args)
+      const res = await this.dao.findInCollBy('_getTrades', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -372,7 +372,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, ['symbol'])
 
-      // TODO: replace to this.dao.findInCollBy('_getPublicTrades', args)
+      // TODO: replace to this.dao.findInCollBy('_getPublicTrades', args, true)
       const res = await this._getPublicTrades(args)
 
       cb(null, res)
@@ -394,7 +394,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const res = await this.dao.findInCollBy('_getOrders', args)
+      const res = await this.dao.findInCollBy('_getOrders', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -415,7 +415,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const res = await this.dao.findInCollBy('_getMovements', args)
+      const res = await this.dao.findInCollBy('_getMovements', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -436,7 +436,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const res = await this.dao.findInCollBy('_getFundingOfferHistory', args)
+      const res = await this.dao.findInCollBy('_getFundingOfferHistory', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -457,7 +457,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const res = await this.dao.findInCollBy('_getFundingLoanHistory', args)
+      const res = await this.dao.findInCollBy('_getFundingLoanHistory', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -478,7 +478,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args)
 
-      const res = await this.dao.findInCollBy('_getFundingCreditHistory', args)
+      const res = await this.dao.findInCollBy('_getFundingCreditHistory', args, true)
 
       cb(null, res)
     } catch (err) {
