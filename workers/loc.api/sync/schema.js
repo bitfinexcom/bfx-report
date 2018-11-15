@@ -297,7 +297,7 @@ const _methodCollMap = new Map([
     '_getPublicTrades',
     {
       name: 'publicTrades',
-      maxLimit: 1500,
+      maxLimit: 1000,
       dateFieldName: 'mts',
       symbolFieldName: '_symbol',
       sort: [['mts', -1]],
