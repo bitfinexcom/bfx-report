@@ -10,8 +10,30 @@ const {
 
 let reportService = null
 
-module.exports = async () => {
+const _sync = async (isSkipSync) => {
   let dataInserter = null
+
+  if (!isSkipSync) {
+    try {
+      dataInserter = new DataInserter(reportService)
+
+      await dataInserter.insertNewDataToDbMultiUser()
+    } catch (err) {
+      await logErrorAndSetProgress(reportService, err)
+    }
+  }
+
+  try {
+    await redirectRequestsToApi(reportService, false)
+  } catch (err) {
+    await logErrorAndSetProgress(reportService, err)
+  }
+
+  return getProgress(reportService)
+}
+
+module.exports = async (isSolveAfterRedirToApi) => {
+  let isSkipSync = false
 
   try {
     const isEnable = await reportService.isSchedulerEnabled()
@@ -28,21 +50,19 @@ module.exports = async () => {
 
     await setProgress(reportService, 0)
     await redirectRequestsToApi(reportService, true)
-
-    dataInserter = new DataInserter(reportService)
-
-    await dataInserter.insertNewDataToDbMultiUser()
   } catch (err) {
+    isSkipSync = true
+
     await logErrorAndSetProgress(reportService, err)
   }
 
-  try {
-    await redirectRequestsToApi(reportService, false)
-  } catch (err) {
-    await logErrorAndSetProgress(reportService, err)
+  if (!isSkipSync && isSolveAfterRedirToApi) {
+    _sync().then(() => {}, () => {})
+
+    return getProgress(reportService)
   }
 
-  return getProgress(reportService)
+  return _sync(isSkipSync)
 }
 
 module.exports.setReportService = (rService) => {

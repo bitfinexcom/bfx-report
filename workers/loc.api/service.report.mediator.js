@@ -15,8 +15,7 @@ const {
 } = require('./helpers')
 const {
   collObjToArr,
-  getProgress,
-  delay
+  getProgress
 } = require('./sync/helpers')
 const { getMethodCollMap } = require('./sync/schema')
 const sync = require('./sync')
@@ -110,6 +109,7 @@ class MediatorReportService extends ReportService {
         ...pick(args.auth, ['apiKey', 'apiSecret']),
         isDataFromDb: 1
       })
+      await sync(true)
 
       if (!cb) return true
       cb(null, true)
@@ -209,38 +209,19 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async syncNow (space, args, cb) {
+  async syncNow (space, args = {}, cb) {
     try {
       if (cb) {
         await this.dao.checkAuthInDb(args)
       }
 
-      let res = await sync()
-
-      if (typeof res === 'number' && res < 100) {
-        let count = 0
-
-        while (true) {
-          count += 1
-
-          await delay(1000)
-
-          if (count > 30) {
-            res = 'Synchronization is not complete'
-
-            break
-          }
-
-          if (
-            typeof res !== 'number' ||
-            res >= 100
-          ) {
-            break
-          }
-
-          res = await this.getSyncProgress()
-        }
-      }
+      const _res = await sync(true)
+      const res = (
+        typeof _res === 'number' &&
+        _res < 100
+      )
+        ? 'Synchronization is not complete'
+        : _res
 
       if (!cb) return res
       cb(null, res)
