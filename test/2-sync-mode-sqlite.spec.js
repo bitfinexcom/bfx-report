@@ -150,25 +150,6 @@ describe('Sync mode with SQLite', () => {
     assert.isOk(res.body.result)
   })
 
-  it('it should be successfully performed by the isSyncModeWithDbData method', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/get-data`)
-      .type('json')
-      .send({
-        auth,
-        method: 'isSyncModeWithDbData',
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(200)
-
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
-  })
-
   it('it should be successfully performed by the enableScheduler method', async function () {
     this.timeout(60000)
 
@@ -214,6 +195,7 @@ describe('Sync mode with SQLite', () => {
         .post(`${basePath}/get-data`)
         .type('json')
         .send({
+          auth,
           method: 'getSyncProgress',
           id: 5
         })
@@ -235,6 +217,25 @@ describe('Sync mode with SQLite', () => {
     }
   })
 
+  it('it should be successfully performed by the isSyncModeWithDbData method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'isSyncModeWithDbData',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result)
+  })
+
   it('it should be successfully performed by the syncNow method', async function () {
     this.timeout(60000)
 
@@ -251,7 +252,10 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isNumber(res.body.result)
+    assert.isOk(
+      typeof res.body.result === 'number' ||
+      res.body.result === 'SYNCHRONIZATION_IS_STARTED'
+    )
   })
 
   it('it should be successfully auth', async function () {
@@ -1573,6 +1577,7 @@ describe('Sync mode with SQLite', () => {
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
+        auth,
         method: 'getSyncProgress',
         id: 5
       })
