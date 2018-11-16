@@ -59,7 +59,7 @@ module.exports = async (isSolveAfterRedirToApi) => {
   if (!isSkipSync && isSolveAfterRedirToApi) {
     _sync().then(() => {}, () => {})
 
-    return getProgress(reportService)
+    return 'SYNCHRONIZATION_IS_STARTED'
   }
 
   return _sync(isSkipSync)

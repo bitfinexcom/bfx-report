@@ -196,8 +196,13 @@ class MediatorReportService extends ReportService {
 
   async getSyncProgress (space, args, cb) {
     try {
+      const user = await this.dao.checkAuthInDb(args, false)
       const isSchedulerEnabled = await this.isSchedulerEnabled()
-      const res = isSchedulerEnabled
+      const res = (
+        !isEmpty(user) &&
+        user.isDataFromDb &&
+        isSchedulerEnabled
+      )
         ? await getProgress(this)
         : false
 
@@ -215,13 +220,7 @@ class MediatorReportService extends ReportService {
         await this.dao.checkAuthInDb(args)
       }
 
-      const _res = await sync(true)
-      const res = (
-        typeof _res === 'number' &&
-        _res < 100
-      )
-        ? 'Synchronization is not complete'
-        : _res
+      const res = await sync(true)
 
       if (!cb) return res
       cb(null, res)
