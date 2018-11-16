@@ -541,7 +541,7 @@ const uploadS3 = async (
 
 const sendMail = (reportService, configs, to, viewName, data) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const text = `Download (${data.fileName}): ${data.public_url}`
+  const text = `Download (${data.fileName}): ${data.presigned_url}`
   const html = pug.renderFile(
     path.join(basePathToViews, viewName),
     data
