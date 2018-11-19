@@ -98,9 +98,17 @@ const _validTxtTimeZone = (val, timezone, format) => {
 }
 
 const _formatters = {
-  date: (val, { timezone = 0, dateFormat = 'YY-MM-DD' }) => {
+  date: (
+    val,
+    {
+      timezone = 0,
+      dateFormat = 'YY-MM-DD',
+      milliseconds = false
+    }
+  ) => {
     if (Number.isInteger(val)) {
-      const format = `${dateFormat} HH:mm:ss`
+      const _ms = milliseconds ? '.SSS' : ''
+      const format = `${dateFormat} HH:mm:ss${_ms}`
       return _.isNumber(timezone)
         ? moment(val).utcOffset(timezone).format(format)
         : _validTxtTimeZone(val, timezone, format)
