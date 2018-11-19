@@ -930,7 +930,8 @@ describe('Sync mode with SQLite', () => {
           end,
           start,
           limit: 1000,
-          email
+          email,
+          milliseconds: true
         },
         id: 5
       })

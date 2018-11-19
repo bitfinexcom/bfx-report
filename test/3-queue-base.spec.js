@@ -81,7 +81,8 @@ describe('Queue', () => {
           end,
           start,
           limit: 1000,
-          email
+          email,
+          milliseconds: true
         },
         id: 5
       })
