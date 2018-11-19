@@ -1127,7 +1127,7 @@ describe('Sync mode with SQLite', () => {
         auth,
         method: 'getTradesCsv',
         params: {
-          symbol: 'tBTCUSD',
+          symbol: ['tBTCUSD', 'tETHUSD'],
           end,
           start,
           limit: 1000,
@@ -1241,6 +1241,35 @@ describe('Sync mode with SQLite', () => {
     assert.isObject(res.body.error)
     assert.propertyVal(res.body.error, 'code', 400)
     assert.propertyVal(res.body.error, 'message', 'For public trades export please select a time frame smaller than a month')
+    assert.propertyVal(res.body, 'id', 5)
+  })
+
+  it('it should not be successfully performed by the getPublicTradesCsv method, with symbol array', async function () {
+    this.timeout(60000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPublicTradesCsv',
+        params: {
+          symbol: ['tBTCUSD', 'tETHUSD'],
+          end,
+          start,
+          limit: 1000,
+          timezone: 'America/Los_Angeles',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 500)
+    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
     assert.propertyVal(res.body, 'id', 5)
   })
 
