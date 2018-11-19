@@ -7,7 +7,9 @@ const Ajv = require('ajv')
 const moment = require('moment-timezone')
 
 const bfxFactory = require('./bfx.factory')
-const { hasS3AndSendgrid } = require('./queue/helpers')
+const schema = require('./schema')
+
+const { hasS3AndSendgrid } = require('../queue/helpers')
 
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
@@ -40,24 +42,8 @@ const getParams = (
 
   checkParams(
     args,
-    requireFields,
-    {
-      type: 'object',
-      properties: {
-        limit: {
-          type: 'integer'
-        },
-        start: {
-          type: 'integer'
-        },
-        end: {
-          type: 'integer'
-        },
-        symbol: {
-          type: 'string'
-        }
-      }
-    }
+    'paramsSchemaForApi',
+    requireFields
   )
 
   if (args.params) {
@@ -74,38 +60,18 @@ const getParams = (
   return params
 }
 
-const _paramsSchema = {
-  type: 'object',
-  properties: {
-    limit: {
-      type: 'integer'
-    },
-    start: {
-      type: 'integer'
-    },
-    end: {
-      type: 'integer'
-    },
-    symbol: {
-      type: 'string'
-    },
-    timezone: {
-      type: ['number', 'string']
-    },
-    dateFormat: {
-      type: 'string',
-      enum: ['DD-MM-YY', 'MM-DD-YY', 'YY-MM-DD']
-    }
-  }
-}
-
 const checkParams = (
   args,
-  requireFields = [],
-  schema = _paramsSchema
+  schemaName = 'paramsSchemaForCsv',
+  requireFields = []
 ) => {
   const ajv = new Ajv()
-  const _schema = _.cloneDeep(schema)
+
+  if (!schema[schemaName]) {
+    throw new Error('ERR_PARAMS_SCHEMA_NOT_FOUND')
+  }
+
+  const _schema = _.cloneDeep(schema[schemaName])
 
   if (
     Array.isArray(requireFields) &&

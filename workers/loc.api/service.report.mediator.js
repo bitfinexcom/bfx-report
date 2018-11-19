@@ -280,7 +280,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const symbolsMethod = '_getSymbols'
       const currenciesMethod = '_getCurrencies'
@@ -307,7 +307,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const res = await this.dao.findInCollBy('_getLedgers', args, true)
 
@@ -328,7 +328,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const res = await this.dao.findInCollBy('_getTrades', args, true)
 
@@ -350,7 +350,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args, ['symbol'])
+      checkParams(args, 'paramsSchemaForApi', ['symbol'])
 
       // TODO: replace to this.dao.findInCollBy('_getPublicTrades', args, true)
       const res = await this._getPublicTrades(args)
@@ -372,7 +372,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const res = await this.dao.findInCollBy('_getOrders', args, true)
 
@@ -393,7 +393,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const res = await this.dao.findInCollBy('_getMovements', args, true)
 
@@ -414,7 +414,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const res = await this.dao.findInCollBy('_getFundingOfferHistory', args, true)
 
@@ -435,7 +435,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const res = await this.dao.findInCollBy('_getFundingLoanHistory', args, true)
 
@@ -456,7 +456,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const res = await this.dao.findInCollBy('_getFundingCreditHistory', args, true)
 

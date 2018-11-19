@@ -292,8 +292,21 @@ const writeDataToStream = async (reportService, stream, job) => {
   }
 
   const queue = reportService.ctx.lokue_aggregator.q
+  const propName = job.data.propNameForPagination
+  const symbPropName = job.data.symbPropName
+  const formatSettings = job.data.formatSettings
 
   const _args = _.cloneDeep(job.data.args)
+  const symbols = []
+
+  if (
+    _args.params.symbol &&
+    Array.isArray(_args.params.symbol)
+  ) {
+    symbols.push(..._args.params.symbol)
+    delete _args.params.symbol
+  }
+
   _setDefaultPrams(_args)
   const currIterationArgs = _.cloneDeep(_args)
 
@@ -319,6 +332,12 @@ const writeDataToStream = async (reportService, stream, job) => {
       break
     }
 
+    if (symbols.length > 0) {
+      res = res.filter(item => {
+        return symbols.some(s => s === item[symbPropName])
+      })
+    }
+
     if (method === 'getMovements') {
       res = _filterMovementsByAmount(res, _args)
 
@@ -330,8 +349,6 @@ const writeDataToStream = async (reportService, stream, job) => {
     }
 
     const lastItem = res[res.length - 1]
-    const propName = job.data.propNameForPagination
-    const formatSettings = job.data.formatSettings
 
     if (
       !lastItem ||
