@@ -98,9 +98,17 @@ const _validTxtTimeZone = (val, timezone, format) => {
 }
 
 const _formatters = {
-  date: (val, { timezone = 0, dateFormat = 'YY-MM-DD' }) => {
+  date: (
+    val,
+    {
+      timezone = 0,
+      dateFormat = 'YY-MM-DD',
+      milliseconds = false
+    }
+  ) => {
     if (Number.isInteger(val)) {
-      const format = `${dateFormat} HH:mm:ss`
+      const _ms = milliseconds ? '.SSS' : ''
+      const format = `${dateFormat} HH:mm:ss${_ms}`
       return _.isNumber(timezone)
         ? moment(val).utcOffset(timezone).format(format)
         : _validTxtTimeZone(val, timezone, format)
@@ -284,8 +292,21 @@ const writeDataToStream = async (reportService, stream, job) => {
   }
 
   const queue = reportService.ctx.lokue_aggregator.q
+  const propName = job.data.propNameForPagination
+  const symbPropName = job.data.symbPropName
+  const formatSettings = job.data.formatSettings
 
   const _args = _.cloneDeep(job.data.args)
+  const symbols = []
+
+  if (
+    _args.params.symbol &&
+    Array.isArray(_args.params.symbol)
+  ) {
+    symbols.push(..._args.params.symbol)
+    delete _args.params.symbol
+  }
+
   _setDefaultPrams(_args)
   const currIterationArgs = _.cloneDeep(_args)
 
@@ -311,6 +332,12 @@ const writeDataToStream = async (reportService, stream, job) => {
       break
     }
 
+    if (symbols.length > 0) {
+      res = res.filter(item => {
+        return symbols.some(s => s === item[symbPropName])
+      })
+    }
+
     if (method === 'getMovements') {
       res = _filterMovementsByAmount(res, _args)
 
@@ -322,8 +349,6 @@ const writeDataToStream = async (reportService, stream, job) => {
     }
 
     const lastItem = res[res.length - 1]
-    const propName = job.data.propNameForPagination
-    const formatSettings = job.data.formatSettings
 
     if (
       !lastItem ||
@@ -541,7 +566,7 @@ const uploadS3 = async (
 
 const sendMail = (reportService, configs, to, viewName, data) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const text = `Download (${data.fileName}): ${data.public_url}`
+  const text = `Download (${data.fileName}): ${data.presigned_url}`
   const html = pug.renderFile(
     path.join(basePathToViews, viewName),
     data

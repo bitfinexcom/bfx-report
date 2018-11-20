@@ -254,6 +254,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsCreate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'PAIR',
@@ -280,7 +281,7 @@ class ReportService extends Api {
 
   async getPublicTradesCsv (space, args, cb) {
     try {
-      checkParams(args, ['symbol'])
+      checkParams(args, 'paramsSchemaForPublicTradesCsv', ['symbol'])
       checkTimeLimit(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
@@ -292,6 +293,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mts',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           mts: 'DATE',
@@ -327,6 +329,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mts',
+        symbPropName: 'currency',
         columnsCsv: {
           description: 'DESCRIPTION',
           currency: 'CURRENCY',
@@ -362,6 +365,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'PAIR',
@@ -403,6 +407,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdated',
+        symbPropName: 'currency',
         columnsCsv: {
           id: '#',
           currency: 'CURRENCY',
@@ -442,6 +447,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
@@ -483,6 +489,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
@@ -526,6 +533,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
