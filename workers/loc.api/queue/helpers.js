@@ -98,9 +98,17 @@ const _validTxtTimeZone = (val, timezone, format) => {
 }
 
 const _formatters = {
-  date: (val, { timezone = 0, dateFormat = 'YY-MM-DD' }) => {
+  date: (
+    val,
+    {
+      timezone = 0,
+      dateFormat = 'YY-MM-DD',
+      milliseconds = false
+    }
+  ) => {
     if (Number.isInteger(val)) {
-      const format = `${dateFormat} HH:mm:ss`
+      const _ms = milliseconds ? '.SSS' : ''
+      const format = `${dateFormat} HH:mm:ss${_ms}`
       return _.isNumber(timezone)
         ? moment(val).utcOffset(timezone).format(format)
         : _validTxtTimeZone(val, timezone, format)
@@ -229,7 +237,7 @@ const _getDataFromApi = async (getData, args) => {
 
   while (true) {
     try {
-      res = await getData(null, args)
+      res = await getData(null, _.cloneDeep(args))
 
       break
     } catch (err) {
@@ -260,11 +268,21 @@ const _getDataFromApi = async (getData, args) => {
   return res
 }
 
+const _setDefaultPrams = (args) => {
+  args.params.notThrowError = true
+  args.params.end = args.params.end
+    ? Math.min(args.params.end, Date.now())
+    : Date.now()
+  args.params.start = args.params.start
+    ? args.params.start
+    : 0
+}
+
 const writeDataToStream = async (reportService, stream, job) => {
   if (typeof job === 'string') {
     _writeMessageToStream(reportService, stream, job)
 
-    return Promise.resolve()
+    return
   }
 
   const method = job.data.name
@@ -274,31 +292,50 @@ const writeDataToStream = async (reportService, stream, job) => {
   }
 
   const queue = reportService.ctx.lokue_aggregator.q
+  const propName = job.data.propNameForPagination
+  const symbPropName = job.data.symbPropName
+  const formatSettings = job.data.formatSettings
 
   const _args = _.cloneDeep(job.data.args)
-  _args.params.end = _args.params.end
-    ? Math.min(_args.params.end, Date.now())
-    : Date.now()
-  _args.params.start = _args.params.start
-    ? _args.params.start
-    : 0
+  const symbols = []
 
+  if (
+    _args.params.symbol &&
+    Array.isArray(_args.params.symbol)
+  ) {
+    symbols.push(..._args.params.symbol)
+    delete _args.params.symbol
+  }
+
+  _setDefaultPrams(_args)
   const currIterationArgs = _.cloneDeep(_args)
 
   const getData = promisify(reportService[method].bind(reportService))
 
-  let res = null
   let count = 0
 
   while (true) {
     queue.emit('progress', 0)
 
-    res = await _getDataFromApi(getData, currIterationArgs)
+    let { res, nextPage } = await _getDataFromApi(
+      getData,
+      currIterationArgs
+    )
 
-    if (!res || !Array.isArray(res) || res.length === 0) {
+    if (
+      !res ||
+      !Array.isArray(res) ||
+      res.length === 0
+    ) {
       if (count > 0) queue.emit('progress', 100)
 
       break
+    }
+
+    if (symbols.length > 0) {
+      res = res.filter(item => {
+        return symbols.some(s => s === item[symbPropName])
+      })
     }
 
     if (method === 'getMovements') {
@@ -312,10 +349,9 @@ const writeDataToStream = async (reportService, stream, job) => {
     }
 
     const lastItem = res[res.length - 1]
-    const propName = job.data.propNameForPagination
-    const formatSettings = job.data.formatSettings
 
     if (
+      !lastItem ||
       typeof lastItem !== 'object' ||
       !lastItem[propName] ||
       !Number.isInteger(lastItem[propName])
@@ -334,12 +370,22 @@ const writeDataToStream = async (reportService, stream, job) => {
       isAllData = true
     }
 
-    _write(res, stream, formatSettings, method, { ..._args.params })
+    _write(
+      res,
+      stream,
+      formatSettings,
+      method,
+      { ..._args.params }
+    )
 
     count += res.length
     const needElems = _args.params.limit - count
 
-    if (isAllData || needElems <= 0) {
+    if (
+      isAllData ||
+      needElems <= 0 ||
+      !nextPage
+    ) {
       queue.emit('progress', 100)
 
       break
@@ -348,10 +394,7 @@ const writeDataToStream = async (reportService, stream, job) => {
     _progress(queue, currTime, _args.params)
 
     currIterationArgs.params.end = lastItem[propName] - 1
-    if (needElems) currIterationArgs.params.limit = needElems
   }
-
-  return Promise.resolve()
 }
 
 const _writeMessageToStream = (reportService, stream, message) => {

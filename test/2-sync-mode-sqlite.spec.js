@@ -150,25 +150,6 @@ describe('Sync mode with SQLite', () => {
     assert.isOk(res.body.result)
   })
 
-  it('it should be successfully performed by the isSyncModeWithDbData method', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/get-data`)
-      .type('json')
-      .send({
-        auth,
-        method: 'isSyncModeWithDbData',
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(200)
-
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
-  })
-
   it('it should be successfully performed by the enableScheduler method', async function () {
     this.timeout(60000)
 
@@ -214,6 +195,7 @@ describe('Sync mode with SQLite', () => {
         .post(`${basePath}/get-data`)
         .type('json')
         .send({
+          auth,
           method: 'getSyncProgress',
           id: 5
         })
@@ -235,6 +217,25 @@ describe('Sync mode with SQLite', () => {
     }
   })
 
+  it('it should be successfully performed by the isSyncModeWithDbData method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'isSyncModeWithDbData',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result)
+  })
+
   it('it should be successfully performed by the syncNow method', async function () {
     this.timeout(60000)
 
@@ -251,7 +252,10 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isNumber(res.body.result)
+    assert.isOk(
+      typeof res.body.result === 'number' ||
+      res.body.result === 'SYNCHRONIZATION_IS_STARTED'
+    )
   })
 
   it('it should be successfully auth', async function () {
@@ -395,7 +399,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'fUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -404,10 +408,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -444,7 +450,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'fUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -453,10 +459,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -494,7 +502,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'fUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -503,10 +511,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -545,7 +555,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'BTC',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -554,10 +564,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -588,10 +600,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -619,7 +633,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'tBTCUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -628,10 +642,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -663,7 +679,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'tBTCUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -672,10 +688,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -700,7 +718,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'tBTCUSD',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -709,10 +727,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -752,7 +772,7 @@ describe('Sync mode with SQLite', () => {
           symbol: 'BTC',
           start: 0,
           end: (new Date()).getTime,
-          limit: 1
+          limit: 2
         },
         id: 5
       })
@@ -761,10 +781,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -798,10 +820,12 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.length > 0) {
-      let resItem = res.body.result[0]
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
 
       assert.isObject(resItem)
       assert.containsAllKeys(resItem, [
@@ -838,6 +862,33 @@ describe('Sync mode with SQLite', () => {
     assert.isObject(res.body.error)
     assert.propertyVal(res.body.error, 'code', 500)
     assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+    assert.propertyVal(res.body, 'id', 5)
+  })
+
+  it('it should not be successfully performed by the getMovements method, a greater limit is needed', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovements',
+        params: {
+          symbol: 'BTC',
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 1
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(400)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 400)
+    assert.propertyVal(res.body.error, 'message', 'A greater limit is needed as to show the data correctly')
     assert.propertyVal(res.body, 'id', 5)
   })
 
@@ -879,7 +930,8 @@ describe('Sync mode with SQLite', () => {
           end,
           start,
           limit: 1000,
-          email
+          email,
+          milliseconds: true
         },
         id: 5
       })
@@ -1075,7 +1127,7 @@ describe('Sync mode with SQLite', () => {
         auth,
         method: 'getTradesCsv',
         params: {
-          symbol: 'tBTCUSD',
+          symbol: ['tBTCUSD', 'tETHUSD'],
           end,
           start,
           limit: 1000,
@@ -1189,6 +1241,35 @@ describe('Sync mode with SQLite', () => {
     assert.isObject(res.body.error)
     assert.propertyVal(res.body.error, 'code', 400)
     assert.propertyVal(res.body.error, 'message', 'For public trades export please select a time frame smaller than a month')
+    assert.propertyVal(res.body, 'id', 5)
+  })
+
+  it('it should not be successfully performed by the getPublicTradesCsv method, with symbol array', async function () {
+    this.timeout(60000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPublicTradesCsv',
+        params: {
+          symbol: ['tBTCUSD', 'tETHUSD'],
+          end,
+          start,
+          limit: 1000,
+          timezone: 'America/Los_Angeles',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 500)
+    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
     assert.propertyVal(res.body, 'id', 5)
   })
 
@@ -1526,6 +1607,7 @@ describe('Sync mode with SQLite', () => {
       .post(`${basePath}/get-data`)
       .type('json')
       .send({
+        auth,
         method: 'getSyncProgress',
         id: 5
       })
