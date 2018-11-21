@@ -303,7 +303,7 @@ const _methodCollMap = new Map([
       sort: [['mts', -1]],
       hasNewData: false,
       start: 0,
-      type: 'insertable:public:array:objects',
+      type: 'public:insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mts', '_symbol'],
       model: { ..._models.get('publicTrades') }
     }
@@ -391,7 +391,7 @@ const _methodCollMap = new Map([
       field: 'pairs',
       sort: [['pairs', 1]],
       hasNewData: true,
-      type: 'updatable:array',
+      type: 'public:updatable:array',
       model: { ..._models.get('symbols') }
     }
   ],
@@ -403,7 +403,7 @@ const _methodCollMap = new Map([
       fields: ['id', 'name', 'pool', 'explorer'],
       sort: [['name', 1]],
       hasNewData: true,
-      type: 'updatable:array:objects',
+      type: 'public:updatable:array:objects',
       model: { ..._models.get('currencies') }
     }
   ]

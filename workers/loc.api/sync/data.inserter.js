@@ -72,20 +72,46 @@ class DataInserter extends EventEmitter {
       return
     }
 
-    let count = 1
+    const pubProgress = await this.insertNewPublicDataToDb()
+    let count = 0
 
     for (const authItem of this._auth) {
       if (typeof authItem[1] !== 'object') {
         continue
       }
 
-      const userProgress = count / this._auth.size
-      await this.insertNewDataToDb(authItem[1], userProgress)
       count += 1
+      const userProgress = count / this._auth.size
+      await this.insertNewDataToDb(authItem[1], userProgress, pubProgress)
     }
+
+    await this.setProgress(100)
   }
 
-  async insertNewDataToDb (auth, userProgress = 1) {
+  async insertNewPublicDataToDb () {
+    const size = this._methodCollMap.size
+    let count = 0
+    let progress = 0
+
+    const methodCollMap = await this.checkNewPublicData()
+
+    for (const [method, item] of methodCollMap) {
+      await this._updateApiDataArrObjTypeToDb(method, item)
+      await this._updateApiDataArrTypeToDb(method, item)
+      await this._insertApiDataPublicArrObjTypeToDb(method, item)
+
+      count += 1
+      progress = Math.round((count / size) * 100)
+
+      if (progress < 100) {
+        await this.setProgress(progress)
+      }
+    }
+
+    return progress
+  }
+
+  async insertNewDataToDb (auth, userProgress = 1, pubProgress) {
     if (
       typeof auth.apiKey !== 'string' ||
       typeof auth.apiSecret !== 'string'
@@ -100,15 +126,22 @@ class DataInserter extends EventEmitter {
 
     for (const [method, item] of methodCollMap) {
       await this._insertApiDataArrObjTypeToDb(auth, method, item)
-      await this._updateApiDataArrObjTypeToDb(auth, method, item)
-      await this._updateApiDataArrTypeToDb(auth, method, item)
 
       count += 1
-      const progress = Math.round((count / methodCollMap.size) * 100 * userProgress)
-      await this.setProgress(progress)
-    }
+      const progress = Math.round(pubProgress + (count / methodCollMap.size) * 100 * userProgress * ((100 - pubProgress) / 100))
 
-    await this.setProgress(100)
+      if (progress < 100) {
+        await this.setProgress(progress)
+      }
+    }
+  }
+
+  _filterMethodCollMap (methodCollMap, isPublic) {
+    return new Map([...methodCollMap].filter(([key, schema]) => {
+      const _isPub = /^public:.*/i.test(schema.type)
+
+      return schema.hasNewData && (isPublic ? _isPub : !_isPub)
+    }))
   }
 
   async checkNewData (auth) {
@@ -116,63 +149,124 @@ class DataInserter extends EventEmitter {
 
     await this._checkNewDataArrObjType(auth, methodCollMap)
 
-    return new Map([...methodCollMap].filter(([key, value]) => value.hasNewData))
+    return this._filterMethodCollMap(methodCollMap)
+  }
+
+  async checkNewPublicData () {
+    const methodCollMap = this._getMethodCollMap()
+
+    await this._checkNewDataPublicArrObjType(methodCollMap)
+
+    return this._filterMethodCollMap(methodCollMap, true)
+  }
+
+  async _checkNewDataPublicArrObjType (methodCollMap) {
+    for (let [method, item] of methodCollMap) {
+      if (!this._isInsertableArrObjTypeOfColl(item, true)) {
+        continue
+      }
+
+      if (method === '_getPublicTrades') {
+        await this._checkNewDataPublicTrades(method, item)
+
+        continue
+      }
+
+      await this._checkItemNewDataArrObjType(method, item)
+    }
+  }
+
+  // TODO:
+  async _checkNewDataPublicTrades (
+    method,
+    schema
+  ) {
+  }
+
+  async _checkItemNewDataArrObjType (
+    method,
+    schema,
+    auth
+  ) {
+    const args = this._getMethodArgMap(method, auth, 1)
+    args.params.notThrowError = true
+    args.params.notCheckNextPage = true
+    const lastElemFromDb = await this.dao.getLastElemFromDb(
+      schema.name,
+      { ...auth },
+      schema.sort
+    )
+    const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
+
+    schema.hasNewData = false
+
+    if (_.isEmpty(lastElemFromApi)) {
+      return
+    }
+
+    if (_.isEmpty(lastElemFromDb)) {
+      schema.hasNewData = true
+      schema.start = 0
+      return
+    }
+
+    const lastDateInDb = this._compareElemsDbAndApi(
+      schema.dateFieldName,
+      lastElemFromDb,
+      lastElemFromApi
+    )
+
+    if (lastDateInDb) {
+      schema.hasNewData = true
+      schema.start = lastDateInDb + 1
+    }
   }
 
   async _checkNewDataArrObjType (auth, methodCollMap) {
-    for (let [method, item] of this._methodCollMap) {
+    for (let [method, item] of methodCollMap) {
       if (!this._isInsertableArrObjTypeOfColl(item)) {
         continue
       }
 
-      const args = this._getMethodArgMap(method, auth, 1)
-      args.params.notThrowError = true
-      args.params.notCheckNextPage = true
-      const lastElemFromDb = await this.dao.getLastElemFromDb(
-        item.name,
-        { ...auth },
-        item.sort
+      await this._checkItemNewDataArrObjType(
+        method,
+        item,
+        auth
       )
-      const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
-
-      methodCollMap.get(method).hasNewData = false
-
-      if (_.isEmpty(lastElemFromApi)) {
-        continue
-      }
-
-      if (_.isEmpty(lastElemFromDb)) {
-        methodCollMap.get(method).hasNewData = true
-        methodCollMap.get(method).start = 0
-
-        continue
-      }
-
-      const lastDateInDb = this._compareElemsDbAndApi(
-        item.dateFieldName,
-        lastElemFromDb,
-        lastElemFromApi
-      )
-
-      if (lastDateInDb) {
-        methodCollMap.get(method).hasNewData = true
-        methodCollMap.get(method).start = lastDateInDb + 1
-      }
     }
 
     return methodCollMap
   }
 
-  _isInsertableArrObjTypeOfColl (coll) {
-    return coll.type === 'insertable:array:objects'
+  _checkCollType (type, coll, isPublic) {
+    const _pub = isPublic ? 'public:' : ''
+    const regExp = new RegExp(`^${_pub}${type}$`, 'i')
+
+    return regExp.test(coll.type)
   }
 
-  _isUpdatableArrObjTypeOfColl (coll) {
-    return coll.type === 'updatable:array:objects'
+  _isInsertableArrObjTypeOfColl (coll, isPublic) {
+    return this._checkCollType(
+      'insertable:array:objects',
+      coll,
+      isPublic
+    )
   }
 
-  _isUpdatableArrTypeOfColl (coll) {
-    return coll.type === 'updatable:array'
+  _isUpdatableArrObjTypeOfColl (coll, isPublic) {
+    return this._checkCollType(
+      'updatable:array:objects',
+      coll,
+      isPublic
+    )
+  }
+
+  _isUpdatableArrTypeOfColl (coll, isPublic) {
+    return this._checkCollType(
+      'updatable:array',
+      coll,
+      isPublic
+    )
   }
 
   async _getDataFromApi (methodApi, args) {
@@ -217,6 +311,19 @@ class DataInserter extends EventEmitter {
     }
 
     return res
+  }
+
+  // TODO:
+  async _insertApiDataPublicArrObjTypeToDb (
+    methodApi,
+    schema
+  ) {
+    if (!this._isInsertableArrObjTypeOfColl(schema, true)) {
+      return
+    }
+    if (methodApi === '_getPublicTrades') {
+      return 0
+    }
   }
 
   async _insertApiDataArrObjTypeToDb (
@@ -298,11 +405,10 @@ class DataInserter extends EventEmitter {
   }
 
   async _updateApiDataArrTypeToDb (
-    auth,
     methodApi,
     schema
   ) {
-    if (!this._isUpdatableArrTypeOfColl(schema)) {
+    if (!this._isUpdatableArrTypeOfColl(schema, true)) {
       return
     }
 
@@ -311,7 +417,7 @@ class DataInserter extends EventEmitter {
       field
     } = schema
 
-    const args = this._getMethodArgMap(methodApi, auth, null, null, null)
+    const args = this._getMethodArgMap(methodApi, {}, null, null, null)
     const elemsFromApi = await this._getDataFromApi(methodApi, args)
 
     if (
@@ -330,11 +436,10 @@ class DataInserter extends EventEmitter {
   }
 
   async _updateApiDataArrObjTypeToDb (
-    auth,
     methodApi,
     schema
   ) {
-    if (!this._isUpdatableArrObjTypeOfColl(schema)) {
+    if (!this._isUpdatableArrObjTypeOfColl(schema, true)) {
       return
     }
 
@@ -344,7 +449,7 @@ class DataInserter extends EventEmitter {
       model
     } = schema
 
-    const args = this._getMethodArgMap(methodApi, auth, null, null, null)
+    const args = this._getMethodArgMap(methodApi, {}, null, null, null)
     const elemsFromApi = await this._getDataFromApi(methodApi, args)
 
     if (
