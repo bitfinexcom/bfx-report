@@ -177,10 +177,83 @@ class DataInserter extends EventEmitter {
   }
 
   // TODO:
-  async _checkNewDataPublicTrades (
-    method,
-    schema
-  ) {
+  async _checkNewDataPublicTrades (method, schema) {
+    const publicTradesConf = await this.dao.getElemsInCollBy('publicTradesConf')
+
+    if (_.isEmpty(publicTradesConf)) {
+      return
+    }
+
+    for (const { symbol, start } of publicTradesConf) {
+      const args = this._getMethodArgMap(method, {}, 1)
+      args.params.notThrowError = true
+      args.params.notCheckNextPage = true
+      const lastElemFromDb = await this.dao.getElemInCollBy(
+        schema.name,
+        { symbol },
+        schema.sort
+      )
+      const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
+
+      schema.hasNewData = false
+
+      if (_.isEmpty(lastElemFromApi)) {
+        continue
+      }
+      if (_.isEmpty(lastElemFromDb)) {
+        schema.hasNewData = true
+        schema.start.push([symbol, { currStart: start }])
+
+        continue
+      }
+
+      const lastDateInDb = this._compareElemsDbAndApi(
+        schema.dateFieldName,
+        lastElemFromDb,
+        lastElemFromApi
+      )
+
+      const startConf = {
+        baseStart: null,
+        currStart: null
+      }
+
+      if (lastDateInDb) {
+        schema.hasNewData = true
+        startConf.currStart = lastDateInDb + 1
+      }
+
+      const firstElemFromDb = await this.dao.getElemInCollBy(
+        schema.name,
+        { symbol },
+        this._invertSort(schema.sort)
+      )
+
+      if (!_.isEmpty(firstElemFromDb)) {
+        const isChangedBaseStart = this._compareElemsDbAndApi(
+          schema.dateFieldName,
+          start,
+          firstElemFromDb
+        )
+
+        if (isChangedBaseStart) {
+          schema.hasNewData = true
+          startConf.baseStart = start
+        }
+      }
+
+      schema.start.push([symbol, startConf])
+    }
+  }
+
+  _invertSort (sortArr) {
+    return sortArr.map(item => {
+      const _arr = [ ...item ]
+
+      _arr[1] = item[1] > 0 ? -1 : 1
+
+      return _arr
+    })
   }
 
   async _checkItemNewDataArrObjType (
