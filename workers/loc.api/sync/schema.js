@@ -302,7 +302,18 @@ const _methodCollMap = new Map([
       symbolFieldName: '_symbol',
       sort: [['mts', -1]],
       hasNewData: false,
-      start: 0,
+      /** TODO:
+       * start: [
+       *   [
+       *     'tBTCUSD',
+       *     {
+       *       baseStart: 0,
+       *       currStart: 0
+       *     }
+       *   ]
+       * ]
+       */
+      start: [],
       type: 'public:insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mts', '_symbol'],
       model: { ..._models.get('publicTrades') }
