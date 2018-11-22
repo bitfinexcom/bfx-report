@@ -4,7 +4,6 @@ const { Api } = require('bfx-wrk-api')
 
 const {
   getREST,
-  getParams,
   checkParams,
   getCsvStoreStatus,
   hasJobInQueueWithStatusBy,
@@ -12,7 +11,8 @@ const {
   parseFields,
   accountCache,
   getTimezoneConf,
-  checkTimeLimit
+  checkTimeLimit,
+  prepareApiResponse
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -108,12 +108,15 @@ class ReportService extends Api {
 
   async getLedgers (space, args, cb) {
     try {
-      const maxLimit = 5000
-      const params = getParams(args, maxLimit)
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.ledgers(...params)
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'ledgers',
+        5000,
+        'mts'
+      )
 
-      cb(null, result)
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getLedgers', cb)
     }
@@ -121,12 +124,15 @@ class ReportService extends Api {
 
   async getTrades (space, args, cb) {
     try {
-      const maxLimit = 1500
-      const params = getParams(args, maxLimit)
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.accountTrades(...params)
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'accountTrades',
+        1500,
+        'mtsCreate'
+      )
 
-      cb(null, result)
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getTrades', cb)
     }
@@ -134,12 +140,18 @@ class ReportService extends Api {
 
   async getPublicTrades (space, args, cb) {
     try {
-      const maxLimit = 1000
-      const params = getParams(args, maxLimit, ['symbol'])
-      const rest = getREST({}, this.ctx.grc_bfx.caller)
-      const result = await rest.trades(...params)
+      args.auth = {}
 
-      cb(null, result)
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'trades',
+        1000,
+        'mts',
+        ['symbol']
+      )
+
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getPublicTrades', cb)
     }
@@ -147,13 +159,16 @@ class ReportService extends Api {
 
   async getOrders (space, args, cb) {
     try {
-      const maxLimit = 5000
-      const params = getParams(args, maxLimit)
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const raw = await rest.orderHistory(...params)
-      const result = parseFields(raw, { executed: true })
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'orderHistory',
+        5000,
+        'mtsUpdate'
+      )
+      res.res = parseFields(res.res, { executed: true })
 
-      cb(null, result)
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getOrders', cb)
     }
@@ -161,11 +176,15 @@ class ReportService extends Api {
 
   async getMovements (space, args, cb) {
     try {
-      const maxLimit = 25
-      const params = getParams(args, maxLimit)
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const result = await rest.movements(...params)
-      cb(null, result)
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'movements',
+        25,
+        'mtsUpdated'
+      )
+
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getMovements', cb)
     }
@@ -173,12 +192,16 @@ class ReportService extends Api {
 
   async getFundingOfferHistory (space, args, cb) {
     try {
-      const maxLimit = 5000
-      const params = getParams(args, maxLimit)
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const raw = await rest.fundingOfferHistory(...params)
-      const result = parseFields(raw, { executed: true, rate: true })
-      cb(null, result)
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'fundingOfferHistory',
+        5000,
+        'mtsUpdate'
+      )
+      res.res = parseFields(res.res, { executed: true, rate: true })
+
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getFundingOfferHistory', cb)
     }
@@ -186,12 +209,16 @@ class ReportService extends Api {
 
   async getFundingLoanHistory (space, args, cb) {
     try {
-      const maxLimit = 5000
-      const params = getParams(args, maxLimit)
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const raw = await rest.fundingLoanHistory(...params)
-      const result = parseFields(raw, { rate: true })
-      cb(null, result)
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'fundingLoanHistory',
+        5000,
+        'mtsUpdate'
+      )
+      res.res = parseFields(res.res, { rate: true })
+
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getFundingLoanHistory', cb)
     }
@@ -199,12 +226,16 @@ class ReportService extends Api {
 
   async getFundingCreditHistory (space, args, cb) {
     try {
-      const maxLimit = 5000
-      const params = getParams(args, maxLimit)
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const raw = await rest.fundingCreditHistory(...params)
-      const result = parseFields(raw, { rate: true })
-      cb(null, result)
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'fundingCreditHistory',
+        5000,
+        'mtsUpdate'
+      )
+      res.res = parseFields(res.res, { rate: true })
+
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getFundingCreditHistory', cb)
     }
@@ -223,6 +254,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsCreate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'PAIR',
@@ -249,7 +281,7 @@ class ReportService extends Api {
 
   async getPublicTradesCsv (space, args, cb) {
     try {
-      checkParams(args, ['symbol'])
+      checkParams(args, 'paramsSchemaForPublicTradesCsv', ['symbol'])
       checkTimeLimit(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
@@ -261,6 +293,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mts',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           mts: 'DATE',
@@ -296,6 +329,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mts',
+        symbPropName: 'currency',
         columnsCsv: {
           description: 'DESCRIPTION',
           currency: 'CURRENCY',
@@ -331,6 +365,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'PAIR',
@@ -339,11 +374,13 @@ class ReportService extends Api {
           amountExecuted: 'EXECUTED AMOUNT',
           price: 'PRICE',
           priceAvg: 'AVERAGE EXECUTION PRICE',
+          mtsCreate: 'CREATED',
           mtsUpdate: 'UPDATED',
           status: 'STATUS'
         },
         formatSettings: {
           mtsUpdate: 'date',
+          mtsCreate: 'date',
           symbol: 'symbol'
         }
       }
@@ -370,6 +407,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdated',
+        symbPropName: 'currency',
         columnsCsv: {
           id: '#',
           currency: 'CURRENCY',
@@ -409,6 +447,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
@@ -450,6 +489,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
@@ -493,6 +533,7 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
+        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',

@@ -7,7 +7,9 @@ const Ajv = require('ajv')
 const moment = require('moment-timezone')
 
 const bfxFactory = require('./bfx.factory')
-const { hasS3AndSendgrid } = require('./queue/helpers')
+const schema = require('./schema')
+
+const { hasS3AndSendgrid } = require('../queue/helpers')
 
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
@@ -40,24 +42,8 @@ const getParams = (
 
   checkParams(
     args,
-    requireFields,
-    {
-      type: 'object',
-      properties: {
-        limit: {
-          type: 'integer'
-        },
-        start: {
-          type: 'integer'
-        },
-        end: {
-          type: 'integer'
-        },
-        symbol: {
-          type: 'string'
-        }
-      }
-    }
+    'paramsSchemaForApi',
+    requireFields
   )
 
   if (args.params) {
@@ -74,38 +60,18 @@ const getParams = (
   return params
 }
 
-const _paramsSchema = {
-  type: 'object',
-  properties: {
-    limit: {
-      type: 'integer'
-    },
-    start: {
-      type: 'integer'
-    },
-    end: {
-      type: 'integer'
-    },
-    symbol: {
-      type: 'string'
-    },
-    timezone: {
-      type: ['number', 'string']
-    },
-    dateFormat: {
-      type: 'string',
-      enum: ['DD-MM-YY', 'MM-DD-YY', 'YY-MM-DD']
-    }
-  }
-}
-
 const checkParams = (
   args,
-  requireFields = [],
-  schema = _paramsSchema
+  schemaName = 'paramsSchemaForCsv',
+  requireFields = []
 ) => {
   const ajv = new Ajv()
-  const _schema = _.cloneDeep(schema)
+
+  if (!schema[schemaName]) {
+    throw new Error('ERR_PARAMS_SCHEMA_NOT_FOUND')
+  }
+
+  const _schema = _.cloneDeep(schema[schemaName])
 
   if (
     Array.isArray(requireFields) &&
@@ -346,6 +312,58 @@ const tryParseJSON = jsonString => {
   return false
 }
 
+const prepareResponse = (
+  res,
+  datePropName,
+  limit = 1000,
+  notThrowError = false,
+  notCheckNextPage = false
+) => {
+  const nextPage = (
+    !notCheckNextPage &&
+    Array.isArray(res) &&
+    res.length === limit
+  )
+
+  if (nextPage) {
+    const date = res[res.length - 1][datePropName]
+
+    while (
+      res[res.length - 1] &&
+      date === res[res.length - 1][datePropName]
+    ) {
+      res.pop()
+    }
+
+    if (!notThrowError && res.length === 0) {
+      throw new Error('ERR_GREATER_LIMIT_IS_NEEDED')
+    }
+  }
+
+  return { res, nextPage }
+}
+
+const prepareApiResponse = async (
+  args,
+  wrk,
+  methodApi,
+  maxLimit,
+  datePropName,
+  requireFields
+) => {
+  const params = getParams(args, maxLimit, requireFields)
+  const rest = getREST(args.auth, wrk)
+  const res = await rest[methodApi].bind(rest)(...params)
+
+  return prepareResponse(
+    res,
+    datePropName,
+    params[3],
+    args.params && args.params.notThrowError,
+    args.params && args.params.notCheckNextPage
+  )
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -365,5 +383,7 @@ module.exports = {
   getTimezoneConf,
   refreshObj,
   tryParseJSON,
-  checkTimeLimit
+  checkTimeLimit,
+  prepareResponse,
+  prepareApiResponse
 }

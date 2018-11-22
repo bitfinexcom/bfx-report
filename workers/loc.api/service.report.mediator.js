@@ -15,8 +15,7 @@ const {
 } = require('./helpers')
 const {
   collObjToArr,
-  getProgress,
-  delay
+  getProgress
 } = require('./sync/helpers')
 const { getMethodCollMap } = require('./sync/schema')
 const sync = require('./sync')
@@ -110,6 +109,7 @@ class MediatorReportService extends ReportService {
         ...pick(args.auth, ['apiKey', 'apiSecret']),
         isDataFromDb: 1
       })
+      await sync(true)
 
       if (!cb) return true
       cb(null, true)
@@ -196,8 +196,13 @@ class MediatorReportService extends ReportService {
 
   async getSyncProgress (space, args, cb) {
     try {
+      const user = await this.dao.checkAuthInDb(args, false)
       const isSchedulerEnabled = await this.isSchedulerEnabled()
-      const res = isSchedulerEnabled
+      const res = (
+        !isEmpty(user) &&
+        user.isDataFromDb &&
+        isSchedulerEnabled
+      )
         ? await getProgress(this)
         : false
 
@@ -209,38 +214,13 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async syncNow (space, args, cb) {
+  async syncNow (space, args = {}, cb) {
     try {
       if (cb) {
         await this.dao.checkAuthInDb(args)
       }
 
-      let res = await sync()
-
-      if (typeof res === 'number' && res < 100) {
-        let count = 0
-
-        while (true) {
-          count += 1
-
-          await delay(1000)
-
-          if (count > 30) {
-            res = 'Synchronization is not complete'
-
-            break
-          }
-
-          if (
-            typeof res !== 'number' ||
-            res >= 100
-          ) {
-            break
-          }
-
-          res = await this.getSyncProgress()
-        }
-      }
+      const res = await sync(true)
 
       if (!cb) return res
       cb(null, res)
@@ -300,7 +280,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
       const symbolsMethod = '_getSymbols'
       const currenciesMethod = '_getCurrencies'
@@ -327,9 +307,9 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getLedgers', args)
+      const res = await this.dao.findInCollBy('_getLedgers', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -348,9 +328,9 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getTrades', args)
+      const res = await this.dao.findInCollBy('_getTrades', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -370,9 +350,9 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args, ['symbol'])
+      checkParams(args, 'paramsSchemaForApi', ['symbol'])
 
-      // TODO: replace to this.dao.findInCollBy('_getPublicTrades', args)
+      // TODO: replace to this.dao.findInCollBy('_getPublicTrades', args, true)
       const res = await this._getPublicTrades(args)
 
       cb(null, res)
@@ -392,9 +372,9 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getOrders', args)
+      const res = await this.dao.findInCollBy('_getOrders', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -413,9 +393,9 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getMovements', args)
+      const res = await this.dao.findInCollBy('_getMovements', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -434,9 +414,9 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getFundingOfferHistory', args)
+      const res = await this.dao.findInCollBy('_getFundingOfferHistory', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -455,9 +435,9 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getFundingLoanHistory', args)
+      const res = await this.dao.findInCollBy('_getFundingLoanHistory', args, true)
 
       cb(null, res)
     } catch (err) {
@@ -476,9 +456,9 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getFundingCreditHistory', args)
+      const res = await this.dao.findInCollBy('_getFundingCreditHistory', args, true)
 
       cb(null, res)
     } catch (err) {
