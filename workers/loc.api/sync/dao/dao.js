@@ -66,6 +66,16 @@ class DAO {
   /**
    * @abstract
    */
+  async getElemsInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async getElemInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
   async removeElemsFromDb () { throw new Error('NOT_IMPLEMENTED') }
 
   /**

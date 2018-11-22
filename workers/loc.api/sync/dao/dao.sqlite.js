@@ -314,7 +314,7 @@ class SqliteDAO extends DAO {
     let where = ''
     const sort = []
 
-    if (methodColl.type === 'insertable:array:objects') {
+    if (/^((public:)|())insertable:array:objects$/i.test(methodColl.type)) {
       values['$start'] = params.start ? params.start : 0
       values['$end'] = params.end ? params.end : (new Date()).getTime()
       where += `WHERE ${methodColl.dateFieldName} >= $start
@@ -505,10 +505,42 @@ class SqliteDAO extends DAO {
     return res
   }
 
-  _getElemsInCollBy (collName) {
+  /**
+   * @override
+   */
+  getElemsInCollBy (collName) {
     const sql = `SELECT * FROM ${collName}`
 
     return this._all(sql)
+  }
+
+  /**
+   * @override
+   */
+  getElemInCollBy (collName, filter = {}, sort = []) {
+    const values = {}
+
+    const _sort = Object.keys(sort).reduce((accum, curr, i) => {
+      if (
+        Array.isArray(curr) &&
+        typeof curr[0] === 'string' &&
+        typeof curr[1] === 'number'
+      ) {
+        accum.push(`${curr[0]} ${curr[1] > 0 ? 'ASC' : 'DESC'}`)
+      }
+    }, [])
+
+    const where = Object.keys(filter).reduce((accum, curr, i) => {
+      const key = `$${curr}`
+      values[key] = filter[curr]
+      return `${accum}${i > 0 ? ' AND ' : ''}${curr} = ${key}`
+    }, 'WHERE ')
+
+    const sql = `SELECT * FROM ${collName}
+      ${isEmpty(filter) ? '' : where}
+      ${isEmpty(_sort) ? '' : _sort.join(', ')}`
+
+    return this._get(sql, values)
   }
 
   /**
@@ -581,7 +613,7 @@ class SqliteDAO extends DAO {
    * @override
    */
   async updateStateOf (name, isEnable = 1) {
-    const elems = await this._getElemsInCollBy(name)
+    const elems = await this.getElemsInCollBy(name)
     const data = {
       isEnable: isEnable ? 1 : 0
     }
@@ -633,7 +665,7 @@ class SqliteDAO extends DAO {
    */
   async updateProgress (value) {
     const name = 'progress'
-    const elems = await this._getElemsInCollBy(name)
+    const elems = await this.getElemsInCollBy(name)
     const data = {
       value: JSON.stringify(value)
     }
