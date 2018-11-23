@@ -36,13 +36,14 @@ const _getDateNotMoreNow = (date, now = Date.now()) => {
 const getParams = (
   args,
   maxLimit,
-  requireFields
+  requireFields,
+  methodApi
 ) => {
   const params = []
 
   checkParams(
     args,
-    'paramsSchemaForApi',
+    methodApi === 'trades' ? 'paramsSchemaForPublicTrades' : 'paramsSchemaForApi',
     requireFields
   )
 
@@ -317,9 +318,11 @@ const prepareResponse = (
   datePropName,
   limit = 1000,
   notThrowError = false,
-  notCheckNextPage = false
+  notCheckNextPage = false,
+  symbols,
+  symbPropName
 ) => {
-  const nextPage = (
+  let nextPage = (
     !notCheckNextPage &&
     Array.isArray(res) &&
     res.length === limit
@@ -335,9 +338,21 @@ const prepareResponse = (
       res.pop()
     }
 
+    nextPage = date
+
     if (!notThrowError && res.length === 0) {
       throw new Error('ERR_GREATER_LIMIT_IS_NEEDED')
     }
+  }
+
+  if (
+    symbols &&
+    Array.isArray(symbols) &&
+    symbols.length > 0
+  ) {
+    res = res.filter(item => {
+      return symbols.some(s => s === item[symbPropName])
+    })
   }
 
   return { res, nextPage }
@@ -349,18 +364,35 @@ const prepareApiResponse = async (
   methodApi,
   maxLimit,
   datePropName,
+  symbPropName,
   requireFields
 ) => {
-  const params = getParams(args, maxLimit, requireFields)
+  const params = getParams(args, maxLimit, requireFields, methodApi)
   const rest = getREST(args.auth, wrk)
-  const res = await rest[methodApi].bind(rest)(...params)
+  const symbols = []
+
+  if (
+    params[0] &&
+    Array.isArray(params[0])
+  ) {
+    if (params[0].length > 1) {
+      symbols.push(...params[0])
+      params[0] = null
+    } else {
+      params[0] = params[0][0]
+    }
+  }
+
+  let res = await rest[methodApi].bind(rest)(...params)
 
   return prepareResponse(
     res,
     datePropName,
     params[3],
     args.params && args.params.notThrowError,
-    args.params && args.params.notCheckNextPage
+    args.params && args.params.notCheckNextPage,
+    symbols,
+    symbPropName
   )
 }
 

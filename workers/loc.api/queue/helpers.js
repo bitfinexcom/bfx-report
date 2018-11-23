@@ -293,19 +293,9 @@ const writeDataToStream = async (reportService, stream, job) => {
 
   const queue = reportService.ctx.lokue_aggregator.q
   const propName = job.data.propNameForPagination
-  const symbPropName = job.data.symbPropName
   const formatSettings = job.data.formatSettings
 
   const _args = _.cloneDeep(job.data.args)
-  const symbols = []
-
-  if (
-    _args.params.symbol &&
-    Array.isArray(_args.params.symbol)
-  ) {
-    symbols.push(..._args.params.symbol)
-    delete _args.params.symbol
-  }
 
   _setDefaultPrams(_args)
   const currIterationArgs = _.cloneDeep(_args)
@@ -313,6 +303,7 @@ const writeDataToStream = async (reportService, stream, job) => {
   const getData = promisify(reportService[method].bind(reportService))
 
   let count = 0
+  let serialRequestsCount = 0
 
   while (true) {
     queue.emit('progress', 0)
@@ -321,6 +312,23 @@ const writeDataToStream = async (reportService, stream, job) => {
       getData,
       currIterationArgs
     )
+
+    currIterationArgs.params.end = nextPage
+
+    if (
+      res &&
+      Array.isArray(res) &&
+      res.length === 0 &&
+      nextPage &&
+      Number.isInteger(nextPage) &&
+      serialRequestsCount < 1
+    ) {
+      serialRequestsCount += 1
+
+      continue
+    }
+
+    serialRequestsCount = 0
 
     if (
       !res ||
@@ -331,13 +339,6 @@ const writeDataToStream = async (reportService, stream, job) => {
 
       break
     }
-
-    if (symbols.length > 0) {
-      res = res.filter(item => {
-        return symbols.some(s => s === item[symbPropName])
-      })
-    }
-
     if (method === 'getMovements') {
       res = _filterMovementsByAmount(res, _args)
 
@@ -384,7 +385,8 @@ const writeDataToStream = async (reportService, stream, job) => {
     if (
       isAllData ||
       needElems <= 0 ||
-      !nextPage
+      !nextPage ||
+      !Number.isInteger(nextPage)
     ) {
       queue.emit('progress', 100)
 
@@ -392,8 +394,6 @@ const writeDataToStream = async (reportService, stream, job) => {
     }
 
     _progress(queue, currTime, _args.params)
-
-    currIterationArgs.params.end = lastItem[propName] - 1
   }
 }
 

@@ -1,24 +1,19 @@
 'use strict'
 
-const paramsSchemaForApi = {
-  type: 'object',
-  properties: {
-    limit: {
-      type: 'integer'
-    },
-    start: {
-      type: 'integer'
-    },
-    end: {
-      type: 'integer'
-    },
-    symbol: {
+const _publicTradesSymbol = {
+  type: ['string', 'array'],
+  if: {
+    type: 'array'
+  },
+  then: {
+    maxItems: 1,
+    items: {
       type: 'string'
     }
   }
 }
 
-const paramsSchemaForCsv = {
+const paramsSchemaForApi = {
   type: 'object',
   properties: {
     limit: {
@@ -36,12 +31,19 @@ const paramsSchemaForCsv = {
         type: 'array'
       },
       then: {
-        minItems: 2,
+        minItems: 1,
         items: {
           type: 'string'
         }
       }
-    },
+    }
+  }
+}
+
+const paramsSchemaForCsv = {
+  ...paramsSchemaForApi,
+  properties: {
+    ...paramsSchemaForApi.properties,
     timezone: {
       type: ['number', 'string']
     },
@@ -56,14 +58,21 @@ const paramsSchemaForPublicTradesCsv = {
   ...paramsSchemaForCsv,
   properties: {
     ...paramsSchemaForCsv.properties,
-    symbol: {
-      type: 'string'
-    }
+    symbol: _publicTradesSymbol
+  }
+}
+
+const paramsSchemaForPublicTrades = {
+  ...paramsSchemaForApi,
+  properties: {
+    ...paramsSchemaForApi.properties,
+    symbol: _publicTradesSymbol
   }
 }
 
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
-  paramsSchemaForPublicTradesCsv
+  paramsSchemaForPublicTradesCsv,
+  paramsSchemaForPublicTrades
 }

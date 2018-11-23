@@ -321,8 +321,16 @@ class SqliteDAO extends DAO {
         AND ${methodColl.dateFieldName} <= $end \n`
 
       if (params.symbol) {
-        values['$symbol'] = params.symbol
-        where += `AND ${methodColl.symbolFieldName} = $symbol \n`
+        if (typeof params.symbol === 'string') {
+          values['$symbol'] = params.symbol
+          where += `AND ${methodColl.symbolFieldName} = $symbol \n`
+        } else if (
+          Array.isArray(params.symbol) &&
+          params.symbol.length === 1
+        ) {
+          values['$symbol'] = params.symbol[0]
+          where += `AND ${methodColl.symbolFieldName} = $symbol \n`
+        }
       }
     }
     if (
@@ -364,11 +372,20 @@ class SqliteDAO extends DAO {
     let res = this._convertDataType(_res)
 
     if (isPrepareResponse) {
+      const symbols = (
+        params.symbol &&
+        Array.isArray(params.symbol) &&
+        params.symbol.length > 1
+      ) ? params.symbol : []
+
       res = prepareResponse(
         res,
         methodColl.dateFieldName,
         params.limit,
-        params.notThrowError
+        params.notThrowError,
+        params.notCheckNextPage,
+        symbols,
+        methodColl.symbolFieldName
       )
     }
 
