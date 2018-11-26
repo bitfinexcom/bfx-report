@@ -311,6 +311,10 @@ class DataInserter extends EventEmitter {
       ) {
         break
       }
+
+      if (!Number.isInteger(currIterationArgs.params.end)) {
+        currIterationArgs.params.end = lastItem[dateFieldName] - 1
+      }
     }
   }
 

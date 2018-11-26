@@ -394,6 +394,10 @@ const writeDataToStream = async (reportService, stream, job) => {
     }
 
     _progress(queue, currTime, _args.params)
+
+    if (!Number.isInteger(currIterationArgs.params.end)) {
+      currIterationArgs.params.end = lastItem[propName] - 1
+    }
   }
 }
 
