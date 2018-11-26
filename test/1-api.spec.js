@@ -9,7 +9,10 @@ const {
   stopEnviroment
 } = require('./helpers/helpers.boot')
 const { rmDB } = require('./helpers/helpers.core')
-const { createMockRESTv2SrvWithAllData } = require('./helpers/helpers.mock-rest-v2')
+const {
+  createMockRESTv2SrvWithDate,
+  createMockRESTv2SrvWithAllData
+} = require('./helpers/helpers.mock-rest-v2')
 
 const { app } = require('../app')
 const agent = request.agent(app)
@@ -22,12 +25,17 @@ let mockRESTv2Srv = null
 
 const basePath = '/api'
 const dbDirPath = path.join(__dirname, '..', 'db')
+const date = new Date()
 
 describe('API', () => {
   before(async function () {
     this.timeout(20000)
 
-    mockRESTv2Srv = createMockRESTv2SrvWithAllData()
+    mockRESTv2Srv = createMockRESTv2SrvWithDate(
+      date.getTime(),
+      (new Date()).setDate(date.getDate() - 1),
+      2
+    )
 
     await rmDB(dbDirPath)
     await startEnviroment(false, true)
@@ -234,7 +242,7 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage)
+    assert.isNumber(res.body.result.nextPage)
 
     if (res.body.result.res.length > 0) {
       let resItem = res.body.result.res[0]
@@ -285,7 +293,7 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage)
+    assert.isNumber(res.body.result.nextPage)
 
     if (res.body.result.res.length > 0) {
       let resItem = res.body.result.res[0]
@@ -337,7 +345,7 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage)
+    assert.isNumber(res.body.result.nextPage)
 
     if (res.body.result.res.length > 0) {
       let resItem = res.body.result.res[0]
@@ -390,7 +398,7 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage)
+    assert.isNumber(res.body.result.nextPage)
 
     if (res.body.result.res.length > 0) {
       let resItem = res.body.result.res[0]
@@ -468,7 +476,99 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage)
+    assert.isNumber(res.body.result.nextPage)
+
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'id',
+        'symbol',
+        'mtsCreate',
+        'orderID',
+        'execAmount',
+        'execPrice',
+        'orderType',
+        'orderPrice',
+        'maker',
+        'fee',
+        'feeCurrency'
+      ])
+    }
+  })
+
+  it('it should be successfully performed by the getTrades method, where the symbol is an array', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getTrades',
+        params: {
+          symbol: ['tBTCUSD', 'tETHUSD'],
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isNumber(res.body.result.nextPage)
+
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'id',
+        'symbol',
+        'mtsCreate',
+        'orderID',
+        'execAmount',
+        'execPrice',
+        'orderType',
+        'orderPrice',
+        'maker',
+        'fee',
+        'feeCurrency'
+      ])
+    }
+  })
+
+  it('it should be successfully performed by the getTrades method, where the symbol is an array with length equal to one', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getTrades',
+        params: {
+          symbol: ['tBTCUSD'],
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isNumber(res.body.result.nextPage)
 
     if (res.body.result.res.length > 0) {
       let resItem = res.body.result.res[0]
@@ -513,7 +613,7 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage)
+    assert.isNumber(res.body.result.nextPage)
 
     if (res.body.result.res.length > 0) {
       let resItem = res.body.result.res[0]
@@ -526,6 +626,70 @@ describe('API', () => {
         'price'
       ])
     }
+  })
+
+  it('it should be successfully performed by the getPublicTrades method, where the symbol is an array with length equal to one', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        method: 'getPublicTrades',
+        params: {
+          symbol: ['tBTCUSD'],
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isNumber(res.body.result.nextPage)
+
+    if (res.body.result.res.length > 0) {
+      let resItem = res.body.result.res[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'id',
+        'mts',
+        'amount',
+        'price'
+      ])
+    }
+  })
+
+  it('it should be successfully performed by the getPublicTrades method, where the symbol is an array with length more then one', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        method: 'getPublicTrades',
+        params: {
+          symbol: ['tBTCUSD', 'tETHUSD'],
+          start: 0,
+          end: (new Date()).getTime,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 500)
+    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+    assert.propertyVal(res.body, 'id', 5)
   })
 
   it('it should be successfully performed by the getOrders method', async function () {
@@ -552,7 +716,7 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage)
+    assert.isNumber(res.body.result.nextPage)
 
     if (res.body.result.res.length > 0) {
       let resItem = res.body.result.res[0]
@@ -606,7 +770,7 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage)
+    assert.isNumber(res.body.result.nextPage)
 
     if (res.body.result.res.length > 0) {
       let resItem = res.body.result.res[0]
@@ -688,8 +852,32 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
   })
 
+  it('it should not be successfully performed by a fake method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'fake',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 500)
+    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+    assert.propertyVal(res.body, 'id', 5)
+  })
+
   it('it should not be successfully performed by the getMovements method, a greater limit is needed', async function () {
     this.timeout(5000)
+
+    await mockRESTv2Srv.close()
+    mockRESTv2Srv = createMockRESTv2SrvWithAllData()
 
     const res = await agent
       .post(`${basePath}/get-data`)
@@ -712,27 +900,6 @@ describe('API', () => {
     assert.isObject(res.body.error)
     assert.propertyVal(res.body.error, 'code', 400)
     assert.propertyVal(res.body.error, 'message', 'A greater limit is needed as to show the data correctly')
-    assert.propertyVal(res.body, 'id', 5)
-  })
-
-  it('it should not be successfully performed by a fake method', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/get-data`)
-      .type('json')
-      .send({
-        auth,
-        method: 'fake',
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(500)
-
-    assert.isObject(res.body)
-    assert.isObject(res.body.error)
-    assert.propertyVal(res.body.error, 'code', 500)
-    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
     assert.propertyVal(res.body, 'id', 5)
   })
 })
