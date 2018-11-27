@@ -228,7 +228,7 @@ describe('Queue', () => {
         auth,
         method: 'getLedgersCsv',
         params: {
-          symbol: 'BTC',
+          symbol: ['BTC'],
           end,
           start,
           limit: 1000,

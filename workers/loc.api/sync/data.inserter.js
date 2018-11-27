@@ -421,12 +421,30 @@ class DataInserter extends EventEmitter {
     const currIterationArgs = _.cloneDeep(_args)
 
     let count = 0
+    let serialRequestsCount = 0
 
     while (true) {
       let { res, nextPage } = await this._getDataFromApi(
         methodApi,
         currIterationArgs
       )
+
+      currIterationArgs.params.end = nextPage
+
+      if (
+        res &&
+        Array.isArray(res) &&
+        res.length === 0 &&
+        nextPage &&
+        Number.isInteger(nextPage) &&
+        serialRequestsCount < 1
+      ) {
+        serialRequestsCount += 1
+
+        continue
+      }
+
+      serialRequestsCount = 0
 
       if (
         !res ||
@@ -468,12 +486,15 @@ class DataInserter extends EventEmitter {
       if (
         isAllData ||
         needElems <= 0 ||
-        !nextPage
+        !nextPage ||
+        !Number.isInteger(nextPage)
       ) {
         break
       }
 
-      currIterationArgs.params.end = lastItem[dateFieldName] - 1
+      if (!Number.isInteger(currIterationArgs.params.end)) {
+        currIterationArgs.params.end = lastItem[dateFieldName] - 1
+      }
     }
   }
 
