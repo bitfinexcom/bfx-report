@@ -125,7 +125,9 @@ class DataInserter extends EventEmitter {
     let count = 0
 
     for (const [method, item] of methodCollMap) {
-      await this._insertApiDataArrObjTypeToDb(auth, method, item)
+      const args = this._getMethodArgMap(method, auth, 10000000, item.start)
+
+      await this._insertApiDataArrObjTypeToDb(args, method, item)
 
       count += 1
       const progress = Math.round(pubProgress + (count / methodCollMap.size) * 100 * userProgress * ((100 - pubProgress) / 100))
@@ -176,9 +178,14 @@ class DataInserter extends EventEmitter {
     }
   }
 
-  // TODO:
   async _checkNewDataPublicTrades (method, schema) {
-    const publicTradesConf = await this.dao.getElemsInCollBy('publicTradesConf')
+    const publicTradesConf = await this.dao.getElemsInCollBy(
+      'publicTradesConf',
+      {
+        minPropName: 'start',
+        groupPropName: 'symbol'
+      }
+    )
 
     if (_.isEmpty(publicTradesConf)) {
       return
@@ -190,7 +197,7 @@ class DataInserter extends EventEmitter {
       args.params.notCheckNextPage = true
       const lastElemFromDb = await this.dao.getElemInCollBy(
         schema.name,
-        { symbol },
+        { _symbol: symbol },
         schema.sort
       )
       const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
@@ -214,7 +221,8 @@ class DataInserter extends EventEmitter {
       )
 
       const startConf = {
-        baseStart: null,
+        baseStartFrom: null,
+        baseStartTo: null,
         currStart: null
       }
 
@@ -225,20 +233,21 @@ class DataInserter extends EventEmitter {
 
       const firstElemFromDb = await this.dao.getElemInCollBy(
         schema.name,
-        { symbol },
+        { _symbol: symbol },
         this._invertSort(schema.sort)
       )
 
       if (!_.isEmpty(firstElemFromDb)) {
         const isChangedBaseStart = this._compareElemsDbAndApi(
           schema.dateFieldName,
-          start,
+          { [schema.dateFieldName]: start },
           firstElemFromDb
         )
 
         if (isChangedBaseStart) {
           schema.hasNewData = true
-          startConf.baseStart = start
+          startConf.baseStartFrom = start
+          startConf.baseStartTo = firstElemFromDb[schema.dateFieldName] - 1
         }
       }
 
@@ -386,7 +395,6 @@ class DataInserter extends EventEmitter {
     return res
   }
 
-  // TODO:
   async _insertApiDataPublicArrObjTypeToDb (
     methodApi,
     schema
@@ -395,27 +403,80 @@ class DataInserter extends EventEmitter {
       return
     }
     if (methodApi === '_getPublicTrades') {
+      for (const [symbol, dates] of schema.start) {
+        await this._insertApiDataPublicTradesToDb(
+          methodApi,
+          schema,
+          symbol,
+          dates
+        )
+      }
+
       return 0
     }
   }
 
-  async _insertApiDataArrObjTypeToDb (
-    auth,
+  async _insertApiDataPublicTradesToDb (
     methodApi,
-    schema
+    schema,
+    symbol,
+    dates
   ) {
-    if (!this._isInsertableArrObjTypeOfColl(schema)) {
+    if (
+      !dates ||
+      typeof dates !== 'object'
+    ) {
+      return
+    }
+    if (
+      dates.baseStartFrom &&
+      Number.isInteger(dates.baseStartFrom) &&
+      dates.baseStartTo &&
+      Number.isInteger(dates.baseStartTo)
+    ) {
+      const args = this._getMethodArgMap(
+        methodApi,
+        null,
+        10000000,
+        dates.baseStartFrom,
+        dates.baseStartTo
+      )
+      args.params.symbol = symbol
+
+      await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
+    }
+    if (
+      dates.currStart &&
+      Number.isInteger(dates.currStart)
+    ) {
+      const args = this._getMethodArgMap(
+        methodApi,
+        null,
+        10000000,
+        dates.currStart
+      )
+      args.params.symbol = symbol
+
+      await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
+    }
+  }
+
+  async _insertApiDataArrObjTypeToDb (
+    args,
+    methodApi,
+    schema,
+    isPublic
+  ) {
+    if (!this._isInsertableArrObjTypeOfColl(schema, isPublic)) {
       return
     }
 
     const {
-      start,
       name: collName,
       dateFieldName,
       model
     } = schema
 
-    const args = this._getMethodArgMap(methodApi, auth, 10000000, start)
     const _args = _.cloneDeep(args)
     _args.params.notThrowError = true
     const currIterationArgs = _.cloneDeep(_args)
@@ -476,8 +537,15 @@ class DataInserter extends EventEmitter {
 
       await this.dao.insertElemsToDb(
         collName,
-        { ..._args.auth },
-        this._normalizeApiData(res, model)
+        isPublic ? null : { ..._args.auth },
+        this._normalizeApiData(res, model, itemRes => {
+          if (
+            collName === 'publicTrades' &&
+            args.params.symbol
+          ) {
+            itemRes._symbol = args.params.symbol
+          }
+        })
       )
 
       count += res.length
@@ -583,25 +651,34 @@ class DataInserter extends EventEmitter {
     start = 0,
     end = (new Date()).getTime()
   ) {
-    return {
-      auth: {
-        apiKey: '',
-        apiSecret: '',
-        ...auth
-      },
+    const res = {
       params: {
-        limit: limit !== null ? limit : this._methodCollMap.get(method).maxLimit,
+        limit: limit !== null
+          ? limit
+          : this._methodCollMap.get(method).maxLimit,
         end,
         start
       }
     }
+    if (
+      auth &&
+      typeof auth === 'object'
+    ) {
+      res.auth = {
+        apiKey: '',
+        apiSecret: '',
+        ...auth
+      }
+    }
+
+    return res
   }
 
   _getMethodCollMap () {
     return new Map(this._methodCollMap)
   }
 
-  _normalizeApiData (data = [], model) {
+  _normalizeApiData (data = [], model, cb = () => {}) {
     return data.map(item => {
       if (
         typeof item !== 'object' ||
@@ -610,6 +687,8 @@ class DataInserter extends EventEmitter {
       ) {
         return item
       }
+
+      cb(item)
 
       return _.pick(item, Object.keys(model))
     })

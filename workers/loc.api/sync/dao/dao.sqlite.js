@@ -525,8 +525,25 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  getElemsInCollBy (collName) {
-    const sql = `SELECT * FROM ${collName}`
+  getElemsInCollBy (
+    collName,
+    {
+      minPropName,
+      groupPropName
+    } = {
+      minPropName: null,
+      groupPropName: null
+    }
+  ) {
+    const subQuery = (
+      minPropName &&
+      typeof minPropName === 'string' &&
+      groupPropName &&
+      typeof groupPropName === 'string'
+    ) ? `WHERE ${minPropName} = (SELECT MIN(${minPropName}) FROM ${collName} AS b WHERE b.${groupPropName} = a.${groupPropName})
+        GROUP BY ${groupPropName}`
+      : ''
+    const sql = `SELECT * FROM ${collName} as a ${subQuery}`
 
     return this._all(sql)
   }
@@ -537,7 +554,7 @@ class SqliteDAO extends DAO {
   getElemInCollBy (collName, filter = {}, sort = []) {
     const values = {}
 
-    const _sort = Object.keys(sort).reduce((accum, curr, i) => {
+    const _sort = sort.reduce((accum, curr, i) => {
       if (
         Array.isArray(curr) &&
         typeof curr[0] === 'string' &&
@@ -545,6 +562,8 @@ class SqliteDAO extends DAO {
       ) {
         accum.push(`${curr[0]} ${curr[1] > 0 ? 'ASC' : 'DESC'}`)
       }
+
+      return accum
     }, [])
 
     const where = Object.keys(filter).reduce((accum, curr, i) => {
@@ -555,7 +574,7 @@ class SqliteDAO extends DAO {
 
     const sql = `SELECT * FROM ${collName}
       ${isEmpty(filter) ? '' : where}
-      ${isEmpty(_sort) ? '' : _sort.join(', ')}`
+      ${isEmpty(_sort) ? '' : `ORDER BY ${_sort.join(', ')}`}`
 
     return this._get(sql, values)
   }
