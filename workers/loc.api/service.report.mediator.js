@@ -285,8 +285,8 @@ class MediatorReportService extends ReportService {
       const symbolsMethod = '_getSymbols'
       const currenciesMethod = '_getCurrencies'
       const { field } = getMethodCollMap().get(symbolsMethod)
-      const symbols = await this.dao.findInCollBy(symbolsMethod, args)
-      const currencies = await this.dao.findInCollBy(currenciesMethod, args)
+      const symbols = await this.dao.findInCollBy(symbolsMethod, args, false, true)
+      const currencies = await this.dao.findInCollBy(currenciesMethod, args, false, true)
       const pairs = collObjToArr(symbols, field)
       const res = { pairs, currencies }
 
@@ -339,7 +339,6 @@ class MediatorReportService extends ReportService {
   }
 
   /**
-   * TODO: need to implement sync mode
    * @override
    */
   async getPublicTrades (space, args, cb) {
@@ -352,8 +351,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForPublicTrades', ['symbol'])
 
-      // TODO: replace to this.dao.findInCollBy('_getPublicTrades', args, true)
-      const res = await this._getPublicTrades(args)
+      const res = await this.dao.findInCollBy('_getPublicTrades', args, true, true)
 
       cb(null, res)
     } catch (err) {

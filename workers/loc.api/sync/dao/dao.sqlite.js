@@ -300,7 +300,7 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async findInCollBy (method, args, isPrepareResponse) {
+  async findInCollBy (method, args, isPrepareResponse, isPublic) {
     const user = await this.checkAuthInDb(args)
     const methodColl = this._getMethodCollMap().get(method)
     const params = { ...args.params }
@@ -348,17 +348,17 @@ class SqliteDAO extends DAO {
       })
     }
 
-    if (
-      method !== '_getCurrencies' &&
-      method !== '_getSymbols'
-    ) {
+    if (!isPublic) {
       exclude.push('user_id')
       values['$user_id'] = user._id
       where += `AND user_id = $user_id`
     }
 
     Object.keys(methodColl.model).forEach(field => {
-      if (exclude.every(item => item !== field)) {
+      if (
+        exclude.every(item => item !== field) &&
+        !/^_.*/.test(field)
+      ) {
         fields.push(field)
       }
     })
