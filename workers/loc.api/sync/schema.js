@@ -1,5 +1,7 @@
 'use strict'
 
+const { cloneDeep } = require('lodash')
+
 const _models = new Map([
   [
     'users',
@@ -292,7 +294,6 @@ const _methodCollMap = new Map([
       model: { ..._models.get('trades') }
     }
   ],
-  // TODO:
   [
     '_getPublicTrades',
     {
@@ -302,17 +303,6 @@ const _methodCollMap = new Map([
       symbolFieldName: '_symbol',
       sort: [['mts', -1]],
       hasNewData: false,
-      /** TODO:
-       * start: [
-       *   [
-       *     'tBTCUSD',
-       *     {
-       *       baseStart: 0,
-       *       currStart: 0
-       *     }
-       *   ]
-       * ]
-       */
       start: [],
       type: 'public:insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mts', '_symbol'],
@@ -420,12 +410,16 @@ const _methodCollMap = new Map([
   ]
 ])
 
+const _cloneSchema = (map) => {
+  return new Map(Array.from(map).map(item => cloneDeep(item)))
+}
+
 const getMethodCollMap = () => {
-  return new Map(_methodCollMap)
+  return _cloneSchema(_methodCollMap)
 }
 
 const getModelsMap = () => {
-  return new Map(_models)
+  return _cloneSchema(_models)
 }
 
 module.exports = {
