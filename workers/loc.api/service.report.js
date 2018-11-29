@@ -113,7 +113,8 @@ class ReportService extends Api {
         this.ctx.grc_bfx.caller,
         'ledgers',
         5000,
-        'mts'
+        'mts',
+        'currency'
       )
 
       cb(null, res)
@@ -129,7 +130,8 @@ class ReportService extends Api {
         this.ctx.grc_bfx.caller,
         'accountTrades',
         1500,
-        'mtsCreate'
+        'mtsCreate',
+        'symbol'
       )
 
       cb(null, res)
@@ -164,7 +166,8 @@ class ReportService extends Api {
         this.ctx.grc_bfx.caller,
         'orderHistory',
         5000,
-        'mtsUpdate'
+        'mtsUpdate',
+        'symbol'
       )
       res.res = parseFields(res.res, { executed: true })
 
@@ -181,7 +184,8 @@ class ReportService extends Api {
         this.ctx.grc_bfx.caller,
         'movements',
         25,
-        'mtsUpdated'
+        'mtsUpdated',
+        'currency'
       )
 
       cb(null, res)
@@ -197,7 +201,8 @@ class ReportService extends Api {
         this.ctx.grc_bfx.caller,
         'fundingOfferHistory',
         5000,
-        'mtsUpdate'
+        'mtsUpdate',
+        'symbol'
       )
       res.res = parseFields(res.res, { executed: true, rate: true })
 
@@ -214,7 +219,8 @@ class ReportService extends Api {
         this.ctx.grc_bfx.caller,
         'fundingLoanHistory',
         5000,
-        'mtsUpdate'
+        'mtsUpdate',
+        'symbol'
       )
       res.res = parseFields(res.res, { rate: true })
 
@@ -231,7 +237,8 @@ class ReportService extends Api {
         this.ctx.grc_bfx.caller,
         'fundingCreditHistory',
         5000,
-        'mtsUpdate'
+        'mtsUpdate',
+        'symbol'
       )
       res.res = parseFields(res.res, { rate: true })
 
@@ -254,7 +261,6 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsCreate',
-        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'PAIR',
@@ -293,7 +299,6 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mts',
-        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           mts: 'DATE',
@@ -329,7 +334,6 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mts',
-        symbPropName: 'currency',
         columnsCsv: {
           description: 'DESCRIPTION',
           currency: 'CURRENCY',
@@ -365,7 +369,6 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
-        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'PAIR',
@@ -407,7 +410,6 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdated',
-        symbPropName: 'currency',
         columnsCsv: {
           id: '#',
           currency: 'CURRENCY',
@@ -447,7 +449,6 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
-        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
@@ -489,7 +490,6 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
-        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
@@ -533,7 +533,6 @@ class ReportService extends Api {
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
-        symbPropName: 'symbol',
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',

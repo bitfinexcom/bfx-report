@@ -350,7 +350,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args, 'paramsSchemaForApi', ['symbol'])
+      checkParams(args, 'paramsSchemaForPublicTrades', ['symbol'])
 
       // TODO: replace to this.dao.findInCollBy('_getPublicTrades', args, true)
       const res = await this._getPublicTrades(args)
