@@ -16,5 +16,5 @@
   "isSpamRestrictionMode": true,
   "isСompress": true,
   "dbDriver": "sqlite",
-  "syncMode": false
+  "syncMode": true
 }
