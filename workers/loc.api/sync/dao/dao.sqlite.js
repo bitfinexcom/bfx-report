@@ -1,6 +1,6 @@
 'use strict'
 
-const { isEmpty, pick } = require('lodash')
+const { isEmpty, pick, omit } = require('lodash')
 
 const DAO = require('./dao')
 const {
@@ -93,6 +93,63 @@ class SqliteDAO extends DAO {
     return val
   }
 
+  _getOrderQuery (sort = []) {
+    if (
+      !sort ||
+      !Array.isArray(sort)
+    ) {
+      return ''
+    }
+
+    const _sort = sort.reduce((accum, curr, i) => {
+      if (
+        Array.isArray(curr) &&
+        typeof curr[0] === 'string' &&
+        typeof curr[1] === 'number'
+      ) {
+        accum.push(`${curr[0]} ${curr[1] > 0 ? 'ASC' : 'DESC'}`)
+      }
+
+      return accum
+    }, [])
+
+    return `${isEmpty(_sort) ? '' : `ORDER BY ${_sort.join(', ')}`}`
+  }
+
+  _getWhereQuery (filter = {}, isNotSetWhereClause) {
+    const values = {}
+    const keys = Object.keys(omit(filter, ['_dateFieldName']))
+    const where = keys.reduce(
+      (accum, curr, i) => {
+        const key = `$${curr}`
+        let fieldName = curr
+        let comparOperator = '='
+
+        switch (curr) {
+          case 'start':
+            comparOperator = '>='
+            fieldName = filter._dateFieldName
+            break
+          case 'end':
+            comparOperator = '<='
+            fieldName = filter._dateFieldName
+            break
+          default:
+            comparOperator = '='
+            fieldName = curr
+        }
+
+        values[key] = filter[curr]
+
+        return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${comparOperator} ${key}`
+      },
+      (isNotSetWhereClause || keys.length === 0)
+        ? '' : 'WHERE '
+    )
+
+    return { where, values }
+  }
+
   /**
    * @override
    */
@@ -152,25 +209,13 @@ class SqliteDAO extends DAO {
    * @override
    */
   async getLastElemFromDb (name, auth, sort = []) {
-    const _sort = []
-
-    if (Array.isArray(sort)) {
-      sort.forEach(item => {
-        if (
-          Array.isArray(item) &&
-          typeof item[0] === 'string' &&
-          typeof item[1] === 'number'
-        ) {
-          _sort.push(`${item[0]} ${item[1] > 0 ? 'ASC' : 'DESC'}`)
-        }
-      })
-    }
+    const _sort = this._getOrderQuery(sort)
 
     const sql = `SELECT ${name}.* FROM ${name}
       INNER JOIN users ON users._id = ${name}.user_id
       WHERE users.apiKey = $apiKey
       AND users.apiSecret = $apiSecret
-      ORDER BY ${_sort.join(', ')}`
+      ${_sort}`
 
     return this._get(sql, {
       $apiKey: auth.apiKey,
@@ -308,51 +353,35 @@ class SqliteDAO extends DAO {
 
     const exclude = ['_id']
     const fields = []
-    const values = {
-      $limit: params.limit
-    }
-    let where = ''
-    const sort = []
+    const filter = {}
 
     if (/^((public:)|())insertable:array:objects$/i.test(methodColl.type)) {
-      values['$start'] = params.start ? params.start : 0
-      values['$end'] = params.end ? params.end : (new Date()).getTime()
-      where += `WHERE ${methodColl.dateFieldName} >= $start
-        AND ${methodColl.dateFieldName} <= $end \n`
+      filter._dateFieldName = methodColl.dateFieldName
+      filter.start = params.start ? params.start : 0
+      filter.end = params.end ? params.end : (new Date()).getTime()
 
       if (params.symbol) {
         if (typeof params.symbol === 'string') {
-          values['$symbol'] = params.symbol
-          where += `AND ${methodColl.symbolFieldName} = $symbol \n`
+          filter[methodColl.symbolFieldName] = params.symbol
         } else if (
           Array.isArray(params.symbol) &&
           params.symbol.length === 1
         ) {
-          values['$symbol'] = params.symbol[0]
-          where += `AND ${methodColl.symbolFieldName} = $symbol \n`
+          filter[methodColl.symbolFieldName] = params.symbol[0]
         }
       }
     }
-    if (
-      typeof methodColl.sort !== 'undefined' &&
-      Array.isArray(methodColl.sort)
-    ) {
-      methodColl.sort.forEach(item => {
-        if (
-          Array.isArray(item) &&
-          typeof item[0] === 'string' &&
-          typeof item[1] === 'number'
-        ) {
-          sort.push(`${item[0]} ${item[1] > 0 ? 'ASC' : 'DESC'}`)
-        }
-      })
-    }
-
     if (!isPublic) {
       exclude.push('user_id')
-      values['$user_id'] = user._id
-      where += `AND user_id = $user_id`
+      filter.user_id = user._id
     }
+
+    const sort = this._getOrderQuery(methodColl.sort)
+    const {
+      where,
+      values
+    } = this._getWhereQuery(filter)
+    values.$limit = params.limit
 
     Object.keys(methodColl.model).forEach(field => {
       if (
@@ -365,7 +394,7 @@ class SqliteDAO extends DAO {
 
     const sql = `SELECT ${fields.join(', ')} FROM ${methodColl.name}
       ${where}
-      ORDER BY ${sort.join(', ')}
+      ${sort}
       LIMIT $limit`
 
     const _res = await this._all(sql, values)
@@ -429,17 +458,17 @@ class SqliteDAO extends DAO {
     })
   }
 
-  async _updateCollBy (name, filter = [], data = {}) {
-    const values = {}
+  async _updateCollBy (name, filter = {}, data = {}) {
+    const {
+      where,
+      values
+    } = this._getWhereQuery(filter)
     const fields = Object.keys(data).map(item => {
-      const key = `$${item}`
+      const key = `$new_${item}`
       values[key] = data[item]
 
       return `${item} = ${key}`
     }).join(', ')
-    const where = filter.reduce((accum, curr, i) => {
-      return `${accum}${i > 0 ? ' AND ' : ''}${curr} = $${curr}`
-    }, 'WHERE ')
 
     const sql = `UPDATE ${name} SET ${fields} ${where}`
 
@@ -476,10 +505,7 @@ class SqliteDAO extends DAO {
       )
     }
 
-    const newData = {
-      _id: user._id,
-      active: 1
-    }
+    const newData = { active: 1 }
 
     refreshObj(
       user,
@@ -488,7 +514,11 @@ class SqliteDAO extends DAO {
       ['email', 'timezone']
     )
 
-    const res = await this._updateCollBy('users', ['_id'], newData)
+    const res = await this._updateCollBy(
+      'users',
+      { _id: user._id },
+      omit(newData, ['_id'])
+    )
 
     if (res && res.changes < 1) {
       throw new Error('ERR_AUTH_UNAUTHORIZED')
@@ -501,7 +531,12 @@ class SqliteDAO extends DAO {
    * @override
    */
   async updateUserByAuth (data) {
-    const res = await this._updateCollBy('users', ['apiKey', 'apiSecret'], data)
+    const props = ['apiKey', 'apiSecret']
+    const res = await this._updateCollBy(
+      'users',
+      pick(data, props),
+      omit(data, [ ...props, '_id' ])
+    )
 
     if (res && res.changes < 1) {
       throw new Error('ERR_AUTH_UNAUTHORIZED')
@@ -528,53 +563,48 @@ class SqliteDAO extends DAO {
   getElemsInCollBy (
     collName,
     {
-      minPropName,
-      groupPropName
-    } = {
-      minPropName: null,
-      groupPropName: null
-    }
+      filter = {},
+      sort = [],
+      minPropName = null,
+      groupPropName = null
+    } = {}
   ) {
     const subQuery = (
       minPropName &&
       typeof minPropName === 'string' &&
       groupPropName &&
       typeof groupPropName === 'string'
-    ) ? `WHERE ${minPropName} = (SELECT MIN(${minPropName}) FROM ${collName} AS b WHERE b.${groupPropName} = a.${groupPropName})
+    ) ? `${minPropName} = (SELECT MIN(${minPropName}) FROM ${collName} AS b WHERE b.${groupPropName} = a.${groupPropName})
         GROUP BY ${groupPropName}`
       : ''
-    const sql = `SELECT * FROM ${collName} as a ${subQuery}`
 
-    return this._all(sql)
+    const _sort = this._getOrderQuery(sort)
+
+    const {
+      where,
+      values
+    } = this._getWhereQuery(filter, true)
+
+    const sql = `SELECT * FROM ${collName} AS a
+      ${where || subQuery ? ' WHERE ' : ''}${where}${where && subQuery ? ' AND ' : ''}${subQuery}
+      ${_sort}`
+
+    return this._all(sql, values)
   }
 
   /**
    * @override
    */
   getElemInCollBy (collName, filter = {}, sort = []) {
-    const values = {}
-
-    const _sort = sort.reduce((accum, curr, i) => {
-      if (
-        Array.isArray(curr) &&
-        typeof curr[0] === 'string' &&
-        typeof curr[1] === 'number'
-      ) {
-        accum.push(`${curr[0]} ${curr[1] > 0 ? 'ASC' : 'DESC'}`)
-      }
-
-      return accum
-    }, [])
-
-    const where = Object.keys(filter).reduce((accum, curr, i) => {
-      const key = `$${curr}`
-      values[key] = filter[curr]
-      return `${accum}${i > 0 ? ' AND ' : ''}${curr} = ${key}`
-    }, 'WHERE ')
+    const _sort = this._getOrderQuery(sort)
+    const {
+      where,
+      values
+    } = this._getWhereQuery(filter)
 
     const sql = `SELECT * FROM ${collName}
-      ${isEmpty(filter) ? '' : where}
-      ${isEmpty(_sort) ? '' : `ORDER BY ${_sort.join(', ')}`}`
+      ${where}
+      ${_sort}`
 
     return this._get(sql, values)
   }
@@ -668,10 +698,11 @@ class SqliteDAO extends DAO {
       )
     }
 
-    const res = await this._updateCollBy(name, ['_id'], {
-      ...data,
-      _id: elems[0]._id
-    })
+    const res = await this._updateCollBy(
+      name,
+      { _id: elems[0]._id },
+      data
+    )
 
     if (res && res.changes < 1) {
       throw new Error(`ERR_CAN_NOT_UPDATE_STATE_OF_${name.toUpperCase()}`)
@@ -684,14 +715,12 @@ class SqliteDAO extends DAO {
    * @override
    */
   getFirstElemInCollBy (collName, filter = {}) {
-    const values = {}
-    const where = Object.keys(filter).reduce((accum, curr, i) => {
-      const key = `$${curr}`
-      values[key] = filter[curr]
-      return `${accum}${i > 0 ? ' AND ' : ''}${curr} = ${key}`
-    }, 'WHERE ')
+    const {
+      where,
+      values
+    } = this._getWhereQuery(filter)
 
-    const sql = `SELECT * FROM ${collName} ${isEmpty(filter) ? '' : where}`
+    const sql = `SELECT * FROM ${collName} ${where}`
 
     return this._get(sql, values)
   }
@@ -720,10 +749,11 @@ class SqliteDAO extends DAO {
       )
     }
 
-    const res = await this._updateCollBy(name, ['_id'], {
-      ...data,
-      _id: elems[0]._id
-    })
+    const res = await this._updateCollBy(
+      name,
+      { _id: elems[0]._id },
+      data
+    )
 
     if (res && res.changes < 1) {
       throw new Error(`ERR_CAN_NOT_UPDATE_${name.toUpperCase()}`)

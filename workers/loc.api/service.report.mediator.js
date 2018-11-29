@@ -230,6 +230,26 @@ class MediatorReportService extends ReportService {
     }
   }
 
+  async getPublicTradesConf (space, args = {}, cb) {
+    try {
+      const { _id } = await this.dao.checkAuthInDb(args)
+      const conf = await this.dao.getElemsInCollBy(
+        'publicTradesConf',
+        {
+          filter: { user_id: _id },
+          sort: [['symbol', 1]]
+        }
+      )
+      const res = conf.map(item => pick(item, ['symbol', 'start']))
+
+      if (!cb) return res
+      cb(null, res)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
+  }
+
   /**
    * @override
    */
