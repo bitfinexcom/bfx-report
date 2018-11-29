@@ -346,7 +346,7 @@ class SqliteDAO extends DAO {
    * @override
    */
   async findInCollBy (method, args, isPrepareResponse, isPublic) {
-    const user = await this.checkAuthInDb(args)
+    const user = isPublic ? null : await this.checkAuthInDb(args)
     const methodColl = this._getMethodCollMap().get(method)
     const params = { ...args.params }
     params.limit = getLimitNotMoreThan(params.limit, methodColl.maxLimit)

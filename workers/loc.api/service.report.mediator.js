@@ -371,6 +371,21 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForPublicTrades', ['symbol'])
 
+      const publicTradesConf = await this.getPublicTradesConf(null, args)
+
+      if (
+        !publicTradesConf ||
+        !Array.isArray(publicTradesConf) ||
+        publicTradesConf.every(item => item.symbol !== args.params.symbol)
+      ) {
+        cb(null, {
+          res: [],
+          nexPage: false
+        })
+
+        return
+      }
+
       const res = await this.dao.findInCollBy('_getPublicTrades', args, true, true)
 
       cb(null, res)
