@@ -250,6 +250,112 @@ class MediatorReportService extends ReportService {
     }
   }
 
+  // TODO: part of the functionality needs to be moved to DAO
+  async setPublicTradesConf (space, args = {}, cb) {
+    try {
+      checkParams(args, 'paramsSchemaForSetPublicTradesConf')
+
+      const name = 'publicTradesConf'
+      const data = []
+
+      if (Array.isArray(args.params)) {
+        data.push(...args.params)
+      } else {
+        data.push(args.params)
+      }
+
+      const { _id } = await this.dao.checkAuthInDb(args)
+      const conf = await this.dao.getElemsInCollBy(
+        name,
+        {
+          filter: { user_id: _id },
+          sort: [['symbol', 1]]
+        }
+      )
+      const newData = data.reduce((accum, curr) => {
+        if (
+          conf.every(item => item.symbol !== curr.symbol) &&
+          accum.every(item => item.symbol !== curr.symbol)
+        ) {
+          accum.push({
+            ...pick(curr, ['symbol', 'start']),
+            user_id: _id
+          })
+        }
+
+        return accum
+      }, [])
+      const updatedData = data.reduce((accum, curr) => {
+        if (
+          conf.some(item => item.symbol === curr.symbol) &&
+          accum.every(item => item.symbol !== curr.symbol)
+        ) {
+          accum.push({ ...curr })
+        }
+
+        return accum
+      }, [])
+
+      if (newData.length > 0) {
+        await this.dao.insertElemsToDb(
+          name,
+          null,
+          newData
+        )
+      }
+
+      // TODO:
+      try {
+        await this.dao._run('BEGIN TRANSACTION')
+
+        for (const item of updatedData) {
+          await this.dao._updateCollBy(
+            name,
+            {
+              user_id: _id,
+              symbol: item.symbol
+            },
+            { start: item.start }
+          )
+        }
+
+        await this.dao._run('COMMIT')
+      } catch (err) {
+        await this.dao._run('ROLLBACK')
+
+        throw err
+      }
+
+      if (!cb) return true
+      cb(null, true)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
+  }
+
+  // TODO:
+  async removePublicTradesConf (space, args = {}, cb) {
+    try {
+      checkParams(args, 'paramsSchemaForRemovePublicTradesConf')
+
+      const _res = await this.dao.removeElemsFromDb(
+        'publicTradesConf',
+        args.auth,
+        {
+          symbol: args.params.symbol
+        }
+      )
+      const res = _res.changes > 0
+
+      if (!cb) return res
+      cb(null, res)
+    } catch (err) {
+      if (!cb) throw err
+      cb(err)
+    }
+  }
+
   /**
    * @override
    */

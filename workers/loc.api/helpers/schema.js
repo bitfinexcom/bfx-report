@@ -13,6 +13,50 @@ const _publicTradesSymbol = {
   }
 }
 
+const paramsSchemaForRemovePublicTradesConf = {
+  type: 'object',
+  required: ['symbol'],
+  properties: {
+    symbol: {
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        minItems: 1,
+        items: {
+          type: 'string'
+        }
+      }
+    }
+  }
+}
+
+const paramsSchemaForSetPublicTradesConf = {
+  type: ['array', 'object'],
+  if: {
+    type: 'array'
+  },
+  then: {
+    minItems: 1,
+    items: {
+      type: 'object',
+      required: ['symbol', 'start'],
+      properties: {
+        symbol: { type: 'string' },
+        start: { type: 'integer' }
+      }
+    }
+  },
+  else: {
+    required: ['symbol', 'start'],
+    properties: {
+      symbol: { type: 'string' },
+      start: { type: 'integer' }
+    }
+  }
+}
+
 const paramsSchemaForApi = {
   type: 'object',
   properties: {
@@ -74,5 +118,7 @@ module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
   paramsSchemaForPublicTradesCsv,
-  paramsSchemaForPublicTrades
+  paramsSchemaForPublicTrades,
+  paramsSchemaForRemovePublicTradesConf,
+  paramsSchemaForSetPublicTradesConf
 }

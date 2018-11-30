@@ -150,6 +150,21 @@ class SqliteDAO extends DAO {
     return { where, values }
   }
 
+  _getUniqueIndexQuery (name, fields = []) {
+    if (
+      !name ||
+      typeof name !== 'string' ||
+      !fields ||
+      !Array.isArray(fields) ||
+      fields.length === 0
+    ) {
+      return ''
+    }
+
+    return `CREATE UNIQUE INDEX IF NOT EXISTS ${name}_${fields.join('_')}
+      ON ${name}(${fields.join(', ')})`
+  }
+
   /**
    * @override
    */
@@ -187,7 +202,7 @@ class SqliteDAO extends DAO {
       const item = currItem[1]
 
       if (item.type === 'insertable:array:objects') {
-        let sql = `CREATE INDEX IF NOT EXISTS ${item.name}_${item.dateFieldName}_${item.symbolFieldName}
+        const sql = `CREATE INDEX IF NOT EXISTS ${item.name}_${item.dateFieldName}_${item.symbolFieldName}
           ON ${item.name}(${item.dateFieldName}, ${item.symbolFieldName})`
 
         await this._run(sql)
@@ -197,12 +212,15 @@ class SqliteDAO extends DAO {
         item.fieldsOfUniqueIndex &&
         Array.isArray(item.fieldsOfUniqueIndex)
       ) {
-        let sql = `CREATE UNIQUE INDEX IF NOT EXISTS ${item.name}_${item.fieldsOfUniqueIndex.join('_')}
-          ON ${item.name}(${item.fieldsOfUniqueIndex.join(', ')})`
+        const sql = this._getUniqueIndexQuery(item.name, item.fieldsOfUniqueIndex)
 
         await this._run(sql)
       }
     }
+
+    const publicTradesConfSql = this._getUniqueIndexQuery('publicTradesConf', ['symbol', 'user_id'])
+
+    await this._run(publicTradesConfSql)
   }
 
   /**
@@ -612,13 +630,11 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async removeElemsFromDb (name, auth, data) {
+  async removeElemsFromDb (name, auth, data = {}) {
     if (auth) {
       const user = await this.checkAuthInDb({ auth })
 
-      data.forEach(item => {
-        item.user_id = user._id
-      })
+      data.user_id = user._id
     }
 
     const values = {}
@@ -644,7 +660,7 @@ class SqliteDAO extends DAO {
 
     const sql = `DELETE FROM ${name} ${where}`
 
-    await this._run(sql, values)
+    return this._run(sql, values)
   }
 
   /**
