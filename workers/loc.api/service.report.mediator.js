@@ -182,7 +182,10 @@ class MediatorReportService extends ReportService {
 
   async isSchedulerEnabled (space, args, cb) {
     try {
-      const firstElem = await this.dao.getFirstElemInCollBy('scheduler', { isEnable: 1 })
+      const firstElem = await this.dao.getFirstElemInCollBy(
+        'scheduler',
+        { isEnable: 1 }
+      )
 
       const res = !isEmpty(firstElem)
 
@@ -397,8 +400,18 @@ class MediatorReportService extends ReportService {
       const symbolsMethod = '_getSymbols'
       const currenciesMethod = '_getCurrencies'
       const { field } = getMethodCollMap().get(symbolsMethod)
-      const symbols = await this.dao.findInCollBy(symbolsMethod, args, false, true)
-      const currencies = await this.dao.findInCollBy(currenciesMethod, args, false, true)
+      const symbols = await this.dao.findInCollBy(
+        symbolsMethod,
+        args,
+        false,
+        true
+      )
+      const currencies = await this.dao.findInCollBy(
+        currenciesMethod,
+        args,
+        false,
+        true
+      )
       const pairs = collObjToArr(symbols, field)
       const res = { pairs, currencies }
 
@@ -421,7 +434,11 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getLedgers', args, true)
+      const res = await this.dao.findInCollBy(
+        '_getLedgers',
+        args,
+        true
+      )
 
       cb(null, res)
     } catch (err) {
@@ -442,7 +459,11 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getTrades', args, true)
+      const res = await this.dao.findInCollBy(
+        '_getTrades',
+        args,
+        true
+      )
 
       cb(null, res)
     } catch (err) {
@@ -481,7 +502,12 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      const res = await this.dao.findInCollBy('_getPublicTrades', args, true, true)
+      const res = await this.dao.findInCollBy(
+        '_getPublicTrades',
+        args,
+        true,
+        true
+      )
 
       cb(null, res)
     } catch (err) {
@@ -502,7 +528,11 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getOrders', args, true)
+      const res = await this.dao.findInCollBy(
+        '_getOrders',
+        args,
+        true
+      )
 
       cb(null, res)
     } catch (err) {
@@ -523,7 +553,11 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getMovements', args, true)
+      const res = await this.dao.findInCollBy(
+        '_getMovements',
+        args,
+        true
+      )
 
       cb(null, res)
     } catch (err) {
@@ -544,7 +578,11 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getFundingOfferHistory', args, true)
+      const res = await this.dao.findInCollBy(
+        '_getFundingOfferHistory',
+        args,
+        true
+      )
 
       cb(null, res)
     } catch (err) {
@@ -565,7 +603,11 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getFundingLoanHistory', args, true)
+      const res = await this.dao.findInCollBy(
+        '_getFundingLoanHistory',
+        args,
+        true
+      )
 
       cb(null, res)
     } catch (err) {
@@ -586,7 +628,11 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this.dao.findInCollBy('_getFundingCreditHistory', args, true)
+      const res = await this.dao.findInCollBy(
+        '_getFundingCreditHistory',
+        args,
+        true
+      )
 
       cb(null, res)
     } catch (err) {

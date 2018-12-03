@@ -222,7 +222,8 @@ class SqliteDAO extends DAO {
       const item = currItem[1]
 
       if (item.type === 'insertable:array:objects') {
-        const sql = `CREATE INDEX IF NOT EXISTS ${item.name}_${item.dateFieldName}_${item.symbolFieldName}
+        const sql = `CREATE INDEX IF NOT EXISTS
+          ${item.name}_${item.dateFieldName}_${item.symbolFieldName}
           ON ${item.name}(${item.dateFieldName}, ${item.symbolFieldName})`
 
         await this._run(sql)
@@ -238,7 +239,10 @@ class SqliteDAO extends DAO {
       }
     }
 
-    const publicTradesConfSql = this._getUniqueIndexQuery('publicTradesConf', ['symbol', 'user_id'])
+    const publicTradesConfSql = this._getUniqueIndexQuery(
+      'publicTradesConf',
+      ['symbol', 'user_id']
+    )
 
     await this._run(publicTradesConfSql)
   }
@@ -616,7 +620,8 @@ class SqliteDAO extends DAO {
       typeof minPropName === 'string' &&
       groupPropName &&
       typeof groupPropName === 'string'
-    ) ? `${minPropName} = (SELECT MIN(${minPropName}) FROM ${collName} AS b WHERE b.${groupPropName} = a.${groupPropName})
+    ) ? `${minPropName} = (SELECT MIN(${minPropName}) FROM ${collName} AS b
+        WHERE b.${groupPropName} = a.${groupPropName})
         GROUP BY ${groupPropName}`
       : ''
 
