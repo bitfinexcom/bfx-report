@@ -8,7 +8,8 @@ const {
   getLimitNotMoreThan,
   refreshObj,
   tryParseJSON,
-  prepareResponse
+  prepareResponse,
+  mapObjBySchema
 } = require('../../helpers')
 
 class SqliteDAO extends DAO {
@@ -491,6 +492,34 @@ class SqliteDAO extends DAO {
     const sql = `UPDATE ${name} SET ${fields} ${where}`
 
     return this._run(sql, values)
+  }
+
+  /**
+   * @override
+   */
+  async updateElemsInCollBy (
+    name,
+    data = [],
+    filterPropNames = {},
+    upPropNames = {}
+  ) {
+    try {
+      await this._run('BEGIN TRANSACTION')
+
+      for (const item of data) {
+        await this._updateCollBy(
+          name,
+          mapObjBySchema(item, filterPropNames),
+          mapObjBySchema(item, upPropNames)
+        )
+      }
+
+      await this._run('COMMIT')
+    } catch (err) {
+      await this._run('ROLLBACK')
+
+      throw err
+    }
   }
 
   /**
