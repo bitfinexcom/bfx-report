@@ -250,7 +250,6 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  // TODO: part of the functionality needs to be moved to DAO
   async setPublicTradesConf (space, args = {}, cb) {
     try {
       checkParams(args, 'paramsSchemaForSetPublicTradesConf')
@@ -290,7 +289,10 @@ class MediatorReportService extends ReportService {
           conf.some(item => item.symbol === curr.symbol) &&
           accum.every(item => item.symbol !== curr.symbol)
         ) {
-          accum.push({ ...curr })
+          accum.push({
+            ...curr,
+            user_id: _id
+          })
         }
 
         return accum
@@ -304,27 +306,12 @@ class MediatorReportService extends ReportService {
         )
       }
 
-      // TODO:
-      try {
-        await this.dao._run('BEGIN TRANSACTION')
-
-        for (const item of updatedData) {
-          await this.dao._updateCollBy(
-            name,
-            {
-              user_id: _id,
-              symbol: item.symbol
-            },
-            { start: item.start }
-          )
-        }
-
-        await this.dao._run('COMMIT')
-      } catch (err) {
-        await this.dao._run('ROLLBACK')
-
-        throw err
-      }
+      await this.dao.updateElemsInCollBy(
+        name,
+        updatedData,
+        ['user_id', 'symbol'],
+        ['start']
+      )
 
       if (!cb) return true
       cb(null, true)
@@ -334,7 +321,6 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  // TODO:
   async removePublicTradesConf (space, args = {}, cb) {
     try {
       checkParams(args, 'paramsSchemaForRemovePublicTradesConf')
