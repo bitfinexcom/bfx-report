@@ -464,11 +464,14 @@ class MediatorReportService extends ReportService {
       checkParams(args, 'paramsSchemaForPublicTrades', ['symbol'])
 
       const publicTradesConf = await this.getPublicTradesConf(null, args)
+      const _symbol = Array.isArray(args.params.symbol)
+        ? args.params.symbol[0]
+        : args.params.symbol
 
       if (
         !publicTradesConf ||
         !Array.isArray(publicTradesConf) ||
-        publicTradesConf.every(item => item.symbol !== args.params.symbol)
+        publicTradesConf.every(item => item.symbol !== _symbol)
       ) {
         cb(null, {
           res: [],
