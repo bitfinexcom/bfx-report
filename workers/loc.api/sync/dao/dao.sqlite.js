@@ -166,20 +166,39 @@ class SqliteDAO extends DAO {
       ON ${name}(${fields.join(', ')})`
   }
 
+  async _beginTrans (cb) {
+    try {
+      const promise = await this._run('BEGIN TRANSACTION')
+
+      if (!cb) {
+        return promise
+      }
+
+      await cb()
+      await this._commit()
+    } catch (err) {
+      await this._rollback()
+
+      throw err
+    }
+  }
+
+  _commit () {
+    return this._run('COMMIT')
+  }
+
+  _rollback () {
+    return this._run('ROLLBACK')
+  }
+
   /**
    * @override
    */
   async databaseInitialize () {
-    try {
-      await this._run('BEGIN TRANSACTION')
+    await this._beginTrans(async () => {
       await this._createTablesIfNotExists()
       await this._createIndexisIfNotExists()
-      await this._run('COMMIT')
-    } catch (err) {
-      await this._run('ROLLBACK')
-
-      throw err
-    }
+    })
   }
 
   async _createTablesIfNotExists () {
@@ -254,9 +273,7 @@ class SqliteDAO extends DAO {
       })
     }
 
-    try {
-      await this._run('BEGIN TRANSACTION')
-
+    await this._beginTrans(async () => {
       for (const obj of data) {
         const fields = Object.keys(obj).join(', ')
         const values = {}
@@ -274,22 +291,14 @@ class SqliteDAO extends DAO {
 
         await this._run(sql, values)
       }
-
-      await this._run('COMMIT')
-    } catch (err) {
-      await this._run('ROLLBACK')
-
-      throw err
-    }
+    })
   }
 
   /**
    * @override
    */
   async insertElemsToDbIfNotExists (name, data = []) {
-    try {
-      await this._run('BEGIN TRANSACTION')
-
+    await this._beginTrans(async () => {
       for (const obj of data) {
         const keys = Object.keys(obj)
 
@@ -316,13 +325,7 @@ class SqliteDAO extends DAO {
 
         await this._run(sql, values)
       }
-
-      await this._run('COMMIT')
-    } catch (err) {
-      await this._run('ROLLBACK')
-
-      throw err
-    }
+    })
   }
 
   /**
@@ -503,9 +506,7 @@ class SqliteDAO extends DAO {
     filterPropNames = {},
     upPropNames = {}
   ) {
-    try {
-      await this._run('BEGIN TRANSACTION')
-
+    await this._beginTrans(async () => {
       for (const item of data) {
         await this._updateCollBy(
           name,
@@ -513,13 +514,7 @@ class SqliteDAO extends DAO {
           mapObjBySchema(item, upPropNames)
         )
       }
-
-      await this._run('COMMIT')
-    } catch (err) {
-      await this._run('ROLLBACK')
-
-      throw err
-    }
+    })
   }
 
   /**
