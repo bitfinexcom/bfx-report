@@ -964,7 +964,7 @@ describe('Sync mode with SQLite', () => {
     }
   })
 
-  it('it should be successfully performed by the getPublicTrades method, where the symbol is an array with length more then one', async function () {
+  it('it should not be successfully performed by the getPublicTrades method, where the symbol is an array with length more then one', async function () {
     this.timeout(5000)
 
     const res = await agent
