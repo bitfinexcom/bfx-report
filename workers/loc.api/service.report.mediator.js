@@ -316,6 +316,8 @@ class MediatorReportService extends ReportService {
         ['start']
       )
 
+      await this.syncNow()
+
       if (!cb) return true
       cb(null, true)
     } catch (err) {
