@@ -1,5 +1,7 @@
 'use strict'
 
+const { cloneDeep } = require('lodash')
+
 const _models = new Map([
   [
     'users',
@@ -62,7 +64,8 @@ const _models = new Map([
       id: 'BIGINT',
       mts: 'BIGINT',
       amount: 'DECIMAL(22,12)',
-      price: 'DECIMAL(22,12)'
+      price: 'DECIMAL(22,12)',
+      _symbol: 'VARCHAR(255)'
     }
   ],
   [
@@ -207,6 +210,20 @@ const _models = new Map([
     }
   ],
   [
+    'publicTradesConf',
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      symbol: 'VARCHAR(255)',
+      start: 'BIGINT',
+      user_id: `INT NOT NULL,
+        CONSTRAINT publicTradesConf_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
+    }
+  ],
+  [
     'symbols',
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
@@ -275,6 +292,21 @@ const _methodCollMap = new Map([
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsCreate', 'orderID', 'fee'],
       model: { ..._models.get('trades') }
+    }
+  ],
+  [
+    '_getPublicTrades',
+    {
+      name: 'publicTrades',
+      maxLimit: 1000,
+      dateFieldName: 'mts',
+      symbolFieldName: '_symbol',
+      sort: [['mts', -1]],
+      hasNewData: false,
+      start: [],
+      type: 'public:insertable:array:objects',
+      fieldsOfUniqueIndex: ['id', 'mts', '_symbol'],
+      model: { ..._models.get('publicTrades') }
     }
   ],
   [
@@ -360,7 +392,7 @@ const _methodCollMap = new Map([
       field: 'pairs',
       sort: [['pairs', 1]],
       hasNewData: true,
-      type: 'updatable:array',
+      type: 'public:updatable:array',
       model: { ..._models.get('symbols') }
     }
   ],
@@ -372,18 +404,22 @@ const _methodCollMap = new Map([
       fields: ['id', 'name', 'pool', 'explorer'],
       sort: [['name', 1]],
       hasNewData: true,
-      type: 'updatable:array:objects',
+      type: 'public:updatable:array:objects',
       model: { ..._models.get('currencies') }
     }
   ]
 ])
 
+const _cloneSchema = (map) => {
+  return new Map(Array.from(map).map(item => cloneDeep(item)))
+}
+
 const getMethodCollMap = () => {
-  return new Map(_methodCollMap)
+  return _cloneSchema(_methodCollMap)
 }
 
 const getModelsMap = () => {
-  return new Map(_models)
+  return _cloneSchema(_models)
 }
 
 module.exports = {
