@@ -484,22 +484,33 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForPublicTrades', ['symbol'])
 
-      const publicTradesConf = await this.getPublicTradesConf(null, args)
-      const _symbol = Array.isArray(args.params.symbol)
+      const symbol = Array.isArray(args.params.symbol)
         ? args.params.symbol[0]
         : args.params.symbol
+      const { _id } = await this.dao.checkAuthInDb(args)
+      const conf = await this.dao.getElemInCollBy(
+        'publicTradesConf',
+        {
+          user_id: _id,
+          symbol
+        },
+        [['symbol', 1]]
+      )
 
-      if (
-        !publicTradesConf ||
-        !Array.isArray(publicTradesConf) ||
-        publicTradesConf.every(item => item.symbol !== _symbol)
-      ) {
+      if (isEmpty(conf)) {
         cb(null, {
           res: [],
           nexPage: false
         })
 
         return
+      }
+
+      if (
+        Number.isFinite(args.params.start) &&
+        args.params.start < conf.start
+      ) {
+        args.params.start = conf.start
       }
 
       const res = await this.dao.findInCollBy(
