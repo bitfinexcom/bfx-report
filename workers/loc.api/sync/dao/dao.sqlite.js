@@ -167,17 +167,22 @@ class SqliteDAO extends DAO {
   }
 
   async _beginTrans (cb) {
+    let isTransBegun = false
+
     try {
-      const promise = await this._run('BEGIN TRANSACTION')
+      await this._run('BEGIN TRANSACTION')
+      isTransBegun = true
 
       if (!cb) {
-        return promise
+        return
       }
 
       await cb()
       await this._commit()
     } catch (err) {
-      await this._rollback()
+      if (isTransBegun) {
+        await this._rollback()
+      }
 
       throw err
     }
