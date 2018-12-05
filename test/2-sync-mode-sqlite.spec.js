@@ -217,7 +217,7 @@ describe('Sync mode with SQLite', () => {
     }
   })
 
-  it('it should be successfully performed by the setPublicTradesConf method', async function () {
+  it('it should be successfully performed by the editPublicTradesConf method, where an object is passed', async function () {
     this.timeout(5000)
 
     const res = await agent
@@ -225,92 +225,7 @@ describe('Sync mode with SQLite', () => {
       .type('json')
       .send({
         auth,
-        method: 'setPublicTradesConf',
-        params: [
-          {
-            start,
-            symbol: 'tBTCUSD'
-          },
-          {
-            start,
-            symbol: 'tETHUSD'
-          },
-          {
-            start,
-            symbol: 'tIOTUSD'
-          }
-        ],
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(200)
-
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
-  })
-
-  it('it should be successfully performed by the getSyncProgress method', async function () {
-    this.timeout(60000)
-
-    while (true) {
-      const res = await agent
-        .post(`${basePath}/get-data`)
-        .type('json')
-        .send({
-          auth,
-          method: 'getSyncProgress',
-          id: 5
-        })
-        .expect('Content-Type', /json/)
-        .expect(200)
-
-      assert.isObject(res.body)
-      assert.propertyVal(res.body, 'id', 5)
-      assert.isNumber(res.body.result)
-
-      if (
-        typeof res.body.result !== 'number' ||
-        res.body.result === 100
-      ) {
-        break
-      }
-
-      await delay()
-    }
-  })
-
-  it('it should be successfully performed by the removePublicTradesConf method', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/get-data`)
-      .type('json')
-      .send({
-        auth,
-        method: 'removePublicTradesConf',
-        params: {
-          symbol: ['tIOTUSD']
-        },
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(200)
-
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result)
-  })
-
-  it('it should be successfully performed by the setPublicTradesConf method, where an object is passed', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/get-data`)
-      .type('json')
-      .send({
-        auth,
-        method: 'setPublicTradesConf',
+        method: 'editPublicTradesConf',
         params: {
           start,
           symbol: 'tIOTUSD'
@@ -355,7 +270,7 @@ describe('Sync mode with SQLite', () => {
     }
   })
 
-  it('it should be successfully performed by the removePublicTradesConf method, where string is passed', async function () {
+  it('it should be successfully performed by the editPublicTradesConf method', async function () {
     this.timeout(5000)
 
     const res = await agent
@@ -363,10 +278,17 @@ describe('Sync mode with SQLite', () => {
       .type('json')
       .send({
         auth,
-        method: 'removePublicTradesConf',
-        params: {
-          symbol: 'tIOTUSD'
-        },
+        method: 'editPublicTradesConf',
+        params: [
+          {
+            start,
+            symbol: 'tBTCUSD'
+          },
+          {
+            start,
+            symbol: 'tETHUSD'
+          }
+        ],
         id: 5
       })
       .expect('Content-Type', /json/)
@@ -375,6 +297,36 @@ describe('Sync mode with SQLite', () => {
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
     assert.isOk(res.body.result)
+  })
+
+  it('it should be successfully performed by the getSyncProgress method', async function () {
+    this.timeout(60000)
+
+    while (true) {
+      const res = await agent
+        .post(`${basePath}/get-data`)
+        .type('json')
+        .send({
+          auth,
+          method: 'getSyncProgress',
+          id: 5
+        })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      assert.isObject(res.body)
+      assert.propertyVal(res.body, 'id', 5)
+      assert.isNumber(res.body.result)
+
+      if (
+        typeof res.body.result !== 'number' ||
+        res.body.result === 100
+      ) {
+        break
+      }
+
+      await delay()
+    }
   })
 
   it('it should be successfully performed by the getPublicTradesConf method', async function () {

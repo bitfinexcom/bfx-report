@@ -13,26 +13,7 @@ const _publicTradesSymbol = {
   }
 }
 
-const paramsSchemaForRemovePublicTradesConf = {
-  type: 'object',
-  required: ['symbol'],
-  properties: {
-    symbol: {
-      type: ['string', 'array'],
-      if: {
-        type: 'array'
-      },
-      then: {
-        minItems: 1,
-        items: {
-          type: 'string'
-        }
-      }
-    }
-  }
-}
-
-const paramsSchemaForSetPublicTradesConf = {
+const paramsSchemaForEditPublicTradesConf = {
   type: ['array', 'object'],
   if: {
     type: 'array'
@@ -119,6 +100,5 @@ module.exports = {
   paramsSchemaForCsv,
   paramsSchemaForPublicTradesCsv,
   paramsSchemaForPublicTrades,
-  paramsSchemaForRemovePublicTradesConf,
-  paramsSchemaForSetPublicTradesConf
+  paramsSchemaForEditPublicTradesConf
 }
