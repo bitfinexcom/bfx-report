@@ -253,9 +253,9 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async setPublicTradesConf (space, args = {}, cb) {
+  async editPublicTradesConf (space, args = {}, cb) {
     try {
-      checkParams(args, 'paramsSchemaForSetPublicTradesConf')
+      checkParams(args, 'paramsSchemaForEditPublicTradesConf')
 
       const name = 'publicTradesConf'
       const data = []
@@ -287,6 +287,16 @@ class MediatorReportService extends ReportService {
 
         return accum
       }, [])
+      const removedSymbols = conf.reduce((accum, curr) => {
+        if (
+          data.every(item => item.symbol !== curr.symbol) &&
+          accum.every(symbol => symbol !== curr.symbol)
+        ) {
+          accum.push(curr.symbol)
+        }
+
+        return accum
+      }, [])
       const updatedData = data.reduce((accum, curr) => {
         if (
           conf.some(item => item.symbol === curr.symbol) &&
@@ -308,6 +318,16 @@ class MediatorReportService extends ReportService {
           newData
         )
       }
+      if (removedSymbols.length > 0) {
+        await this.dao.removeElemsFromDb(
+          'publicTradesConf',
+          args.auth,
+          {
+            user_id: _id,
+            symbol: removedSymbols
+          }
+        )
+      }
 
       await this.dao.updateElemsInCollBy(
         name,
@@ -320,27 +340,6 @@ class MediatorReportService extends ReportService {
 
       if (!cb) return true
       cb(null, true)
-    } catch (err) {
-      if (!cb) throw err
-      cb(err)
-    }
-  }
-
-  async removePublicTradesConf (space, args = {}, cb) {
-    try {
-      checkParams(args, 'paramsSchemaForRemovePublicTradesConf')
-
-      const _res = await this.dao.removeElemsFromDb(
-        'publicTradesConf',
-        args.auth,
-        {
-          symbol: args.params.symbol
-        }
-      )
-      const res = _res.changes > 0
-
-      if (!cb) return res
-      cb(null, res)
     } catch (err) {
       if (!cb) throw err
       cb(err)
