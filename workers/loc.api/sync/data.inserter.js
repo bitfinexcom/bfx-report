@@ -11,17 +11,133 @@ const {
 const { getMethodCollMap } = require('./schema')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
+const ALL_ALLOWED_COLLS = 'ALL'
+const PUBLIC_ALLOWED_COLLS = 'PUBLIC'
+const PRIVATE_ALLOWED_COLLS = 'PRIVATE'
 
 class DataInserter extends EventEmitter {
-  constructor (reportService, methodCollMap) {
+  constructor (
+    reportService,
+    syncColls = ALL_ALLOWED_COLLS,
+    methodCollMap
+  ) {
     super()
+
+    this.ALLOWED_COLLS = [
+      ALL_ALLOWED_COLLS,
+      PUBLIC_ALLOWED_COLLS,
+      PRIVATE_ALLOWED_COLLS,
+      'ledgers',
+      'trades',
+      'publicTrades',
+      'orders',
+      'movements',
+      'fundingOfferHistory',
+      'fundingLoanHistory',
+      'fundingCreditHistory',
+      'symbols',
+      'currencies'
+    ]
 
     this.reportService = reportService
     this.dao = this.reportService.dao
-    this._methodCollMap = (methodCollMap instanceof Map)
+
+    this._auth = null
+    this._syncColls = syncColls && Array.isArray(syncColls)
+      ? syncColls
+      : [syncColls]
+
+    this._checkCollPermission()
+
+    this._methodCollMap = this._filterMethodCollMapByList(methodCollMap)
+  }
+
+  _checkCollPermission (syncColls = this._syncColls) {
+    if (
+      !syncColls ||
+      !Array.isArray(syncColls) ||
+      syncColls.length === 0 ||
+      syncColls.some(item => (
+        !item ||
+        typeof item !== 'string' ||
+        this.ALLOWED_COLLS.every(collName => item !== collName)
+      ))
+    ) {
+      throw new Error('ERR_PERMISSION_DENIED_TO_SYNC_SELECTED_COLLS')
+    }
+  }
+
+  _reduceMethodCollMap (
+    _methodCollMap,
+    res,
+    cb = () => true
+  ) {
+    return [..._methodCollMap].reduce((accum, curr) => {
+      if (
+        accum.every(item => item.name !== curr[1].name) &&
+        res.every(item => item.name !== curr[1].name) &&
+        cb(curr)
+      ) {
+        accum.push(curr)
+      }
+
+      return accum
+    }, [])
+  }
+
+  _filterMethodCollMapByList (
+    methodCollMap,
+    syncColls = this._syncColls
+  ) {
+    const res = []
+    const _methodCollMap = (methodCollMap instanceof Map)
       ? new Map(methodCollMap)
       : getMethodCollMap()
-    this._auth = null
+
+    for (const collName of syncColls) {
+      if (collName === ALL_ALLOWED_COLLS) {
+        const subRes = this._reduceMethodCollMap(
+          _methodCollMap,
+          res
+        )
+
+        res.push(...subRes)
+
+        break
+      }
+      if (collName === PUBLIC_ALLOWED_COLLS) {
+        const subRes = this._reduceMethodCollMap(
+          _methodCollMap,
+          res,
+          curr => /^public:.*/i.test(curr[1].type)
+        )
+
+        res.push(...subRes)
+
+        continue
+      }
+      if (collName === PRIVATE_ALLOWED_COLLS) {
+        const subRes = this._reduceMethodCollMap(
+          _methodCollMap,
+          res,
+          curr => !(/^public:.*/i.test(curr[1].type))
+        )
+
+        res.push(...subRes)
+
+        continue
+      }
+
+      const subRes = this._reduceMethodCollMap(
+        _methodCollMap,
+        res,
+        curr => curr[1].name === collName
+      )
+
+      res.push(...subRes)
+    }
+
+    return new Map(res)
   }
 
   async setProgress (progress) {

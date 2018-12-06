@@ -336,7 +336,7 @@ class MediatorReportService extends ReportService {
         ['start']
       )
 
-      await this.syncNow()
+      await sync(true, 'publicTrades')
 
       if (!cb) return true
       cb(null, true)
