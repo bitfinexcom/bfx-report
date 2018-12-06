@@ -201,7 +201,7 @@ const toString = (obj) => {
 }
 
 const isAuthError = (err) => {
-  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
+  return /(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
 }
 
 const isEnotfoundError = (err) => {

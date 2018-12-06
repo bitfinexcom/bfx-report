@@ -8,7 +8,7 @@ const { logger } = logService
 const { failure } = helpers.responses
 
 const _isAuthError = (err) => {
-  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
+  return /(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(Cannot read property 'email')/.test(err.toString())
 }
 
 const _isHasJobInQueueError = (err) => {
