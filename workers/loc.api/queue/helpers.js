@@ -417,7 +417,9 @@ const _fileNamesMap = new Map([
   ['getMovements', 'movements'],
   ['getFundingOfferHistory', 'funding_offers_history'],
   ['getFundingLoanHistory', 'funding_loans_history'],
-  ['getFundingCreditHistory', 'funding_credits_history']
+  ['getFundingCreditHistory', 'funding_credits_history'],
+  ['getPositionsHistory', 'positions_history'],
+  ['getPositionsAudit', 'positions_audit']
 ])
 
 const _getBaseName = queueName => {

@@ -95,10 +95,41 @@ const paramsSchemaForPublicTrades = {
   }
 }
 
+const paramsSchemaForPositionsAudit = {
+  ...paramsSchemaForApi,
+  required: [
+    ...(Array.isArray(paramsSchemaForApi.required)
+      ? paramsSchemaForApi.required
+      : []
+    ),
+    'id'
+  ],
+  properties: {
+    ...paramsSchemaForApi.properties,
+    id: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'integer'
+      }
+    }
+  }
+}
+
+const paramsSchemaForPositionsAuditCsv = {
+  ...paramsSchemaForCsv,
+  properties: {
+    ...paramsSchemaForCsv.properties,
+    ...paramsSchemaForPositionsAudit.properties
+  }
+}
+
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
   paramsSchemaForPublicTradesCsv,
   paramsSchemaForPublicTrades,
-  paramsSchemaForEditPublicTradesConf
+  paramsSchemaForEditPublicTradesConf,
+  paramsSchemaForPositionsAudit,
+  paramsSchemaForPositionsAuditCsv
 }
