@@ -423,6 +423,50 @@ class MediatorReportService extends ReportService {
   }
 
   /**
+   * TODO: need to implement sync mode
+   * @override
+   */
+  async getPositionsHistory (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getPositionsHistory(space, args, cb)
+
+        return
+      }
+
+      checkParams(args, 'paramsSchemaForApi')
+
+      const res = await this._getPositionsHistory(args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * TODO: need to implement sync mode
+   * @override
+   */
+  async getPositionsAudit (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getPositionsAudit(space, args, cb)
+
+        return
+      }
+
+      checkParams(args, 'paramsSchemaForPositionsAudit')
+
+      const res = await this._getPositionsAudit(args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
    * @override
    */
   async getLedgers (space, args, cb) {
@@ -650,6 +694,14 @@ class MediatorReportService extends ReportService {
     } catch (err) {
       cb(err)
     }
+  }
+
+  _getPositionsHistory (args) {
+    return promisify(super.getPositionsHistory.bind(this))(null, args)
+  }
+
+  _getPositionsAudit (args) {
+    return promisify(super.getPositionsAudit.bind(this))(null, args)
   }
 
   _getLedgers (args) {
