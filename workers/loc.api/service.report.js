@@ -140,6 +140,21 @@ class ReportService extends Api {
     }
   }
 
+  async getWallets (space, args, cb) {
+    try {
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const end = args.params && args.params.end
+
+      const result = (end)
+        ? await rest.walletsHistory(end)
+        : await rest.wallets()
+
+      cb(null, result)
+    } catch (err) {
+      this._err(err, 'getWallet', cb)
+    }
+  }
+
   async getLedgers (space, args, cb) {
     try {
       const res = await prepareApiResponse(
