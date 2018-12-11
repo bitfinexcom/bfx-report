@@ -467,6 +467,28 @@ class MediatorReportService extends ReportService {
   }
 
   /**
+   * TODO: need to implement sync mode
+   * @override
+   */
+  async getWallets (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getWallets(space, args, cb)
+
+        return
+      }
+
+      checkParams(args, 'paramsSchemaForWallets')
+
+      const res = await this._getWallets(args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
    * @override
    */
   async getLedgers (space, args, cb) {
@@ -694,6 +716,10 @@ class MediatorReportService extends ReportService {
     } catch (err) {
       cb(err)
     }
+  }
+
+  _getWallets (args) {
+    return promisify(super.getWallets.bind(this))(null, args)
   }
 
   _getPositionsHistory (args) {

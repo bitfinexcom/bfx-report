@@ -142,6 +142,8 @@ class ReportService extends Api {
 
   async getWallets (space, args, cb) {
     try {
+      checkParams(args, 'paramsSchemaForWallets')
+
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const end = args.params && args.params.end
 
@@ -323,6 +325,41 @@ class ReportService extends Api {
         formatSettings: {
           mtsCreate: 'date',
           symbol: 'symbol'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getTradesCsv', cb)
+    }
+  }
+
+  async getWalletsCsv (space, args, cb) {
+    try {
+      checkParams(args, 'paramsSchemaForWalletsCsv')
+      const userId = await hasJobInQueueWithStatusBy(this, args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getWallets'
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        userId,
+        name: method,
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          type: 'type',
+          currency: 'currency',
+          balance: 'balance',
+          unsettledInterest: 'unsettledInterest',
+          balanceAvailable: 'balanceAvailable',
+          placeHolder: 'placeHolder',
+          mtsUpdate: 'mtsUpdate'
+        },
+        formatSettings: {
+          mtsUpdate: 'date'
         }
       }
 

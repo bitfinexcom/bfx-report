@@ -124,6 +124,26 @@ const paramsSchemaForPositionsAuditCsv = {
   }
 }
 
+const paramsSchemaForWallets = {
+  type: 'object',
+  properties: {
+    end: {
+      type: 'integer'
+    }
+  }
+}
+
+const paramsSchemaForWalletsCsv = {
+  type: 'object',
+  properties: {
+    end: {
+      type: 'integer'
+    },
+    timezone: paramsSchemaForCsv.properties.timezone,
+    dateFormat: paramsSchemaForCsv.properties.dateFormat
+  }
+}
+
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
@@ -131,5 +151,7 @@ module.exports = {
   paramsSchemaForPublicTrades,
   paramsSchemaForEditPublicTradesConf,
   paramsSchemaForPositionsAudit,
-  paramsSchemaForPositionsAuditCsv
+  paramsSchemaForPositionsAuditCsv,
+  paramsSchemaForWallets,
+  paramsSchemaForWalletsCsv
 }
