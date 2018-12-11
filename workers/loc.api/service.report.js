@@ -367,7 +367,7 @@ class ReportService extends Api {
 
       cb(null, status)
     } catch (err) {
-      this._err(err, 'getTradesCsv', cb)
+      this._err(err, 'getWalletsCsv', cb)
     }
   }
 
