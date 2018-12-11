@@ -33,6 +33,28 @@ const _mockData = new Map([
     ]
   ],
   [
+    'wallets',
+    [[
+      'margin',
+      'BTC',
+      -0.04509854,
+      null,
+      null
+    ]]
+  ],
+  [
+    'wallets_hist',
+    [[
+      'margin',
+      'BTC',
+      -0.04509854,
+      null,
+      null,
+      null,
+      (new Date()).getTime()
+    ]]
+  ],
+  [
     'positions_hist',
     [[
       'tBTCUSD',
@@ -293,6 +315,10 @@ const _setDataTo = (
   const _date = Math.round(data.date)
 
   switch (key) {
+    case 'wallets_hist':
+      dataItem[6] = _date
+      break
+
     case 'positions_hist':
       dataItem[11] = data.id
       dataItem[12] = _date
@@ -361,6 +387,8 @@ const createMockRESTv2SrvWithDate = (
   end = start,
   limit = null,
   opts = {
+    'wallets_hist': { limit: 100 },
+    'wallets': { limit: 100 },
     'positions_hist': { limit: 500 },
     'positions_audit': { limit: 1250 },
     'ledgers': { limit: 5000 },
