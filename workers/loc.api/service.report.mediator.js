@@ -18,6 +18,7 @@ const {
   getProgress
 } = require('./sync/helpers')
 const { getMethodCollMap } = require('./sync/schema')
+const ALLOWED_COLLS = require('./sync/allowed.colls')
 const sync = require('./sync')
 
 class MediatorReportService extends ReportService {
@@ -336,7 +337,7 @@ class MediatorReportService extends ReportService {
         ['start']
       )
 
-      await sync(true, 'publicTrades')
+      await sync(true, ALLOWED_COLLS.PUBLIC_TRADES)
 
       if (!cb) return true
       cb(null, true)

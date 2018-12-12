@@ -9,40 +9,24 @@ const {
   isNonceSmallError
 } = require('../helpers')
 const { getMethodCollMap } = require('./schema')
+const ALLOWED_COLLS = require('./allowed.colls')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
-const ALL_ALLOWED_COLLS = 'ALL'
-const PUBLIC_ALLOWED_COLLS = 'PUBLIC'
-const PRIVATE_ALLOWED_COLLS = 'PRIVATE'
 
 class DataInserter extends EventEmitter {
   constructor (
     reportService,
-    syncColls = ALL_ALLOWED_COLLS,
+    syncColls = ALLOWED_COLLS.ALL,
     methodCollMap
   ) {
     super()
-
-    this.ALLOWED_COLLS = [
-      ALL_ALLOWED_COLLS,
-      PUBLIC_ALLOWED_COLLS,
-      PRIVATE_ALLOWED_COLLS,
-      'ledgers',
-      'trades',
-      'publicTrades',
-      'orders',
-      'movements',
-      'fundingOfferHistory',
-      'fundingLoanHistory',
-      'fundingCreditHistory',
-      'symbols',
-      'currencies'
-    ]
 
     this.reportService = reportService
     this.dao = this.reportService.dao
 
     this._auth = null
+    this._allowedCollsNames = Object.values(ALLOWED_COLLS)
+      .filter(name => !(/^_.*/.test(name)))
     this._syncColls = syncColls && Array.isArray(syncColls)
       ? syncColls
       : [syncColls]
@@ -60,7 +44,7 @@ class DataInserter extends EventEmitter {
       syncColls.some(item => (
         !item ||
         typeof item !== 'string' ||
-        this.ALLOWED_COLLS.every(collName => item !== collName)
+        Object.values(ALLOWED_COLLS).every(collName => item !== collName)
       ))
     ) {
       throw new Error('ERR_PERMISSION_DENIED_TO_SYNC_SELECTED_COLLS')
@@ -85,6 +69,14 @@ class DataInserter extends EventEmitter {
     }, [])
   }
 
+  _isPubColl (coll) {
+    return /^public:.*/i.test(coll[1].type)
+  }
+
+  _isAllowedColl (coll) {
+    return this._allowedCollsNames.some(item => item === coll[1].name)
+  }
+
   _filterMethodCollMapByList (
     methodCollMap,
     syncColls = this._syncColls
@@ -95,32 +87,33 @@ class DataInserter extends EventEmitter {
       : getMethodCollMap()
 
     for (const collName of syncColls) {
-      if (collName === ALL_ALLOWED_COLLS) {
+      if (collName === ALLOWED_COLLS.ALL) {
         const subRes = this._reduceMethodCollMap(
           _methodCollMap,
-          res
+          res,
+          coll => this._isAllowedColl(coll)
         )
 
         res.push(...subRes)
 
         break
       }
-      if (collName === PUBLIC_ALLOWED_COLLS) {
+      if (collName === ALLOWED_COLLS.PUBLIC) {
         const subRes = this._reduceMethodCollMap(
           _methodCollMap,
           res,
-          curr => /^public:.*/i.test(curr[1].type)
+          coll => (this._isAllowedColl(coll) && this._isPubColl(coll))
         )
 
         res.push(...subRes)
 
         continue
       }
-      if (collName === PRIVATE_ALLOWED_COLLS) {
+      if (collName === ALLOWED_COLLS.PRIVATE) {
         const subRes = this._reduceMethodCollMap(
           _methodCollMap,
           res,
-          curr => !(/^public:.*/i.test(curr[1].type))
+          coll => (this._isAllowedColl(coll) && !this._isPubColl(coll))
         )
 
         res.push(...subRes)
