@@ -556,6 +556,44 @@ describe('Sync mode with SQLite', () => {
     })
   })
 
+  it('it should be successfully performed by the getTickersHistory method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getTickersHistory',
+        params: {
+          symbol: 'BTC',
+          start: 0,
+          end,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage) // TODO: This will be changed to isNumber when implemented in sync mode
+
+    const resItem = res.body.result.res[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'symbol',
+      'bid',
+      'bidPeriod',
+      'ask',
+      'mtsUpdate'
+    ])
+  })
+
   it('it should be successfully performed by the getPositionsHistory method', async function () {
     this.timeout(5000)
 
@@ -1373,6 +1411,56 @@ describe('Sync mode with SQLite', () => {
     assert.propertyVal(res.body.error, 'code', 500)
     assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
     assert.propertyVal(res.body, 'id', 5)
+  })
+
+  it('it should be successfully performed by the getTickersHistoryCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getTickersHistoryCsv',
+        params: {
+          symbol: 'BTC',
+          end,
+          start,
+          limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'userId',
+      'name',
+      'filePath',
+      'params',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isObject(procRes.params)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
   })
 
   it('it should be successfully performed by the getPositionsHistoryCsv method', async function () {
