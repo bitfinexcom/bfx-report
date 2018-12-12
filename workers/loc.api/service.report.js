@@ -106,6 +106,57 @@ class ReportService extends Api {
     return rest.currencies()
   }
 
+  async getPositionsHistory (space, args, cb) {
+    try {
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'positionsHistory',
+        500,
+        'mtsUpdate',
+        'symbol'
+      )
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getPositionsHistory', cb)
+    }
+  }
+
+  async getPositionsAudit (space, args, cb) {
+    try {
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'positionsAudit',
+        1250,
+        'mtsUpdate',
+        'symbol'
+      )
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getPositionsAudit', cb)
+    }
+  }
+
+  async getWallets (space, args, cb) {
+    try {
+      checkParams(args, 'paramsSchemaForWallets')
+
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const end = args.params && args.params.end
+
+      const result = (end)
+        ? await rest.walletsHistory(end)
+        : await rest.wallets()
+
+      cb(null, result)
+    } catch (err) {
+      this._err(err, 'getWallet', cb)
+    }
+  }
+
   async getLedgers (space, args, cb) {
     try {
       const res = await prepareApiResponse(
@@ -282,6 +333,129 @@ class ReportService extends Api {
       cb(null, status)
     } catch (err) {
       this._err(err, 'getTradesCsv', cb)
+    }
+  }
+
+  async getWalletsCsv (space, args, cb) {
+    try {
+      checkParams(args, 'paramsSchemaForWalletsCsv')
+      const userId = await hasJobInQueueWithStatusBy(this, args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getWallets'
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        userId,
+        name: method,
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          type: 'type',
+          currency: 'currency',
+          balance: 'balance',
+          unsettledInterest: 'unsettledInterest',
+          balanceAvailable: 'balanceAvailable',
+          placeHolder: 'placeHolder',
+          mtsUpdate: 'mtsUpdate'
+        },
+        formatSettings: {
+          mtsUpdate: 'date'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getWalletsCsv', cb)
+    }
+  }
+
+  async getPositionsHistoryCsv (space, args) {
+    try {
+      checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getPositionsHistory'
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        userId,
+        name: method,
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          id: '#',
+          symbol: 'symbol',
+          status: 'status',
+          amount: 'amount',
+          basePrice: 'basePrice',
+          marginFunding: 'marginFunding',
+          marginFundingType: 'marginFundingType',
+          pl: 'pl',
+          plPerc: 'plPerc',
+          liquidationPrice: 'liquidationPrice',
+          leverage: 'leverage',
+          placeholder: 'placeholder',
+          mtsCreate: 'mtsCreate',
+          mtsUpdate: 'mtsUpdate'
+        },
+        formatSettings: {
+          mtsCreate: 'date',
+          mtsUpdate: 'date',
+          symbol: 'symbol'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      return status
+    } catch (err) {
+      this._err(err, 'getPositionsHistoryCsv')
+    }
+  }
+
+  async getPositionsAuditCsv (space, args) {
+    try {
+      checkParams(args, 'paramsSchemaForPositionsAuditCsv', ['id'])
+      const userId = await hasJobInQueueWithStatusBy(this, args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getPositionsAudit'
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        userId,
+        name: method,
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          id: '#',
+          symbol: 'symbol',
+          status: 'status',
+          amount: 'amount',
+          basePrice: 'basePrice',
+          marginFunding: 'marginFunding',
+          marginFundingType: 'marginFundingType',
+          pl: 'pl',
+          plPerc: 'plPerc',
+          liquidationPrice: 'liquidationPrice',
+          leverage: 'leverage',
+          placeholder: 'placeholder',
+          mtsCreate: 'mtsCreate',
+          mtsUpdate: 'mtsUpdate'
+        },
+        formatSettings: {
+          mtsCreate: 'date',
+          mtsUpdate: 'date',
+          symbol: 'symbol'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      return status
+    } catch (err) {
+      this._err(err, 'getPositionsAuditCsv')
     }
   }
 
@@ -575,7 +749,9 @@ class ReportService extends Api {
     `
     const logger = this.ctx.grc_bfx.caller.logger
     logger.error(logTxtErr)
-    cb(err)
+
+    if (cb) cb(err)
+    else throw err
   }
 }
 

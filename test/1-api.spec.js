@@ -26,16 +26,14 @@ let mockRESTv2Srv = null
 const basePath = '/api'
 const dbDirPath = path.join(__dirname, '..', 'db')
 const date = new Date()
+const end = date.getTime()
+const start = (new Date()).setDate(date.getDate() - 1)
 
 describe('API', () => {
   before(async function () {
     this.timeout(20000)
 
-    mockRESTv2Srv = createMockRESTv2SrvWithDate(
-      date.getTime(),
-      (new Date()).setDate(date.getDate() - 1),
-      2
-    )
+    mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, 2)
 
     await rmDB(dbDirPath)
     await startEnviroment(false, true)
@@ -218,7 +216,7 @@ describe('API', () => {
     })
   })
 
-  it('it should be successfully performed by the getFundingOfferHistory method', async function () {
+  it('it should be successfully performed by the getPositionsHistory method', async function () {
     this.timeout(5000)
 
     const res = await agent
@@ -226,11 +224,11 @@ describe('API', () => {
       .type('json')
       .send({
         auth,
-        method: 'getFundingOfferHistory',
+        method: 'getPositionsHistory',
         params: {
-          symbol: 'fUSD',
+          symbol: 'tBTCUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -244,29 +242,187 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'mtsCreate',
-        'mtsUpdate',
-        'amount',
-        'amountOrig',
-        'type',
-        'flags',
-        'status',
-        'rate',
-        'period',
-        'notify',
-        'hidden',
-        'renew',
-        'rateReal',
-        'amountExecuted'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'symbol',
+      'status',
+      'amount',
+      'basePrice',
+      'marginFunding',
+      'marginFundingType',
+      'pl',
+      'plPerc',
+      'liquidationPrice',
+      'leverage',
+      'placeholder',
+      'id',
+      'mtsCreate',
+      'mtsUpdate'
+    ])
+  })
+
+  it('it should be successfully performed by the getPositionsAudit method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPositionsAudit',
+        params: {
+          id: [12345],
+          symbol: 'tBTCUSD',
+          start: 0,
+          end,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isNumber(res.body.result.nextPage)
+
+    const resItem = res.body.result.res[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'symbol',
+      'status',
+      'amount',
+      'basePrice',
+      'marginFunding',
+      'marginFundingType',
+      'pl',
+      'plPerc',
+      'liquidationPrice',
+      'leverage',
+      'placeholder',
+      'id',
+      'mtsCreate',
+      'mtsUpdate'
+    ])
+  })
+
+  it('it should be successfully performed by the getWallets method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getWallets',
+        params: {
+          end
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    const resItem = res.body.result[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'type',
+      'currency',
+      'balance',
+      'unsettledInterest',
+      'balanceAvailable',
+      'placeHolder',
+      'mtsUpdate'
+    ])
+  })
+
+  it('it should be successfully performed by the getWallets method, without params', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getWallets',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    const resItem = res.body.result[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'type',
+      'currency',
+      'balance',
+      'unsettledInterest',
+      'balanceAvailable'
+    ])
+  })
+
+  it('it should be successfully performed by the getFundingOfferHistory method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getFundingOfferHistory',
+        params: {
+          symbol: 'fUSD',
+          start: 0,
+          end,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isNumber(res.body.result.nextPage)
+
+    const resItem = res.body.result.res[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'amountOrig',
+      'type',
+      'flags',
+      'status',
+      'rate',
+      'period',
+      'notify',
+      'hidden',
+      'renew',
+      'rateReal',
+      'amountExecuted'
+    ])
   })
 
   it('it should be successfully performed by the getFundingLoanHistory method', async function () {
@@ -281,7 +437,7 @@ describe('API', () => {
         params: {
           symbol: 'fUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -295,30 +451,28 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'side',
-        'mtsCreate',
-        'mtsUpdate',
-        'amount',
-        'flags',
-        'status',
-        'rate',
-        'period',
-        'mtsOpening',
-        'mtsLastPayout',
-        'notify',
-        'hidden',
-        'renew',
-        'rateReal',
-        'noClose'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'side',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'flags',
+      'status',
+      'rate',
+      'period',
+      'mtsOpening',
+      'mtsLastPayout',
+      'notify',
+      'hidden',
+      'renew',
+      'rateReal',
+      'noClose'
+    ])
   })
 
   it('it should be successfully performed by the getFundingCreditHistory method', async function () {
@@ -333,7 +487,7 @@ describe('API', () => {
         params: {
           symbol: 'fUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -347,31 +501,29 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'side',
-        'mtsCreate',
-        'mtsUpdate',
-        'amount',
-        'flags',
-        'status',
-        'rate',
-        'period',
-        'mtsOpening',
-        'mtsLastPayout',
-        'notify',
-        'hidden',
-        'renew',
-        'rateReal',
-        'noClose',
-        'positionPair'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'side',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'flags',
+      'status',
+      'rate',
+      'period',
+      'mtsOpening',
+      'mtsLastPayout',
+      'notify',
+      'hidden',
+      'renew',
+      'rateReal',
+      'noClose',
+      'positionPair'
+    ])
   })
 
   it('it should be successfully performed by the getLedgers method', async function () {
@@ -386,7 +538,7 @@ describe('API', () => {
         params: {
           symbol: 'BTC',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -400,20 +552,18 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'currency',
-        'mts',
-        'amount',
-        'balance',
-        'description',
-        'wallet'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'currency',
+      'mts',
+      'amount',
+      'balance',
+      'description',
+      'wallet'
+    ])
   })
 
   it('it should be successfully performed by the getLedgers method, without params', async function () {
@@ -436,20 +586,18 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'currency',
-        'mts',
-        'amount',
-        'balance',
-        'description',
-        'wallet'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'currency',
+      'mts',
+      'amount',
+      'balance',
+      'description',
+      'wallet'
+    ])
   })
 
   it('it should be successfully performed by the getTrades method', async function () {
@@ -464,7 +612,7 @@ describe('API', () => {
         params: {
           symbol: 'tBTCUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -478,24 +626,22 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'mtsCreate',
-        'orderID',
-        'execAmount',
-        'execPrice',
-        'orderType',
-        'orderPrice',
-        'maker',
-        'fee',
-        'feeCurrency'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'orderID',
+      'execAmount',
+      'execPrice',
+      'orderType',
+      'orderPrice',
+      'maker',
+      'fee',
+      'feeCurrency'
+    ])
   })
 
   it('it should be successfully performed by the getTrades method, where the symbol is an array', async function () {
@@ -510,7 +656,7 @@ describe('API', () => {
         params: {
           symbol: ['tBTCUSD', 'tETHUSD'],
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -524,24 +670,22 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'mtsCreate',
-        'orderID',
-        'execAmount',
-        'execPrice',
-        'orderType',
-        'orderPrice',
-        'maker',
-        'fee',
-        'feeCurrency'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'orderID',
+      'execAmount',
+      'execPrice',
+      'orderType',
+      'orderPrice',
+      'maker',
+      'fee',
+      'feeCurrency'
+    ])
   })
 
   it('it should be successfully performed by the getTrades method, where the symbol is an array with length equal to one', async function () {
@@ -556,7 +700,7 @@ describe('API', () => {
         params: {
           symbol: ['tBTCUSD'],
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -570,24 +714,22 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'mtsCreate',
-        'orderID',
-        'execAmount',
-        'execPrice',
-        'orderType',
-        'orderPrice',
-        'maker',
-        'fee',
-        'feeCurrency'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'orderID',
+      'execAmount',
+      'execPrice',
+      'orderType',
+      'orderPrice',
+      'maker',
+      'fee',
+      'feeCurrency'
+    ])
   })
 
   it('it should be successfully performed by the getPublicTrades method', async function () {
@@ -601,7 +743,7 @@ describe('API', () => {
         params: {
           symbol: 'tBTCUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -615,17 +757,15 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'mts',
-        'amount',
-        'price'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'mts',
+      'amount',
+      'price'
+    ])
   })
 
   it('it should be successfully performed by the getPublicTrades method, where the symbol is an array with length equal to one', async function () {
@@ -639,7 +779,7 @@ describe('API', () => {
         params: {
           symbol: ['tBTCUSD'],
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -653,17 +793,15 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'mts',
-        'amount',
-        'price'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'mts',
+      'amount',
+      'price'
+    ])
   })
 
   it('it should be successfully performed by the getPublicTrades method, where the symbol is an array with length more then one', async function () {
@@ -677,7 +815,7 @@ describe('API', () => {
         params: {
           symbol: ['tBTCUSD', 'tETHUSD'],
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -704,7 +842,7 @@ describe('API', () => {
         params: {
           symbol: 'tBTCUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -718,32 +856,30 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'gid',
-        'cid',
-        'symbol',
-        'mtsCreate',
-        'mtsUpdate',
-        'amount',
-        'amountOrig',
-        'type',
-        'typePrev',
-        'flags',
-        'status',
-        'price',
-        'priceAvg',
-        'priceTrailing',
-        'priceAuxLimit',
-        'notify',
-        'placedId',
-        'amountExecuted'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'gid',
+      'cid',
+      'symbol',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'amountOrig',
+      'type',
+      'typePrev',
+      'flags',
+      'status',
+      'price',
+      'priceAvg',
+      'priceTrailing',
+      'priceAuxLimit',
+      'notify',
+      'placedId',
+      'amountExecuted'
+    ])
   })
 
   it('it should be successfully performed by the getMovements method', async function () {
@@ -758,7 +894,7 @@ describe('API', () => {
         params: {
           symbol: 'BTC',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -772,23 +908,21 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'currency',
-        'currencyName',
-        'mtsStarted',
-        'mtsUpdated',
-        'status',
-        'amount',
-        'fees',
-        'destinationAddress',
-        'transactionId'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'currency',
+      'currencyName',
+      'mtsStarted',
+      'mtsUpdated',
+      'status',
+      'amount',
+      'fees',
+      'destinationAddress',
+      'transactionId'
+    ])
   })
 
   it('it should be successfully performed by the getMovements method, without params', async function () {
@@ -811,23 +945,21 @@ describe('API', () => {
     assert.isArray(res.body.result.res)
     assert.isBoolean(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'currency',
-        'currencyName',
-        'mtsStarted',
-        'mtsUpdated',
-        'status',
-        'amount',
-        'fees',
-        'destinationAddress',
-        'transactionId'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'currency',
+      'currencyName',
+      'mtsStarted',
+      'mtsUpdated',
+      'status',
+      'amount',
+      'fees',
+      'destinationAddress',
+      'transactionId'
+    ])
   })
 
   it('it should not be successfully performed by the getMovements method', async function () {
@@ -888,7 +1020,7 @@ describe('API', () => {
         params: {
           symbol: 'BTC',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 1
         },
         id: 5

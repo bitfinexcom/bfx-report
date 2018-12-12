@@ -556,6 +556,166 @@ describe('Sync mode with SQLite', () => {
     })
   })
 
+  it('it should be successfully performed by the getPositionsHistory method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPositionsHistory',
+        params: {
+          symbol: 'tBTCUSD',
+          start: 0,
+          end,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage) // TODO: This will be changed to isNumber when implemented in sync mode
+
+    const resItem = res.body.result.res[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'symbol',
+      'status',
+      'amount',
+      'basePrice',
+      'marginFunding',
+      'marginFundingType',
+      'pl',
+      'plPerc',
+      'liquidationPrice',
+      'leverage',
+      'placeholder',
+      'id',
+      'mtsCreate',
+      'mtsUpdate'
+    ])
+  })
+
+  it('it should be successfully performed by the getPositionsAudit method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPositionsAudit',
+        params: {
+          id: [12345],
+          symbol: 'tBTCUSD',
+          start: 0,
+          end,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage) // TODO: This will be changed to isNumber when implemented in sync mode
+
+    const resItem = res.body.result.res[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'symbol',
+      'status',
+      'amount',
+      'basePrice',
+      'marginFunding',
+      'marginFundingType',
+      'pl',
+      'plPerc',
+      'liquidationPrice',
+      'leverage',
+      'placeholder',
+      'id',
+      'mtsCreate',
+      'mtsUpdate'
+    ])
+  })
+
+  it('it should be successfully performed by the getWallets method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getWallets',
+        params: {
+          end
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    const resItem = res.body.result[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'type',
+      'currency',
+      'balance',
+      'unsettledInterest',
+      'balanceAvailable',
+      'placeHolder',
+      'mtsUpdate'
+    ])
+  })
+
+  it('it should be successfully performed by the getWallets method, without params', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getWallets',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    const resItem = res.body.result[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'type',
+      'currency',
+      'balance',
+      'unsettledInterest',
+      'balanceAvailable'
+    ])
+  })
+
   it('it should be successfully performed by the getFundingOfferHistory method', async function () {
     this.timeout(5000)
 
@@ -568,7 +728,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'fUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -582,29 +742,27 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'mtsCreate',
-        'mtsUpdate',
-        'amount',
-        'amountOrig',
-        'type',
-        'flags',
-        'status',
-        'rate',
-        'period',
-        'notify',
-        'hidden',
-        'renew',
-        'rateReal',
-        'amountExecuted'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'amountOrig',
+      'type',
+      'flags',
+      'status',
+      'rate',
+      'period',
+      'notify',
+      'hidden',
+      'renew',
+      'rateReal',
+      'amountExecuted'
+    ])
   })
 
   it('it should be successfully performed by the getFundingLoanHistory method', async function () {
@@ -619,7 +777,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'fUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -633,30 +791,28 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'side',
-        'mtsCreate',
-        'mtsUpdate',
-        'amount',
-        'flags',
-        'status',
-        'rate',
-        'period',
-        'mtsOpening',
-        'mtsLastPayout',
-        'notify',
-        'hidden',
-        'renew',
-        'rateReal',
-        'noClose'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'side',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'flags',
+      'status',
+      'rate',
+      'period',
+      'mtsOpening',
+      'mtsLastPayout',
+      'notify',
+      'hidden',
+      'renew',
+      'rateReal',
+      'noClose'
+    ])
   })
 
   it('it should be successfully performed by the getFundingCreditHistory method', async function () {
@@ -671,7 +827,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'fUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -685,31 +841,29 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'side',
-        'mtsCreate',
-        'mtsUpdate',
-        'amount',
-        'flags',
-        'status',
-        'rate',
-        'period',
-        'mtsOpening',
-        'mtsLastPayout',
-        'notify',
-        'hidden',
-        'renew',
-        'rateReal',
-        'noClose',
-        'positionPair'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'side',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'flags',
+      'status',
+      'rate',
+      'period',
+      'mtsOpening',
+      'mtsLastPayout',
+      'notify',
+      'hidden',
+      'renew',
+      'rateReal',
+      'noClose',
+      'positionPair'
+    ])
   })
 
   it('it should be successfully performed by the getLedgers method', async function () {
@@ -724,7 +878,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'BTC',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -738,20 +892,18 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'currency',
-        'mts',
-        'amount',
-        'balance',
-        'description',
-        'wallet'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'currency',
+      'mts',
+      'amount',
+      'balance',
+      'description',
+      'wallet'
+    ])
   })
 
   it('it should be successfully performed by the getLedgers method, without params', async function () {
@@ -774,20 +926,18 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'currency',
-        'mts',
-        'amount',
-        'balance',
-        'description',
-        'wallet'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'currency',
+      'mts',
+      'amount',
+      'balance',
+      'description',
+      'wallet'
+    ])
   })
 
   it('it should be successfully performed by the getTrades method', async function () {
@@ -802,7 +952,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'tBTCUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -816,24 +966,22 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'mtsCreate',
-        'orderID',
-        'execAmount',
-        'execPrice',
-        'orderType',
-        'orderPrice',
-        'maker',
-        'fee',
-        'feeCurrency'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'orderID',
+      'execAmount',
+      'execPrice',
+      'orderType',
+      'orderPrice',
+      'maker',
+      'fee',
+      'feeCurrency'
+    ])
   })
 
   it('it should be successfully performed by the getTrades method, where the symbol is an array', async function () {
@@ -848,7 +996,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: ['tBTCUSD', 'tETHUSD'],
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -862,24 +1010,22 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'mtsCreate',
-        'orderID',
-        'execAmount',
-        'execPrice',
-        'orderType',
-        'orderPrice',
-        'maker',
-        'fee',
-        'feeCurrency'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'orderID',
+      'execAmount',
+      'execPrice',
+      'orderType',
+      'orderPrice',
+      'maker',
+      'fee',
+      'feeCurrency'
+    ])
   })
 
   it('it should be successfully performed by the getTrades method, where the symbol is an array with length equal to one', async function () {
@@ -894,7 +1040,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: ['tBTCUSD'],
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -908,24 +1054,22 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'symbol',
-        'mtsCreate',
-        'orderID',
-        'execAmount',
-        'execPrice',
-        'orderType',
-        'orderPrice',
-        'maker',
-        'fee',
-        'feeCurrency'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'orderID',
+      'execAmount',
+      'execPrice',
+      'orderType',
+      'orderPrice',
+      'maker',
+      'fee',
+      'feeCurrency'
+    ])
   })
 
   it('it should be successfully performed by the getPublicTrades method', async function () {
@@ -940,7 +1084,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'tBTCUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -954,17 +1098,15 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'mts',
-        'amount',
-        'price'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'mts',
+      'amount',
+      'price'
+    ])
   })
 
   it('it should be successfully performed by the getPublicTrades method, where the symbol is an array with length equal to one', async function () {
@@ -979,7 +1121,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: ['tBTCUSD'],
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -993,17 +1135,15 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'mts',
-        'amount',
-        'price'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'mts',
+      'amount',
+      'price'
+    ])
   })
 
   it('it should not be successfully performed by the getPublicTrades method, where the symbol is an array with length more then one', async function () {
@@ -1018,7 +1158,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: ['tBTCUSD', 'tETHUSD'],
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -1045,7 +1185,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'tBTCUSD',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -1059,32 +1199,30 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'gid',
-        'cid',
-        'symbol',
-        'mtsCreate',
-        'mtsUpdate',
-        'amount',
-        'amountOrig',
-        'type',
-        'typePrev',
-        'flags',
-        'status',
-        'price',
-        'priceAvg',
-        'priceTrailing',
-        'priceAuxLimit',
-        'notify',
-        'placedId',
-        'amountExecuted'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'gid',
+      'cid',
+      'symbol',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'amountOrig',
+      'type',
+      'typePrev',
+      'flags',
+      'status',
+      'price',
+      'priceAvg',
+      'priceTrailing',
+      'priceAuxLimit',
+      'notify',
+      'placedId',
+      'amountExecuted'
+    ])
   })
 
   it('it should be successfully performed by the getMovements method', async function () {
@@ -1099,7 +1237,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'BTC',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 2
         },
         id: 5
@@ -1113,23 +1251,21 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    let resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'currency',
-        'currencyName',
-        'mtsStarted',
-        'mtsUpdated',
-        'status',
-        'amount',
-        'fees',
-        'destinationAddress',
-        'transactionId'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'currency',
+      'currencyName',
+      'mtsStarted',
+      'mtsUpdated',
+      'status',
+      'amount',
+      'fees',
+      'destinationAddress',
+      'transactionId'
+    ])
   })
 
   it('it should be successfully performed by the getMovements method, without params', async function () {
@@ -1152,23 +1288,21 @@ describe('Sync mode with SQLite', () => {
     assert.isArray(res.body.result.res)
     assert.isNumber(res.body.result.nextPage)
 
-    if (res.body.result.res.length > 0) {
-      let resItem = res.body.result.res[0]
+    const resItem = res.body.result.res[0]
 
-      assert.isObject(resItem)
-      assert.containsAllKeys(resItem, [
-        'id',
-        'currency',
-        'currencyName',
-        'mtsStarted',
-        'mtsUpdated',
-        'status',
-        'amount',
-        'fees',
-        'destinationAddress',
-        'transactionId'
-      ])
-    }
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'currency',
+      'currencyName',
+      'mtsStarted',
+      'mtsUpdated',
+      'status',
+      'amount',
+      'fees',
+      'destinationAddress',
+      'transactionId'
+    ])
   })
 
   it('it should not be successfully performed by the getMovements method', async function () {
@@ -1205,7 +1339,7 @@ describe('Sync mode with SQLite', () => {
         params: {
           symbol: 'BTC',
           start: 0,
-          end: (new Date()).getTime,
+          end,
           limit: 1
         },
         id: 5
@@ -1239,6 +1373,154 @@ describe('Sync mode with SQLite', () => {
     assert.propertyVal(res.body.error, 'code', 500)
     assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
     assert.propertyVal(res.body, 'id', 5)
+  })
+
+  it('it should be successfully performed by the getPositionsHistoryCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPositionsHistoryCsv',
+        params: {
+          symbol: 'tBTCUSD',
+          end,
+          start,
+          limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'userId',
+      'name',
+      'filePath',
+      'params',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isObject(procRes.params)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
+  it('it should be successfully performed by the getPositionsAuditCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPositionsAuditCsv',
+        params: {
+          id: [12345],
+          symbol: 'tBTCUSD',
+          end,
+          start,
+          limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'userId',
+      'name',
+      'filePath',
+      'params',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isObject(procRes.params)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
+  })
+
+  it('it should be successfully performed by the getWalletsCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getWalletsCsv',
+        params: {
+          end,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
+
+    const procRes = await procPromise
+
+    assert.isObject(procRes)
+    assert.containsAllKeys(procRes, [
+      'userId',
+      'name',
+      'filePath',
+      'params',
+      'isUnauth'
+    ])
+    assert.isString(procRes.name)
+    assert.isString(procRes.filePath)
+    assert.isObject(procRes.params)
+    assert.isBoolean(procRes.isUnauth)
+    assert.isOk(fs.existsSync(procRes.filePath))
+
+    await aggrPromise
+
+    assert.isNotOk(fs.existsSync(procRes.filePath))
   })
 
   it('it should be successfully performed by the getFundingOfferHistoryCsv method', async function () {
