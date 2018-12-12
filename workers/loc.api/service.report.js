@@ -106,6 +106,35 @@ class ReportService extends Api {
     return rest.currencies()
   }
 
+  async getTickersHistory (space, args, cb) {
+    try {
+      if (
+        args &&
+        typeof args === 'object' &&
+        args.params &&
+        typeof args.params === 'object' &&
+        args.params.symbol &&
+        typeof args.params.symbol === 'string'
+      ) {
+        args.params.symbol = [args.params.symbol]
+      }
+
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'tickersHistory',
+        2500,
+        'mtsUpdate',
+        null,
+        ['symbol']
+      )
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getTickersHistory', cb)
+    }
+  }
+
   async getPositionsHistory (space, args, cb) {
     try {
       const res = await prepareApiResponse(
@@ -333,6 +362,40 @@ class ReportService extends Api {
       cb(null, status)
     } catch (err) {
       this._err(err, 'getTradesCsv', cb)
+    }
+  }
+
+  async getTickersHistoryCsv (space, args, cb) {
+    try {
+      checkParams(args)
+      const userId = await hasJobInQueueWithStatusBy(this, args)
+      const status = await getCsvStoreStatus(this, args)
+
+      const method = 'getTickersHistory'
+      const processorQueue = this.ctx.lokue_processor.q
+      const jobData = {
+        userId,
+        name: method,
+        args,
+        propNameForPagination: 'mtsUpdate',
+        columnsCsv: {
+          symbol: 'symbol',
+          bid: 'bid',
+          bidPeriod: 'bidPeriod',
+          ask: 'ask',
+          mtsUpdate: 'mtsUpdate'
+        },
+        formatSettings: {
+          mtsUpdate: 'date',
+          symbol: 'symbol'
+        }
+      }
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getTickersHistoryCsv', cb)
     }
   }
 

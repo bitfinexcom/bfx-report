@@ -426,6 +426,28 @@ class MediatorReportService extends ReportService {
    * TODO: need to implement sync mode
    * @override
    */
+  async getTickersHistory (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getTickersHistory(space, args, cb)
+
+        return
+      }
+
+      checkParams(args, 'paramsSchemaForApi')
+
+      const res = await this._getTickersHistory(args)
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * TODO: need to implement sync mode
+   * @override
+   */
   async getPositionsHistory (space, args, cb) {
     try {
       if (!await this.isSyncModeWithDbData(space, args)) {
@@ -716,6 +738,10 @@ class MediatorReportService extends ReportService {
     } catch (err) {
       cb(err)
     }
+  }
+
+  _getTickersHistory (args) {
+    return promisify(super.getTickersHistory.bind(this))(null, args)
   }
 
   _getWallets (args) {
