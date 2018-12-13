@@ -434,7 +434,7 @@ class ReportService extends Api {
     }
   }
 
-  async getPositionsHistoryCsv (space, args) {
+  async getPositionsHistoryCsv (space, args, cb) {
     try {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
@@ -472,13 +472,13 @@ class ReportService extends Api {
 
       processorQueue.addJob(jobData)
 
-      return status
+      cb(null, status)
     } catch (err) {
-      this._err(err, 'getPositionsHistoryCsv')
+      this._err(err, 'getPositionsHistoryCsv', cb)
     }
   }
 
-  async getPositionsAuditCsv (space, args) {
+  async getPositionsAuditCsv (space, args, cb) {
     try {
       checkParams(args, 'paramsSchemaForPositionsAuditCsv', ['id'])
       const userId = await hasJobInQueueWithStatusBy(this, args)
@@ -516,9 +516,9 @@ class ReportService extends Api {
 
       processorQueue.addJob(jobData)
 
-      return status
+      cb(null, status)
     } catch (err) {
-      this._err(err, 'getPositionsAuditCsv')
+      this._err(err, 'getPositionsAuditCsv', cb)
     }
   }
 
