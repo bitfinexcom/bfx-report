@@ -181,8 +181,8 @@ class DataInserter extends EventEmitter {
       return
     }
 
-    const pubProgress = await this.insertNewPublicDataToDb()
     let count = 0
+    let progress = 0
 
     for (const authItem of this._auth) {
       if (typeof authItem[1] !== 'object') {
@@ -191,18 +191,20 @@ class DataInserter extends EventEmitter {
 
       count += 1
       const userProgress = count / this._auth.size
-      await this.insertNewDataToDb(authItem[1], userProgress, pubProgress)
+      progress = await this.insertNewDataToDb(authItem[1], userProgress)
     }
+
+    await this.insertNewPublicDataToDb(progress)
 
     await this.setProgress(100)
   }
 
-  async insertNewPublicDataToDb () {
-    const size = this._methodCollMap.size
+  async insertNewPublicDataToDb (prevPprogress) {
+    const methodCollMap = await this.checkNewPublicData()
+    const size = methodCollMap.size
+
     let count = 0
     let progress = 0
-
-    const methodCollMap = await this.checkNewPublicData()
 
     for (const [method, item] of methodCollMap) {
       await this._updateApiDataArrObjTypeToDb(method, item)
@@ -210,17 +212,15 @@ class DataInserter extends EventEmitter {
       await this._insertApiDataPublicArrObjTypeToDb(method, item)
 
       count += 1
-      progress = Math.round((count / size) * 100)
+      progress = Math.round(prevPprogress + (count / size) * 100 * ((100 - prevPprogress) / 100))
 
       if (progress < 100) {
         await this.setProgress(progress)
       }
     }
-
-    return progress
   }
 
-  async insertNewDataToDb (auth, userProgress = 1, pubProgress) {
+  async insertNewDataToDb (auth, userProgress = 1) {
     if (
       typeof auth.apiKey !== 'string' ||
       typeof auth.apiSecret !== 'string'
@@ -231,7 +231,10 @@ class DataInserter extends EventEmitter {
     }
 
     const methodCollMap = await this.checkNewData(auth)
+    const size = this._methodCollMap.size
+
     let count = 0
+    let progress = 0
 
     for (const [method, item] of methodCollMap) {
       const args = this._getMethodArgMap(method, auth, 10000000, item.start)
@@ -239,12 +242,14 @@ class DataInserter extends EventEmitter {
       await this._insertApiDataArrObjTypeToDb(args, method, item)
 
       count += 1
-      const progress = Math.round(pubProgress + (count / methodCollMap.size) * 100 * userProgress * ((100 - pubProgress) / 100))
+      progress = Math.round((count / size) * 100 * userProgress)
 
       if (progress < 100) {
         await this.setProgress(progress)
       }
     }
+
+    return progress
   }
 
   _filterMethodCollMap (methodCollMap, isPublic) {
