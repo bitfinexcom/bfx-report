@@ -199,7 +199,7 @@ class DataInserter extends EventEmitter {
     await this.setProgress(100)
   }
 
-  async insertNewPublicDataToDb (prevPprogress) {
+  async insertNewPublicDataToDb (prevProgress) {
     const methodCollMap = await this.checkNewPublicData()
     const size = methodCollMap.size
 
@@ -212,7 +212,7 @@ class DataInserter extends EventEmitter {
       await this._insertApiDataPublicArrObjTypeToDb(method, item)
 
       count += 1
-      progress = Math.round(prevPprogress + (count / size) * 100 * ((100 - prevPprogress) / 100))
+      progress = Math.round(prevProgress + (count / size) * 100 * ((100 - prevProgress) / 100))
 
       if (progress < 100) {
         await this.setProgress(progress)
