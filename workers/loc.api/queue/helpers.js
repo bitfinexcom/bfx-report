@@ -116,8 +116,14 @@ const _formatters = {
 
     return val
   },
-  symbol: symbol => `${symbol.slice(1, 4)}${symbol[4]
-    ? '/' : ''}${symbol.slice(4, 7)}`,
+  symbol: symbol => {
+    if (symbol[0] !== 't') {
+      return symbol
+    }
+
+    return `${symbol.slice(1, 4)}${symbol[4]
+      ? '/' : ''}${symbol.slice(4, 7)}`
+  },
   side: side => {
     let msg
 
@@ -431,7 +437,8 @@ const _fileNamesMap = new Map([
   ['getFundingCreditHistory', 'funding_credits_history'],
   ['getPositionsHistory', 'positions_history'],
   ['getPositionsAudit', 'positions_audit'],
-  ['getWallets', 'wallets']
+  ['getWallets', 'wallets'],
+  ['getTickersHistory', 'tickers_history']
 ])
 
 const _getBaseName = queueName => {

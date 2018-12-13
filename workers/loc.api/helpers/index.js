@@ -409,6 +409,8 @@ const prepareResponse = (
 
   if (
     symbols &&
+    symbPropName &&
+    typeof symbPropName === 'string' &&
     Array.isArray(symbols) &&
     symbols.length > 0
   ) {
@@ -440,6 +442,8 @@ const prepareApiResponse = async (
     methodApi,
     params => {
       if (
+        symbPropName &&
+        typeof symbPropName === 'string' &&
         params.symbol &&
         Array.isArray(params.symbol)
       ) {

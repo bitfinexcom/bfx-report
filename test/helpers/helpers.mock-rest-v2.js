@@ -2,6 +2,8 @@
 
 const { MockRESTv2Server } = require('bfx-api-mock-srv')
 
+const _ms = Date.now()
+
 const _mockData = new Map([
   [
     'symbols',
@@ -33,6 +35,27 @@ const _mockData = new Map([
     ]
   ],
   [
+    'tickers_hist',
+    [[
+      'BTC',
+      null,
+      6,
+      null,
+      6,
+      18793,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      _ms
+    ]]
+  ],
+  [
     'wallets',
     [[
       'margin',
@@ -51,7 +74,7 @@ const _mockData = new Map([
       null,
       null,
       null,
-      (new Date()).getTime()
+      _ms
     ]]
   ],
   [
@@ -69,8 +92,8 @@ const _mockData = new Map([
       null,
       null,
       12345,
-      (new Date()).getTime(),
-      (new Date()).getTime()
+      _ms,
+      _ms
     ]]
   ],
   [
@@ -88,8 +111,8 @@ const _mockData = new Map([
       null,
       null,
       12345,
-      (new Date()).getTime(),
-      (new Date()).getTime()
+      _ms,
+      _ms
     ]]
   ],
   [
@@ -98,7 +121,7 @@ const _mockData = new Map([
       12345,
       'BTC',
       null,
-      (new Date()).getTime(),
+      _ms,
       null,
       -0.00001,
       5.555555,
@@ -111,7 +134,7 @@ const _mockData = new Map([
     [[
       12345,
       'tBTCUSD',
-      (new Date()).getTime(),
+      _ms,
       12345,
       0.01,
       12345,
@@ -126,7 +149,7 @@ const _mockData = new Map([
     'public_trades',
     [[
       12345,
-      (new Date()).getTime(),
+      _ms,
       0.01,
       12345
     ]]
@@ -138,8 +161,8 @@ const _mockData = new Map([
       12345,
       12345,
       'tBTCUSD',
-      (new Date()).getTime(),
-      (new Date()).getTime(),
+      _ms,
+      _ms,
       0,
       0.01,
       'EXCHANGE LIMIT',
@@ -170,8 +193,8 @@ const _mockData = new Map([
       'BITCOIN',
       null,
       null,
-      (new Date()).getTime(),
-      (new Date()).getTime(),
+      _ms,
+      _ms,
       null,
       null,
       'PENDING REVIEW',
@@ -194,8 +217,8 @@ const _mockData = new Map([
     [[
       12345,
       'fUSD',
-      (new Date()).getTime(),
-      (new Date()).getTime(),
+      _ms,
+      _ms,
       0,
       100,
       null,
@@ -221,8 +244,8 @@ const _mockData = new Map([
       12345,
       'fUSD',
       1,
-      (new Date()).getTime(),
-      (new Date()).getTime(),
+      _ms,
+      _ms,
       200,
       null,
       'CLOSED (used)',
@@ -247,8 +270,8 @@ const _mockData = new Map([
       12345,
       'fUSD',
       -1,
-      (new Date()).getTime(),
-      (new Date()).getTime(),
+      _ms,
+      _ms,
       681.25937738,
       null,
       'CLOSED (reduced)',
@@ -307,7 +330,7 @@ const _setDataTo = (
   key,
   dataItem,
   data = {
-    date: new Date().getTime(),
+    date: Date.now(),
     id: 12345,
     fee: 0.1
   }
@@ -315,6 +338,10 @@ const _setDataTo = (
   const _date = Math.round(data.date)
 
   switch (key) {
+    case 'tickers_hist':
+      dataItem[15] = _date
+      break
+
     case 'wallets_hist':
       dataItem[6] = _date
       break
@@ -383,10 +410,11 @@ const _setDataTo = (
 }
 
 const createMockRESTv2SrvWithDate = (
-  start = new Date().getTime(),
+  start = Date.now(),
   end = start,
   limit = null,
   opts = {
+    'tickers_hist': { limit: 2500 },
     'wallets_hist': { limit: 100 },
     'wallets': { limit: 100 },
     'positions_hist': { limit: 500 },
