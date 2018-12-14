@@ -444,14 +444,27 @@ const prepareApiResponse = async (
       if (
         symbPropName &&
         typeof symbPropName === 'string' &&
-        params.symbol &&
-        Array.isArray(params.symbol)
+        params.symbol
       ) {
-        if (params.symbol.length > 1) {
-          symbols.push(...params.symbol)
-          params.symbol = null
-        } else {
-          params.symbol = params.symbol[0]
+        if (
+          methodApi === 'positionsHistory' ||
+          methodApi === 'getPositionsAudit'
+        ) {
+          if (
+            Array.isArray(params.symbol) &&
+            params.symbol.length > 0
+          ) {
+            symbols.push(...params.symbol)
+          } else {
+            symbols.push(params.symbol)
+          }
+        } else if (Array.isArray(params.symbol)) {
+          if (params.symbol.length > 1) {
+            symbols.push(...params.symbol)
+            params.symbol = null
+          } else {
+            params.symbol = params.symbol[0]
+          }
         }
       }
     }
