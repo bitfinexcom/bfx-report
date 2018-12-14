@@ -1,5 +1,9 @@
 'use strict'
 
+const { cloneDeep } = require('lodash')
+
+const ALLOWED_COLLS = require('./allowed.colls')
+
 const _models = new Map([
   [
     'users',
@@ -14,7 +18,7 @@ const _models = new Map([
     }
   ],
   [
-    'ledgers',
+    ALLOWED_COLLS.LEDGERS,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
@@ -33,7 +37,7 @@ const _models = new Map([
     }
   ],
   [
-    'trades',
+    ALLOWED_COLLS.TRADES,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
@@ -56,17 +60,18 @@ const _models = new Map([
     }
   ],
   [
-    'publicTrades',
+    ALLOWED_COLLS.PUBLIC_TRADES,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
       mts: 'BIGINT',
       amount: 'DECIMAL(22,12)',
-      price: 'DECIMAL(22,12)'
+      price: 'DECIMAL(22,12)',
+      _symbol: 'VARCHAR(255)'
     }
   ],
   [
-    'orders',
+    ALLOWED_COLLS.ORDERS,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
@@ -98,7 +103,7 @@ const _models = new Map([
     }
   ],
   [
-    'movements',
+    ALLOWED_COLLS.MOVEMENTS,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
@@ -120,7 +125,7 @@ const _models = new Map([
     }
   ],
   [
-    'fundingOfferHistory',
+    ALLOWED_COLLS.FUNDING_OFFER_HISTORY,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
@@ -148,7 +153,7 @@ const _models = new Map([
     }
   ],
   [
-    'fundingLoanHistory',
+    ALLOWED_COLLS.FUNDING_LOAN_HISTORY,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
@@ -177,7 +182,7 @@ const _models = new Map([
     }
   ],
   [
-    'fundingCreditHistory',
+    ALLOWED_COLLS.FUNDING_CREDIT_HISTORY,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
@@ -207,14 +212,28 @@ const _models = new Map([
     }
   ],
   [
-    'symbols',
+    'publicTradesConf',
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      symbol: 'VARCHAR(255)',
+      start: 'BIGINT',
+      user_id: `INT NOT NULL,
+        CONSTRAINT publicTradesConf_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
+    }
+  ],
+  [
+    ALLOWED_COLLS.SYMBOLS,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       pairs: 'VARCHAR(255)'
     }
   ],
   [
-    'currencies',
+    ALLOWED_COLLS.CURRENCIES,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'VARCHAR(255)',
@@ -250,7 +269,7 @@ const _methodCollMap = new Map([
   [
     '_getLedgers',
     {
-      name: 'ledgers',
+      name: ALLOWED_COLLS.LEDGERS,
       maxLimit: 5000,
       dateFieldName: 'mts',
       symbolFieldName: 'currency',
@@ -259,13 +278,13 @@ const _methodCollMap = new Map([
       start: 0,
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mts'],
-      model: { ..._models.get('ledgers') }
+      model: { ..._models.get(ALLOWED_COLLS.LEDGERS) }
     }
   ],
   [
     '_getTrades',
     {
-      name: 'trades',
+      name: ALLOWED_COLLS.TRADES,
       maxLimit: 1500,
       dateFieldName: 'mtsCreate',
       symbolFieldName: 'symbol',
@@ -274,13 +293,28 @@ const _methodCollMap = new Map([
       start: 0,
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsCreate', 'orderID', 'fee'],
-      model: { ..._models.get('trades') }
+      model: { ..._models.get(ALLOWED_COLLS.TRADES) }
+    }
+  ],
+  [
+    '_getPublicTrades',
+    {
+      name: ALLOWED_COLLS.PUBLIC_TRADES,
+      maxLimit: 1000,
+      dateFieldName: 'mts',
+      symbolFieldName: '_symbol',
+      sort: [['mts', -1]],
+      hasNewData: false,
+      start: [],
+      type: 'public:insertable:array:objects',
+      fieldsOfUniqueIndex: ['id', 'mts', '_symbol'],
+      model: { ..._models.get(ALLOWED_COLLS.PUBLIC_TRADES) }
     }
   ],
   [
     '_getOrders',
     {
-      name: 'orders',
+      name: ALLOWED_COLLS.ORDERS,
       maxLimit: 5000,
       dateFieldName: 'mtsUpdate',
       symbolFieldName: 'symbol',
@@ -289,13 +323,13 @@ const _methodCollMap = new Map([
       start: 0,
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
-      model: { ..._models.get('orders') }
+      model: { ..._models.get(ALLOWED_COLLS.ORDERS) }
     }
   ],
   [
     '_getMovements',
     {
-      name: 'movements',
+      name: ALLOWED_COLLS.MOVEMENTS,
       maxLimit: 25,
       dateFieldName: 'mtsUpdated',
       symbolFieldName: 'currency',
@@ -304,13 +338,13 @@ const _methodCollMap = new Map([
       start: 0,
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdated'],
-      model: { ..._models.get('movements') }
+      model: { ..._models.get(ALLOWED_COLLS.MOVEMENTS) }
     }
   ],
   [
     '_getFundingOfferHistory',
     {
-      name: 'fundingOfferHistory',
+      name: ALLOWED_COLLS.FUNDING_OFFER_HISTORY,
       maxLimit: 5000,
       dateFieldName: 'mtsUpdate',
       symbolFieldName: 'symbol',
@@ -319,13 +353,13 @@ const _methodCollMap = new Map([
       start: 0,
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
-      model: { ..._models.get('fundingOfferHistory') }
+      model: { ..._models.get(ALLOWED_COLLS.FUNDING_OFFER_HISTORY) }
     }
   ],
   [
     '_getFundingLoanHistory',
     {
-      name: 'fundingLoanHistory',
+      name: ALLOWED_COLLS.FUNDING_LOAN_HISTORY,
       maxLimit: 5000,
       dateFieldName: 'mtsUpdate',
       symbolFieldName: 'symbol',
@@ -334,13 +368,13 @@ const _methodCollMap = new Map([
       start: 0,
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
-      model: { ..._models.get('fundingLoanHistory') }
+      model: { ..._models.get(ALLOWED_COLLS.FUNDING_LOAN_HISTORY) }
     }
   ],
   [
     '_getFundingCreditHistory',
     {
-      name: 'fundingCreditHistory',
+      name: ALLOWED_COLLS.FUNDING_CREDIT_HISTORY,
       maxLimit: 5000,
       dateFieldName: 'mtsUpdate',
       symbolFieldName: 'symbol',
@@ -349,41 +383,45 @@ const _methodCollMap = new Map([
       start: 0,
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
-      model: { ..._models.get('fundingCreditHistory') }
+      model: { ..._models.get(ALLOWED_COLLS.FUNDING_CREDIT_HISTORY) }
     }
   ],
   [
     '_getSymbols',
     {
-      name: 'symbols',
+      name: ALLOWED_COLLS.SYMBOLS,
       maxLimit: 5000,
       field: 'pairs',
       sort: [['pairs', 1]],
       hasNewData: true,
-      type: 'updatable:array',
-      model: { ..._models.get('symbols') }
+      type: 'public:updatable:array',
+      model: { ..._models.get(ALLOWED_COLLS.SYMBOLS) }
     }
   ],
   [
     '_getCurrencies',
     {
-      name: 'currencies',
+      name: ALLOWED_COLLS.CURRENCIES,
       maxLimit: 5000,
       fields: ['id', 'name', 'pool', 'explorer'],
       sort: [['name', 1]],
       hasNewData: true,
-      type: 'updatable:array:objects',
-      model: { ..._models.get('currencies') }
+      type: 'public:updatable:array:objects',
+      model: { ..._models.get(ALLOWED_COLLS.CURRENCIES) }
     }
   ]
 ])
 
+const _cloneSchema = (map) => {
+  return new Map(Array.from(map).map(item => cloneDeep(item)))
+}
+
 const getMethodCollMap = () => {
-  return new Map(_methodCollMap)
+  return _cloneSchema(_methodCollMap)
 }
 
 const getModelsMap = () => {
-  return new Map(_models)
+  return _cloneSchema(_models)
 }
 
 module.exports = {

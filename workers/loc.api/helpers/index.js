@@ -33,32 +33,94 @@ const _getDateNotMoreNow = (date, now = Date.now()) => {
   return getLimitNotMoreThan(date, now)
 }
 
+const _paramsOrderMap = {
+  positionsHistory: [
+    'start',
+    'end',
+    'limit'
+  ],
+  positionsAudit: [
+    'id',
+    'start',
+    'end',
+    'limit'
+  ],
+  default: [
+    'symbol',
+    'start',
+    'end',
+    'limit'
+  ]
+}
+
+const _paramsSchemasMap = {
+  trades: 'paramsSchemaForPublicTrades',
+  positionsAudit: 'paramsSchemaForPositionsAudit',
+  default: 'paramsSchemaForApi'
+}
+
+const _getParamsOrder = (
+  method,
+  map = _paramsOrderMap
+) => {
+  return (
+    map &&
+    typeof map === 'object' &&
+    map[method] &&
+    Array.isArray(map[method])
+  )
+    ? map[method]
+    : map.default
+}
+
+const _getSchemaNameByMethodName = (
+  method,
+  map = _paramsSchemasMap
+) => {
+  return (
+    map &&
+    typeof map === 'object' &&
+    map[method] &&
+    typeof map[method] === 'string'
+  )
+    ? map[method]
+    : map.default
+}
+
 const getParams = (
   args,
   maxLimit,
   requireFields,
-  methodApi
+  methodApi,
+  cb
 ) => {
-  const params = []
+  const paramsArr = []
+  let paramsObj = {}
 
   checkParams(
     args,
-    methodApi === 'trades' ? 'paramsSchemaForPublicTrades' : 'paramsSchemaForApi',
+    _getSchemaNameByMethodName(methodApi),
     requireFields
   )
 
   if (args.params) {
-    params.push(
-      ...[
-        args.params.symbol,
-        args.params.start,
-        _getDateNotMoreNow(args.params.end),
-        getLimitNotMoreThan(args.params.limit, maxLimit)
-      ]
+    const paramsOrder = _getParamsOrder(methodApi)
+    paramsObj = _.cloneDeep(args.params)
+
+    paramsObj.end = _getDateNotMoreNow(args.params.end)
+    paramsObj.limit = getLimitNotMoreThan(args.params.limit, maxLimit)
+
+    if (cb) cb(paramsObj)
+
+    paramsArr.push(
+      ...paramsOrder.map(key => paramsObj[key])
     )
   }
 
-  return params
+  return {
+    paramsArr,
+    paramsObj
+  }
 }
 
 const checkParams = (
@@ -201,7 +263,7 @@ const toString = (obj) => {
 }
 
 const isAuthError = (err) => {
-  return /(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
+  return /(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
 }
 
 const isEnotfoundError = (err) => {
@@ -347,6 +409,8 @@ const prepareResponse = (
 
   if (
     symbols &&
+    symbPropName &&
+    typeof symbPropName === 'string' &&
     Array.isArray(symbols) &&
     symbols.length > 0
   ) {
@@ -367,33 +431,90 @@ const prepareApiResponse = async (
   symbPropName,
   requireFields
 ) => {
-  const params = getParams(args, maxLimit, requireFields, methodApi)
-  const rest = getREST(args.auth, wrk)
   const symbols = []
-
-  if (
-    params[0] &&
-    Array.isArray(params[0])
-  ) {
-    if (params[0].length > 1) {
-      symbols.push(...params[0])
-      params[0] = null
-    } else {
-      params[0] = params[0][0]
+  const {
+    paramsArr,
+    paramsObj
+  } = getParams(
+    args,
+    maxLimit,
+    requireFields,
+    methodApi,
+    params => {
+      if (
+        symbPropName &&
+        typeof symbPropName === 'string' &&
+        params.symbol
+      ) {
+        if (
+          methodApi === 'positionsHistory' ||
+          methodApi === 'getPositionsAudit'
+        ) {
+          if (
+            Array.isArray(params.symbol) &&
+            params.symbol.length > 0
+          ) {
+            symbols.push(...params.symbol)
+          } else {
+            symbols.push(params.symbol)
+          }
+        } else if (Array.isArray(params.symbol)) {
+          if (params.symbol.length > 1) {
+            symbols.push(...params.symbol)
+            params.symbol = null
+          } else {
+            params.symbol = params.symbol[0]
+          }
+        }
+      }
     }
-  }
+  )
+  const rest = getREST(args.auth, wrk)
 
-  let res = await rest[methodApi].bind(rest)(...params)
+  let res = await rest[methodApi].bind(rest)(...paramsArr)
 
   return prepareResponse(
     res,
     datePropName,
-    params[3],
+    paramsObj.limit,
     args.params && args.params.notThrowError,
     args.params && args.params.notCheckNextPage,
     symbols,
     symbPropName
   )
+}
+
+const mapObjBySchema = (obj, schema = {}) => {
+  const err = new Error('ERR_MAPPING_AN_OBJECT_BY_THE_SCHEMA')
+
+  if (
+    !obj ||
+    typeof obj !== 'object' ||
+    !schema ||
+    typeof schema !== 'object'
+  ) {
+    throw err
+  }
+
+  const map = Array.isArray(schema)
+    ? schema.map(item => [item, null])
+    : Object.entries(schema)
+
+  return map.reduce((accum, [key, val]) => {
+    const _val = val && typeof val === 'string' ? val : key
+
+    if (
+      !key ||
+      typeof key !== 'string' ||
+      typeof obj[_val] === 'undefined'
+    ) {
+      throw err
+    }
+
+    accum[key] = obj[_val]
+
+    return accum
+  }, {})
 }
 
 module.exports = {
@@ -417,5 +538,6 @@ module.exports = {
   tryParseJSON,
   checkTimeLimit,
   prepareResponse,
-  prepareApiResponse
+  prepareApiResponse,
+  mapObjBySchema
 }

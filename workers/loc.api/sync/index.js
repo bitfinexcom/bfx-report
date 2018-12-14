@@ -10,12 +10,12 @@ const {
 
 let reportService = null
 
-const _sync = async (isSkipSync) => {
+const _sync = async (isSkipSync, syncColls) => {
   let dataInserter = null
 
   if (!isSkipSync) {
     try {
-      dataInserter = new DataInserter(reportService)
+      dataInserter = new DataInserter(reportService, syncColls)
 
       await dataInserter.insertNewDataToDbMultiUser()
     } catch (err) {
@@ -32,7 +32,7 @@ const _sync = async (isSkipSync) => {
   return getProgress(reportService)
 }
 
-module.exports = async (isSolveAfterRedirToApi) => {
+module.exports = async (isSolveAfterRedirToApi, syncColls) => {
   let isSkipSync = false
 
   try {
@@ -57,12 +57,12 @@ module.exports = async (isSolveAfterRedirToApi) => {
   }
 
   if (!isSkipSync && isSolveAfterRedirToApi) {
-    _sync().then(() => {}, () => {})
+    _sync(isSkipSync, syncColls).then(() => {}, () => {})
 
     return 'SYNCHRONIZATION_IS_STARTED'
   }
 
-  return _sync(isSkipSync)
+  return _sync(isSkipSync, syncColls)
 }
 
 module.exports.setReportService = (rService) => {

@@ -116,8 +116,14 @@ const _formatters = {
 
     return val
   },
-  symbol: symbol => `${symbol.slice(1, 4)}${symbol[4]
-    ? '/' : ''}${symbol.slice(4, 7)}`,
+  symbol: symbol => {
+    if (symbol[0] !== 't') {
+      return symbol
+    }
+
+    return `${symbol.slice(1, 4)}${symbol[4]
+      ? '/' : ''}${symbol.slice(4, 7)}`
+  },
   side: side => {
     let msg
 
@@ -308,10 +314,15 @@ const writeDataToStream = async (reportService, stream, job) => {
   while (true) {
     queue.emit('progress', 0)
 
-    let { res, nextPage } = await _getDataFromApi(
+    const _res = await _getDataFromApi(
       getData,
       currIterationArgs
     )
+
+    const isGetWalletsMethod = method === 'getWallets'
+    let { res, nextPage } = isGetWalletsMethod
+      ? { res: _res, nextPage: null }
+      : _res
 
     currIterationArgs.params.end = nextPage
 
@@ -359,14 +370,20 @@ const writeDataToStream = async (reportService, stream, job) => {
     ) break
 
     const currTime = lastItem[propName]
-    let isAllData = false
+    let isAllData = isGetWalletsMethod
 
-    if (_args.params.start >= currTime) {
+    if (
+      !isGetWalletsMethod &&
+      _args.params.start >= currTime
+    ) {
       res = res.filter((item) => _args.params.start <= item[propName])
       isAllData = true
     }
 
-    if (_args.params.limit < (count + res.length)) {
+    if (
+      !isGetWalletsMethod &&
+      _args.params.limit < (count + res.length)
+    ) {
       res.splice(_args.params.limit - count)
       isAllData = true
     }
@@ -417,7 +434,11 @@ const _fileNamesMap = new Map([
   ['getMovements', 'movements'],
   ['getFundingOfferHistory', 'funding_offers_history'],
   ['getFundingLoanHistory', 'funding_loans_history'],
-  ['getFundingCreditHistory', 'funding_credits_history']
+  ['getFundingCreditHistory', 'funding_credits_history'],
+  ['getPositionsHistory', 'positions_history'],
+  ['getPositionsAudit', 'positions_audit'],
+  ['getWallets', 'wallets'],
+  ['getTickersHistory', 'tickers_history']
 ])
 
 const _getBaseName = queueName => {

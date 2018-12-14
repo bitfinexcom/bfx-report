@@ -51,6 +51,11 @@ class DAO {
   /**
    * @abstract
    */
+  async updateElemsInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
   async insertOrUpdateUser () { throw new Error('NOT_IMPLEMENTED') }
 
   /**
@@ -62,6 +67,16 @@ class DAO {
    * @abstract
    */
   async deactivateUser () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async getElemsInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async getElemInCollBy () { throw new Error('NOT_IMPLEMENTED') }
 
   /**
    * @abstract

@@ -13,6 +13,31 @@ const _publicTradesSymbol = {
   }
 }
 
+const paramsSchemaForEditPublicTradesConf = {
+  type: ['array', 'object'],
+  if: {
+    type: 'array'
+  },
+  then: {
+    minItems: 1,
+    items: {
+      type: 'object',
+      required: ['symbol', 'start'],
+      properties: {
+        symbol: { type: 'string' },
+        start: { type: 'integer' }
+      }
+    }
+  },
+  else: {
+    required: ['symbol', 'start'],
+    properties: {
+      symbol: { type: 'string' },
+      start: { type: 'integer' }
+    }
+  }
+}
+
 const paramsSchemaForApi = {
   type: 'object',
   properties: {
@@ -70,9 +95,63 @@ const paramsSchemaForPublicTrades = {
   }
 }
 
+const paramsSchemaForPositionsAudit = {
+  ...paramsSchemaForApi,
+  required: [
+    ...(Array.isArray(paramsSchemaForApi.required)
+      ? paramsSchemaForApi.required
+      : []
+    ),
+    'id'
+  ],
+  properties: {
+    ...paramsSchemaForApi.properties,
+    id: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'integer'
+      }
+    }
+  }
+}
+
+const paramsSchemaForPositionsAuditCsv = {
+  ...paramsSchemaForCsv,
+  properties: {
+    ...paramsSchemaForCsv.properties,
+    ...paramsSchemaForPositionsAudit.properties
+  }
+}
+
+const paramsSchemaForWallets = {
+  type: 'object',
+  properties: {
+    end: {
+      type: 'integer'
+    }
+  }
+}
+
+const paramsSchemaForWalletsCsv = {
+  type: 'object',
+  properties: {
+    end: {
+      type: 'integer'
+    },
+    timezone: paramsSchemaForCsv.properties.timezone,
+    dateFormat: paramsSchemaForCsv.properties.dateFormat
+  }
+}
+
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
   paramsSchemaForPublicTradesCsv,
-  paramsSchemaForPublicTrades
+  paramsSchemaForPublicTrades,
+  paramsSchemaForEditPublicTradesConf,
+  paramsSchemaForPositionsAudit,
+  paramsSchemaForPositionsAuditCsv,
+  paramsSchemaForWallets,
+  paramsSchemaForWalletsCsv
 }
