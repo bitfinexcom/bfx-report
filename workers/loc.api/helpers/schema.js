@@ -13,7 +13,7 @@ const _publicTradesSymbol = {
   }
 }
 
-const paramsSchemaForEditPublicTradesConf = {
+const paramsSchemaForEditPublicСollsСonf = {
   type: ['array', 'object'],
   if: {
     type: 'array'
@@ -149,7 +149,7 @@ module.exports = {
   paramsSchemaForCsv,
   paramsSchemaForPublicTradesCsv,
   paramsSchemaForPublicTrades,
-  paramsSchemaForEditPublicTradesConf,
+  paramsSchemaForEditPublicСollsСonf,
   paramsSchemaForPositionsAudit,
   paramsSchemaForPositionsAuditCsv,
   paramsSchemaForWallets,

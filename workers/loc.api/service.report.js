@@ -119,6 +119,8 @@ class ReportService extends Api {
         args.params.symbol = [args.params.symbol]
       }
 
+      args.auth = {}
+
       const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,

@@ -282,8 +282,12 @@ class DataInserter extends EventEmitter {
         continue
       }
 
-      if (method === '_getPublicTrades') {
-        await this._checkNewDataPublicTrades(method, item)
+      if (
+        method === '_getPublicTrades' ||
+        method === '_getTickersHistory'
+
+      ) {
+        await this._checkNewConfigurablePublicData(method, item)
 
         continue
       }
@@ -292,26 +296,29 @@ class DataInserter extends EventEmitter {
     }
   }
 
-  async _checkNewDataPublicTrades (method, schema) {
-    const publicTradesConf = await this.dao.getElemsInCollBy(
-      'publicTradesConf',
+  async _checkNewConfigurablePublicData (method, schema) {
+    const publicСollsСonf = await this.dao.getElemsInCollBy(
+      'publicСollsСonf',
       {
+        filter: { confName: schema.confName },
         minPropName: 'start',
         groupPropName: 'symbol'
       }
     )
 
-    if (_.isEmpty(publicTradesConf)) {
+    if (_.isEmpty(publicСollsСonf)) {
       return
     }
 
-    for (const { symbol, start } of publicTradesConf) {
+    for (const { symbol, start } of publicСollsСonf) {
       const args = this._getMethodArgMap(method, {}, 1)
       args.params.notThrowError = true
       args.params.notCheckNextPage = true
+      args.params.symbol = symbol
+      const filter = { [schema.symbolFieldName]: symbol }
       const lastElemFromDb = await this.dao.getElemInCollBy(
         schema.name,
-        { _symbol: symbol },
+        filter,
         schema.sort
       )
       const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
@@ -347,7 +354,7 @@ class DataInserter extends EventEmitter {
 
       const firstElemFromDb = await this.dao.getElemInCollBy(
         schema.name,
-        { _symbol: symbol },
+        filter,
         this._invertSort(schema.sort)
       )
 
@@ -516,21 +523,22 @@ class DataInserter extends EventEmitter {
     if (!this._isInsertableArrObjTypeOfColl(schema, true)) {
       return
     }
-    if (methodApi === '_getPublicTrades') {
+    if (
+      methodApi === '_getPublicTrades' ||
+      methodApi === '_getTickersHistory'
+    ) {
       for (const [symbol, dates] of schema.start) {
-        await this._insertApiDataPublicTradesToDb(
+        await this._insertConfigurablePublicApiData(
           methodApi,
           schema,
           symbol,
           dates
         )
       }
-
-      return 0
     }
   }
 
-  async _insertApiDataPublicTradesToDb (
+  async _insertConfigurablePublicApiData (
     methodApi,
     schema,
     symbol,
@@ -543,9 +551,7 @@ class DataInserter extends EventEmitter {
       return
     }
     if (
-      dates.baseStartFrom &&
       Number.isInteger(dates.baseStartFrom) &&
-      dates.baseStartTo &&
       Number.isInteger(dates.baseStartTo)
     ) {
       const args = this._getMethodArgMap(
@@ -559,10 +565,7 @@ class DataInserter extends EventEmitter {
 
       await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
     }
-    if (
-      dates.currStart &&
-      Number.isInteger(dates.currStart)
-    ) {
+    if (Number.isInteger(dates.currStart)) {
       const args = this._getMethodArgMap(
         methodApi,
         null,
@@ -763,9 +766,17 @@ class DataInserter extends EventEmitter {
     auth,
     limit,
     start = 0,
-    end = (new Date()).getTime()
+    end = Date.now()
   ) {
-    const res = {
+    return {
+      auth: {
+        ...(auth && typeof auth === 'object'
+          ? auth
+          : {
+            apiKey: '',
+            apiSecret: ''
+          })
+      },
       params: {
         limit: limit !== null
           ? limit
@@ -774,18 +785,6 @@ class DataInserter extends EventEmitter {
         start
       }
     }
-    if (
-      auth &&
-      typeof auth === 'object'
-    ) {
-      res.auth = {
-        apiKey: '',
-        apiSecret: '',
-        ...auth
-      }
-    }
-
-    return res
   }
 
   _getMethodCollMap () {

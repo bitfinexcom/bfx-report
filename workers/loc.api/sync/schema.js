@@ -212,13 +212,25 @@ const _models = new Map([
     }
   ],
   [
-    'publicTradesConf',
+    ALLOWED_COLLS.TICKERS_HISTORY,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       symbol: 'VARCHAR(255)',
+      bid: 'DECIMAL(22,12)',
+      bidPeriod: 'INT',
+      ask: 'DECIMAL(22,12)',
+      mtsUpdate: 'BIGINT'
+    }
+  ],
+  [
+    'publicСollsСonf',
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      confName: 'VARCHAR(255)',
+      symbol: 'VARCHAR(255)',
       start: 'BIGINT',
       user_id: `INT NOT NULL,
-        CONSTRAINT publicTradesConf_fk_#{field}
+        CONSTRAINT publicСollsСonf_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
@@ -306,6 +318,7 @@ const _methodCollMap = new Map([
       sort: [['mts', -1]],
       hasNewData: false,
       start: [],
+      confName: 'publicTradesConf',
       type: 'public:insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mts', '_symbol'],
       model: { ..._models.get(ALLOWED_COLLS.PUBLIC_TRADES) }
@@ -384,6 +397,22 @@ const _methodCollMap = new Map([
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get(ALLOWED_COLLS.FUNDING_CREDIT_HISTORY) }
+    }
+  ],
+  [
+    '_getTickersHistory',
+    {
+      name: ALLOWED_COLLS.TICKERS_HISTORY,
+      maxLimit: 2500,
+      dateFieldName: 'mtsUpdate',
+      symbolFieldName: 'symbol',
+      sort: [['mtsUpdate', -1]],
+      hasNewData: false,
+      start: [],
+      confName: 'tickersHistoryConf',
+      type: 'public:insertable:array:objects',
+      fieldsOfUniqueIndex: ['mtsUpdate', 'symbol'],
+      model: { ..._models.get(ALLOWED_COLLS.TICKERS_HISTORY) }
     }
   ],
   [
