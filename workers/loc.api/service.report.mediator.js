@@ -6,6 +6,10 @@ const { isEmpty, pick } = require('lodash')
 const ReportService = require('./service.report')
 const DAO = require('./sync/dao/dao')
 const {
+  setDao,
+  publicСollsСonfAccessors
+} = require('./sync/colls.accessors')
+const {
   checkParams,
   checkParamsAuth,
   isAuthError,
@@ -234,26 +238,10 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async _getPublicСollsСonf (confName, args) {
-    const { _id } = await this.dao.checkAuthInDb(args)
-    const conf = await this.dao.getElemsInCollBy(
-      'publicСollsСonf',
-      {
-        filter: {
-          confName,
-          user_id: _id
-        },
-        sort: [['symbol', 1]]
-      }
-    )
-    const res = conf.map(item => pick(item, ['symbol', 'start']))
-
-    return res
-  }
-
   async getPublicTradesConf (space, args = {}, cb) {
     try {
-      const res = await this._getPublicСollsСonf('publicTradesConf', args)
+      const res = await publicСollsСonfAccessors
+        .getPublicСollsСonf('publicTradesConf', args)
 
       if (!cb) return res
       cb(null, res)
@@ -265,7 +253,8 @@ class MediatorReportService extends ReportService {
 
   async getTickersHistoryConf (space, args = {}, cb) {
     try {
-      const res = await this._getPublicСollsСonf('tickersHistoryConf', args)
+      const res = await publicСollsСonfAccessors
+        .getPublicСollsСonf('tickersHistoryConf', args)
 
       if (!cb) return res
       cb(null, res)
@@ -275,98 +264,12 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async _editPublicСollsСonf (confName, args) {
-    checkParams(args, 'paramsSchemaForEditPublicСollsСonf')
-
-    const name = 'publicСollsСonf'
-    const data = []
-
-    if (Array.isArray(args.params)) {
-      data.push(...args.params)
-    } else {
-      data.push(args.params)
-    }
-
-    const { _id } = await this.dao.checkAuthInDb(args)
-    const conf = await this.dao.getElemsInCollBy(
-      name,
-      {
-        filter: {
-          confName,
-          user_id: _id
-        },
-        sort: [['symbol', 1]]
-      }
-    )
-    const newData = data.reduce((accum, curr) => {
-      if (
-        conf.every(item => item.symbol !== curr.symbol) &&
-        accum.every(item => item.symbol !== curr.symbol)
-      ) {
-        accum.push({
-          ...pick(curr, ['symbol', 'start']),
-          confName,
-          user_id: _id
-        })
-      }
-
-      return accum
-    }, [])
-    const removedSymbols = conf.reduce((accum, curr) => {
-      if (
-        data.every(item => item.symbol !== curr.symbol) &&
-        accum.every(symbol => symbol !== curr.symbol)
-      ) {
-        accum.push(curr.symbol)
-      }
-
-      return accum
-    }, [])
-    const updatedData = data.reduce((accum, curr) => {
-      if (
-        conf.some(item => item.symbol === curr.symbol) &&
-        accum.every(item => item.symbol !== curr.symbol)
-      ) {
-        accum.push({
-          ...curr,
-          confName,
-          user_id: _id
-        })
-      }
-
-      return accum
-    }, [])
-
-    if (newData.length > 0) {
-      await this.dao.insertElemsToDb(
-        name,
-        null,
-        newData
-      )
-    }
-    if (removedSymbols.length > 0) {
-      await this.dao.removeElemsFromDb(
-        name,
-        args.auth,
-        {
-          confName,
-          user_id: _id,
-          symbol: removedSymbols
-        }
-      )
-    }
-
-    await this.dao.updateElemsInCollBy(
-      name,
-      updatedData,
-      ['confName', 'user_id', 'symbol'],
-      ['start']
-    )
-  }
-
   async editPublicTradesConf (space, args = {}, cb) {
     try {
-      await this._editPublicСollsСonf('publicTradesConf', args)
+      checkParams(args, 'paramsSchemaForEditPublicСollsСonf')
+
+      await publicСollsСonfAccessors
+        .editPublicСollsСonf('publicTradesConf', args)
       await sync(true, ALLOWED_COLLS.PUBLIC_TRADES)
 
       if (!cb) return true
@@ -379,8 +282,11 @@ class MediatorReportService extends ReportService {
 
   async editTickersHistoryConf (space, args = {}, cb) {
     try {
-      await this._editPublicСollsСonf('tickersHistoryConf', args)
-      await sync(true, ALLOWED_COLLS.PUBLIC_TRADES)
+      checkParams(args, 'paramsSchemaForEditPublicСollsСonf')
+
+      await publicСollsСonfAccessors
+        .editPublicСollsСonf('tickersHistoryConf', args)
+      await sync(true, ALLOWED_COLLS.TICKERS_HISTORY)
 
       if (!cb) return true
       cb(null, true)
@@ -467,7 +373,6 @@ class MediatorReportService extends ReportService {
   }
 
   /**
-   * TODO: need to implement sync mode
    * @override
    */
   async getTickersHistory (space, args, cb) {
@@ -480,7 +385,7 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const confs = await this._getPublicСollsСonf(
+      const confs = await publicСollsСonfAccessors.getPublicСollsСonf(
         'tickersHistoryConf',
         args
       )
@@ -902,6 +807,7 @@ class MediatorReportService extends ReportService {
     }
 
     this.dao = dao
+    setDao(dao)
 
     await this.dao.databaseInitialize()
   }
