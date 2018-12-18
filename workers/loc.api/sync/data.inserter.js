@@ -297,6 +297,9 @@ class DataInserter extends EventEmitter {
   }
 
   async _checkNewConfigurablePublicData (method, schema) {
+    schema.hasNewData = false
+
+    const symbFieldName = schema.symbolFieldName
     const publicСollsСonf = await this.dao.getElemsInCollBy(
       'publicСollsСonf',
       {
@@ -315,7 +318,7 @@ class DataInserter extends EventEmitter {
       args.params.notThrowError = true
       args.params.notCheckNextPage = true
       args.params.symbol = symbol
-      const filter = { [schema.symbolFieldName]: symbol }
+      const filter = { [symbFieldName]: symbol }
       const lastElemFromDb = await this.dao.getElemInCollBy(
         schema.name,
         filter,
@@ -323,9 +326,15 @@ class DataInserter extends EventEmitter {
       )
       const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
 
-      schema.hasNewData = false
-
-      if (_.isEmpty(lastElemFromApi)) {
+      if (
+        _.isEmpty(lastElemFromApi) ||
+        (
+          Array.isArray(lastElemFromApi) &&
+          lastElemFromApi[0][symbFieldName] &&
+          typeof lastElemFromApi[0][symbFieldName] === 'string' &&
+          lastElemFromApi[0][symbFieldName] !== symbol
+        )
+      ) {
         continue
       }
       if (_.isEmpty(lastElemFromDb)) {
@@ -391,6 +400,8 @@ class DataInserter extends EventEmitter {
     schema,
     auth
   ) {
+    schema.hasNewData = false
+
     const args = this._getMethodArgMap(method, auth, 1)
     args.params.notThrowError = true
     args.params.notCheckNextPage = true
@@ -400,8 +411,6 @@ class DataInserter extends EventEmitter {
       schema.sort
     )
     const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
-
-    schema.hasNewData = false
 
     if (_.isEmpty(lastElemFromApi)) {
       return
