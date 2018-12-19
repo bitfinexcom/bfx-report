@@ -618,7 +618,7 @@ describe('Sync mode with SQLite', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage) // TODO: This will be changed to isNumber when implemented in sync mode
+    assert.isNumber(res.body.result.nextPage)
 
     const resItem = res.body.result.res[0]
 
