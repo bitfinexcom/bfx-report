@@ -384,7 +384,7 @@ class MediatorReportService extends ReportService {
         return
       }
 
-      checkParams(args, 'paramsSchemaForApi')
+      checkParams(args, 'paramsSchemaForApi', ['symbol'])
 
       const confs = await publicСollsСonfAccessors.getPublicСollsСonf(
         'tickersHistoryConf',

@@ -369,7 +369,7 @@ class ReportService extends Api {
 
   async getTickersHistoryCsv (space, args, cb) {
     try {
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForCsv', ['symbol'])
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
