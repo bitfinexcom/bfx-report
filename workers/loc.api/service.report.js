@@ -375,18 +375,31 @@ class ReportService extends Api {
 
       const method = 'getTickersHistory'
       const processorQueue = this.ctx.lokue_processor.q
+      const symb = Array.isArray(args.params.symbol)
+        ? args.params.symbol
+        : [args.params.symbol]
+      const isTrading = symb.every(s => {
+        return s && typeof s === 'string' && s[0] === 't'
+      })
+      const tTickerHistColumns = {
+        symbol: 'symbol',
+        bid: 'bid',
+        ask: 'ask',
+        mtsUpdate: 'mtsUpdate'
+      }
+      const fTickerHistColumns = {
+        symbol: 'symbol',
+        bid: 'bid',
+        bidPeriod: 'bidPeriod',
+        ask: 'ask',
+        mtsUpdate: 'mtsUpdate'
+      }
       const jobData = {
         userId,
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
-        columnsCsv: {
-          symbol: 'symbol',
-          bid: 'bid',
-          bidPeriod: 'bidPeriod',
-          ask: 'ask',
-          mtsUpdate: 'mtsUpdate'
-        },
+        columnsCsv: isTrading ? tTickerHistColumns : fTickerHistColumns,
         formatSettings: {
           mtsUpdate: 'date',
           symbol: 'symbol'
