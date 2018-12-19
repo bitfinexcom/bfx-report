@@ -15,7 +15,8 @@ const {
   isAuthError,
   isEnotfoundError,
   isEaiAgainError,
-  getTimezoneConf
+  getTimezoneConf,
+  emptyRes
 } = require('./helpers')
 const {
   collObjToArr,
@@ -391,27 +392,42 @@ class MediatorReportService extends ReportService {
       )
 
       if (isEmpty(confs)) {
-        cb(null, {
-          res: [],
-          nexPage: false
-        })
+        emptyRes(cb)
 
         return
       }
 
-      let symbol = Array.isArray(args.params.symbol)
+      const _symb = args.params.symbol ? [args.params.symbol] : []
+      const symbols = Array.isArray(args.params.symbol)
         ? args.params.symbol
-        : [args.params.symbol]
-      symbol = symbol.filter(symb => confs.some(conf => symb === conf.symbol))
-      args.params.symbol = symbol
+        : _symb
+      const filteredSymbols = symbols.filter(symb => {
+        return confs.some(conf => symb === conf.symbol)
+      })
 
-      const maxConfStart = confs.reduce((accum, item) => item.start > accum ? item.start : accum, null)
+      if (
+        !isEmpty(symbols) &&
+        isEmpty(filteredSymbols)
+      ) {
+        emptyRes(cb)
+
+        return
+      }
+
+      args.params.symbol = filteredSymbols
+
+      const minConfStart = confs.reduce(
+        (accum, conf) => {
+          return (accum === null || conf.start < accum) ? conf.start : accum
+        },
+        null
+      )
 
       if (
         Number.isFinite(args.params.start) &&
-        args.params.start < maxConfStart
+        args.params.start < minConfStart
       ) {
-        args.params.start = maxConfStart
+        args.params.start = minConfStart
       }
 
       const res = await this.dao.findInCollBy(
@@ -571,10 +587,7 @@ class MediatorReportService extends ReportService {
       )
 
       if (isEmpty(conf)) {
-        cb(null, {
-          res: [],
-          nexPage: false
-        })
+        emptyRes(cb)
 
         return
       }
