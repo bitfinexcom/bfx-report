@@ -444,7 +444,6 @@ class MediatorReportService extends ReportService {
   }
 
   /**
-   * TODO: need to implement sync mode
    * @override
    */
   async getPositionsHistory (space, args, cb) {
@@ -457,7 +456,11 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForApi')
 
-      const res = await this._getPositionsHistory(args)
+      const res = await this.dao.findInCollBy(
+        '_getPositionsHistory',
+        args,
+        true
+      )
 
       cb(null, res)
     } catch (err) {

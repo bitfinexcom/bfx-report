@@ -212,6 +212,32 @@ const _models = new Map([
     }
   ],
   [
+    ALLOWED_COLLS.POSITIONS_HISTORY,
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      symbol: 'VARCHAR(255)',
+      status: 'VARCHAR(255)',
+      amount: 'DECIMAL(22,12)',
+      basePrice: 'DECIMAL(22,12)',
+      marginFunding: 'DECIMAL(22,12)',
+      marginFundingType: 'INT',
+      pl: 'DECIMAL(22,12)',
+      plPerc: 'DECIMAL(22,12)',
+      liquidationPrice: 'DECIMAL(22,12)',
+      leverage: 'DECIMAL(22,12)',
+      placeholder: 'TEXT',
+      mtsCreate: 'BIGINT',
+      mtsUpdate: 'BIGINT',
+      user_id: `INT NOT NULL,
+        CONSTRAINT positionsHistory_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
+    }
+  ],
+  [
     ALLOWED_COLLS.TICKERS_HISTORY,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
@@ -397,6 +423,21 @@ const _methodCollMap = new Map([
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
       model: { ..._models.get(ALLOWED_COLLS.FUNDING_CREDIT_HISTORY) }
+    }
+  ],
+  [
+    '_getPositionsHistory',
+    {
+      name: ALLOWED_COLLS.POSITIONS_HISTORY,
+      maxLimit: 500,
+      dateFieldName: 'mtsUpdate',
+      symbolFieldName: 'symbol',
+      sort: [['mtsUpdate', -1]],
+      hasNewData: false,
+      start: 0,
+      type: 'insertable:array:objects',
+      fieldsOfUniqueIndex: ['id', 'mtsUpdate'],
+      model: { ..._models.get(ALLOWED_COLLS.POSITIONS_HISTORY) }
     }
   ],
   [
