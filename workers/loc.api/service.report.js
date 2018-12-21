@@ -381,6 +381,14 @@ class ReportService extends Api {
       const isTrading = symb.every(s => {
         return s && typeof s === 'string' && s[0] === 't'
       })
+      const isFunding = symb.every(s => {
+        return s && typeof s === 'string' && s[0] !== 't'
+      })
+
+      if (!isTrading && !isFunding) {
+        throw new Error('ERR_SYMBOLS_ARE_NOT_OF_SAME_TYPE')
+      }
+
       const tTickerHistColumns = {
         symbol: 'symbol',
         bid: 'bid',
