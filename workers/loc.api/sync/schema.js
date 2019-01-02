@@ -300,6 +300,13 @@ const _models = new Map([
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       value: 'VARCHAR(255)'
     }
+  ],
+  [
+    'syncQueue',
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      collName: 'TEXT'
+    }
   ]
 ])
 
