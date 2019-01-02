@@ -244,12 +244,12 @@ class SqliteDAO extends DAO {
       }
     }
 
-    const publicTradesConfSql = this._getUniqueIndexQuery(
-      'publicTradesConf',
-      ['symbol', 'user_id']
+    const publicСollsСonfSql = this._getUniqueIndexQuery(
+      'publicСollsСonf',
+      ['symbol', 'user_id', 'confName']
     )
 
-    await this._run(publicTradesConfSql)
+    await this._run(publicСollsСonfSql)
   }
 
   /**

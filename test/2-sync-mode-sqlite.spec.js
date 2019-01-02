@@ -357,6 +357,146 @@ describe('Sync mode with SQLite', () => {
     assert.propertyVal(res.body.result[1], 'start', start)
   })
 
+  it('it should be successfully performed by the editTickersHistoryConf method, where an object is passed', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'editTickersHistoryConf',
+        params: {
+          start,
+          symbol: 'USD'
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result)
+  })
+
+  it('it should be successfully performed by the getSyncProgress method', async function () {
+    this.timeout(60000)
+
+    while (true) {
+      const res = await agent
+        .post(`${basePath}/get-data`)
+        .type('json')
+        .send({
+          auth,
+          method: 'getSyncProgress',
+          id: 5
+        })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      assert.isObject(res.body)
+      assert.propertyVal(res.body, 'id', 5)
+      assert.isNumber(res.body.result)
+
+      if (
+        typeof res.body.result !== 'number' ||
+        res.body.result === 100
+      ) {
+        break
+      }
+
+      await delay()
+    }
+  })
+
+  it('it should be successfully performed by the editTickersHistoryConf method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'editTickersHistoryConf',
+        params: [
+          {
+            start,
+            symbol: 'BTC'
+          },
+          {
+            start,
+            symbol: 'ETH'
+          }
+        ],
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isOk(res.body.result)
+  })
+
+  it('it should be successfully performed by the getSyncProgress method', async function () {
+    this.timeout(60000)
+
+    while (true) {
+      const res = await agent
+        .post(`${basePath}/get-data`)
+        .type('json')
+        .send({
+          auth,
+          method: 'getSyncProgress',
+          id: 5
+        })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      assert.isObject(res.body)
+      assert.propertyVal(res.body, 'id', 5)
+      assert.isNumber(res.body.result)
+
+      if (
+        typeof res.body.result !== 'number' ||
+        res.body.result === 100
+      ) {
+        break
+      }
+
+      await delay()
+    }
+  })
+
+  it('it should be successfully performed by the getTickersHistoryConf method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getTickersHistoryConf',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+    assert.equal(res.body.result.length, 2)
+
+    assert.isObject(res.body.result[0])
+    assert.propertyVal(res.body.result[0], 'symbol', 'BTC')
+    assert.propertyVal(res.body.result[0], 'start', start)
+
+    assert.isObject(res.body.result[1])
+    assert.propertyVal(res.body.result[1], 'symbol', 'ETH')
+    assert.propertyVal(res.body.result[1], 'start', start)
+  })
+
   it('it should be successfully performed by the syncNow method', async function () {
     this.timeout(60000)
 
@@ -580,7 +720,7 @@ describe('Sync mode with SQLite', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isBoolean(res.body.result.nextPage) // TODO: This will be changed to isNumber when implemented in sync mode
+    assert.isNumber(res.body.result.nextPage)
 
     const resItem = res.body.result.res[0]
 

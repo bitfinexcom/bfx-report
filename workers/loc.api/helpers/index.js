@@ -517,6 +517,16 @@ const mapObjBySchema = (obj, schema = {}) => {
   }, {})
 }
 
+const emptyRes = (cb) => {
+  const res = { res: [], nexPage: false }
+
+  if (typeof cb === 'function') {
+    cb(null, res)
+  }
+
+  return res
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -539,5 +549,6 @@ module.exports = {
   checkTimeLimit,
   prepareResponse,
   prepareApiResponse,
-  mapObjBySchema
+  mapObjBySchema,
+  emptyRes
 }

@@ -119,6 +119,8 @@ class ReportService extends Api {
         args.params.symbol = [args.params.symbol]
       }
 
+      args.auth = {}
+
       const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -367,24 +369,45 @@ class ReportService extends Api {
 
   async getTickersHistoryCsv (space, args, cb) {
     try {
-      checkParams(args)
+      checkParams(args, 'paramsSchemaForCsv', ['symbol'])
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
       const method = 'getTickersHistory'
       const processorQueue = this.ctx.lokue_processor.q
+      const symb = Array.isArray(args.params.symbol)
+        ? args.params.symbol
+        : [args.params.symbol]
+      const isTrading = symb.every(s => {
+        return s && typeof s === 'string' && s[0] === 't'
+      })
+      const isFunding = symb.every(s => {
+        return s && typeof s === 'string' && s[0] !== 't'
+      })
+
+      if (!isTrading && !isFunding) {
+        throw new Error('ERR_SYMBOLS_ARE_NOT_OF_SAME_TYPE')
+      }
+
+      const tTickerHistColumns = {
+        symbol: 'symbol',
+        bid: 'bid',
+        ask: 'ask',
+        mtsUpdate: 'mtsUpdate'
+      }
+      const fTickerHistColumns = {
+        symbol: 'symbol',
+        bid: 'bid',
+        bidPeriod: 'bidPeriod',
+        ask: 'ask',
+        mtsUpdate: 'mtsUpdate'
+      }
       const jobData = {
         userId,
         name: method,
         args,
         propNameForPagination: 'mtsUpdate',
-        columnsCsv: {
-          symbol: 'symbol',
-          bid: 'bid',
-          bidPeriod: 'bidPeriod',
-          ask: 'ask',
-          mtsUpdate: 'mtsUpdate'
-        },
+        columnsCsv: isTrading ? tTickerHistColumns : fTickerHistColumns,
         formatSettings: {
           mtsUpdate: 'date',
           symbol: 'symbol'
