@@ -117,45 +117,55 @@ class SqliteDAO extends DAO {
     return `${isEmpty(_sort) ? '' : `ORDER BY ${_sort.join(', ')}`}`
   }
 
+  _getCompareOperator (
+    origFieldName,
+    isArr
+  ) {
+    switch (origFieldName) {
+      case 'start':
+        return '>='
+      case 'end':
+        return '<='
+    }
+
+    return isArr ? 'IN' : '='
+  }
+
+  _getKeysForWhereQuery (
+    filter,
+    values,
+    origFieldName
+  ) {
+    const key = filter[origFieldName].map((item, j) => {
+      const subKey = `$${origFieldName}_${j}`
+      values[subKey] = item
+
+      return subKey
+    }).join(', ')
+
+    return `(${key})`
+  }
+
   _getWhereQuery (filter = {}, isNotSetWhereClause) {
     const values = {}
     const keys = Object.keys(omit(filter, ['_dateFieldName']))
     const where = keys.reduce(
       (accum, curr, i) => {
         const isArr = Array.isArray(filter[curr])
+        const fieldName = (curr === 'start' || curr === 'end')
+          ? filter._dateFieldName
+          : curr
+        const compareOperator = this._getCompareOperator(curr, isArr)
 
-        let key = `$${curr}`
-        let fieldName = curr
-        let comparOperator = '='
+        const key = isArr
+          ? this._getKeysForWhereQuery(filter, values, curr)
+          : `$${curr}`
 
-        if (isArr) {
-          key = '('
-          key += filter[curr].map((item, j) => {
-            const subKey = `$${curr}_${j}`
-            values[subKey] = item
-
-            return subKey
-          }).join(', ')
-          key += ')'
-        } else {
+        if (!isArr) {
           values[key] = filter[curr]
         }
 
-        switch (curr) {
-          case 'start':
-            comparOperator = '>='
-            fieldName = filter._dateFieldName
-            break
-          case 'end':
-            comparOperator = '<='
-            fieldName = filter._dateFieldName
-            break
-          default:
-            comparOperator = isArr ? 'IN' : '='
-            fieldName = curr
-        }
-
-        return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${comparOperator} ${key}`
+        return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${compareOperator} ${key}`
       },
       (isNotSetWhereClause || keys.length === 0)
         ? '' : 'WHERE '
