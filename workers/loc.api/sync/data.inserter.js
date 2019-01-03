@@ -718,6 +718,7 @@ class DataInserter extends EventEmitter {
       )
       await this.dao.insertElemsToDbIfNotExists(
         collName,
+        null,
         elemsFromApi.map(item => ({ [field]: item }))
       )
     }
@@ -756,6 +757,7 @@ class DataInserter extends EventEmitter {
       )
       await this.dao.insertElemsToDbIfNotExists(
         collName,
+        null,
         this._normalizeApiData(elemsFromApi, model)
       )
     }

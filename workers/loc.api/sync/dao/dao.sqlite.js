@@ -122,9 +122,24 @@ class SqliteDAO extends DAO {
     const keys = Object.keys(omit(filter, ['_dateFieldName']))
     const where = keys.reduce(
       (accum, curr, i) => {
-        const key = `$${curr}`
+        const isArr = Array.isArray(filter[curr])
+
+        let key = `$${curr}`
         let fieldName = curr
         let comparOperator = '='
+
+        if (isArr) {
+          key = '('
+          key += filter[curr].map((item, j) => {
+            const subKey = `$${curr}_${j}`
+            values[subKey] = item
+
+            return subKey
+          }).join(', ')
+          key += ')'
+        } else {
+          values[key] = filter[curr]
+        }
 
         switch (curr) {
           case 'start':
@@ -136,11 +151,9 @@ class SqliteDAO extends DAO {
             fieldName = filter._dateFieldName
             break
           default:
-            comparOperator = '='
+            comparOperator = isArr ? 'IN' : '='
             fieldName = curr
         }
-
-        values[key] = filter[curr]
 
         return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${comparOperator} ${key}`
       },
@@ -194,6 +207,16 @@ class SqliteDAO extends DAO {
 
   _rollback () {
     return this._run('ROLLBACK')
+  }
+
+  async _mixUserIdToArrData (auth, data = []) {
+    if (auth) {
+      const user = await this.checkAuthInDb({ auth })
+
+      data.forEach(item => {
+        item.user_id = user._id
+      })
+    }
   }
 
   /**
@@ -274,13 +297,7 @@ class SqliteDAO extends DAO {
    * @override
    */
   async insertElemsToDb (name, auth, data = []) {
-    if (auth) {
-      const user = await this.checkAuthInDb({ auth })
-
-      data.forEach(item => {
-        item.user_id = user._id
-      })
-    }
+    await this._mixUserIdToArrData(auth, data)
 
     await this._beginTrans(async () => {
       for (const obj of data) {
@@ -306,7 +323,9 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async insertElemsToDbIfNotExists (name, data = []) {
+  async insertElemsToDbIfNotExists (name, auth, data = []) {
+    await this._mixUserIdToArrData(auth, data)
+
     await this._beginTrans(async () => {
       for (const obj of data) {
         const keys = Object.keys(obj)
@@ -380,7 +399,9 @@ class SqliteDAO extends DAO {
     const user = isPublic ? null : await this.checkAuthInDb(args)
     const methodColl = this._getMethodCollMap().get(method)
     const params = { ...args.params }
-    params.limit = getLimitNotMoreThan(params.limit, methodColl.maxLimit)
+    params.limit = methodColl.maxLimit
+      ? getLimitNotMoreThan(params.limit, methodColl.maxLimit)
+      : null
 
     const exclude = ['_id']
     const fields = []
@@ -407,12 +428,16 @@ class SqliteDAO extends DAO {
       filter.user_id = user._id
     }
 
+    const limit = params.limit ? 'LIMIT $limit' : ''
     const sort = this._getOrderQuery(methodColl.sort)
     const {
       where,
       values
     } = this._getWhereQuery(filter)
-    values.$limit = params.limit
+
+    if (params.limit) {
+      values.$limit = params.limit
+    }
 
     Object.keys(methodColl.model).forEach(field => {
       if (
@@ -426,7 +451,7 @@ class SqliteDAO extends DAO {
     const sql = `SELECT ${fields.join(', ')} FROM ${methodColl.name}
       ${where}
       ${sort}
-      LIMIT $limit`
+      ${limit}`
 
     const _res = await this._all(sql, values)
     let res = this._convertDataType(_res)
