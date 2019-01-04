@@ -305,7 +305,8 @@ const _models = new Map([
     'syncQueue',
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
-      collName: 'TEXT'
+      collName: 'VARCHAR(255)',
+      state: 'VARCHAR(255)' // TODO: example: LOCK, NEW
     }
   ]
 ])
