@@ -275,7 +275,7 @@ const isEaiAgainError = (err) => {
 }
 
 const isRateLimitError = (err) => {
-  return /ERR_RATE_LIMIT/.test(err.toString())
+  return /ERR(_RATE)?_LIMIT/.test(err.toString())
 }
 
 const isNonceSmallError = (err) => {
