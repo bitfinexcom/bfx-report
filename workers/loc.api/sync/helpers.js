@@ -2,6 +2,8 @@
 
 const { isEmpty } = require('lodash')
 
+const ALLOWED_COLLS = require('./allowed.colls')
+
 const setProgress = (reportService, progress) => {
   return reportService.dao.updateProgress(progress)
 }
@@ -54,11 +56,33 @@ const delay = (mc = 80000) => {
   })
 }
 
+const checkCollPermission = (syncColls, notThrowError) => {
+  if (
+    !syncColls ||
+    !Array.isArray(syncColls) ||
+    syncColls.length === 0 ||
+    syncColls.some(item => (
+      !item ||
+      typeof item !== 'string' ||
+      Object.values(ALLOWED_COLLS).every(collName => item !== collName)
+    ))
+  ) {
+    const mess = 'ERR_PERMISSION_DENIED_TO_SYNC_SELECTED_COLLS'
+
+    if (notThrowError) {
+      return mess
+    }
+
+    throw new Error(mess)
+  }
+}
+
 module.exports = {
   setProgress,
   getProgress,
   collObjToArr,
   logErrorAndSetProgress,
   redirectRequestsToApi,
-  delay
+  delay,
+  checkCollPermission
 }
