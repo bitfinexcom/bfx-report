@@ -30,7 +30,6 @@ class SyncQueue extends EventEmitter {
     this.dao = dao
   }
 
-  // TODO: need mix `NEW` state to each obj of `data` arr
   async add (syncColls) {
     const _syncColls = Array.isArray(syncColls)
       ? syncColls
@@ -39,16 +38,22 @@ class SyncQueue extends EventEmitter {
 
     if (mess) return mess
 
-    const allSyncs = await this._getAll({ state: 'NEW' })
+    const allSyncs = await this._getAll({ state: NEW_JOB_STATE })
     const hasALLInDB = allSyncs.some(item => {
       return item.collName === ALLOWED_COLLS.ALL
     })
 
     if (hasALLInDB) return
 
-    const data = isEmpty(allSyncs)
+    const uSyncColls = isEmpty(allSyncs)
       ? _syncColls
       : this._getUniqueNames(allSyncs, _syncColls)
+    const data = uSyncColls.map(collName => {
+      return {
+        collName,
+        state: NEW_JOB_STATE
+      }
+    })
 
     await this.dao.insertElemsToDb(
       this.name,
