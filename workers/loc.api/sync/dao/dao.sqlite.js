@@ -489,7 +489,10 @@ class SqliteDAO extends DAO {
     })
   }
 
-  async _updateCollBy (name, filter = {}, data = {}) {
+  /**
+   * @override
+   */
+  async updateCollBy (name, filter = {}, data = {}) {
     const {
       where,
       values
@@ -517,7 +520,7 @@ class SqliteDAO extends DAO {
   ) {
     await this._beginTrans(async () => {
       for (const item of data) {
-        await this._updateCollBy(
+        await this.updateCollBy(
           name,
           mapObjBySchema(item, filterPropNames),
           mapObjBySchema(item, upPropNames)
@@ -565,7 +568,7 @@ class SqliteDAO extends DAO {
       ['email', 'timezone']
     )
 
-    const res = await this._updateCollBy(
+    const res = await this.updateCollBy(
       'users',
       { _id: user._id },
       omit(newData, ['_id'])
@@ -583,7 +586,7 @@ class SqliteDAO extends DAO {
    */
   async updateUserByAuth (data) {
     const props = ['apiKey', 'apiSecret']
-    const res = await this._updateCollBy(
+    const res = await this.updateCollBy(
       'users',
       pick(data, props),
       omit(data, [ ...props, '_id' ])
@@ -748,7 +751,7 @@ class SqliteDAO extends DAO {
       )
     }
 
-    const res = await this._updateCollBy(
+    const res = await this.updateCollBy(
       name,
       { _id: elems[0]._id },
       data
@@ -799,7 +802,7 @@ class SqliteDAO extends DAO {
       )
     }
 
-    const res = await this._updateCollBy(
+    const res = await this.updateCollBy(
       name,
       { _id: elems[0]._id },
       data
