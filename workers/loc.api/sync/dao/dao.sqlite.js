@@ -121,11 +121,11 @@ class SqliteDAO extends DAO {
     origFieldName,
     isArr
   ) {
-    switch (origFieldName) {
-      case 'start':
-        return '>='
-      case 'end':
-        return '<='
+    if (origFieldName === 'start') {
+      return '>='
+    }
+    if (origFieldName === 'end') {
+      return '<='
     }
 
     return isArr ? 'IN' : '='
