@@ -814,6 +814,21 @@ class SqliteDAO extends DAO {
 
     return res
   }
+
+  /**
+   * @override
+   */
+  async getCountBy (name, filter = {}) {
+    const {
+      where,
+      values
+    } = this._getWhereQuery(filter)
+
+    const sql = `SELECT count(*) AS res FROM ${name} ${where}`
+    const { res } = await this._get(sql, values)
+
+    return res
+  }
 }
 
 module.exports = SqliteDAO
