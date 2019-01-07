@@ -306,7 +306,7 @@ const _models = new Map([
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       collName: 'VARCHAR(255)',
-      state: 'VARCHAR(255)' // TODO: example: LOCK, NEW
+      state: 'VARCHAR(255)'
     }
   ]
 ])
