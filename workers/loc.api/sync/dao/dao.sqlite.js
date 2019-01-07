@@ -131,23 +131,33 @@ class SqliteDAO extends DAO {
     return isArr ? 'IN' : '='
   }
 
-  _getKeysForWhereQuery (
+  _getKeysAndValuesForWhereQuery (
     filter,
-    values,
-    origFieldName
+    origFieldName,
+    isArr
   ) {
-    const key = filter[origFieldName].map((item, j) => {
+    if (!isArr) {
+      const key = `$${origFieldName}`
+      const subValues = { [key]: filter[origFieldName] }
+
+      return { key, subValues }
+    }
+
+    const subValues = {}
+    const preKey = filter[origFieldName].map((item, j) => {
       const subKey = `$${origFieldName}_${j}`
-      values[subKey] = item
+      subValues[subKey] = item
 
       return subKey
     }).join(', ')
 
-    return `(${key})`
+    const key = `(${preKey})`
+
+    return { key, subValues }
   }
 
   _getWhereQuery (filter = {}, isNotSetWhereClause) {
-    const values = {}
+    let values = {}
     const keys = Object.keys(omit(filter, ['_dateFieldName']))
     const where = keys.reduce(
       (accum, curr, i) => {
@@ -157,13 +167,12 @@ class SqliteDAO extends DAO {
           : curr
         const compareOperator = this._getCompareOperator(curr, isArr)
 
-        const key = isArr
-          ? this._getKeysForWhereQuery(filter, values, curr)
-          : `$${curr}`
+        const {
+          key,
+          subValues
+        } = this._getKeysAndValuesForWhereQuery(filter, curr, isArr)
 
-        if (!isArr) {
-          values[key] = filter[curr]
-        }
+        values = { ...values, ...subValues }
 
         return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${compareOperator} ${key}`
       },
