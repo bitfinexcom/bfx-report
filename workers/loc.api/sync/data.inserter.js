@@ -27,6 +27,7 @@ class DataInserter extends EventEmitter {
     this.reportService = reportService
     this.dao = this.reportService.dao
 
+    this._asyncProgressHandler = null
     this._auth = null
     this._allowedCollsNames = Object.values(ALLOWED_COLLS)
       .filter(name => !(/^_.*/.test(name)))
@@ -121,7 +122,19 @@ class DataInserter extends EventEmitter {
     return new Map(res)
   }
 
-  setProgress (progress) {
+  setAsyncProgressHandler (cb) {
+    if (typeof cb !== 'function') {
+      throw new Error('ERR_ASYNC_PROGRESS_HANDLER_IS_NOT_FUNCTION')
+    }
+
+    this._asyncProgressHandler = cb
+  }
+
+  async setProgress (progress) {
+    if (this._asyncProgressHandler) {
+      await this._asyncProgressHandler(progress)
+    }
+
     this.emit('progress', progress)
   }
 
