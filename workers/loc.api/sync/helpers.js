@@ -2,6 +2,7 @@
 
 const { isEmpty } = require('lodash')
 
+const { CollSyncPermissionError } = require('../errors')
 const ALLOWED_COLLS = require('./allowed.colls')
 
 const setProgress = (reportService, progress) => {
@@ -56,7 +57,7 @@ const delay = (mc = 80000) => {
   })
 }
 
-const checkCollPermission = (syncColls, notThrowError) => {
+const checkCollPermission = (syncColls) => {
   if (
     !syncColls ||
     !Array.isArray(syncColls) ||
@@ -67,13 +68,7 @@ const checkCollPermission = (syncColls, notThrowError) => {
       Object.values(ALLOWED_COLLS).every(collName => item !== collName)
     ))
   ) {
-    const mess = 'ERR_PERMISSION_DENIED_TO_SYNC_SELECTED_COLLS'
-
-    if (notThrowError) {
-      return mess
-    }
-
-    throw new Error(mess)
+    throw new CollSyncPermissionError()
   }
 }
 

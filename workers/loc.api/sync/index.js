@@ -7,11 +7,12 @@ const {
   logErrorAndSetProgress,
   redirectRequestsToApi
 } = require('./helpers')
+const { CollSyncPermissionError } = require('../errors')
 const ALLOWED_COLLS = require('./allowed.colls')
 
 let reportService = null
 
-const _sync = async (isSkipSync, syncColls) => {
+const _sync = async (isSkipSync) => {
   if (!isSkipSync) {
     try {
       await syncQueue.process()
@@ -40,9 +41,7 @@ module.exports = async (
     const currProgress = await getProgress(reportService)
 
     if (isEnable) {
-      const mess = await syncQueue.add(syncColls)
-
-      if (mess) return mess
+      await syncQueue.add(syncColls)
     }
     if (
       (currProgress < 100) ||
@@ -56,6 +55,10 @@ module.exports = async (
     await setProgress(reportService, 0)
     await redirectRequestsToApi(reportService, true)
   } catch (err) {
+    if (err instanceof CollSyncPermissionError) {
+      throw err
+    }
+
     isSkipSync = true
 
     await logErrorAndSetProgress(reportService, err)
@@ -67,7 +70,7 @@ module.exports = async (
     return 'SYNCHRONIZATION_IS_STARTED'
   }
 
-  return _sync(isSkipSync, syncColls)
+  return _sync(isSkipSync)
 }
 
 module.exports.setReportService = (rService) => {

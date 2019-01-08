@@ -34,9 +34,7 @@ class SyncQueue extends EventEmitter {
     const _syncColls = Array.isArray(syncColls)
       ? syncColls
       : [syncColls]
-    const mess = checkCollPermission(_syncColls, true)
-
-    if (mess) return mess
+    checkCollPermission(_syncColls)
 
     const allSyncs = await this._getAll({ state: NEW_JOB_STATE })
     const hasALLInDB = allSyncs.some(item => {
