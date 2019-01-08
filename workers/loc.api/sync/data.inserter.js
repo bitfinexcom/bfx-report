@@ -280,11 +280,9 @@ class DataInserter extends EventEmitter {
       if (!this._isInsertableArrObjTypeOfColl(item, true)) {
         continue
       }
-
       if (
-        method === '_getPublicTrades' ||
-        method === '_getTickersHistory'
-
+        item.name === ALLOWED_COLLS.PUBLIC_TRADES ||
+        item.name === ALLOWED_COLLS.TICKERS_HISTORY
       ) {
         await this._checkNewConfigurablePublicData(method, item)
 
@@ -532,8 +530,8 @@ class DataInserter extends EventEmitter {
       return
     }
     if (
-      methodApi === '_getPublicTrades' ||
-      methodApi === '_getTickersHistory'
+      schema.name === ALLOWED_COLLS.PUBLIC_TRADES ||
+      schema.name === ALLOWED_COLLS.TICKERS_HISTORY
     ) {
       for (const [symbol, dates] of schema.start) {
         await this._insertConfigurablePublicApiData(
@@ -665,7 +663,7 @@ class DataInserter extends EventEmitter {
         isPublic ? null : { ..._args.auth },
         this._normalizeApiData(res, model, itemRes => {
           if (
-            collName === 'publicTrades' &&
+            collName === ALLOWED_COLLS.PUBLIC_TRADES &&
             args.params.symbol
           ) {
             itemRes._symbol = args.params.symbol

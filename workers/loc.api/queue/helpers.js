@@ -22,7 +22,7 @@ const basePathToViews = path.join(__dirname, 'views')
 const isElectronjsEnv = argv.isElectronjsEnv
 
 const isRateLimitError = (err) => {
-  return /ERR_RATE_LIMIT/.test(err.toString())
+  return /ERR(_RATE)?_LIMIT/.test(err.toString())
 }
 
 const isNonceSmallError = (err) => {
