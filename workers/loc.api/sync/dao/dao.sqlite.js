@@ -117,32 +117,64 @@ class SqliteDAO extends DAO {
     return `${isEmpty(_sort) ? '' : `ORDER BY ${_sort.join(', ')}`}`
   }
 
+  _getCompareOperator (
+    origFieldName,
+    isArr
+  ) {
+    if (origFieldName === 'start') {
+      return '>='
+    }
+    if (origFieldName === 'end') {
+      return '<='
+    }
+
+    return isArr ? 'IN' : '='
+  }
+
+  _getKeysAndValuesForWhereQuery (
+    filter,
+    origFieldName,
+    isArr
+  ) {
+    if (!isArr) {
+      const key = `$${origFieldName}`
+      const subValues = { [key]: filter[origFieldName] }
+
+      return { key, subValues }
+    }
+
+    const subValues = {}
+    const preKey = filter[origFieldName].map((item, j) => {
+      const subKey = `$${origFieldName}_${j}`
+      subValues[subKey] = item
+
+      return subKey
+    }).join(', ')
+
+    const key = `(${preKey})`
+
+    return { key, subValues }
+  }
+
   _getWhereQuery (filter = {}, isNotSetWhereClause) {
-    const values = {}
+    let values = {}
     const keys = Object.keys(omit(filter, ['_dateFieldName']))
     const where = keys.reduce(
       (accum, curr, i) => {
-        const key = `$${curr}`
-        let fieldName = curr
-        let comparOperator = '='
+        const isArr = Array.isArray(filter[curr])
+        const fieldName = (curr === 'start' || curr === 'end')
+          ? filter._dateFieldName
+          : curr
+        const compareOperator = this._getCompareOperator(curr, isArr)
 
-        switch (curr) {
-          case 'start':
-            comparOperator = '>='
-            fieldName = filter._dateFieldName
-            break
-          case 'end':
-            comparOperator = '<='
-            fieldName = filter._dateFieldName
-            break
-          default:
-            comparOperator = '='
-            fieldName = curr
-        }
+        const {
+          key,
+          subValues
+        } = this._getKeysAndValuesForWhereQuery(filter, curr, isArr)
 
-        values[key] = filter[curr]
+        values = { ...values, ...subValues }
 
-        return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${comparOperator} ${key}`
+        return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${compareOperator} ${key}`
       },
       (isNotSetWhereClause || keys.length === 0)
         ? '' : 'WHERE '
@@ -196,6 +228,16 @@ class SqliteDAO extends DAO {
 
   _rollback () {
     return this._run('ROLLBACK')
+  }
+
+  async _mixUserIdToArrData (auth, data = []) {
+    if (auth) {
+      const user = await this.checkAuthInDb({ auth })
+
+      data.forEach(item => {
+        item.user_id = user._id
+      })
+    }
   }
 
   /**
@@ -276,13 +318,7 @@ class SqliteDAO extends DAO {
    * @override
    */
   async insertElemsToDb (name, auth, data = []) {
-    if (auth) {
-      const user = await this.checkAuthInDb({ auth })
-
-      data.forEach(item => {
-        item.user_id = user._id
-      })
-    }
+    await this._mixUserIdToArrData(auth, data)
 
     await this._beginTrans(async () => {
       for (const obj of data) {
@@ -308,7 +344,9 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async insertElemsToDbIfNotExists (name, data = []) {
+  async insertElemsToDbIfNotExists (name, auth, data = []) {
+    await this._mixUserIdToArrData(auth, data)
+
     await this._beginTrans(async () => {
       for (const obj of data) {
         const keys = Object.keys(obj)
@@ -382,7 +420,9 @@ class SqliteDAO extends DAO {
     const user = isPublic ? null : await this.checkAuthInDb(args)
     const methodColl = this._getMethodCollMap().get(method)
     const params = { ...args.params }
-    params.limit = getLimitNotMoreThan(params.limit, methodColl.maxLimit)
+    params.limit = methodColl.maxLimit
+      ? getLimitNotMoreThan(params.limit, methodColl.maxLimit)
+      : null
 
     const exclude = ['_id']
     const fields = []
@@ -409,12 +449,16 @@ class SqliteDAO extends DAO {
       filter.user_id = user._id
     }
 
+    const limit = params.limit ? 'LIMIT $limit' : ''
     const sort = this._getOrderQuery(methodColl.sort)
     const {
       where,
       values
     } = this._getWhereQuery(filter)
-    values.$limit = params.limit
+
+    if (params.limit) {
+      values.$limit = params.limit
+    }
 
     Object.keys(methodColl.model).forEach(field => {
       if (
@@ -428,7 +472,7 @@ class SqliteDAO extends DAO {
     const sql = `SELECT ${fields.join(', ')} FROM ${methodColl.name}
       ${where}
       ${sort}
-      LIMIT $limit`
+      ${limit}`
 
     const _res = await this._all(sql, values)
     let res = this._convertDataType(_res)
