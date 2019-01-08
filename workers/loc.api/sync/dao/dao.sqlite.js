@@ -166,26 +166,28 @@ class SqliteDAO extends DAO {
       ON ${name}(${fields.join(', ')})`
   }
 
-  async _beginTrans (cb) {
-    let isTransBegun = false
+  _beginTrans (cb) {
+    return new Promise((resolve, reject) => {
+      this.db.serialize(async () => {
+        let isTransBegun = false
 
-    try {
-      await this._run('BEGIN TRANSACTION')
-      isTransBegun = true
+        try {
+          await this._run('BEGIN TRANSACTION')
+          isTransBegun = true
 
-      if (!cb) {
-        return
-      }
+          await cb()
+          await this._commit()
 
-      await cb()
-      await this._commit()
-    } catch (err) {
-      if (isTransBegun) {
-        await this._rollback()
-      }
+          resolve()
+        } catch (err) {
+          if (isTransBegun) {
+            await this._rollback()
+          }
 
-      throw err
-    }
+          reject(err)
+        }
+      })
+    })
   }
 
   _commit () {
