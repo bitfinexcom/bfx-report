@@ -125,7 +125,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'tickersHistory',
-        2500,
+        250,
         'mtsUpdate',
         null,
         ['symbol']
@@ -143,7 +143,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'positionsHistory',
-        500,
+        25,
         'mtsUpdate',
         'symbol'
       )
@@ -160,7 +160,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'positionsAudit',
-        1250,
+        100,
         'mtsUpdate',
         'symbol'
       )
@@ -194,7 +194,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'ledgers',
-        5000,
+        250,
         'mts',
         'currency'
       )
@@ -211,7 +211,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'accountTrades',
-        1500,
+        500,
         'mtsCreate',
         'symbol'
       )
@@ -230,7 +230,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'trades',
-        1000,
+        500,
         'mts',
         ['symbol']
       )
@@ -247,7 +247,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'orderHistory',
-        5000,
+        250,
         'mtsUpdate',
         'symbol'
       )
@@ -282,7 +282,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'fundingOfferHistory',
-        5000,
+        100,
         'mtsUpdate',
         'symbol'
       )
@@ -300,7 +300,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'fundingLoanHistory',
-        5000,
+        100,
         'mtsUpdate',
         'symbol'
       )
@@ -318,7 +318,7 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'fundingCreditHistory',
-        5000,
+        100,
         'mtsUpdate',
         'symbol'
       )
