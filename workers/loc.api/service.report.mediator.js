@@ -229,7 +229,17 @@ class MediatorReportService extends ReportService {
         await this.dao.checkAuthInDb(args)
       }
 
-      const res = await sync(true)
+      const syncColls = (
+        args &&
+        typeof args === 'object' &&
+        args.params &&
+        typeof args.params === 'object' &&
+        args.params.syncColls
+      )
+        ? args.params.syncColls
+        : ALLOWED_COLLS.ALL
+
+      const res = await sync(true, syncColls)
 
       if (!cb) return res
       cb(null, res)
