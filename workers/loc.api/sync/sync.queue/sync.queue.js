@@ -175,7 +175,9 @@ class SyncQueue extends EventEmitter {
       ((count - 1 + (progress / 100)) / syncsAmount) * 100
     )
 
-    await this.setProgress(currProgress)
+    if (progress < 100) {
+      await this.setProgress(currProgress)
+    }
   }
 
   async setProgress (progress) {
