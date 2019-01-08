@@ -20,6 +20,7 @@ class SyncQueue extends EventEmitter {
 
     this.name = name
     this._sort = [['_id', 1]]
+    this._isFirstSync = true
   }
 
   setReportService (reportService) {
@@ -124,9 +125,17 @@ class SyncQueue extends EventEmitter {
   }
 
   _getNext () {
+    const state = [NEW_JOB_STATE]
+
+    if (this._isFirstSync) {
+      this._isFirstSync = false
+
+      state.push(LOCKED_JOB_STATE)
+    }
+
     return this.dao.getElemInCollBy(
       this.name,
-      { state: [NEW_JOB_STATE, LOCKED_JOB_STATE] },
+      { state },
       this._sort
     )
   }
