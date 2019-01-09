@@ -8,6 +8,7 @@ const {
   setProgress,
   checkCollPermission
 } = require('../helpers')
+const { UpdateSyncQueueJobError } = require('../../errors')
 const ALLOWED_COLLS = require('../allowed.colls')
 
 const LOCKED_JOB_STATE = 'LOCKED'
@@ -80,15 +81,11 @@ class SyncQueue extends EventEmitter {
         break
       }
 
-      await this._updateById(
-        nextSync._id,
-        { state: LOCKED_JOB_STATE }
-      )
+      const { _id } = nextSync
+
+      await this._updateStateById(_id, LOCKED_JOB_STATE)
       await this._subProcess(nextSync, count)
-      await this._updateById(
-        nextSync._id,
-        { state: FINISHED_JOB_STATE }
-      )
+      await this._updateStateById(_id, FINISHED_JOB_STATE)
     }
 
     await this._removeByState(FINISHED_JOB_STATE)
@@ -107,10 +104,7 @@ class SyncQueue extends EventEmitter {
 
       await dataInserter.insertNewDataToDbMultiUser()
     } catch (err) {
-      await this._updateById(
-        nextSync._id,
-        { state: ERROR_JOB_STATE }
-      )
+      await this._updateStateById(nextSync._id, ERROR_JOB_STATE)
 
       throw err
     }
@@ -171,8 +165,12 @@ class SyncQueue extends EventEmitter {
     )
 
     if (res && res.changes < 1) {
-      throw new Error(`ERR_CAN_NOT_UPDATE_${this.name.toUpperCase()}_QUEUE_JOB_BY_ID_${id}`)
+      throw new UpdateSyncQueueJobError(id)
     }
+  }
+
+  _updateStateById (id, state) {
+    return this._updateById(id, { state })
   }
 
   _getCount () {
