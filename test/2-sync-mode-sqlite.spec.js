@@ -166,7 +166,7 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isNumber(res.body.result)
+    assert.isOk(res.body.result)
   })
 
   it('it should be successfully performed by the isSchedulerEnabled method', async function () {
