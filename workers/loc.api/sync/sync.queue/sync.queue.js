@@ -13,6 +13,7 @@ const ALLOWED_COLLS = require('../allowed.colls')
 const LOCKED_JOB_STATE = 'LOCKED'
 const NEW_JOB_STATE = 'NEW'
 const FINISHED_JOB_STATE = 'FINISHED'
+const ERROR_JOB_STATE = 'ERROR'
 
 class SyncQueue extends EventEmitter {
   constructor (name) {
@@ -37,7 +38,9 @@ class SyncQueue extends EventEmitter {
       : [syncColls]
     checkCollPermission(_syncColls)
 
-    const allSyncs = await this._getAll({ state: NEW_JOB_STATE })
+    const allSyncs = await this._getAll(
+      { state: [NEW_JOB_STATE, ERROR_JOB_STATE] }
+    )
     const hasALLInDB = allSyncs.some(item => {
       return item.collName === ALLOWED_COLLS.ALL
     })
@@ -81,7 +84,19 @@ class SyncQueue extends EventEmitter {
         nextSync._id,
         { state: LOCKED_JOB_STATE }
       )
+      await this._subProcess(nextSync, count)
+      await this._updateById(
+        nextSync._id,
+        { state: FINISHED_JOB_STATE }
+      )
+    }
 
+    await this._removeByState(FINISHED_JOB_STATE)
+    await this.setProgress(100)
+  }
+
+  async _subProcess (nextSync, count) {
+    try {
       const dataInserter = new DataInserter(
         this.reportService,
         nextSync.collName
@@ -91,14 +106,14 @@ class SyncQueue extends EventEmitter {
       })
 
       await dataInserter.insertNewDataToDbMultiUser()
+    } catch (err) {
       await this._updateById(
         nextSync._id,
-        { state: FINISHED_JOB_STATE }
+        { state: ERROR_JOB_STATE }
       )
-    }
 
-    await this._removeByState(FINISHED_JOB_STATE)
-    await this.setProgress(100)
+      throw err
+    }
   }
 
   _getAll (filter) {
@@ -125,7 +140,7 @@ class SyncQueue extends EventEmitter {
   }
 
   _getNext () {
-    const state = [NEW_JOB_STATE]
+    const state = [NEW_JOB_STATE, ERROR_JOB_STATE]
 
     if (this._isFirstSync) {
       this._isFirstSync = false
