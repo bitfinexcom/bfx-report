@@ -17,7 +17,14 @@ class CollSyncPermissionError extends BaseError {
   }
 }
 
+class UpdateSyncQueueJobError extends BaseError {
+  constructor (id) {
+    super(`ERR_CAN_NOT_UPDATE_SYNC_QUEUE_JOB_BY_ID_${id}`)
+  }
+}
+
 module.exports = {
   BaseError,
-  CollSyncPermissionError
+  CollSyncPermissionError,
+  UpdateSyncQueueJobError
 }
