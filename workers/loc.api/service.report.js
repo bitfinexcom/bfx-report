@@ -345,13 +345,13 @@ class ReportService extends Api {
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
           id: '#',
+          orderID: 'ORDER ID',
           symbol: 'PAIR',
           execAmount: 'AMOUNT',
           execPrice: 'PRICE',
           fee: 'FEE',
-          feeCurrency: 'FEE_CURRENCY',
-          mtsCreate: 'DATE',
-          orderID: 'ORDER ID'
+          feeCurrency: 'FEE CURRENCY',
+          mtsCreate: 'DATE'
         },
         formatSettings: {
           mtsCreate: 'date',
@@ -390,17 +390,17 @@ class ReportService extends Api {
       }
 
       const tTickerHistColumns = {
-        symbol: 'symbol',
-        bid: 'bid',
-        ask: 'ask',
-        mtsUpdate: 'mtsUpdate'
+        symbol: 'PAIR',
+        bid: 'BID',
+        ask: 'ASK',
+        mtsUpdate: 'Time'
       }
       const fTickerHistColumns = {
-        symbol: 'symbol',
-        bid: 'bid',
-        bidPeriod: 'bidPeriod',
-        ask: 'ask',
-        mtsUpdate: 'mtsUpdate'
+        symbol: 'PAIR',
+        bid: 'BID',
+        bidPeriod: 'BID PERIOD',
+        ask: 'ASK',
+        mtsUpdate: 'Time'
       }
       const jobData = {
         userId,
@@ -436,16 +436,11 @@ class ReportService extends Api {
         args,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
-          type: 'type',
-          currency: 'currency',
-          balance: 'balance',
-          unsettledInterest: 'unsettledInterest',
-          balanceAvailable: 'balanceAvailable',
-          placeHolder: 'placeHolder',
-          mtsUpdate: 'mtsUpdate'
-        },
-        formatSettings: {
-          mtsUpdate: 'date'
+          type: 'TYPE',
+          currency: 'CURRENCY',
+          balance: 'BALANCE',
+          unsettledInterest: 'UNSETTLED INTEREST',
+          balanceAvailable: 'BALANCE AVAILABLE'
         }
       }
 
@@ -472,22 +467,18 @@ class ReportService extends Api {
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
           id: '#',
-          symbol: 'symbol',
-          status: 'status',
-          amount: 'amount',
-          basePrice: 'basePrice',
-          marginFunding: 'marginFunding',
-          marginFundingType: 'marginFundingType',
-          pl: 'pl',
-          plPerc: 'plPerc',
-          liquidationPrice: 'liquidationPrice',
-          leverage: 'leverage',
-          placeholder: 'placeholder',
-          mtsCreate: 'mtsCreate',
-          mtsUpdate: 'mtsUpdate'
+          symbol: 'PAIR',
+          amount: 'AMOUNT',
+          basePrice: 'BASE PRICE',
+          liquidationPrice: 'LIQ PRICE',
+          pl: 'P/L',
+          plPerc: 'P/L%',
+          marginFunding: 'FUNDING COST',
+          marginFundingType: 'FUNDING TYPE',
+          status: 'STATUS',
+          mtsUpdate: 'UPDATED'
         },
         formatSettings: {
-          mtsCreate: 'date',
           mtsUpdate: 'date',
           symbol: 'symbol'
         }
@@ -516,22 +507,18 @@ class ReportService extends Api {
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
           id: '#',
-          symbol: 'symbol',
-          status: 'status',
-          amount: 'amount',
-          basePrice: 'basePrice',
-          marginFunding: 'marginFunding',
-          marginFundingType: 'marginFundingType',
-          pl: 'pl',
-          plPerc: 'plPerc',
-          liquidationPrice: 'liquidationPrice',
-          leverage: 'leverage',
-          placeholder: 'placeholder',
-          mtsCreate: 'mtsCreate',
-          mtsUpdate: 'mtsUpdate'
+          symbol: 'PAIR',
+          amount: 'AMOUNT',
+          basePrice: 'BASE PRICE',
+          liquidationPrice: 'LIQ PRICE',
+          pl: 'P/L',
+          plPerc: 'P/L%',
+          marginFunding: 'FUNDING COST',
+          marginFundingType: 'FUNDING TYPE',
+          status: 'STATUS',
+          mtsUpdate: 'UPDATED'
         },
         formatSettings: {
-          mtsCreate: 'date',
           mtsUpdate: 'date',
           symbol: 'symbol'
         }
@@ -561,7 +548,7 @@ class ReportService extends Api {
         propNameForPagination: 'mts',
         columnsCsv: {
           id: '#',
-          mts: 'DATE',
+          mts: 'TIME',
           price: 'PRICE',
           amount: 'AMOUNT',
           symbol: 'PAIR'
@@ -672,18 +659,14 @@ class ReportService extends Api {
         propNameForPagination: 'mtsUpdated',
         columnsCsv: {
           id: '#',
+          mtsUpdated: 'DATE',
           currency: 'CURRENCY',
-          currencyName: 'METHOD',
           status: 'STATUS',
           amount: 'AMOUNT',
-          destinationAddress: 'DESCRIPTION',
-          transactionId: 'TXID',
-          mtsStarted: 'CREATED',
-          mtsUpdated: 'UPDATED'
+          destinationAddress: 'DESCRIPTION'
         },
         formatSettings: {
-          mtsUpdated: 'date',
-          mtsStarted: 'date'
+          mtsUpdated: 'date'
         }
       }
 
@@ -712,17 +695,15 @@ class ReportService extends Api {
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
-          type: 'TYPE',
           amountOrig: 'AMOUNT',
           amountExecuted: 'EXECUTED AMOUNT',
-          rate: 'RATE(% PER DAY)',
-          mtsCreate: 'CREATED',
-          mtsUpdate: 'UPDATED',
+          type: 'TYPE',
           status: 'STATUS',
-          period: 'PERIOD'
+          rate: 'RATE',
+          period: 'PERIOD',
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
-          mtsCreate: 'date',
           mtsUpdate: 'date',
           symbol: 'symbol'
         }
@@ -753,14 +734,14 @@ class ReportService extends Api {
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
+          side: 'SIDE',
           amount: 'AMOUNT',
+          status: 'STATUS',
+          rate: 'RATE',
           period: 'PERIOD',
-          rate: 'RATE(% PER DAY)',
           mtsOpening: 'OPENED',
           mtsLastPayout: 'CLOSED',
-          mtsUpdate: 'DATE',
-          side: 'SIDE',
-          status: 'STATUS'
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
           side: 'side',
@@ -796,15 +777,15 @@ class ReportService extends Api {
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
+          side: 'SIDE',
           amount: 'AMOUNT',
+          status: 'STATUS',
+          rate: 'RATE',
           period: 'PERIOD',
-          rate: 'RATE(% PER DAY)',
           mtsOpening: 'OPENED',
           mtsLastPayout: 'CLOSED',
-          mtsUpdate: 'DATE',
-          side: 'SIDE',
-          status: 'STATUS',
-          positionPair: 'POSITION PAIR'
+          positionPair: 'POSITION PAIR',
+          mtsUpdate: 'DATE'
         },
         formatSettings: {
           side: 'side',
