@@ -198,7 +198,7 @@ class SqliteDAO extends DAO {
       ON ${name}(${fields.join(', ')})`
   }
 
-  _beginTrans (cb) {
+  _beginTrans (asyncExecQuery) {
     return new Promise((resolve, reject) => {
       this.db.serialize(async () => {
         let isTransBegun = false
@@ -207,7 +207,7 @@ class SqliteDAO extends DAO {
           await this._run('BEGIN TRANSACTION')
           isTransBegun = true
 
-          await cb()
+          await asyncExecQuery()
           await this._commit()
 
           resolve()
