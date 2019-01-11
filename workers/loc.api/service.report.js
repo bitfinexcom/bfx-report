@@ -438,9 +438,7 @@ class ReportService extends Api {
         columnsCsv: {
           type: 'TYPE',
           currency: 'CURRENCY',
-          balance: 'BALANCE',
-          unsettledInterest: 'UNSETTLED INTEREST',
-          balanceAvailable: 'BALANCE AVAILABLE'
+          balance: 'BALANCE'
         }
       }
 
@@ -785,15 +783,15 @@ class ReportService extends Api {
         columnsCsv: {
           id: '#',
           symbol: 'CURRENCY',
-          side: 'SIDE',
           amount: 'AMOUNT',
-          status: 'STATUS',
           rate: 'RATE',
           period: 'PERIOD',
           mtsOpening: 'OPENED',
           mtsLastPayout: 'CLOSED',
-          positionPair: 'POSITION PAIR',
-          mtsUpdate: 'DATE'
+          mtsUpdate: 'DATE',
+          side: 'SIDE',
+          status: 'STATUS',
+          positionPair: 'POSITION PAIR'
         },
         formatSettings: {
           side: 'side',
