@@ -345,13 +345,13 @@ class ReportService extends Api {
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
           id: '#',
-          orderID: 'ORDER ID',
           symbol: 'PAIR',
           execAmount: 'AMOUNT',
           execPrice: 'PRICE',
           fee: 'FEE',
           feeCurrency: 'FEE CURRENCY',
-          mtsCreate: 'DATE'
+          mtsCreate: 'DATE',
+          orderID: 'ORDER ID'
         },
         formatSettings: {
           mtsCreate: 'date',
@@ -393,14 +393,14 @@ class ReportService extends Api {
         symbol: 'PAIR',
         bid: 'BID',
         ask: 'ASK',
-        mtsUpdate: 'Time'
+        mtsUpdate: 'TIME'
       }
       const fTickerHistColumns = {
         symbol: 'PAIR',
         bid: 'BID',
         bidPeriod: 'BID PERIOD',
         ask: 'ASK',
-        mtsUpdate: 'Time'
+        mtsUpdate: 'TIME'
       }
       const jobData = {
         userId,
@@ -476,10 +476,13 @@ class ReportService extends Api {
           marginFunding: 'FUNDING COST',
           marginFundingType: 'FUNDING TYPE',
           status: 'STATUS',
-          mtsUpdate: 'UPDATED'
+          mtsUpdate: 'UPDATED',
+          mtsCreate: 'CREATED',
+          leverage: 'LEVERAGE'
         },
         formatSettings: {
           mtsUpdate: 'date',
+          mtsCreate: 'date',
           symbol: 'symbol'
         }
       }
@@ -516,10 +519,13 @@ class ReportService extends Api {
           marginFunding: 'FUNDING COST',
           marginFundingType: 'FUNDING TYPE',
           status: 'STATUS',
-          mtsUpdate: 'UPDATED'
+          mtsUpdate: 'UPDATED',
+          mtsCreate: 'CREATED',
+          leverage: 'LEVERAGE'
         },
         formatSettings: {
           mtsUpdate: 'date',
+          mtsCreate: 'date',
           symbol: 'symbol'
         }
       }
@@ -701,10 +707,12 @@ class ReportService extends Api {
           status: 'STATUS',
           rate: 'RATE',
           period: 'PERIOD',
-          mtsUpdate: 'DATE'
+          mtsUpdate: 'UPDATED',
+          mtsCreate: 'CREATED'
         },
         formatSettings: {
           mtsUpdate: 'date',
+          mtsCreate: 'date',
           symbol: 'symbol'
         }
       }
