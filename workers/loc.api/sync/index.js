@@ -1,23 +1,21 @@
 'use strict'
 
-const DataInserter = require('./data.inserter')
+const syncQueue = require('./sync.queue')
 const {
   setProgress,
   getProgress,
   logErrorAndSetProgress,
   redirectRequestsToApi
 } = require('./helpers')
+const { CollSyncPermissionError } = require('../errors')
+const ALLOWED_COLLS = require('./allowed.colls')
 
 let reportService = null
 
-const _sync = async (isSkipSync, syncColls) => {
-  let dataInserter = null
-
+const _sync = async (isSkipSync) => {
   if (!isSkipSync) {
     try {
-      dataInserter = new DataInserter(reportService, syncColls)
-
-      await dataInserter.insertNewDataToDbMultiUser()
+      await syncQueue.process()
     } catch (err) {
       await logErrorAndSetProgress(reportService, err)
     }
@@ -32,13 +30,19 @@ const _sync = async (isSkipSync, syncColls) => {
   return getProgress(reportService)
 }
 
-module.exports = async (isSolveAfterRedirToApi, syncColls) => {
+module.exports = async (
+  isSolveAfterRedirToApi,
+  syncColls = ALLOWED_COLLS.ALL
+) => {
   let isSkipSync = false
 
   try {
     const isEnable = await reportService.isSchedulerEnabled()
     const currProgress = await getProgress(reportService)
 
+    if (isEnable) {
+      await syncQueue.add(syncColls)
+    }
     if (
       (currProgress < 100) ||
       !isEnable
@@ -51,20 +55,26 @@ module.exports = async (isSolveAfterRedirToApi, syncColls) => {
     await setProgress(reportService, 0)
     await redirectRequestsToApi(reportService, true)
   } catch (err) {
+    if (err instanceof CollSyncPermissionError) {
+      throw err
+    }
+
     isSkipSync = true
 
     await logErrorAndSetProgress(reportService, err)
   }
 
   if (!isSkipSync && isSolveAfterRedirToApi) {
-    _sync(isSkipSync, syncColls).then(() => {}, () => {})
+    _sync(isSkipSync).then(() => {}, () => {})
 
     return 'SYNCHRONIZATION_IS_STARTED'
   }
 
-  return _sync(isSkipSync, syncColls)
+  return _sync(isSkipSync)
 }
 
 module.exports.setReportService = (rService) => {
   reportService = rService
+
+  syncQueue.injectDeps(rService)
 }

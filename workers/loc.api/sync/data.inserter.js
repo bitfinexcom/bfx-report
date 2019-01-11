@@ -3,7 +3,10 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
 
-const { setProgress, delay } = require('./helpers')
+const {
+  delay,
+  checkCollPermission
+} = require('./helpers')
 const {
   isRateLimitError,
   isNonceSmallError
@@ -24,6 +27,7 @@ class DataInserter extends EventEmitter {
     this.reportService = reportService
     this.dao = this.reportService.dao
 
+    this._asyncProgressHandler = null
     this._auth = null
     this._allowedCollsNames = Object.values(ALLOWED_COLLS)
       .filter(name => !(/^_.*/.test(name)))
@@ -31,24 +35,9 @@ class DataInserter extends EventEmitter {
       ? syncColls
       : [syncColls]
 
-    this._checkCollPermission()
+    checkCollPermission(this._syncColls)
 
     this._methodCollMap = this._filterMethodCollMapByList(methodCollMap)
-  }
-
-  _checkCollPermission (syncColls = this._syncColls) {
-    if (
-      !syncColls ||
-      !Array.isArray(syncColls) ||
-      syncColls.length === 0 ||
-      syncColls.some(item => (
-        !item ||
-        typeof item !== 'string' ||
-        Object.values(ALLOWED_COLLS).every(collName => item !== collName)
-      ))
-    ) {
-      throw new Error('ERR_PERMISSION_DENIED_TO_SYNC_SELECTED_COLLS')
-    }
   }
 
   _reduceMethodCollMap (
@@ -133,8 +122,18 @@ class DataInserter extends EventEmitter {
     return new Map(res)
   }
 
+  setAsyncProgressHandler (cb) {
+    if (typeof cb !== 'function') {
+      throw new Error('ERR_ASYNC_PROGRESS_HANDLER_IS_NOT_FUNCTION')
+    }
+
+    this._asyncProgressHandler = cb
+  }
+
   async setProgress (progress) {
-    await setProgress(this.reportService, progress)
+    if (this._asyncProgressHandler) {
+      await this._asyncProgressHandler(progress)
+    }
 
     this.emit('progress', progress)
   }

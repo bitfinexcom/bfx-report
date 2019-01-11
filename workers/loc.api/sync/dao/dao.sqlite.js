@@ -198,26 +198,28 @@ class SqliteDAO extends DAO {
       ON ${name}(${fields.join(', ')})`
   }
 
-  async _beginTrans (cb) {
-    let isTransBegun = false
+  _beginTrans (asyncExecQuery) {
+    return new Promise((resolve, reject) => {
+      this.db.serialize(async () => {
+        let isTransBegun = false
 
-    try {
-      await this._run('BEGIN TRANSACTION')
-      isTransBegun = true
+        try {
+          await this._run('BEGIN TRANSACTION')
+          isTransBegun = true
 
-      if (!cb) {
-        return
-      }
+          await asyncExecQuery()
+          await this._commit()
 
-      await cb()
-      await this._commit()
-    } catch (err) {
-      if (isTransBegun) {
-        await this._rollback()
-      }
+          resolve()
+        } catch (err) {
+          if (isTransBegun) {
+            await this._rollback()
+          }
 
-      throw err
-    }
+          reject(err)
+        }
+      })
+    })
   }
 
   _commit () {
@@ -533,7 +535,10 @@ class SqliteDAO extends DAO {
     })
   }
 
-  async _updateCollBy (name, filter = {}, data = {}) {
+  /**
+   * @override
+   */
+  async updateCollBy (name, filter = {}, data = {}) {
     const {
       where,
       values
@@ -561,7 +566,7 @@ class SqliteDAO extends DAO {
   ) {
     await this._beginTrans(async () => {
       for (const item of data) {
-        await this._updateCollBy(
+        await this.updateCollBy(
           name,
           mapObjBySchema(item, filterPropNames),
           mapObjBySchema(item, upPropNames)
@@ -609,7 +614,7 @@ class SqliteDAO extends DAO {
       ['email', 'timezone']
     )
 
-    const res = await this._updateCollBy(
+    const res = await this.updateCollBy(
       'users',
       { _id: user._id },
       omit(newData, ['_id'])
@@ -627,7 +632,7 @@ class SqliteDAO extends DAO {
    */
   async updateUserByAuth (data) {
     const props = ['apiKey', 'apiSecret']
-    const res = await this._updateCollBy(
+    const res = await this.updateCollBy(
       'users',
       pick(data, props),
       omit(data, [ ...props, '_id' ])
@@ -792,7 +797,7 @@ class SqliteDAO extends DAO {
       )
     }
 
-    const res = await this._updateCollBy(
+    const res = await this.updateCollBy(
       name,
       { _id: elems[0]._id },
       data
@@ -843,7 +848,7 @@ class SqliteDAO extends DAO {
       )
     }
 
-    const res = await this._updateCollBy(
+    const res = await this.updateCollBy(
       name,
       { _id: elems[0]._id },
       data
@@ -852,6 +857,21 @@ class SqliteDAO extends DAO {
     if (res && res.changes < 1) {
       throw new Error(`ERR_CAN_NOT_UPDATE_${name.toUpperCase()}`)
     }
+
+    return res
+  }
+
+  /**
+   * @override
+   */
+  async getCountBy (name, filter = {}) {
+    const {
+      where,
+      values
+    } = this._getWhereQuery(filter)
+
+    const sql = `SELECT count(*) AS res FROM ${name} ${where}`
+    const { res } = await this._get(sql, values)
 
     return res
   }

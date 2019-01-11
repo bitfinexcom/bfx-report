@@ -56,6 +56,11 @@ class DAO {
   /**
    * @abstract
    */
+  async updateCollBy () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
   async insertOrUpdateUser () { throw new Error('NOT_IMPLEMENTED') }
 
   /**
@@ -107,6 +112,11 @@ class DAO {
    * @abstract
    */
   async removeElemsFromDbIfNotInLists () { throw new Error('NOT_IMPLEMENTED') }
+
+  /**
+   * @abstract
+   */
+  async getCountBy () { throw new Error('NOT_IMPLEMENTED') }
 }
 
 module.exports = DAO
