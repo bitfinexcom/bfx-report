@@ -12,7 +12,8 @@ const {
   accountCache,
   getTimezoneConf,
   checkTimeLimit,
-  prepareApiResponse
+  prepareApiResponse,
+  getCsvArgs
 } = require('./helpers')
 
 class ReportService extends Api {
@@ -125,7 +126,6 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'tickersHistory',
-        250,
         'mtsUpdate',
         null,
         ['symbol']
@@ -143,7 +143,6 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'positionsHistory',
-        25,
         'mtsUpdate',
         'symbol'
       )
@@ -160,7 +159,6 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'positionsAudit',
-        100,
         'mtsUpdate',
         'symbol'
       )
@@ -194,7 +192,6 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'ledgers',
-        250,
         'mts',
         'currency'
       )
@@ -210,8 +207,7 @@ class ReportService extends Api {
       const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
-        'accountTrades',
-        500,
+        'trades',
         'mtsCreate',
         'symbol'
       )
@@ -229,8 +225,7 @@ class ReportService extends Api {
       const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
-        'trades',
-        500,
+        'publicTrades',
         'mts',
         ['symbol']
       )
@@ -246,8 +241,7 @@ class ReportService extends Api {
       const res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
-        'orderHistory',
-        250,
+        'orders',
         'mtsUpdate',
         'symbol'
       )
@@ -265,7 +259,6 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'movements',
-        25,
         'mtsUpdated',
         'currency'
       )
@@ -282,7 +275,6 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'fundingOfferHistory',
-        100,
         'mtsUpdate',
         'symbol'
       )
@@ -300,7 +292,6 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'fundingLoanHistory',
-        100,
         'mtsUpdate',
         'symbol'
       )
@@ -318,7 +309,6 @@ class ReportService extends Api {
         args,
         this.ctx.grc_bfx.caller,
         'fundingCreditHistory',
-        100,
         'mtsUpdate',
         'symbol'
       )
@@ -336,12 +326,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getTrades'
+      const csvArgs = getCsvArgs(args, 'trades')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getTrades',
+        args: csvArgs,
         propNameForPagination: 'mtsCreate',
         columnsCsv: {
           id: '#',
@@ -373,7 +363,7 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getTickersHistory'
+      const csvArgs = getCsvArgs(args, 'tickersHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const symb = Array.isArray(args.params.symbol)
         ? args.params.symbol
@@ -404,8 +394,8 @@ class ReportService extends Api {
       }
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getTickersHistory',
+        args: csvArgs,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: isTrading ? tTickerHistColumns : fTickerHistColumns,
         formatSettings: {
@@ -456,12 +446,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getPositionsHistory'
+      const csvArgs = getCsvArgs(args, 'positionsHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getPositionsHistory',
+        args: csvArgs,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
           id: '#',
@@ -499,12 +489,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getPositionsAudit'
+      const csvArgs = getCsvArgs(args, 'positionsAudit')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getPositionsAudit',
+        args: csvArgs,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
           id: '#',
@@ -543,12 +533,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getPublicTrades'
+      const csvArgs = getCsvArgs(args, 'publicTrades')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getPublicTrades',
+        args: csvArgs,
         propNameForPagination: 'mts',
         columnsCsv: {
           id: '#',
@@ -577,13 +567,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getLedgers'
-
+      const csvArgs = getCsvArgs(args, 'ledgers')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getLedgers',
+        args: csvArgs,
         propNameForPagination: 'mts',
         columnsCsv: {
           description: 'DESCRIPTION',
@@ -612,13 +601,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getOrders'
-
+      const csvArgs = getCsvArgs(args, 'orders')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getOrders',
+        args: csvArgs,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
           id: '#',
@@ -653,13 +641,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getMovements'
-
+      const csvArgs = getCsvArgs(args, 'movements')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getMovements',
+        args: csvArgs,
         propNameForPagination: 'mtsUpdated',
         columnsCsv: {
           id: '#',
@@ -688,13 +675,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getFundingOfferHistory'
-
+      const csvArgs = getCsvArgs(args, 'fundingOfferHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getFundingOfferHistory',
+        args: csvArgs,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
           id: '#',
@@ -729,13 +715,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getFundingLoanHistory'
-
+      const csvArgs = getCsvArgs(args, 'fundingLoanHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getFundingLoanHistory',
+        args: csvArgs,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
           id: '#',
@@ -772,13 +757,12 @@ class ReportService extends Api {
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
 
-      const method = 'getFundingCreditHistory'
-
+      const csvArgs = getCsvArgs(args, 'fundingCreditHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
         userId,
-        name: method,
-        args,
+        name: 'getFundingCreditHistory',
+        args: csvArgs,
         propNameForPagination: 'mtsUpdate',
         columnsCsv: {
           id: '#',

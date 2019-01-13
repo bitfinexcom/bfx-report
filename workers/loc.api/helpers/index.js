@@ -11,6 +11,36 @@ const schema = require('./schema')
 
 const { hasS3AndSendgrid } = require('../queue/helpers')
 
+function getMethodLimit (sendLimit, method) {
+  const methodsLimits = {
+    tickersHistory: { default: 100, max: 250 },
+    positionsHistory: { default: 25, max: 50 },
+    positionsAudit: { default: 100, max: 250 },
+    ledgers: { default: 250, max: 500 },
+    trades: { default: 500, max: 1000 },
+    publicTrades: { default: 500, max: 5000 },
+    orders: { default: 250, max: 500 },
+    movements: { default: 25, max: 25 },
+    fundingOfferHistory: { default: 100, max: 500 },
+    fundingLoanHistory: { default: 100, max: 500 },
+    fundingCreditHistory: { default: 100, max: 500 },
+    candles: { default: 500, max: 5000 }
+  }
+
+  const selectedMethod = methodsLimits[method] || { default: 25, max: 25 }
+
+  if (sendLimit === 'max') return selectedMethod.max
+
+  const base = sendLimit || selectedMethod.default
+  return getLimitNotMoreThan(base, selectedMethod.max)
+}
+
+function getCsvArgs (args, method) {
+  const csvArgs = args
+  csvArgs.params.limit = getMethodLimit('max', method)
+  return csvArgs
+}
+
 const getREST = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
     throw new Error('ERR_AUTH_UNAUTHORIZED')
@@ -54,7 +84,7 @@ const _paramsOrderMap = {
 }
 
 const _paramsSchemasMap = {
-  trades: 'paramsSchemaForPublicTrades',
+  publicTrades: 'paramsSchemaForPublicTrades',
   positionsAudit: 'paramsSchemaForPositionsAudit',
   default: 'paramsSchemaForApi'
 }
@@ -89,7 +119,6 @@ const _getSchemaNameByMethodName = (
 
 const getParams = (
   args,
-  maxLimit,
   requireFields,
   methodApi,
   cb
@@ -108,7 +137,7 @@ const getParams = (
     paramsObj = _.cloneDeep(args.params)
 
     paramsObj.end = _getDateNotMoreNow(args.params.end)
-    paramsObj.limit = getLimitNotMoreThan(args.params.limit, maxLimit)
+    paramsObj.limit = getMethodLimit(args.params.limit, methodApi)
 
     if (cb) cb(paramsObj)
 
@@ -426,7 +455,6 @@ const prepareApiResponse = async (
   args,
   wrk,
   methodApi,
-  maxLimit,
   datePropName,
   symbPropName,
   requireFields
@@ -437,7 +465,6 @@ const prepareApiResponse = async (
     paramsObj
   } = getParams(
     args,
-    maxLimit,
     requireFields,
     methodApi,
     params => {
@@ -471,7 +498,7 @@ const prepareApiResponse = async (
   )
   const rest = getREST(args.auth, wrk)
 
-  let res = await rest[methodApi].bind(rest)(...paramsArr)
+  let res = await rest[_parseMethodApi(methodApi)].bind(rest)(...paramsArr)
 
   return prepareResponse(
     res,
@@ -482,6 +509,15 @@ const prepareApiResponse = async (
     symbols,
     symbPropName
   )
+}
+
+function _parseMethodApi (name) {
+  const refactor = {
+    trades: 'accountTrades',
+    publicTrades: 'trades',
+    orders: 'orderHistory'
+  }
+  return refactor[name] || name
 }
 
 const mapObjBySchema = (obj, schema = {}) => {
@@ -550,5 +586,6 @@ module.exports = {
   prepareResponse,
   prepareApiResponse,
   mapObjBySchema,
-  emptyRes
+  emptyRes,
+  getCsvArgs
 }
