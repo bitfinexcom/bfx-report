@@ -15,6 +15,9 @@ const argv = require('yargs')
   .option('syncMode', {
     type: 'boolean'
   })
+  .option('reportsFramework', {
+    type: 'boolean'
+  })
   .option('isSpamRestrictionMode', {
     type: 'boolean'
   })
@@ -32,6 +35,7 @@ const logger = require('./loc.api/logger')
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
 const sync = require('./loc.api/sync')
+const { ReportsFrameworkConfPropError } = require('./loc.api/errors')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -42,6 +46,7 @@ class WrkReportServiceApi extends WrkApi {
     this.loadConf('service.report', 'report')
     this._setArgsOfCommandLineToConf([
       'syncMode',
+      'reportsFramework',
       'isSpamRestrictionMode',
       'isSchedulerEnabled',
       'dbDriver'
@@ -93,6 +98,10 @@ class WrkReportServiceApi extends WrkApi {
         conf[name] = this.ctx[name]
       }
     })
+
+    if (conf.reportsFramework && !conf.syncMode) {
+      throw new ReportsFrameworkConfPropError()
+    }
   }
 
   init () {
@@ -145,6 +154,18 @@ class WrkReportServiceApi extends WrkApi {
           { name: 'sync' }
         ]
       )
+
+      if (conf.reportsFramework) {
+        facs.push(
+          [
+            'fac',
+            `bfx-facs-reports-framework`,
+            'sync',
+            'sync',
+            { name: 'sync' }
+          ]
+        )
+      }
     }
 
     this.setInitFacs(facs)

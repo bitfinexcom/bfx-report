@@ -23,8 +23,15 @@ class UpdateSyncQueueJobError extends BaseError {
   }
 }
 
+class ReportsFrameworkConfPropError extends BaseError {
+  constructor (message = 'ERR_REPORTS_FRAMEWORK_CANNOT_BE_USED_IF_SYNC_MODE_IS_OFF') {
+    super(message)
+  }
+}
+
 module.exports = {
   BaseError,
   CollSyncPermissionError,
-  UpdateSyncQueueJobError
+  UpdateSyncQueueJobError,
+  ReportsFrameworkConfPropError
 }
