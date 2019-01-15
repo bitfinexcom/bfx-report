@@ -23,7 +23,7 @@ const {
   getProgress
 } = require('./sync/helpers')
 const { getMethodCollMap } = require('./sync/schema')
-const ALLOWED_COLLS = require('./sync/allowed.colls')
+const { ALLOWED_COLLS } = require('./sync/allowed.colls')
 const sync = require('./sync')
 
 class MediatorReportService extends ReportService {

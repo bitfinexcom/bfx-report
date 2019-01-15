@@ -2,7 +2,7 @@
 
 const { cloneDeep, pick, omit } = require('lodash')
 
-const ALLOWED_COLLS = require('./allowed.colls')
+const { ALLOWED_COLLS } = require('./allowed.colls')
 
 const _models = new Map([
   [

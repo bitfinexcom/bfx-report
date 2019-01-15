@@ -8,7 +8,7 @@ const {
   redirectRequestsToApi
 } = require('./helpers')
 const { CollSyncPermissionError } = require('../errors')
-const ALLOWED_COLLS = require('./allowed.colls')
+const { ALLOWED_COLLS } = require('./allowed.colls')
 
 let reportService = null
 

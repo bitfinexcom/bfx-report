@@ -9,7 +9,7 @@ const {
   checkCollPermission
 } = require('../helpers')
 const { UpdateSyncQueueJobError } = require('../../errors')
-const ALLOWED_COLLS = require('../allowed.colls')
+const { ALLOWED_COLLS } = require('../allowed.colls')
 
 const LOCKED_JOB_STATE = 'LOCKED'
 const NEW_JOB_STATE = 'NEW'

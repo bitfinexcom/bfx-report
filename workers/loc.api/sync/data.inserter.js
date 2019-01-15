@@ -15,7 +15,7 @@ const { getMethodCollMap } = require('./schema')
 const {
   DataInserterExtension
 } = require('bfx-facs-reports-framework/sync/data.inserter.extension')
-const ALLOWED_COLLS = require('./allowed.colls')
+const { ALLOWED_COLLS } = require('./allowed.colls')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
 

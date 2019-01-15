@@ -3,7 +3,7 @@
 const { isEmpty } = require('lodash')
 
 const { CollSyncPermissionError } = require('../errors')
-const ALLOWED_COLLS = require('./allowed.colls')
+const { ALLOWED_COLLS } = require('./allowed.colls')
 
 const setProgress = (reportService, progress) => {
   return reportService.dao.updateProgress(progress)

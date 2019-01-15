@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = {
+const ALLOWED_COLLS = {
   ALL: '_ALL',
   PUBLIC: '_PUBLIC',
   PRIVATE: '_PRIVATE',
@@ -16,4 +16,13 @@ module.exports = {
   POSITIONS_HISTORY: 'positionsHistory',
   SYMBOLS: 'symbols',
   CURRENCIES: 'currencies'
+}
+
+const addAllowedColls = (colls = {}) => {
+  Object.assign(ALLOWED_COLLS, colls)
+}
+
+module.exports = {
+  ALLOWED_COLLS,
+  addAllowedColls
 }
