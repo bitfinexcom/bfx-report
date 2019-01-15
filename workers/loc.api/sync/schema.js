@@ -1,6 +1,6 @@
 'use strict'
 
-const { cloneDeep } = require('lodash')
+const { cloneDeep, pick, omit } = require('lodash')
 
 const ALLOWED_COLLS = require('./allowed.colls')
 
@@ -490,19 +490,41 @@ const _methodCollMap = new Map([
   ]
 ])
 
-const _cloneSchema = (map) => {
-  return new Map(Array.from(map).map(item => cloneDeep(item)))
+const _cloneSchema = (map, uncloneableFields = []) => {
+  return new Map([...map].map(([key, val]) => {
+    const subObj = pick(val, uncloneableFields)
+    const obj = omit(val, uncloneableFields)
+    const clone = cloneDeep(obj)
+
+    return [key, { ...clone, ...subObj }]
+  }))
+}
+
+const _addMapItems = (map, addMap) => {
+  for (const [key, val] of addMap) {
+    map.set(key, val)
+  }
 }
 
 const getMethodCollMap = () => {
-  return _cloneSchema(_methodCollMap)
+  return _cloneSchema(_methodCollMap, ['extension'])
 }
 
 const getModelsMap = () => {
   return _cloneSchema(_models)
 }
 
+const addMethodCollMap = (methodCollMap = new Map()) => {
+  _addMapItems(_methodCollMap, methodCollMap)
+}
+
+const addModelsMap = (modelsMap = new Map()) => {
+  _addMapItems(_models, modelsMap)
+}
+
 module.exports = {
   getMethodCollMap,
-  getModelsMap
+  getModelsMap,
+  addMethodCollMap,
+  addModelsMap
 }
