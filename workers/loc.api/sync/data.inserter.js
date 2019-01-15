@@ -12,6 +12,9 @@ const {
   isNonceSmallError
 } = require('../helpers')
 const { getMethodCollMap } = require('./schema')
+const {
+  DataInserterExtension
+} = require('bfx-facs-reports-framework/sync/data.inserter.extension')
 const ALLOWED_COLLS = require('./allowed.colls')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
@@ -38,6 +41,18 @@ class DataInserter extends EventEmitter {
     checkCollPermission(this._syncColls)
 
     this._methodCollMap = this._filterMethodCollMapByList(methodCollMap)
+
+    this._initExtensions(this._methodCollMap)
+  }
+
+  _initExtensions (methodCollMap) {
+    for (const item of methodCollMap) {
+      const ext = item[1].extension
+
+      if (ext instanceof DataInserterExtension) {
+        ext.injectDeps(this)
+      }
+    }
   }
 
   _reduceMethodCollMap (
@@ -235,10 +250,14 @@ class DataInserter extends EventEmitter {
     let count = 0
     let progress = 0
 
-    for (const [method, item] of methodCollMap) {
-      const args = this._getMethodArgMap(method, auth, 10000000, item.start)
+    for (const [method, schema] of methodCollMap) {
+      if (schema.extension instanceof DataInserterExtension) {
+        await schema.extension.insertNewData(method, schema, auth)
+      } else {
+        const args = this._getMethodArgMap(method, auth, 10000000, schema.start)
 
-      await this._insertApiDataArrObjTypeToDb(args, method, item)
+        await this._insertApiDataArrObjTypeToDb(args, method, schema)
+      }
 
       count += 1
       progress = Math.round((count / size) * 100 * userProgress)
@@ -276,20 +295,25 @@ class DataInserter extends EventEmitter {
   }
 
   async _checkNewDataPublicArrObjType (methodCollMap) {
-    for (let [method, item] of methodCollMap) {
-      if (!this._isInsertableArrObjTypeOfColl(item, true)) {
+    for (let [method, schema] of methodCollMap) {
+      if (!this._isInsertableArrObjTypeOfColl(schema, true)) {
         continue
       }
       if (
-        item.name === ALLOWED_COLLS.PUBLIC_TRADES ||
-        item.name === ALLOWED_COLLS.TICKERS_HISTORY
+        schema.name === ALLOWED_COLLS.PUBLIC_TRADES ||
+        schema.name === ALLOWED_COLLS.TICKERS_HISTORY
       ) {
-        await this._checkNewConfigurablePublicData(method, item)
+        await this._checkNewConfigurablePublicData(method, schema)
+
+        continue
+      }
+      if (schema.extension instanceof DataInserterExtension) {
+        await schema.extension.checkNewData(method, schema)
 
         continue
       }
 
-      await this._checkItemNewDataArrObjType(method, item)
+      await this._checkItemNewDataArrObjType(method, schema)
     }
   }
 
@@ -404,7 +428,7 @@ class DataInserter extends EventEmitter {
     args.params.notCheckNextPage = true
     const lastElemFromDb = await this.dao.getLastElemFromDb(
       schema.name,
-      { ...auth },
+      { ...(auth || {}) },
       schema.sort
     )
     const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
@@ -432,14 +456,19 @@ class DataInserter extends EventEmitter {
   }
 
   async _checkNewDataArrObjType (auth, methodCollMap) {
-    for (let [method, item] of methodCollMap) {
-      if (!this._isInsertableArrObjTypeOfColl(item)) {
+    for (let [method, schema] of methodCollMap) {
+      if (!this._isInsertableArrObjTypeOfColl(schema)) {
+        continue
+      }
+      if (schema.extension instanceof DataInserterExtension) {
+        await schema.extension.checkNewData(method, schema, auth)
+
         continue
       }
 
       await this._checkItemNewDataArrObjType(
         method,
-        item,
+        schema,
         auth
       )
     }
@@ -541,6 +570,9 @@ class DataInserter extends EventEmitter {
           dates
         )
       }
+    }
+    if (schema.extension instanceof DataInserterExtension) {
+      await schema.extension.insertNewData(methodApi, schema)
     }
   }
 
