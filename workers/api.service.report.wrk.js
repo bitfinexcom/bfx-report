@@ -36,6 +36,11 @@ const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
 const sync = require('./loc.api/sync')
 const { ReportsFrameworkConfPropError } = require('./loc.api/errors')
+const {
+  addMethodCollMap,
+  addModelsMap
+} = require('./loc.api/sync/schema')
+const { addAllowedColls } = require('./loc.api/sync/allowed.colls')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -162,13 +167,26 @@ class WrkReportServiceApi extends WrkApi {
             `bfx-facs-reports-framework`,
             'sync',
             'sync',
-            { name: 'sync' }
+            {
+              name: 'sync',
+              start: (rFram, next) => {
+                this._initReportsFramework(rFram)
+
+                next()
+              }
+            }
           ]
         )
       }
     }
 
     this.setInitFacs(facs)
+  }
+
+  _initReportsFramework (rFram) {
+    addAllowedColls(rFram.getAllowedColls())
+    addMethodCollMap(rFram.getMethodCollMap())
+    addModelsMap(rFram.getModelsMap())
   }
 
   _start (cb) {
