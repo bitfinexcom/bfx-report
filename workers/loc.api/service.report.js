@@ -654,6 +654,7 @@ class ReportService extends Api {
           currency: 'CURRENCY',
           status: 'STATUS',
           amount: 'AMOUNT',
+          fees: 'FEES',
           destinationAddress: 'DESCRIPTION'
         },
         formatSettings: {
