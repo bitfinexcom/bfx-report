@@ -85,6 +85,10 @@ class WrkReportServiceApi extends WrkApi {
 
         ctx.scheduler_sync = this.scheduler_sync
         ctx[dbFacNs] = this[dbFacNs]
+
+        if (conf.reportsFramework) {
+          ctx.reportsFramework = this.reportsFramework_sync
+        }
       }
     }
 
