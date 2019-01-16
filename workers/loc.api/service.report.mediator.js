@@ -746,6 +746,12 @@ class MediatorReportService extends ReportService {
     return promisify(super.getFundingCreditHistory.bind(this))(null, args)
   }
 
+  _getCandles (args) {
+    return this.ctx.reportsFramework
+      .getResponder()
+      .getCandles(args)
+  }
+
   async _checkAuthInApi (args) {
     checkParamsAuth(args)
 
