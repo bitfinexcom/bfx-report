@@ -188,6 +188,16 @@ class WrkReportServiceApi extends WrkApi {
   }
 
   _initReportsFramework (rFram) {
+    rFram.injectDeps({
+      ..._.pick(
+        require('./loc.api/helpers'),
+        [
+          'getREST',
+          'prepareResponse'
+        ]
+      )
+    })
+
     addAllowedColls(rFram.getAllowedColls())
     addMethodCollMap(rFram.getMethodCollMap())
     addModelsMap(rFram.getModelsMap())
