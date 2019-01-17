@@ -193,7 +193,11 @@ class WrkReportServiceApi extends WrkApi {
         require('./loc.api/helpers'),
         [
           'getREST',
-          'prepareResponse'
+          'prepareResponse',
+          'checkParams',
+          'getDateNotMoreNow',
+          'getMethodLimit',
+          'logError'
         ]
       )
     })
