@@ -160,12 +160,12 @@ const checkParams = (
   additionalSchema = {}
 ) => {
   const ajv = new Ajv()
+  const extendedSchema = { ...schema, ...additionalSchema }
 
-  if (!schema[schemaName]) {
+  if (!extendedSchema[schemaName]) {
     throw new Error('ERR_PARAMS_SCHEMA_NOT_FOUND')
   }
 
-  const extendedSchema = { ...schema, ...additionalSchema }
   const _schema = _.cloneDeep(extendedSchema[schemaName])
 
   if (
