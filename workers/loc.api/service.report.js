@@ -7,7 +7,7 @@ const {
   checkParams,
   getCsvStoreStatus,
   hasJobInQueueWithStatusBy,
-  toString,
+  logError,
   parseFields,
   accountCache,
   getTimezoneConf,
@@ -795,20 +795,9 @@ class ReportService extends Api {
   }
 
   _err (err, caller, cb) {
-    const options = toString(err.options)
-    const logTxtErr = `
-    function: ${caller}
-    statusCode: ${err.statusCode}
-    name: ${err.name}
-    message: ${err.message}
-    options: ${options}
-
-    `
     const logger = this.ctx.grc_bfx.caller.logger
-    logger.error(logTxtErr)
 
-    if (cb) cb(err)
-    else throw err
+    logError(logger, err, caller, cb)
   }
 }
 
