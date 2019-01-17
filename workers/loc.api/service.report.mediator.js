@@ -749,7 +749,7 @@ class MediatorReportService extends ReportService {
   _getCandles (args) {
     return this.ctx.reportsFramework
       .getResponder()
-      .getCandles(args)
+      .getCandles('_getCandles', args)
   }
 
   async _checkAuthInApi (args) {
