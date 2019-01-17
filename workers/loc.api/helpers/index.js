@@ -60,7 +60,7 @@ const getLimitNotMoreThan = (limit, maxLimit = 25) => {
   return Math.min(num, maxLimit)
 }
 
-const _getDateNotMoreNow = (date, now = Date.now()) => {
+const getDateNotMoreNow = (date, now = Date.now()) => {
   return getLimitNotMoreThan(date, now)
 }
 
@@ -137,7 +137,7 @@ const getParams = (
     const paramsOrder = _getParamsOrder(methodApi)
     paramsObj = _.cloneDeep(args.params)
 
-    paramsObj.end = _getDateNotMoreNow(args.params.end)
+    paramsObj.end = getDateNotMoreNow(args.params.end)
     paramsObj.limit = getMethodLimit(args.params.limit, methodApi)
 
     if (cb) cb(paramsObj)
@@ -194,7 +194,7 @@ const checkParams = (
 }
 
 const _setDefaultTimeIfNotExist = (args) => {
-  args.params.end = _getDateNotMoreNow(args.params.end)
+  args.params.end = getDateNotMoreNow(args.params.end)
   args.params.start = args.params.start
     ? args.params.start
     : 0
@@ -569,6 +569,7 @@ const emptyRes = (cb) => {
 module.exports = {
   getREST,
   getLimitNotMoreThan,
+  getDateNotMoreNow,
   getParams,
   checkParams,
   checkParamsAuth,
