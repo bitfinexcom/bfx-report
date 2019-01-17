@@ -155,7 +155,8 @@ const getParams = (
 const checkParams = (
   args,
   schemaName = 'paramsSchemaForCsv',
-  requireFields = []
+  requireFields = [],
+  additionalSchema = {}
 ) => {
   const ajv = new Ajv()
 
@@ -163,7 +164,8 @@ const checkParams = (
     throw new Error('ERR_PARAMS_SCHEMA_NOT_FOUND')
   }
 
-  const _schema = _.cloneDeep(schema[schemaName])
+  const extendedSchema = { ...schema, ...additionalSchema }
+  const _schema = _.cloneDeep(extendedSchema[schemaName])
 
   if (
     Array.isArray(requireFields) &&
