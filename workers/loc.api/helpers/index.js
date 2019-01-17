@@ -566,6 +566,22 @@ const emptyRes = (cb) => {
   return res
 }
 
+const logError = (logger, err, methodName, cb) => {
+  const options = toString(err.options)
+  const logTxtErr = `
+  method: ${methodName}
+  statusCode: ${err.statusCode}
+  name: ${err.name}
+  message: ${err.message}
+  options: ${options}
+
+  `
+  logger.error(logTxtErr)
+
+  if (cb) cb(err)
+  else throw err
+}
+
 module.exports = {
   getREST,
   getLimitNotMoreThan,
@@ -591,5 +607,6 @@ module.exports = {
   prepareApiResponse,
   mapObjBySchema,
   emptyRes,
-  getCsvArgs
+  getCsvArgs,
+  logError
 }
