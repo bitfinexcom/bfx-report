@@ -119,13 +119,27 @@ class SqliteDAO extends DAO {
 
   _getCompareOperator (
     origFieldName,
-    isArr
+    isArr,
+    gtKeys,
+    ltKeys
   ) {
     if (origFieldName === 'start') {
       return '>='
     }
     if (origFieldName === 'end') {
       return '<='
+    }
+    if (
+      Array.isArray(gtKeys) &&
+      gtKeys.some(key => key === origFieldName)
+    ) {
+      return '>'
+    }
+    if (
+      Array.isArray(ltKeys) &&
+      ltKeys.some(key => key === origFieldName)
+    ) {
+      return '<'
     }
 
     return isArr ? 'IN' : '='
@@ -156,21 +170,63 @@ class SqliteDAO extends DAO {
     return { key, subValues }
   }
 
+  _getIsNullOperator (
+    fieldName,
+    filter
+  ) {
+    if (
+      fieldName !== '$isNull' ||
+      (
+        Array.isArray(filter[fieldName]) &&
+        filter[fieldName].length === 0
+      )
+    ) {
+      return false
+    }
+
+    return Array.isArray(filter[fieldName])
+      ? filter[fieldName].map(name => `${name} IS NULL`).join(' AND ')
+      : `${filter[fieldName]} IS NULL`
+  }
+
   _getWhereQuery (filter = {}, isNotSetWhereClause) {
     let values = {}
-    const keys = Object.keys(omit(filter, ['_dateFieldName']))
+
+    const gtObj = filter.$gt && typeof filter.$gt === 'object'
+      ? filter.$gt
+      : {}
+    const ltObj = filter.$lt && typeof filter.$lt === 'object'
+      ? filter.$lt
+      : {}
+    const _filter = {
+      ...omit(filter, ['$gt', '$lt']),
+      ...gtObj,
+      ...ltObj
+    }
+    const keys = Object.keys(omit(_filter, ['_dateFieldName']))
     const where = keys.reduce(
       (accum, curr, i) => {
-        const isArr = Array.isArray(filter[curr])
+        const isArr = Array.isArray(_filter[curr])
+        const isNullOp = this._getIsNullOperator(curr, _filter)
+
+        if (isNullOp) {
+          return `${accum}${i > 0 ? ' AND ' : ''}${isNullOp}`
+        }
+
         const fieldName = (curr === 'start' || curr === 'end')
-          ? filter._dateFieldName
+          ? _filter._dateFieldName
           : curr
-        const compareOperator = this._getCompareOperator(curr, isArr)
+        const compareOperator = this._getCompareOperator(
+          curr,
+          isArr,
+          Object.keys(gtObj),
+          Object.keys(ltObj)
+        )
 
         const {
           key,
           subValues
-        } = this._getKeysAndValuesForWhereQuery(filter, curr, isArr)
+        } = this._getKeysAndValuesForWhereQuery(_filter, curr, isArr)
 
         values = { ...values, ...subValues }
 
