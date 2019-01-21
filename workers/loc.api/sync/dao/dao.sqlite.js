@@ -724,7 +724,8 @@ class SqliteDAO extends DAO {
       minPropName = null,
       groupPropName = null,
       isDistinct = false,
-      projection = []
+      projection = [],
+      limit = null
     } = {}
   ) {
     const subQuery = (
@@ -747,12 +748,15 @@ class SqliteDAO extends DAO {
       ? projection.join(', ')
       : '*'
     const distinct = isDistinct ? 'DISTINCT ' : ''
+    const _limit = Number.isInteger(limit) ? 'LIMIT $_limit' : ''
+    const limitVal = _limit ? { $_limit: limit } : {}
 
     const sql = `SELECT ${distinct}${_projection} FROM ${collName} AS a
       ${where || subQuery ? ' WHERE ' : ''}${where}${where && subQuery ? ' AND ' : ''}${subQuery}
-      ${_sort}`
+      ${_sort}
+      ${_limit}`
 
-    return this._all(sql, values)
+    return this._all(sql, { ...values, ...limitVal })
   }
 
   /**
