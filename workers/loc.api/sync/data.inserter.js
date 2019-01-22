@@ -567,7 +567,16 @@ class DataInserter extends EventEmitter {
           methodApi,
           schema,
           symbol,
-          dates
+          dates,
+          {},
+          (itemRes, params) => {
+            if (
+              schema.name === ALLOWED_COLLS.PUBLIC_TRADES &&
+              typeof params.symbol === 'string'
+            ) {
+              itemRes._symbol = params.symbol
+            }
+          }
         )
       }
     }
@@ -581,7 +590,8 @@ class DataInserter extends EventEmitter {
     schema,
     symbol,
     dates,
-    addApiParams = {}
+    addApiParams = {},
+    customNormalizer
   ) {
     if (
       !dates ||
@@ -606,7 +616,13 @@ class DataInserter extends EventEmitter {
         ...addApiParams
       }
 
-      await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
+      await this._insertApiDataArrObjTypeToDb(
+        args,
+        methodApi,
+        schema,
+        true,
+        customNormalizer
+      )
     }
     if (Number.isInteger(dates.currStart)) {
       const args = this._getMethodArgMap(
@@ -621,7 +637,13 @@ class DataInserter extends EventEmitter {
         ...addApiParams
       }
 
-      await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
+      await this._insertApiDataArrObjTypeToDb(
+        args,
+        methodApi,
+        schema,
+        true,
+        customNormalizer
+      )
     }
   }
 
@@ -629,7 +651,8 @@ class DataInserter extends EventEmitter {
     args,
     methodApi,
     schema,
-    isPublic
+    isPublic,
+    customNormalizer
   ) {
     if (!this._isInsertableArrObjTypeOfColl(schema, isPublic)) {
       return
@@ -703,11 +726,8 @@ class DataInserter extends EventEmitter {
         collName,
         isPublic ? null : { ..._args.auth },
         this._normalizeApiData(res, model, itemRes => {
-          if (
-            collName === ALLOWED_COLLS.PUBLIC_TRADES &&
-            args.params.symbol
-          ) {
-            itemRes._symbol = args.params.symbol
+          if (typeof customNormalizer === 'function') {
+            customNormalizer(itemRes, args.params)
           }
         })
       )
