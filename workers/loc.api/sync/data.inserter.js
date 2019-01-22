@@ -254,7 +254,7 @@ class DataInserter extends EventEmitter {
       if (schema.extension instanceof DataInserterExtension) {
         await schema.extension.insertNewData(method, schema, auth)
       } else {
-        const args = this._getMethodArgMap(method, auth, 10000000, schema.start)
+        const args = this.getMethodArgMap(method, auth, 10000000, schema.start)
 
         await this._insertApiDataArrObjTypeToDb(args, method, schema)
       }
@@ -335,7 +335,7 @@ class DataInserter extends EventEmitter {
     }
 
     for (const { symbol, start } of publicСollsСonf) {
-      const args = this._getMethodArgMap(method, {}, 1)
+      const args = this.getMethodArgMap(method, {}, 1)
       args.params.notThrowError = true
       args.params.notCheckNextPage = true
       args.params.symbol = symbol
@@ -345,7 +345,7 @@ class DataInserter extends EventEmitter {
         filter,
         schema.sort
       )
-      const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
+      const { res: lastElemFromApi } = await this.getDataFromApi(method, args)
 
       if (
         _.isEmpty(lastElemFromApi) ||
@@ -365,7 +365,7 @@ class DataInserter extends EventEmitter {
         continue
       }
 
-      const lastDateInDb = this._compareElemsDbAndApi(
+      const lastDateInDb = this.compareElemsDbAndApi(
         schema.dateFieldName,
         lastElemFromDb,
         lastElemFromApi
@@ -385,11 +385,11 @@ class DataInserter extends EventEmitter {
       const firstElemFromDb = await this.dao.getElemInCollBy(
         schema.name,
         filter,
-        this._invertSort(schema.sort)
+        this.invertSort(schema.sort)
       )
 
       if (!_.isEmpty(firstElemFromDb)) {
-        const isChangedBaseStart = this._compareElemsDbAndApi(
+        const isChangedBaseStart = this.compareElemsDbAndApi(
           schema.dateFieldName,
           { [schema.dateFieldName]: start },
           firstElemFromDb
@@ -406,7 +406,7 @@ class DataInserter extends EventEmitter {
     }
   }
 
-  _invertSort (sortArr) {
+  invertSort (sortArr) {
     return sortArr.map(item => {
       const _arr = [ ...item ]
 
@@ -423,7 +423,7 @@ class DataInserter extends EventEmitter {
   ) {
     schema.hasNewData = false
 
-    const args = this._getMethodArgMap(method, auth, 1)
+    const args = this.getMethodArgMap(method, auth, 1)
     args.params.notThrowError = true
     args.params.notCheckNextPage = true
     const lastElemFromDb = await this.dao.getLastElemFromDb(
@@ -431,7 +431,7 @@ class DataInserter extends EventEmitter {
       { ...(auth || {}) },
       schema.sort
     )
-    const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
+    const { res: lastElemFromApi } = await this.getDataFromApi(method, args)
 
     if (_.isEmpty(lastElemFromApi)) {
       return
@@ -443,7 +443,7 @@ class DataInserter extends EventEmitter {
       return
     }
 
-    const lastDateInDb = this._compareElemsDbAndApi(
+    const lastDateInDb = this.compareElemsDbAndApi(
       schema.dateFieldName,
       lastElemFromDb,
       lastElemFromApi
@@ -507,7 +507,7 @@ class DataInserter extends EventEmitter {
     )
   }
 
-  async _getDataFromApi (methodApi, args) {
+  async getDataFromApi (methodApi, args) {
     if (
       typeof this.reportService[methodApi] !== 'function'
     ) {
@@ -563,7 +563,7 @@ class DataInserter extends EventEmitter {
       schema.name === ALLOWED_COLLS.TICKERS_HISTORY
     ) {
       for (const [symbol, dates] of schema.start) {
-        await this._insertConfigurablePublicApiData(
+        await this.insertConfigurablePublicApiData(
           methodApi,
           schema,
           symbol,
@@ -585,7 +585,7 @@ class DataInserter extends EventEmitter {
     }
   }
 
-  async _insertConfigurablePublicApiData (
+  async insertConfigurablePublicApiData (
     methodApi,
     schema,
     symbol,
@@ -603,7 +603,7 @@ class DataInserter extends EventEmitter {
       Number.isInteger(dates.baseStartFrom) &&
       Number.isInteger(dates.baseStartTo)
     ) {
-      const args = this._getMethodArgMap(
+      const args = this.getMethodArgMap(
         methodApi,
         null,
         10000000,
@@ -625,7 +625,7 @@ class DataInserter extends EventEmitter {
       )
     }
     if (Number.isInteger(dates.currStart)) {
-      const args = this._getMethodArgMap(
+      const args = this.getMethodArgMap(
         methodApi,
         null,
         10000000,
@@ -672,7 +672,7 @@ class DataInserter extends EventEmitter {
     let serialRequestsCount = 0
 
     while (true) {
-      let { res, nextPage } = await this._getDataFromApi(
+      let { res, nextPage } = await this.getDataFromApi(
         methodApi,
         currIterationArgs
       )
@@ -763,8 +763,8 @@ class DataInserter extends EventEmitter {
       field
     } = schema
 
-    const args = this._getMethodArgMap(methodApi, {}, null, null, null)
-    const elemsFromApi = await this._getDataFromApi(methodApi, args)
+    const args = this.getMethodArgMap(methodApi, {}, null, null, null)
+    const elemsFromApi = await this.getDataFromApi(methodApi, args)
 
     if (
       Array.isArray(elemsFromApi) &&
@@ -796,8 +796,8 @@ class DataInserter extends EventEmitter {
       model
     } = schema
 
-    const args = this._getMethodArgMap(methodApi, {}, null, null, null)
-    const elemsFromApi = await this._getDataFromApi(methodApi, args)
+    const args = this.getMethodArgMap(methodApi, {}, null, null, null)
+    const elemsFromApi = await this.getDataFromApi(methodApi, args)
 
     if (
       Array.isArray(elemsFromApi) &&
@@ -821,7 +821,7 @@ class DataInserter extends EventEmitter {
     }
   }
 
-  _compareElemsDbAndApi (dateFieldName, elDb, elApi) {
+  compareElemsDbAndApi (dateFieldName, elDb, elApi) {
     const _elDb = Array.isArray(elDb) ? elDb[0] : elDb
     const _elApi = Array.isArray(elApi) ? elApi[0] : elApi
 
@@ -830,7 +830,7 @@ class DataInserter extends EventEmitter {
       : false
   }
 
-  _getMethodArgMap (
+  getMethodArgMap (
     method,
     auth,
     limit,
