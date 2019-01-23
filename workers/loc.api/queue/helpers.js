@@ -380,14 +380,6 @@ const writeDataToStream = async (reportService, stream, job) => {
       isAllData = true
     }
 
-    if (
-      !isGetWalletsMethod &&
-      _args.params.limit < (count + res.length)
-    ) {
-      res.splice(_args.params.limit - count)
-      isAllData = true
-    }
-
     _write(
       res,
       stream,
@@ -397,11 +389,9 @@ const writeDataToStream = async (reportService, stream, job) => {
     )
 
     count += res.length
-    const needElems = _args.params.limit - count
 
     if (
       isAllData ||
-      needElems <= 0 ||
       !nextPage ||
       !Number.isInteger(nextPage)
     ) {
