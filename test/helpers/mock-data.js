@@ -298,5 +298,16 @@ module.exports = new Map([
       ['DSH', 'Dash'],
       ['ETH', 'Ethereum']
     ]
+  ],
+  [
+    'candles',
+    [[
+      _ms,
+      3645.7,
+      3648.5,
+      3649,
+      3645.7,
+      9.40052609
+    ]]
   ]
 ])

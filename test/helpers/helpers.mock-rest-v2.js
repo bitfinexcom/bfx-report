@@ -43,6 +43,10 @@ const _setDataTo = (
       dataItem[15] = _date
       break
 
+    case 'candles':
+      dataItem[0] = _date
+      break
+
     case 'wallets_hist':
       dataItem[6] = _date
       break
@@ -128,6 +132,7 @@ const createMockRESTv2SrvWithDate = (
     'f_offer_hist': { limit: 500 },
     'f_loan_hist': { limit: 500 },
     'f_credit_hist': { limit: 500 },
+    'candles': { limit: 500 },
     'user_info': null,
     'symbols': null,
     'currencies': null
