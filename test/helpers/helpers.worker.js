@@ -44,6 +44,7 @@ const startWorkers = (
     apiPort: 13381,
     dbId: 1,
     syncMode: false,
+    reportsFramework: false,
     isSpamRestrictionMode: false,
     ...conf
   }

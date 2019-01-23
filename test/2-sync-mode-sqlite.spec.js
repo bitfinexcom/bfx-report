@@ -51,6 +51,7 @@ describe('Sync mode with SQLite', () => {
     await rmDB(dbDirPath)
     const env = await startEnviroment(false, false, 1, {
       syncMode: true,
+      reportsFramework: true,
       isSchedulerEnabled: true,
       dbDriver: 'sqlite'
     })
