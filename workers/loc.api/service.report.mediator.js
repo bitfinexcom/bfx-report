@@ -751,7 +751,8 @@ class MediatorReportService extends ReportService {
 
     const {
       email,
-      timezone
+      timezone,
+      username
     } = await this._getUserInfo(args)
 
     if (!email) {
@@ -760,7 +761,8 @@ class MediatorReportService extends ReportService {
 
     return {
       email,
-      timezone
+      timezone,
+      username
     }
   }
 

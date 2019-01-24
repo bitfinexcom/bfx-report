@@ -596,7 +596,8 @@ class SqliteDAO extends DAO {
               'apiKey',
               'apiSecret',
               'email',
-              'timezone'
+              'timezone',
+              'username'
             ]
           ),
           active: 1,
@@ -611,7 +612,7 @@ class SqliteDAO extends DAO {
       user,
       newData,
       data,
-      ['email', 'timezone']
+      ['email', 'timezone', 'username']
     )
 
     const res = await this.updateCollBy(

@@ -14,7 +14,8 @@ const _models = new Map([
       apiSecret: 'VARCHAR(255)',
       active: 'INT',
       isDataFromDb: 'INT',
-      timezone: 'VARCHAR(255)'
+      timezone: 'VARCHAR(255)',
+      username: 'VARCHAR(255)'
     }
   ],
   [
