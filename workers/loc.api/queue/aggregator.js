@@ -19,6 +19,7 @@ module.exports = async job => {
 
   try {
     const {
+      userInfo,
       name,
       filePath,
       params,
@@ -38,7 +39,8 @@ module.exports = async job => {
         s3Conf,
         filePath,
         name,
-        { ...params }
+        { ...params },
+        userInfo
       )
       s3Data.isUnauth = isUnauth
 
@@ -54,7 +56,8 @@ module.exports = async job => {
       await moveFileToLocalStorage(
         filePath,
         name,
-        { ...params }
+        { ...params },
+        userInfo
       )
     }
 

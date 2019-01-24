@@ -442,6 +442,7 @@ const _getBaseName = queueName => {
 const _getCompleteFileName = (
   queueName,
   params,
+  userInfo,
   ext = 'csv'
 ) => {
   const {
@@ -471,7 +472,9 @@ const _getCompleteFileName = (
     ? _getDateString(end)
     : _getDateString((new Date()).getTime())
   const _ext = ext ? `.${ext}` : ''
-  const fileName = `${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
+  const _userInfo = userInfo ? `${userInfo}_` : ''
+  const fileName = `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
+
   return fileName
 }
 
@@ -492,11 +495,12 @@ const hasS3AndSendgrid = async reportService => {
 const moveFileToLocalStorage = async (
   filePath,
   name,
-  params
+  params,
+  userInfo
 ) => {
   await _checkAndCreateDir(localStorageDirPath)
 
-  const fileName = _getCompleteFileName(name, params)
+  const fileName = _getCompleteFileName(name, params, userInfo)
   const newFilePath = path.join(localStorageDirPath, fileName)
 
   try {
@@ -519,7 +523,8 @@ const uploadS3 = async (
   configs,
   filePath,
   queueName,
-  params
+  params,
+  userInfo
 ) => {
   const grcBfx = reportService.ctx.grc_bfx
   const wrk = grcBfx.caller
@@ -529,6 +534,7 @@ const uploadS3 = async (
   const fileNameWithoutExt = _getCompleteFileName(
     queueName,
     params,
+    userInfo,
     false
   )
   const fileName = `${fileNameWithoutExt}.${isСompress ? 'zip' : 'csv'}`

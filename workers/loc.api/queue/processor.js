@@ -54,6 +54,7 @@ module.exports = async job => {
 
     job.done()
     processorQueue.emit('completed', {
+      userInfo: job.data.userInfo,
       userId: job.data.userId,
       name: job.data.name,
       filePath,
