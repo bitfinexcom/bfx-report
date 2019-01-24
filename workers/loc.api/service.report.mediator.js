@@ -766,6 +766,23 @@ class MediatorReportService extends ReportService {
     }
   }
 
+  /**
+   * @override
+   */
+  async _getUsername (args) {
+    try {
+      const { username } = await this.dao.checkAuthInDb(args)
+
+      if (!username || typeof username !== 'string') {
+        return false
+      }
+
+      return username
+    } catch (err) {
+      return false
+    }
+  }
+
   async _syncModeInitialize () {
     await this._databaseInitialize()
 
