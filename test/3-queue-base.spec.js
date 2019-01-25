@@ -41,7 +41,7 @@ describe('Queue', () => {
   before(async function () {
     this.timeout(20000)
 
-    mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end)
+    mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, 10000)
 
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
@@ -97,12 +97,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -147,12 +149,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -198,12 +202,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -245,12 +251,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -296,12 +304,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -346,12 +356,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -396,12 +408,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -447,12 +461,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -498,12 +514,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -549,12 +567,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -657,12 +677,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -707,12 +729,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -758,12 +782,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -809,12 +835,14 @@ describe('Queue', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -865,12 +893,14 @@ describe('Queue', () => {
       procRes => {
         assert.isObject(procRes)
         assert.containsAllKeys(procRes, [
+          'userInfo',
           'userId',
           'name',
           'filePath',
           'params',
           'isUnauth'
         ])
+        assert.isString(procRes.userInfo)
         assert.isString(procRes.name)
         assert.isString(procRes.filePath)
         assert.isObject(procRes.params)
