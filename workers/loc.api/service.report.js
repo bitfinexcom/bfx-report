@@ -38,6 +38,20 @@ class ReportService extends Api {
     return rest.userInfo()
   }
 
+  async _getUsername (args) {
+    try {
+      const { username } = await this._getUserInfo(args)
+
+      if (!username || typeof username !== 'string') {
+        return false
+      }
+
+      return username
+    } catch (err) {
+      return false
+    }
+  }
+
   async getEmail (space, args, cb) {
     try {
       const result = await this._getUserInfo(args)
@@ -325,10 +339,12 @@ class ReportService extends Api {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'trades')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getTrades',
         args: csvArgs,
@@ -362,6 +378,7 @@ class ReportService extends Api {
       checkParams(args, 'paramsSchemaForCsv', ['symbol'])
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'tickersHistory')
       const processorQueue = this.ctx.lokue_processor.q
@@ -393,6 +410,7 @@ class ReportService extends Api {
         mtsUpdate: 'TIME'
       }
       const jobData = {
+        userInfo,
         userId,
         name: 'getTickersHistory',
         args: csvArgs,
@@ -417,10 +435,12 @@ class ReportService extends Api {
       checkParams(args, 'paramsSchemaForWalletsCsv')
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const method = 'getWallets'
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: method,
         args,
@@ -445,10 +465,12 @@ class ReportService extends Api {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'positionsHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getPositionsHistory',
         args: csvArgs,
@@ -488,10 +510,12 @@ class ReportService extends Api {
       checkParams(args, 'paramsSchemaForPositionsAuditCsv', ['id'])
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'positionsAudit')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getPositionsAudit',
         args: csvArgs,
@@ -532,10 +556,12 @@ class ReportService extends Api {
       checkTimeLimit(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'publicTrades')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getPublicTrades',
         args: csvArgs,
@@ -566,10 +592,12 @@ class ReportService extends Api {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'ledgers')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getLedgers',
         args: csvArgs,
@@ -600,10 +628,12 @@ class ReportService extends Api {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'orders')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getOrders',
         args: csvArgs,
@@ -640,10 +670,12 @@ class ReportService extends Api {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'movements')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getMovements',
         args: csvArgs,
@@ -675,10 +707,12 @@ class ReportService extends Api {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'fundingOfferHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getFundingOfferHistory',
         args: csvArgs,
@@ -715,10 +749,12 @@ class ReportService extends Api {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'fundingLoanHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getFundingLoanHistory',
         args: csvArgs,
@@ -757,10 +793,12 @@ class ReportService extends Api {
       checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
 
       const csvArgs = getCsvArgs(args, 'fundingCreditHistory')
       const processorQueue = this.ctx.lokue_processor.q
       const jobData = {
+        userInfo,
         userId,
         name: 'getFundingCreditHistory',
         args: csvArgs,

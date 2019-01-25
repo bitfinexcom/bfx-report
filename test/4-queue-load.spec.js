@@ -80,12 +80,14 @@ describe('Queue load', () => {
       procRes => {
         assert.isObject(procRes)
         assert.containsAllKeys(procRes, [
+          'userInfo',
           'userId',
           'name',
           'filePath',
           'params',
           'isUnauth'
         ])
+        assert.isString(procRes.userInfo)
         assert.isString(procRes.name)
         assert.isString(procRes.filePath)
         assert.isObject(procRes.params)

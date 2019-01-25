@@ -166,7 +166,10 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isString(res.body.result)
+    assert.isOk(
+      typeof res.body.result === 'string' ||
+      typeof res.body.result === 'number'
+    )
   })
 
   it('it should be successfully performed by the isSchedulerEnabled method', async function () {
@@ -1615,12 +1618,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -1665,12 +1670,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -1716,12 +1723,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -1763,12 +1772,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -1814,12 +1825,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -1864,12 +1877,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -1914,12 +1929,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -1964,12 +1981,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -2014,12 +2033,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -2065,12 +2086,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -2172,12 +2195,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -2187,7 +2212,7 @@ describe('Sync mode with SQLite', () => {
     const file = fs.readFileSync(procRes.filePath, 'utf8')
     const arrOfLines = file.split(/\n/)
 
-    assert.equal(arrOfLines.length - 2, 500, '500 is max limit for getOrders')
+    assert.isAbove(arrOfLines.length, 2)
 
     await aggrPromise
 
@@ -2226,12 +2251,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -2276,12 +2303,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -2326,12 +2355,14 @@ describe('Sync mode with SQLite', () => {
 
     assert.isObject(procRes)
     assert.containsAllKeys(procRes, [
+      'userInfo',
       'userId',
       'name',
       'filePath',
       'params',
       'isUnauth'
     ])
+    assert.isString(procRes.userInfo)
     assert.isString(procRes.name)
     assert.isString(procRes.filePath)
     assert.isObject(procRes.params)
@@ -2381,12 +2412,14 @@ describe('Sync mode with SQLite', () => {
       procRes => {
         assert.isObject(procRes)
         assert.containsAllKeys(procRes, [
+          'userInfo',
           'userId',
           'name',
           'filePath',
           'params',
           'isUnauth'
         ])
+        assert.isString(procRes.userInfo)
         assert.isString(procRes.name)
         assert.isString(procRes.filePath)
         assert.isObject(procRes.params)

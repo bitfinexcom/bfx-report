@@ -751,7 +751,8 @@ class MediatorReportService extends ReportService {
 
     const {
       email,
-      timezone
+      timezone,
+      username
     } = await this._getUserInfo(args)
 
     if (!email) {
@@ -760,7 +761,25 @@ class MediatorReportService extends ReportService {
 
     return {
       email,
-      timezone
+      timezone,
+      username
+    }
+  }
+
+  /**
+   * @override
+   */
+  async _getUsername (args) {
+    try {
+      const { username } = await this.dao.checkAuthInDb(args)
+
+      if (!username || typeof username !== 'string') {
+        return false
+      }
+
+      return username
+    } catch (err) {
+      return false
     }
   }
 
