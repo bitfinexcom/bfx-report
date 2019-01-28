@@ -203,6 +203,12 @@ class WrkReportServiceApi extends WrkApi {
           const data = _.cloneDeep(job.data)
           delete data.columnsCsv
 
+          if (Array.isArray(data.jobsData)) {
+            data.jobsData.forEach(item => {
+              delete item.columnsCsv
+            })
+          }
+
           processorQueue.addJob({
             ...data,
             isUnauth: true

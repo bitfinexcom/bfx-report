@@ -284,24 +284,24 @@ const _setDefaultPrams = (args) => {
     : 0
 }
 
-const writeDataToStream = async (reportService, stream, job) => {
-  if (typeof job === 'string') {
-    _writeMessageToStream(reportService, stream, job)
+const writeDataToStream = async (reportService, stream, jobData) => {
+  if (typeof jobData === 'string') {
+    _writeMessageToStream(reportService, stream, jobData)
 
     return
   }
 
-  const method = job.data.name
+  const method = jobData.name
 
   if (typeof reportService[method] !== 'function') {
     throw new Error('ERR_METHOD_NOT_FOUND')
   }
 
   const queue = reportService.ctx.lokue_aggregator.q
-  const propName = job.data.propNameForPagination
-  const formatSettings = job.data.formatSettings
+  const propName = jobData.propNameForPagination
+  const formatSettings = jobData.formatSettings
 
-  const _args = _.cloneDeep(job.data.args)
+  const _args = _.cloneDeep(jobData.args)
 
   _setDefaultPrams(_args)
   const currIterationArgs = _.cloneDeep(_args)
