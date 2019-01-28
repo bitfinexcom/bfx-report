@@ -23,8 +23,15 @@ class UpdateSyncQueueJobError extends BaseError {
   }
 }
 
+class FindMethodToGetCsvFileError extends BaseError {
+  constructor (message = 'ERR_METHOD_TO_GET_CSV_FILE_NOT_FOUND') {
+    super(message)
+  }
+}
+
 module.exports = {
   BaseError,
   CollSyncPermissionError,
-  UpdateSyncQueueJobError
+  UpdateSyncQueueJobError,
+  FindMethodToGetCsvFileError
 }
