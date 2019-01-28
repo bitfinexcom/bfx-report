@@ -15,6 +15,11 @@ const {
   prepareApiResponse,
   getCsvArgs
 } = require('./helpers')
+const {
+  getTradesCsvJobData,
+  getTickersHistoryCsvJobData,
+  getMultipleCsvJobData
+} = require ('./helpers/getCsvJobData')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -334,36 +339,30 @@ class ReportService extends Api {
     }
   }
 
-  async getTradesCsv (space, args, cb) {
+  // TODO:
+  async getMultipleCsv (space, args, cb) {
     try {
-      checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
       const userInfo = await this._getUsername(args)
-
-      const csvArgs = getCsvArgs(args, 'trades')
+      const jobData = getMultipleCsvJobData(this, args, userId, userInfo) // TODO:
       const processorQueue = this.ctx.lokue_processor.q
-      const jobData = {
-        userInfo,
-        userId,
-        name: 'getTrades',
-        args: csvArgs,
-        propNameForPagination: 'mtsCreate',
-        columnsCsv: {
-          id: '#',
-          symbol: 'PAIR',
-          execAmount: 'AMOUNT',
-          execPrice: 'PRICE',
-          fee: 'FEE',
-          feeCurrency: 'FEE CURRENCY',
-          mtsCreate: 'DATE',
-          orderID: 'ORDER ID'
-        },
-        formatSettings: {
-          mtsCreate: 'date',
-          symbol: 'symbol'
-        }
-      }
+
+      processorQueue.addJob(jobData)
+      
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getMultipleCsv', cb)
+    }
+  }
+
+  async getTradesCsv (space, args, cb) {
+    try {
+      const userId = await hasJobInQueueWithStatusBy(this, args)
+      const status = await getCsvStoreStatus(this, args)
+      const userInfo = await this._getUsername(args)
+      const jobData = getTradesCsvJobData(args, userId, userInfo) // TODO:
+      const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
@@ -375,52 +374,11 @@ class ReportService extends Api {
 
   async getTickersHistoryCsv (space, args, cb) {
     try {
-      checkParams(args, 'paramsSchemaForCsv', ['symbol'])
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
       const userInfo = await this._getUsername(args)
-
-      const csvArgs = getCsvArgs(args, 'tickersHistory')
+      const jobData = getTickersHistoryCsvJobData(args, userId, userInfo) // TODO:
       const processorQueue = this.ctx.lokue_processor.q
-      const symb = Array.isArray(args.params.symbol)
-        ? args.params.symbol
-        : [args.params.symbol]
-      const isTrading = symb.every(s => {
-        return s && typeof s === 'string' && s[0] === 't'
-      })
-      const isFunding = symb.every(s => {
-        return s && typeof s === 'string' && s[0] !== 't'
-      })
-
-      if (!isTrading && !isFunding) {
-        throw new Error('ERR_SYMBOLS_ARE_NOT_OF_SAME_TYPE')
-      }
-
-      const tTickerHistColumns = {
-        symbol: 'PAIR',
-        bid: 'BID',
-        ask: 'ASK',
-        mtsUpdate: 'TIME'
-      }
-      const fTickerHistColumns = {
-        symbol: 'PAIR',
-        bid: 'BID',
-        bidPeriod: 'BID PERIOD',
-        ask: 'ASK',
-        mtsUpdate: 'TIME'
-      }
-      const jobData = {
-        userInfo,
-        userId,
-        name: 'getTickersHistory',
-        args: csvArgs,
-        propNameForPagination: 'mtsUpdate',
-        columnsCsv: isTrading ? tTickerHistColumns : fTickerHistColumns,
-        formatSettings: {
-          mtsUpdate: 'date',
-          symbol: 'symbol'
-        }
-      }
 
       processorQueue.addJob(jobData)
 
