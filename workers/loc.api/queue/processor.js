@@ -17,6 +17,7 @@ let reportService = null
 
 module.exports = async job => {
   const filePaths = []
+  const subParamsArr = []
   const processorQueue = reportService.ctx.lokue_processor.q
   const isUnauth = job.data.isUnauth || false
   const jobsData = Array.isArray(job.data.jobsData)
@@ -24,16 +25,27 @@ module.exports = async job => {
     : [job.data]
 
   try {
+    if (
+      !job.data.args.params ||
+      typeof job.data.args.params !== 'object'
+    ) {
+      job.data.args.params = {}
+    }
+
     for (const data of jobsData) {
       if (
-        !data.args.params &&
+        !data.args.params ||
         typeof data.args.params !== 'object'
       ) {
-        job.data.args.params = {}
+        data.args.params = {}
       }
 
       const filePath = await createUniqueFileName()
       filePaths.push(filePath)
+      subParamsArr.push({
+        ...data.args.params,
+        name: data.name
+      })
 
       const write = isUnauth
         ? 'Your file could not be completed, please try again'
@@ -43,7 +55,7 @@ module.exports = async job => {
       const writablePromise = writableToPromise(writable)
       const stringifier = stringify({
         header: true,
-        columns: job.data.columnsCsv
+        columns: data.columnsCsv
       })
 
       stringifier.pipe(writable)
@@ -65,7 +77,8 @@ module.exports = async job => {
       userId: job.data.userId,
       name: job.data.name,
       filePaths,
-      params: jobsData.map(data => data.args.params),
+      subParamsArr,
+      email: job.data.args.params.email,
       isUnauth
     })
   } catch (err) {
