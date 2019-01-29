@@ -464,16 +464,20 @@ const _getCompleteFileName = (
     baseName = _getBaseName(queueName)
   }
 
-  const timestamp = (new Date()).toISOString().split(':').join('-')
+  const date = new Date()
+  const formattedDateNow = _getDateString(date.getTime())
+  const timestamp = date.toISOString().split(':').join('-')
   const startDate = start
     ? _getDateString(start)
     : _getDateString(0)
   const endDate = end
     ? _getDateString(end)
-    : _getDateString((new Date()).getTime())
+    : formattedDateNow
   const _ext = ext ? `.${ext}` : ''
   const _userInfo = userInfo ? `${userInfo}_` : ''
-  const fileName = `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
+  const fileName = queueName === 'getWallets'
+    ? `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${_ext}`
+    : `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
 
   return fileName
 }
