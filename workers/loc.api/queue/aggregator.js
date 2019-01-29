@@ -21,15 +21,16 @@ module.exports = async job => {
     const {
       userInfo,
       name,
-      filePath,
-      params,
+      filePaths,
+      subParamsArr,
+      email,
       isUnauth,
       s3Conf,
       emailConf
     } = job.data
 
     const isEnableToSendEmail = (
-      typeof params.email === 'string' &&
+      typeof email === 'string' &&
       await hasS3AndSendgrid(reportService)
     )
 
@@ -37,42 +38,53 @@ module.exports = async job => {
       const s3Data = await uploadS3(
         reportService,
         s3Conf,
-        filePath,
+        filePaths,
         name,
-        { ...params },
+        subParamsArr,
         userInfo
       )
-      s3Data.isUnauth = isUnauth
 
       await sendMail(
         reportService,
         emailConf,
-        params.email,
+        email,
         'email.pug',
-        s3Data
+        s3Data.map(item => ({ ...item, isUnauth }))
       )
-      await unlink(filePath)
+
+      for (const filePath of filePaths) {
+        await unlink(filePath)
+      }
     } else {
-      await moveFileToLocalStorage(
-        filePath,
-        name,
-        { ...params },
-        userInfo
-      )
+      let count = 0
+
+      for (const filePath of filePaths) {
+        await moveFileToLocalStorage(
+          filePath,
+          subParamsArr[count].name || name,
+          { ...subParamsArr[count] },
+          userInfo
+        )
+
+        count += 1
+      }
     }
 
     job.done()
     aggregatorQueue.emit('completed')
   } catch (err) {
     if (err.syscall === 'unlink') {
-      job.done()
       aggregatorQueue.emit('error:unlink', job)
+      job.done()
     } else {
       try {
-        await unlink(job.data.filePath)
+        for (const filePath of job.data.filePaths) {
+          await unlink(filePath)
+        }
       } catch (e) {
-
+        aggregatorQueue.emit('error:unlink', job)
       }
+
       job.done(err)
     }
 
