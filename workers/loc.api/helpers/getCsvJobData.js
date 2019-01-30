@@ -283,6 +283,38 @@ const getCsvJobData = {
     }
 
     return jobData
+  },
+  getFundingOfferHistoryCsvJobData (args, userId, userInfo) {
+    checkParams(args)
+
+    const csvArgs = getCsvArgs(args, 'fundingOfferHistory')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getFundingOfferHistory',
+      args: csvArgs,
+      propNameForPagination: 'mtsUpdate',
+      columnsCsv: {
+        id: '#',
+        symbol: 'CURRENCY',
+        amountOrig: 'AMOUNT',
+        amountExecuted: 'EXECUTED AMOUNT',
+        type: 'TYPE',
+        status: 'STATUS',
+        rate: 'RATE',
+        period: 'PERIOD',
+        mtsUpdate: 'UPDATED',
+        mtsCreate: 'CREATED'
+      },
+      formatSettings: {
+        mtsUpdate: 'date',
+        mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
   }
 }
 
