@@ -198,6 +198,32 @@ const getCsvJobData = {
     }
 
     return jobData
+  },
+  getLedgersCsvJobData (args, userId, userInfo) {
+    checkParams(args)
+
+    const csvArgs = getCsvArgs(args, 'ledgers')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getLedgers',
+      args: csvArgs,
+      propNameForPagination: 'mts',
+      columnsCsv: {
+        description: 'DESCRIPTION',
+        currency: 'CURRENCY',
+        amount: 'AMOUNT',
+        balance: 'BALANCE',
+        mts: 'DATE',
+        wallet: 'WALLET'
+      },
+      formatSettings: {
+        mts: 'date'
+      }
+    }
+
+    return jobData
   }
 }
 

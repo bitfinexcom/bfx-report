@@ -21,6 +21,7 @@ const {
   getPositionsHistoryCsvJobData,
   getPositionsAuditCsvJobData,
   getPublicTradesCsvJobData,
+  getLedgersCsvJobData,
   getMultipleCsvJobData
 } = require('./helpers/getCsvJobData')
 
@@ -456,31 +457,11 @@ class ReportService extends Api {
 
   async getLedgersCsv (space, args, cb) {
     try {
-      checkParams(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
       const userInfo = await this._getUsername(args)
-
-      const csvArgs = getCsvArgs(args, 'ledgers')
+      const jobData = getLedgersCsvJobData(args, userId, userInfo)
       const processorQueue = this.ctx.lokue_processor.q
-      const jobData = {
-        userInfo,
-        userId,
-        name: 'getLedgers',
-        args: csvArgs,
-        propNameForPagination: 'mts',
-        columnsCsv: {
-          description: 'DESCRIPTION',
-          currency: 'CURRENCY',
-          amount: 'AMOUNT',
-          balance: 'BALANCE',
-          mts: 'DATE',
-          wallet: 'WALLET'
-        },
-        formatSettings: {
-          mts: 'date'
-        }
-      }
 
       processorQueue.addJob(jobData)
 
