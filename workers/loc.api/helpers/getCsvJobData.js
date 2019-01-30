@@ -256,6 +256,33 @@ const getCsvJobData = {
     }
 
     return jobData
+  },
+  getMovementsCsvJobData (args, userId, userInfo) {
+    checkParams(args)
+
+    const csvArgs = getCsvArgs(args, 'movements')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getMovements',
+      args: csvArgs,
+      propNameForPagination: 'mtsUpdated',
+      columnsCsv: {
+        id: '#',
+        mtsUpdated: 'DATE',
+        currency: 'CURRENCY',
+        status: 'STATUS',
+        amount: 'AMOUNT',
+        fees: 'FEES',
+        destinationAddress: 'DESCRIPTION'
+      },
+      formatSettings: {
+        mtsUpdated: 'date'
+      }
+    }
+
+    return jobData
   }
 }
 
