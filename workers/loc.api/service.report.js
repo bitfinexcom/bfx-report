@@ -18,8 +18,9 @@ const {
 const {
   getTradesCsvJobData,
   getTickersHistoryCsvJobData,
+  getWalletsCsvJobData,
   getMultipleCsvJobData
-} = require ('./helpers/getCsvJobData')
+} = require('./helpers/getCsvJobData')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -348,7 +349,7 @@ class ReportService extends Api {
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
-      
+
       cb(null, status)
     } catch (err) {
       this._err(err, 'getMultipleCsv', cb)
@@ -389,25 +390,11 @@ class ReportService extends Api {
 
   async getWalletsCsv (space, args, cb) {
     try {
-      checkParams(args, 'paramsSchemaForWalletsCsv')
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
       const userInfo = await this._getUsername(args)
-
-      const method = 'getWallets'
+      const jobData = getWalletsCsvJobData(args, userId, userInfo)
       const processorQueue = this.ctx.lokue_processor.q
-      const jobData = {
-        userInfo,
-        userId,
-        name: method,
-        args,
-        propNameForPagination: 'mtsUpdate',
-        columnsCsv: {
-          type: 'TYPE',
-          currency: 'CURRENCY',
-          balance: 'BALANCE'
-        }
-      }
 
       processorQueue.addJob(jobData)
 

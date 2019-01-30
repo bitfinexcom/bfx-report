@@ -82,6 +82,24 @@ const getCsvJobData = {
     }
 
     return jobData
+  },
+  getWalletsCsvJobData (args, userId, userInfo) {
+    checkParams(args, 'paramsSchemaForWalletsCsv')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getWallets',
+      args,
+      propNameForPagination: 'mtsUpdate',
+      columnsCsv: {
+        type: 'TYPE',
+        currency: 'CURRENCY',
+        balance: 'BALANCE'
+      }
+    }
+
+    return jobData
   }
 }
 
