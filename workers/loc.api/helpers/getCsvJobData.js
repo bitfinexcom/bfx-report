@@ -100,6 +100,41 @@ const getCsvJobData = {
     }
 
     return jobData
+  },
+  getPositionsHistoryCsvJobData (args, userId, userInfo) {
+    checkParams(args)
+
+    const csvArgs = getCsvArgs(args, 'positionsHistory')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getPositionsHistory',
+      args: csvArgs,
+      propNameForPagination: 'mtsUpdate',
+      columnsCsv: {
+        id: '#',
+        symbol: 'PAIR',
+        amount: 'AMOUNT',
+        basePrice: 'BASE PRICE',
+        liquidationPrice: 'LIQ PRICE',
+        pl: 'P/L',
+        plPerc: 'P/L%',
+        marginFunding: 'FUNDING COST',
+        marginFundingType: 'FUNDING TYPE',
+        status: 'STATUS',
+        mtsUpdate: 'UPDATED',
+        mtsCreate: 'CREATED',
+        leverage: 'LEVERAGE'
+      },
+      formatSettings: {
+        mtsUpdate: 'date',
+        mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
   }
 }
 
