@@ -135,6 +135,41 @@ const getCsvJobData = {
     }
 
     return jobData
+  },
+  getPositionsAuditCsvJobData (args, userId, userInfo) {
+    checkParams(args, 'paramsSchemaForPositionsAuditCsv', ['id'])
+
+    const csvArgs = getCsvArgs(args, 'positionsAudit')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getPositionsAudit',
+      args: csvArgs,
+      propNameForPagination: 'mtsUpdate',
+      columnsCsv: {
+        id: '#',
+        symbol: 'PAIR',
+        amount: 'AMOUNT',
+        basePrice: 'BASE PRICE',
+        liquidationPrice: 'LIQ PRICE',
+        pl: 'P/L',
+        plPerc: 'P/L%',
+        marginFunding: 'FUNDING COST',
+        marginFundingType: 'FUNDING TYPE',
+        status: 'STATUS',
+        mtsUpdate: 'UPDATED',
+        mtsCreate: 'CREATED',
+        leverage: 'LEVERAGE'
+      },
+      formatSettings: {
+        mtsUpdate: 'date',
+        mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
   }
 }
 
