@@ -69,6 +69,79 @@ describe('Queue', () => {
     } catch (err) { }
   })
 
+  it('it should be successfully performed by the getMultipleCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMultipleCsv',
+        params: {
+          email,
+          multiExport: [
+            {
+              method: 'getTradesCsv',
+              symbol: ['tBTCUSD', 'tETHUSD'],
+              end,
+              start,
+              limit: 1000,
+              timezone: 'America/Los_Angeles'
+            },
+            {
+              method: 'getTickersHistoryCsv',
+              symbol: 'BTC',
+              end,
+              start,
+              limit: 1000
+            }
+          ]
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
+  it('it should not be successfully performed by the getMultipleCsv method', async function () {
+    this.timeout(60000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMultipleCsv',
+        params: {
+          email,
+          multiExport: [
+            {
+              symbol: ['tBTCUSD', 'tETHUSD'],
+              end,
+              start,
+              limit: 1000,
+              timezone: 'America/Los_Angeles'
+            }
+          ]
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 500)
+    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+    assert.propertyVal(res.body, 'id', 5)
+  })
+
   it('it should be successfully performed by the getTickersHistoryCsv method', async function () {
     this.timeout(60000)
 
