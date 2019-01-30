@@ -6,7 +6,6 @@ const {
   getREST,
   checkParams,
   getCsvStoreStatus,
-  hasJobInQueueWithStatusBy,
   toString,
   parseFields,
   accountCache,
@@ -27,7 +26,7 @@ const {
   getFundingLoanHistoryCsvJobData,
   getFundingCreditHistoryCsvJobData,
   getMultipleCsvJobData
-} = require('./helpers/getCsvJobData')
+} = require('./helpers/get-csv-job-data')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -349,10 +348,8 @@ class ReportService extends Api {
 
   async getMultipleCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getMultipleCsvJobData(this, args, userId, userInfo)
+      const jobData = await getMultipleCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -365,10 +362,8 @@ class ReportService extends Api {
 
   async getTradesCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getTradesCsvJobData(args, userId, userInfo)
+      const jobData = await getTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -381,10 +376,8 @@ class ReportService extends Api {
 
   async getTickersHistoryCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getTickersHistoryCsvJobData(args, userId, userInfo)
+      const jobData = await getTickersHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -397,10 +390,8 @@ class ReportService extends Api {
 
   async getWalletsCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getWalletsCsvJobData(args, userId, userInfo)
+      const jobData = await getWalletsCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -413,10 +404,8 @@ class ReportService extends Api {
 
   async getPositionsHistoryCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getPositionsHistoryCsvJobData(args, userId, userInfo)
+      const jobData = await getPositionsHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -429,10 +418,8 @@ class ReportService extends Api {
 
   async getPositionsAuditCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getPositionsAuditCsvJobData(args, userId, userInfo)
+      const jobData = await getPositionsAuditCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -445,10 +432,8 @@ class ReportService extends Api {
 
   async getPublicTradesCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getPublicTradesCsvJobData(args, userId, userInfo)
+      const jobData = await getPublicTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -461,10 +446,8 @@ class ReportService extends Api {
 
   async getLedgersCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getLedgersCsvJobData(args, userId, userInfo)
+      const jobData = await getLedgersCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -477,10 +460,8 @@ class ReportService extends Api {
 
   async getOrdersCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getOrdersCsvJobData(args, userId, userInfo)
+      const jobData = await getOrdersCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -493,10 +474,8 @@ class ReportService extends Api {
 
   async getMovementsCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getMovementsCsvJobData(args, userId, userInfo)
+      const jobData = await getMovementsCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -509,10 +488,8 @@ class ReportService extends Api {
 
   async getFundingOfferHistoryCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getFundingOfferHistoryCsvJobData(args, userId, userInfo)
+      const jobData = await getFundingOfferHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -525,10 +502,8 @@ class ReportService extends Api {
 
   async getFundingLoanHistoryCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getFundingLoanHistoryCsvJobData(args, userId, userInfo)
+      const jobData = await getFundingLoanHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
@@ -541,10 +516,8 @@ class ReportService extends Api {
 
   async getFundingCreditHistoryCsv (space, args, cb) {
     try {
-      const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
-      const userInfo = await this._getUsername(args)
-      const jobData = getFundingCreditHistoryCsvJobData(args, userId, userInfo)
+      const jobData = await getFundingCreditHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)

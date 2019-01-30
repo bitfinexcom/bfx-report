@@ -3,13 +3,48 @@
 const {
   checkParams,
   getCsvArgs,
-  checkTimeLimit
+  checkTimeLimit,
+  hasJobInQueueWithStatusBy
 } = require('./index')
 const { FindMethodToGetCsvFileError } = require('../errors')
 
+const _checkJobAndGetUserData = async (
+  reportService,
+  args,
+  uId,
+  uInfo
+) => {
+  const userId = Number.isInteger(uId)
+    ? uId
+    : await hasJobInQueueWithStatusBy(reportService, args)
+  const userInfo = uInfo && typeof uInfo === 'string'
+    ? uInfo
+    : await reportService._getUsername(args)
+
+  return {
+    userId,
+    userInfo
+  }
+}
+
 const getCsvJobData = {
-  getTradesCsvJobData (args, userId, userInfo) {
+  async getTradesCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'trades')
 
@@ -37,8 +72,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getTickersHistoryCsvJobData (args, userId, userInfo) {
+  async getTickersHistoryCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args, 'paramsSchemaForCsv', ['symbol'])
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'tickersHistory')
     const symb = Array.isArray(args.params.symbol)
@@ -84,8 +134,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getWalletsCsvJobData (args, userId, userInfo) {
+  async getWalletsCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args, 'paramsSchemaForWalletsCsv')
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const jobData = {
       userInfo,
@@ -102,8 +167,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getPositionsHistoryCsvJobData (args, userId, userInfo) {
+  async getPositionsHistoryCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'positionsHistory')
 
@@ -137,8 +217,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getPositionsAuditCsvJobData (args, userId, userInfo) {
+  async getPositionsAuditCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args, 'paramsSchemaForPositionsAuditCsv', ['id'])
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'positionsAudit')
 
@@ -172,9 +267,24 @@ const getCsvJobData = {
 
     return jobData
   },
-  getPublicTradesCsvJobData (args, userId, userInfo) {
+  async getPublicTradesCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args, 'paramsSchemaForPublicTradesCsv', ['symbol'])
     checkTimeLimit(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'publicTrades')
 
@@ -199,8 +309,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getLedgersCsvJobData (args, userId, userInfo) {
+  async getLedgersCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'ledgers')
 
@@ -225,8 +350,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getOrdersCsvJobData (args, userId, userInfo) {
+  async getOrdersCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'orders')
 
@@ -257,8 +397,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getMovementsCsvJobData (args, userId, userInfo) {
+  async getMovementsCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'movements')
 
@@ -284,8 +439,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getFundingOfferHistoryCsvJobData (args, userId, userInfo) {
+  async getFundingOfferHistoryCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'fundingOfferHistory')
 
@@ -316,8 +486,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getFundingLoanHistoryCsvJobData (args, userId, userInfo) {
+  async getFundingLoanHistoryCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'fundingLoanHistory')
 
@@ -350,8 +535,23 @@ const getCsvJobData = {
 
     return jobData
   },
-  getFundingCreditHistoryCsvJobData (args, userId, userInfo) {
+  async getFundingCreditHistoryCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
     checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
 
     const csvArgs = getCsvArgs(args, 'fundingCreditHistory')
 
@@ -387,15 +587,27 @@ const getCsvJobData = {
   }
 }
 
-const getMultipleCsvJobData = (
+const getMultipleCsvJobData = async (
   reportService,
   args,
-  userId,
-  userInfo
+  uId,
+  uInfo
 ) => {
   checkParams(args, 'paramsSchemaForMultipleCsv', false, true)
 
-  const jobsData = args.params.multiExport.map(params => {
+  const {
+    userId,
+    userInfo
+  } = await _checkJobAndGetUserData(
+    reportService,
+    args,
+    uId,
+    uInfo
+  )
+
+  const jobsData = []
+
+  for (const params of args.params.multiExport) {
     const getJobDataMethodName = `${params.method}JobData`
     const hasGetJobDataMethod = Object.keys(getCsvJobData).every((name) => {
       return name !== getJobDataMethodName
@@ -408,7 +620,8 @@ const getMultipleCsvJobData = (
       throw new FindMethodToGetCsvFileError()
     }
 
-    return getCsvJobData[getJobDataMethodName].bind(getCsvJobData)(
+    const jobData = await getCsvJobData[getJobDataMethodName](
+      reportService,
       {
         ...args,
         params: { ...params }
@@ -416,7 +629,9 @@ const getMultipleCsvJobData = (
       userId,
       userInfo
     )
-  })
+
+    jobsData.push(jobData)
+  }
 
   return {
     userInfo,
