@@ -2,7 +2,8 @@
 
 const {
   checkParams,
-  getCsvArgs
+  getCsvArgs,
+  checkTimeLimit
 } = require('./index')
 const { FindMethodToGetCsvFileError } = require('../errors')
 
@@ -165,6 +166,33 @@ const getCsvJobData = {
       formatSettings: {
         mtsUpdate: 'date',
         mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
+  },
+  getPublicTradesCsvJobData (args, userId, userInfo) {
+    checkParams(args, 'paramsSchemaForPublicTradesCsv', ['symbol'])
+    checkTimeLimit(args)
+
+    const csvArgs = getCsvArgs(args, 'publicTrades')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getPublicTrades',
+      args: csvArgs,
+      propNameForPagination: 'mts',
+      columnsCsv: {
+        id: '#',
+        mts: 'TIME',
+        price: 'PRICE',
+        amount: 'AMOUNT',
+        symbol: 'PAIR'
+      },
+      formatSettings: {
+        mts: 'date',
         symbol: 'symbol'
       }
     }

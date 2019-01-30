@@ -11,7 +11,6 @@ const {
   parseFields,
   accountCache,
   getTimezoneConf,
-  checkTimeLimit,
   prepareApiResponse,
   getCsvArgs
 } = require('./helpers')
@@ -21,6 +20,7 @@ const {
   getWalletsCsvJobData,
   getPositionsHistoryCsvJobData,
   getPositionsAuditCsvJobData,
+  getPublicTradesCsvJobData,
   getMultipleCsvJobData
 } = require('./helpers/getCsvJobData')
 
@@ -440,32 +440,11 @@ class ReportService extends Api {
 
   async getPublicTradesCsv (space, args, cb) {
     try {
-      checkParams(args, 'paramsSchemaForPublicTradesCsv', ['symbol'])
-      checkTimeLimit(args)
       const userId = await hasJobInQueueWithStatusBy(this, args)
       const status = await getCsvStoreStatus(this, args)
       const userInfo = await this._getUsername(args)
-
-      const csvArgs = getCsvArgs(args, 'publicTrades')
+      const jobData = getPublicTradesCsvJobData(args, userId, userInfo)
       const processorQueue = this.ctx.lokue_processor.q
-      const jobData = {
-        userInfo,
-        userId,
-        name: 'getPublicTrades',
-        args: csvArgs,
-        propNameForPagination: 'mts',
-        columnsCsv: {
-          id: '#',
-          mts: 'TIME',
-          price: 'PRICE',
-          amount: 'AMOUNT',
-          symbol: 'PAIR'
-        },
-        formatSettings: {
-          mts: 'date',
-          symbol: 'symbol'
-        }
-      }
 
       processorQueue.addJob(jobData)
 
