@@ -91,7 +91,7 @@ const getMultipleCsvJobData = (
   userId,
   userInfo
 ) => {
-  checkParams(args, 'paramsSchemaForMultipleCsv') // TODO: schema not implement
+  checkParams(args, 'paramsSchemaForMultipleCsv', false, true)
 
   const jobsData = args.params.multiExport.map(params => {
     const getJobDataMethodName = `${params.method}JobData`

@@ -144,6 +144,29 @@ const paramsSchemaForWalletsCsv = {
   }
 }
 
+const paramsSchemaForMultipleCsv = {
+  type: 'object',
+  required: ['multiExport'],
+  properties: {
+    email: {
+      type: 'string'
+    },
+    multiExport: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'object',
+        required: ['method'],
+        properties: {
+          method: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+}
+
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
@@ -153,5 +176,6 @@ module.exports = {
   paramsSchemaForPositionsAudit,
   paramsSchemaForPositionsAuditCsv,
   paramsSchemaForWallets,
-  paramsSchemaForWalletsCsv
+  paramsSchemaForWalletsCsv,
+  paramsSchemaForMultipleCsv
 }
