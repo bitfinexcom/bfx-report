@@ -224,6 +224,38 @@ const getCsvJobData = {
     }
 
     return jobData
+  },
+  getOrdersCsvJobData (args, userId, userInfo) {
+    checkParams(args)
+
+    const csvArgs = getCsvArgs(args, 'orders')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getOrders',
+      args: csvArgs,
+      propNameForPagination: 'mtsUpdate',
+      columnsCsv: {
+        id: '#',
+        symbol: 'PAIR',
+        type: 'TYPE',
+        amountOrig: 'AMOUNT',
+        amountExecuted: 'EXECUTED AMOUNT',
+        price: 'PRICE',
+        priceAvg: 'AVERAGE EXECUTION PRICE',
+        mtsCreate: 'CREATED',
+        mtsUpdate: 'UPDATED',
+        status: 'STATUS'
+      },
+      formatSettings: {
+        mtsUpdate: 'date',
+        mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
   }
 }
 
