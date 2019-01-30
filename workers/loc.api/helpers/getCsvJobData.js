@@ -315,6 +315,40 @@ const getCsvJobData = {
     }
 
     return jobData
+  },
+  getFundingLoanHistoryCsvJobData (args, userId, userInfo) {
+    checkParams(args)
+
+    const csvArgs = getCsvArgs(args, 'fundingLoanHistory')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getFundingLoanHistory',
+      args: csvArgs,
+      propNameForPagination: 'mtsUpdate',
+      columnsCsv: {
+        id: '#',
+        symbol: 'CURRENCY',
+        side: 'SIDE',
+        amount: 'AMOUNT',
+        status: 'STATUS',
+        rate: 'RATE',
+        period: 'PERIOD',
+        mtsOpening: 'OPENED',
+        mtsLastPayout: 'CLOSED',
+        mtsUpdate: 'DATE'
+      },
+      formatSettings: {
+        side: 'side',
+        mtsUpdate: 'date',
+        mtsOpening: 'date',
+        mtsLastPayout: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
   }
 }
 
