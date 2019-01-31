@@ -479,7 +479,7 @@ const _getCompleteFileName = (
   const _ext = ext ? `.${ext}` : ''
   const _userInfo = userInfo ? `${userInfo}_` : ''
   const fileName = queueName === 'getWallets' || isMultiExport
-    ? `${_userInfo}${baseName}_MOMENT_${isMultiExport ? timestamp : formattedDateNow}${_ext}`
+    ? `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${_ext}`
     : `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
 
   return fileName
