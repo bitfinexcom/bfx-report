@@ -574,8 +574,11 @@ class DataInserter extends EventEmitter {
 
     const _args = _.cloneDeep(args)
     const currIterationArgs = _.cloneDeep(_args)
+    let count = 0
 
     while (true) {
+      count += 1
+
       const date = new Date(currIterationArgs.params.end)
       const utcDate = new Date(Date.UTC(
         date.getUTCFullYear(),
@@ -631,7 +634,7 @@ class DataInserter extends EventEmitter {
         uData
       )
 
-      await delay(180000)
+      if (count > 3) await delay(180000)
     }
   }
 
