@@ -155,7 +155,8 @@ const getParams = (
 const checkParams = (
   args,
   schemaName = 'paramsSchemaForCsv',
-  requireFields = []
+  requireFields = [],
+  checkParamsField = false
 ) => {
   const ajv = new Ajv()
 
@@ -183,7 +184,7 @@ const checkParams = (
   }
 
   if (
-    args.params &&
+    (checkParamsField || args.params) &&
     !ajv.validate(_schema, args.params)
   ) {
     throw new Error(`ERR_ARGS_NO_PARAMS ${JSON.stringify(ajv.errors)}`)
@@ -221,7 +222,12 @@ const checkParamsAuth = (args) => {
 }
 
 const getCsvStoreStatus = async (reportService, args) => {
-  if (!args.params || typeof args.params.email !== 'string') {
+  if (
+    !args.params ||
+    typeof args.params !== 'object' ||
+    !args.params.email ||
+    typeof args.params.email !== 'string'
+  ) {
     return { isSaveLocaly: true }
   }
 

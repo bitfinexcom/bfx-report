@@ -284,24 +284,24 @@ const _setDefaultPrams = (args) => {
     : 0
 }
 
-const writeDataToStream = async (reportService, stream, job) => {
-  if (typeof job === 'string') {
-    _writeMessageToStream(reportService, stream, job)
+const writeDataToStream = async (reportService, stream, jobData) => {
+  if (typeof jobData === 'string') {
+    _writeMessageToStream(reportService, stream, jobData)
 
     return
   }
 
-  const method = job.data.name
+  const method = jobData.name
 
   if (typeof reportService[method] !== 'function') {
     throw new Error('ERR_METHOD_NOT_FOUND')
   }
 
   const queue = reportService.ctx.lokue_aggregator.q
-  const propName = job.data.propNameForPagination
-  const formatSettings = job.data.formatSettings
+  const propName = jobData.propNameForPagination
+  const formatSettings = jobData.formatSettings
 
-  const _args = _.cloneDeep(job.data.args)
+  const _args = _.cloneDeep(jobData.args)
 
   _setDefaultPrams(_args)
   const currIterationArgs = _.cloneDeep(_args)
@@ -443,7 +443,8 @@ const _getCompleteFileName = (
   queueName,
   params,
   userInfo,
-  ext = 'csv'
+  ext = 'csv',
+  isMultiExport
 ) => {
   const {
     start,
@@ -461,7 +462,9 @@ const _getCompleteFileName = (
       ? 'deposits'
       : 'withdrawals'
   } else {
-    baseName = _getBaseName(queueName)
+    baseName = isMultiExport
+      ? 'multiple-exports'
+      : _getBaseName(queueName)
   }
 
   const date = new Date()
@@ -475,7 +478,7 @@ const _getCompleteFileName = (
     : formattedDateNow
   const _ext = ext ? `.${ext}` : ''
   const _userInfo = userInfo ? `${userInfo}_` : ''
-  const fileName = queueName === 'getWallets'
+  const fileName = queueName === 'getWallets' || isMultiExport
     ? `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${_ext}`
     : `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
 
@@ -525,101 +528,122 @@ const moveFileToLocalStorage = async (
 const uploadS3 = async (
   reportService,
   configs,
-  filePath,
+  filePaths,
   queueName,
-  params,
+  subParamsArr,
   userInfo
 ) => {
   const grcBfx = reportService.ctx.grc_bfx
   const wrk = grcBfx.caller
   const isСompress = wrk.conf[wrk.group].isСompress
   const deflateFac = wrk.deflate_gzip
-
-  const fileNameWithoutExt = _getCompleteFileName(
-    queueName,
-    params,
-    userInfo,
-    false
+  const isMultiExport = (
+    queueName === 'getMultiple' ||
+    (Array.isArray(subParamsArr) && subParamsArr.length > 0)
   )
-  const fileName = `${fileNameWithoutExt}.${isСompress ? 'zip' : 'csv'}`
+  const fileNameWithoutExt = _getCompleteFileName(
+    subParamsArr[0].name,
+    subParamsArr[0],
+    userInfo,
+    false,
+    isMultiExport
+  )
 
-  const stream = fs.createReadStream(filePath)
-  const buffer = await deflateFac.createBuffZip(
-    [{
-      stream,
+  const streams = filePaths.map((filePath, i) => {
+    return {
+      stream: fs.createReadStream(filePath),
       data: {
-        name: `${fileNameWithoutExt}.csv`
+        name: _getCompleteFileName(
+          subParamsArr[i].name,
+          subParamsArr[i],
+          userInfo
+        )
       }
-    }],
+    }
+  })
+  const buffers = await Promise.all(deflateFac.createBuffZip(
+    streams,
     isСompress,
     {
       comment: fileNameWithoutExt.replace(/_/g, ' ')
     }
-  )[0]
+  ))
 
-  const opts = {
-    ...configs,
-    contentDisposition: `attachment; filename="${fileName}"`,
-    contentType: isСompress ? 'application/zip' : 'text/csv'
-  }
-  const parsedData = [
-    buffer.toString('hex'),
-    opts
-  ]
+  const promises = buffers.map((buffer, i) => {
+    const fileName = isСompress && isMultiExport
+      ? `${fileNameWithoutExt}.zip`
+      : `${streams[i].data.name.slice(0, -3)}${isСompress ? 'zip' : 'csv'}`
+    const opts = {
+      ...configs,
+      contentDisposition: `attachment; filename="${fileName}"`,
+      contentType: isСompress ? 'application/zip' : 'text/csv'
+    }
+    const parsedData = [
+      buffer.toString('hex'),
+      opts
+    ]
 
-  return new Promise((resolve, reject) => {
-    grcBfx.req(
-      'rest:ext:s3',
-      'uploadPresigned',
-      parsedData,
-      { timeout: 10000 },
-      (err, data) => {
-        if (err) {
-          reject(err)
+    return new Promise((resolve, reject) => {
+      grcBfx.req(
+        'rest:ext:s3',
+        'uploadPresigned',
+        parsedData,
+        { timeout: 10000 },
+        (err, data) => {
+          if (err) {
+            reject(err)
 
-          return
+            return
+          }
+
+          resolve({
+            ...data,
+            fileName
+          })
         }
-
-        resolve({
-          ...data,
-          fileName
-        })
-      }
-    )
+      )
+    })
   })
+
+  return Promise.all(promises)
 }
 
-const sendMail = (reportService, configs, to, viewName, data) => {
+const sendMail = (reportService, configs, to, viewName, dataArr) => {
   const grcBfx = reportService.ctx.grc_bfx
-  const text = `Download (${data.fileName}): ${data.presigned_url}`
-  const html = pug.renderFile(
-    path.join(basePathToViews, viewName),
-    data
-  )
-  const mailOptions = {
-    to,
-    text,
-    html,
-    ...configs
-  }
 
-  return new Promise((resolve, reject) => {
-    grcBfx.req(
-      'rest:ext:sendgrid',
-      'sendEmail',
-      [mailOptions],
-      { timeout: 10000 },
-      (err, data) => {
-        if (err) {
-          reject(err)
-
-          return
-        }
-
-        resolve(data)
-      }
+  const promises = dataArr.map(data => {
+    const text = `Download (${data.fileName}): ${data.presigned_url}`
+    const html = pug.renderFile(
+      path.join(basePathToViews, viewName),
+      data
     )
+    const mailOptions = {
+      to,
+      text,
+      html,
+      ...configs
+    }
+
+    return new Promise((resolve, reject) => {
+      grcBfx.req(
+        'rest:ext:sendgrid',
+        'sendEmail',
+        [mailOptions],
+        { timeout: 10000 },
+        (err, data) => {
+          if (err) {
+            reject(err)
+
+            return
+          }
+
+          resolve(data)
+        }
+      )
+    })
   })
+
+  return Promise.all(promises)
 }
 
 module.exports = {

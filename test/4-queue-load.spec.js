@@ -1,7 +1,6 @@
 'use strict'
 
 const path = require('path')
-const fs = require('fs')
 const { assert } = require('chai')
 const request = require('supertest')
 
@@ -14,7 +13,12 @@ const {
   rmAllFiles,
   queuesToPromiseMulti
 } = require('./helpers/helpers.core')
-const { createMockRESTv2SrvWithDate } = require('./helpers/helpers.mock-rest-v2')
+const {
+  createMockRESTv2SrvWithDate
+} = require('./helpers/helpers.mock-rest-v2')
+const {
+  testProcQueue
+} = require('./helpers/helpers.tests')
 
 const { app } = require('../app')
 const agent = request.agent(app)
@@ -77,23 +81,7 @@ describe('Queue load', () => {
     const procPromise = queuesToPromiseMulti(
       processorQueues,
       count,
-      procRes => {
-        assert.isObject(procRes)
-        assert.containsAllKeys(procRes, [
-          'userInfo',
-          'userId',
-          'name',
-          'filePath',
-          'params',
-          'isUnauth'
-        ])
-        assert.isString(procRes.userInfo)
-        assert.isString(procRes.name)
-        assert.isString(procRes.filePath)
-        assert.isObject(procRes.params)
-        assert.isBoolean(procRes.isUnauth)
-        assert.isOk(fs.existsSync(procRes.filePath))
-      }
+      testProcQueue
     )
     const aggrPromise = queuesToPromiseMulti(aggregatorQueues, count)
 

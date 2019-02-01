@@ -16,54 +16,76 @@ const { isAuthError } = require('../helpers')
 let reportService = null
 
 module.exports = async job => {
-  let filePath = null
+  const filePaths = []
+  const subParamsArr = []
   const processorQueue = reportService.ctx.lokue_processor.q
+  const isUnauth = job.data.isUnauth || false
+  const jobsData = Array.isArray(job.data.jobsData)
+    ? job.data.jobsData
+    : [job.data]
 
   try {
     if (
-      !job.data.args.params &&
+      !job.data.args.params ||
       typeof job.data.args.params !== 'object'
     ) {
       job.data.args.params = {}
     }
 
-    filePath = await createUniqueFileName()
+    for (const data of jobsData) {
+      if (
+        !data.args.params ||
+        typeof data.args.params !== 'object'
+      ) {
+        data.args.params = {}
+      }
 
-    const isUnauth = job.data.isUnauth || false
-    const write = isUnauth
-      ? 'Your file could not be completed, please try again'
-      : job
-    const writable = fs.createWriteStream(filePath)
-    const writablePromise = writableToPromise(writable)
-    const stringifier = stringify({
-      header: true,
-      columns: job.data.columnsCsv
-    })
+      const filePath = await createUniqueFileName()
+      filePaths.push(filePath)
+      subParamsArr.push({
+        ...data.args.params,
+        name: data.name
+      })
 
-    stringifier.pipe(writable)
+      const write = isUnauth
+        ? 'Your file could not be completed, please try again'
+        : data
 
-    await writeDataToStream(
-      reportService,
-      stringifier,
-      write
-    )
+      const writable = fs.createWriteStream(filePath)
+      const writablePromise = writableToPromise(writable)
+      const stringifier = stringify({
+        header: true,
+        columns: data.columnsCsv
+      })
 
-    stringifier.end()
+      stringifier.pipe(writable)
 
-    await writablePromise
+      await writeDataToStream(
+        reportService,
+        stringifier,
+        write
+      )
+
+      stringifier.end()
+
+      await writablePromise
+    }
 
     job.done()
     processorQueue.emit('completed', {
       userInfo: job.data.userInfo,
       userId: job.data.userId,
       name: job.data.name,
-      filePath,
-      params: job.data.args.params,
+      filePaths,
+      subParamsArr,
+      email: job.data.args.params.email,
       isUnauth
     })
   } catch (err) {
     try {
-      await unlink(filePath)
+      for (const filePath of filePaths) {
+        await unlink(filePath)
+      }
     } catch (err) {
       processorQueue.emit('error:unlink', job)
     }

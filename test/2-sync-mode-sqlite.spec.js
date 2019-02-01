@@ -1,7 +1,6 @@
 'use strict'
 
 const path = require('path')
-const fs = require('fs')
 const { assert } = require('chai')
 const request = require('supertest')
 
@@ -18,7 +17,13 @@ const {
   connToSQLite,
   closeSQLite
 } = require('./helpers/helpers.core')
-const { createMockRESTv2SrvWithDate } = require('./helpers/helpers.mock-rest-v2')
+const {
+  createMockRESTv2SrvWithDate
+} = require('./helpers/helpers.mock-rest-v2')
+const {
+  testMethodOfGettingCsv,
+  testProcQueue
+} = require('./helpers/helpers.tests')
 
 const { app } = require('../app')
 const agent = request.agent(app)
@@ -1585,6 +1590,79 @@ describe('Sync mode with SQLite', () => {
     assert.propertyVal(res.body, 'id', 5)
   })
 
+  it('it should be successfully performed by the getMultipleCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMultipleCsv',
+        params: {
+          email,
+          multiExport: [
+            {
+              method: 'getTradesCsv',
+              symbol: ['tBTCUSD', 'tETHUSD'],
+              end,
+              start,
+              limit: 1000,
+              timezone: 'America/Los_Angeles'
+            },
+            {
+              method: 'getTickersHistoryCsv',
+              symbol: 'BTC',
+              end,
+              start,
+              limit: 1000
+            }
+          ]
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
+  it('it should not be successfully performed by the getMultipleCsv method', async function () {
+    this.timeout(60000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMultipleCsv',
+        params: {
+          email,
+          multiExport: [
+            {
+              symbol: ['tBTCUSD', 'tETHUSD'],
+              end,
+              start,
+              limit: 1000,
+              timezone: 'America/Los_Angeles'
+            }
+          ]
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
+
+    assert.isObject(res.body)
+    assert.isObject(res.body.error)
+    assert.propertyVal(res.body.error, 'code', 500)
+    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+    assert.propertyVal(res.body, 'id', 5)
+  })
+
   it('it should be successfully performed by the getTickersHistoryCsv method', async function () {
     this.timeout(60000)
 
@@ -1609,32 +1687,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getPositionsHistoryCsv method', async function () {
@@ -1661,32 +1714,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getPositionsAuditCsv method', async function () {
@@ -1714,32 +1742,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getWalletsCsv method', async function () {
@@ -1763,32 +1766,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getFundingOfferHistoryCsv method', async function () {
@@ -1816,32 +1794,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getFundingLoanHistoryCsv method', async function () {
@@ -1868,32 +1821,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getFundingCreditHistoryCsv method', async function () {
@@ -1920,32 +1848,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getLedgersCsv method', async function () {
@@ -1972,32 +1875,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getTradesCsv method', async function () {
@@ -2024,32 +1902,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getPublicTradesCsv method', async function () {
@@ -2077,32 +1930,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should not be successfully performed by the getPublicTradesCsv method, time frame more then a month', async function () {
@@ -2186,37 +2014,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    const file = fs.readFileSync(procRes.filePath, 'utf8')
-    const arrOfLines = file.split(/\n/)
-
-    assert.isAbove(arrOfLines.length, 2)
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getMovementsCsv method', async function () {
@@ -2242,32 +2040,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getMovementsCsv method, where amount > 0', async function () {
@@ -2294,32 +2067,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getMovementsCsv method, where amount < 0', async function () {
@@ -2346,32 +2094,7 @@ describe('Sync mode with SQLite', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.isOk(res.body.result.isSendEmail || res.body.result.isSaveLocaly)
-
-    const procRes = await procPromise
-
-    assert.isObject(procRes)
-    assert.containsAllKeys(procRes, [
-      'userInfo',
-      'userId',
-      'name',
-      'filePath',
-      'params',
-      'isUnauth'
-    ])
-    assert.isString(procRes.userInfo)
-    assert.isString(procRes.name)
-    assert.isString(procRes.filePath)
-    assert.isObject(procRes.params)
-    assert.isBoolean(procRes.isUnauth)
-    assert.isOk(fs.existsSync(procRes.filePath))
-
-    await aggrPromise
-
-    assert.isNotOk(fs.existsSync(procRes.filePath))
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
   it('it should not be successfully auth by the getLedgersCsv method', async function () {
@@ -2409,23 +2132,7 @@ describe('Sync mode with SQLite', () => {
     const procPromise = queueToPromiseMulti(
       processorQueue,
       count,
-      procRes => {
-        assert.isObject(procRes)
-        assert.containsAllKeys(procRes, [
-          'userInfo',
-          'userId',
-          'name',
-          'filePath',
-          'params',
-          'isUnauth'
-        ])
-        assert.isString(procRes.userInfo)
-        assert.isString(procRes.name)
-        assert.isString(procRes.filePath)
-        assert.isObject(procRes.params)
-        assert.isBoolean(procRes.isUnauth)
-        assert.isOk(fs.existsSync(procRes.filePath))
-      }
+      testProcQueue
     )
     const aggrPromise = queueToPromiseMulti(aggregatorQueue, count)
 
