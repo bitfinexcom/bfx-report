@@ -485,6 +485,22 @@ const _methodCollMap = new Map([
     }
   ],
   [
+    '_getWallets',
+    {
+      name: ALLOWED_COLLS.WALLETS,
+      maxLimit: null,
+      dateFieldName: 'mtsUpdate',
+      symbolFieldName: 'currency',
+      sort: [['mtsUpdate', -1]],
+      groupResBy: ['type', 'currency'],
+      hasNewData: false,
+      start: 0,
+      type: 'insertable:array:objects',
+      fieldsOfUniqueIndex: ['type', 'currency', 'mtsUpdate'],
+      model: { ..._models.get(ALLOWED_COLLS.WALLETS) }
+    }
+  ],
+  [
     '_getSymbols',
     {
       name: ALLOWED_COLLS.SYMBOLS,
