@@ -706,6 +706,38 @@ class MediatorReportService extends ReportService {
     }
   }
 
+  /**
+   * TODO: need to add a mix `wallets` and `ledgers`
+   * @override
+   */
+  async getWallets (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getWallets(space, args, cb)
+
+        return
+      }
+
+      checkParams(args, 'paramsSchemaForWallets')
+
+      if (
+        args.params &&
+        typeof args.params === 'object'
+      ) {
+        args.params = pick(args.params, ['end'])
+      }
+
+      const res = await this.dao.findInCollBy(
+        '_getWallets',
+        args
+      )
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
   _getTickersHistory (args) {
     return promisify(super.getTickersHistory.bind(this))(null, args)
   }
