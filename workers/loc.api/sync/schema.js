@@ -250,6 +250,25 @@ const _models = new Map([
     }
   ],
   [
+    ALLOWED_COLLS.WALLETS,
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      type: 'VARCHAR(255)',
+      currency: 'VARCHAR(255)',
+      balance: 'DECIMAL(22,12)',
+      unsettledInterest: 'DECIMAL(22,12)',
+      balanceAvailable: 'DECIMAL(22,12)',
+      placeHolder: 'TEXT',
+      mtsUpdate: 'BIGINT',
+      user_id: `INT NOT NULL,
+        CONSTRAINT wallets_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
+    }
+  ],
+  [
     'publicСollsСonf',
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
