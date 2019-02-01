@@ -68,7 +68,14 @@ class SqliteDAO extends DAO {
   _deserializeVal (
     val,
     key,
-    boolFields = ['notify', 'hidden', 'renew', 'noClose', 'maker']
+    boolFields = [
+      'notify',
+      'hidden',
+      'renew',
+      'noClose',
+      'maker',
+      '_isMarginFundingPayment'
+    ]
   ) {
     if (
       typeof val === 'string' &&
@@ -433,6 +440,12 @@ class SqliteDAO extends DAO {
       filter.start = params.start ? params.start : 0
       filter.end = params.end ? params.end : (new Date()).getTime()
 
+      if (
+        typeof params.isMarginFundingPayment === 'boolean' &&
+        Object.keys(methodColl.model).some(key => key === '_isMarginFundingPayment')
+      ) {
+        filter._isMarginFundingPayment = Number(params.isMarginFundingPayment)
+      }
       if (params.symbol) {
         if (typeof params.symbol === 'string') {
           filter[methodColl.symbolFieldName] = params.symbol

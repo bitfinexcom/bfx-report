@@ -668,6 +668,11 @@ class DataInserter extends EventEmitter {
           ) {
             itemRes._symbol = args.params.symbol
           }
+          if (collName === ALLOWED_COLLS.LEDGERS) {
+            itemRes._isMarginFundingPayment = this._isMarginFundingPayment(
+              itemRes.description
+            )
+          }
         })
       )
 
@@ -687,6 +692,10 @@ class DataInserter extends EventEmitter {
         currIterationArgs.params.end = lastItem[dateFieldName] - 1
       }
     }
+  }
+
+  _isMarginFundingPayment (str) {
+    return /Margin Funding Payment/gi.test(str)
   }
 
   async _updateApiDataArrTypeToDb (
