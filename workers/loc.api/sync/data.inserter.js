@@ -236,9 +236,15 @@ class DataInserter extends EventEmitter {
     let progress = 0
 
     for (const [method, item] of methodCollMap) {
-      const args = this._getMethodArgMap(method, auth, 10000000, item.start)
+      if (item.name === ALLOWED_COLLS.WALLETS) {
+        const args = this._getMethodArgMap(method, auth, null, null)
 
-      await this._insertApiDataArrObjTypeToDb(args, method, item)
+        await this._insertApiDataWalletsArrObjTypeToDb(args, method, item)
+      } else {
+        const args = this._getMethodArgMap(method, auth, 10000000, item.start)
+
+        await this._insertApiDataArrObjTypeToDb(args, method, item)
+      }
 
       count += 1
       progress = Math.round((count / size) * 100 * userProgress)
@@ -436,6 +442,11 @@ class DataInserter extends EventEmitter {
       if (!this._isInsertableArrObjTypeOfColl(item)) {
         continue
       }
+      if (item.name === ALLOWED_COLLS.WALLETS) {
+        item.hasNewData = true
+
+        continue
+      }
 
       await this._checkItemNewDataArrObjType(
         method,
@@ -541,6 +552,86 @@ class DataInserter extends EventEmitter {
           dates
         )
       }
+    }
+  }
+
+  async _insertApiDataWalletsArrObjTypeToDb (
+    args,
+    methodApi,
+    schema
+  ) {
+    if (
+      !this._isInsertableArrObjTypeOfColl(schema) ||
+      schema.name !== ALLOWED_COLLS.WALLETS
+    ) {
+      return
+    }
+
+    const {
+      name: collName,
+      model
+    } = schema
+
+    const _args = _.cloneDeep(args)
+    const currIterationArgs = _.cloneDeep(_args)
+
+    while (true) {
+      const date = new Date(currIterationArgs.params.end)
+      const utcDate = new Date(Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate() - 1
+      ))
+      currIterationArgs.params.end = utcDate.getTime()
+
+      let res = await this._getDataFromApi(
+        methodApi,
+        currIterationArgs
+      )
+
+      if (
+        !res ||
+        !Array.isArray(res) ||
+        res.length === 0
+      ) break
+
+      const comparFieldsNames = ['type', 'currency', 'mtsUpdate']
+      const normData = this._normalizeApiData(res, model)
+
+      const filter = comparFieldsNames.reduce((obj, curr) => {
+        obj[curr] = normData.reduce((accum, subCurr) => {
+          if (accum.every(item => item !== subCurr[curr])) {
+            accum.push(subCurr[curr])
+          }
+
+          return accum
+        }, [])
+
+        return obj
+      }, {})
+      const elemsFromDb = await this.dao.getElemsInCollBy(
+        collName,
+        { filter }
+      )
+      const uData = normData.filter(item => {
+        return elemsFromDb.every(subItem => {
+          return comparFieldsNames.some(key => item[key] !== subItem[key])
+        })
+      })
+
+      if (
+        !uData ||
+        !Array.isArray(uData) ||
+        uData.length === 0
+      ) break
+
+      await this.dao.insertElemsToDb(
+        collName,
+        { ..._args.auth },
+        uData
+      )
+
+      await delay(180000)
     }
   }
 
