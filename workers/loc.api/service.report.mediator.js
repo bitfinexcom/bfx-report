@@ -746,6 +746,10 @@ class MediatorReportService extends ReportService {
     return promisify(super.getFundingCreditHistory.bind(this))(null, args)
   }
 
+  _getWallets (args) {
+    return promisify(super.getWallets.bind(this))(null, args)
+  }
+
   async _checkAuthInApi (args) {
     checkParamsAuth(args)
 
