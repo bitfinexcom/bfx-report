@@ -707,7 +707,6 @@ class MediatorReportService extends ReportService {
   }
 
   /**
-   * TODO: need to add a mix `wallets` and `ledgers`
    * @override
    */
   async getWallets (space, args, cb) {
@@ -720,17 +719,95 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForWallets')
 
+      const auth = args.auth && typeof args.auth === 'object'
+        ? args.auth
+        : {}
+      const end = args.params && args.params.end
+        ? args.params.end
+        : Date.now()
+      const date = new Date(end)
+      const utcDate = new Date(Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate()
+      ))
+
+      const walletsArgs = {
+        auth,
+        params: { end: utcDate.getTime() }
+      }
+      const wallets = await this.dao.findInCollBy(
+        '_getWallets',
+        walletsArgs
+      )
+
       if (
-        args.params &&
-        typeof args.params === 'object'
+        !Array.isArray(wallets) ||
+        wallets.length === 0 ||
+        (
+          date.getUTCHours() === 0 &&
+          date.getUTCMinutes() === 0 &&
+          date.getUTCSeconds() === 0 &&
+          date.getUTCMilliseconds() === 0
+        )
       ) {
-        args.params = pick(args.params, ['end'])
+        cb(null, wallets)
+
+        return
       }
 
-      const res = await this.dao.findInCollBy(
-        '_getWallets',
-        args
+      const ledgersArgs = {
+        auth,
+        params: {
+          start: utcDate.getTime() + 1,
+          end
+        }
+      }
+      const ledgers = await this.dao.findInCollBy(
+        '_getLedgers',
+        ledgersArgs
       )
+
+      if (
+        !Array.isArray(ledgers) ||
+        ledgers.length === 0
+      ) {
+        cb(null, wallets)
+
+        return
+      }
+
+      const res = wallets.map(wallet => {
+        if (!Number.isFinite(wallet.balance)) {
+          return { ...wallet }
+        }
+
+        const _ledgers = ledgers.filter(ledger => {
+          return (
+            ledger.currency === wallet.currency &&
+            ledger.wallet === wallet.type
+          )
+        })
+        const res = _ledgers.reduce((accum, ledger) => {
+          const balance = Number.isFinite(ledger.amount)
+            ? accum.balance + ledger.amount
+            : accum.balance
+          const mtsUpdate = ledger.mts > accum.mtsUpdate
+            ? ledger.mts || end
+            : accum.mtsUpdate || end
+
+          return {
+            ...accum,
+            balance,
+            mtsUpdate,
+            unsettledInterest: null,
+            balanceAvailable: null,
+            placeHolder: null
+          }
+        }, { ...wallet })
+
+        return res
+      })
 
       cb(null, res)
     } catch (err) {
