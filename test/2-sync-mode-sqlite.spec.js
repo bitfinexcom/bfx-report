@@ -25,7 +25,8 @@ const {
   testProcQueue
 } = require('./helpers/helpers.tests')
 
-const { app } = require('../app')
+process.env.NODE_CONFIG_DIR = path.join(__dirname, 'config')
+const { app } = require('bfx-report-express')
 const agent = request.agent(app)
 
 let wrkReportServiceApi = null
