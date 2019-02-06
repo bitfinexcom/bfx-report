@@ -17,7 +17,6 @@ npm install
 - As to configure the service copy the json.example files from config folder into new ones. Open a console on projects folder a copy the following codes :
 
 ```console
-cp config/default.json.example config/default.json
 cp config/common.json.example config/common.json
 cp config/service.report.json.example config/service.report.json
 cp config/schedule.json.example config/schedule.json
@@ -32,6 +31,7 @@ vim config/common.json
 ```
 
 - To change the bitfinex api to connect to, edit `resUrl` in common.json. If you want to conect to main bitfinex api, skip this step, as this value is set by default.
+
 ```console
 vim config/service.report.json
 ## set restUrl value
@@ -59,22 +59,16 @@ grape --dp 20002 --aph 40001 --bn '127.0.0.1:20001'
 
 ### Production environment
 
-- For production environment run in two different consoles :
+- For production environment, run the worker in the console:
 
 ```console
-## Console 1: runs worker
-npm run startWorker
-## Console 2: runs express server
 npm run start
 ```
 ### Development environment
 
-- For development environment run in two different consoles :
+- For development environment, run the worker in the console:
 
 ```console
-## Console 1: runs worker
-npm run startWorkerDev
-## Console 2: runs express server
 npm run startDev
 ```
 
