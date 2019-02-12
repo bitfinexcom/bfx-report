@@ -6,13 +6,14 @@ const _ = require('lodash')
 const {
   delay,
   checkCollPermission
-} = require('./helpers')
+} = require('../helpers')
 const {
   isRateLimitError,
   isNonceSmallError
-} = require('../helpers')
-const { getMethodCollMap } = require('./schema')
-const ALLOWED_COLLS = require('./allowed.colls')
+} = require('../../helpers')
+const { getMethodCollMap } = require('../schema')
+const ALLOWED_COLLS = require('../allowed.colls')
+const ApiMiddleware = require('./api.middleware')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
 
@@ -26,6 +27,7 @@ class DataInserter extends EventEmitter {
 
     this.reportService = reportService
     this.dao = this.reportService.dao
+    this.apiMiddleware = new ApiMiddleware(this.reportService, this.dao)
 
     this._asyncProgressHandler = null
     this._auth = null
@@ -327,7 +329,11 @@ class DataInserter extends EventEmitter {
         filter,
         schema.sort
       )
-      const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
+      const { res: lastElemFromApi } = await this._getDataFromApi(
+        method,
+        args,
+        true
+      )
 
       if (
         _.isEmpty(lastElemFromApi) ||
@@ -413,7 +419,11 @@ class DataInserter extends EventEmitter {
       { ...auth },
       schema.sort
     )
-    const { res: lastElemFromApi } = await this._getDataFromApi(method, args)
+    const { res: lastElemFromApi } = await this._getDataFromApi(
+      method,
+      args,
+      true
+    )
 
     if (_.isEmpty(lastElemFromApi)) {
       return
@@ -489,10 +499,8 @@ class DataInserter extends EventEmitter {
     )
   }
 
-  async _getDataFromApi (methodApi, args) {
-    if (
-      typeof this.reportService[methodApi] !== 'function'
-    ) {
+  async _getDataFromApi (methodApi, args, isCheckCall) {
+    if (!this.apiMiddleware.hasMethod(methodApi)) {
       throw new Error('ERR_METHOD_NOT_FOUND')
     }
 
@@ -502,7 +510,11 @@ class DataInserter extends EventEmitter {
 
     while (true) {
       try {
-        res = await this.reportService[methodApi](_.cloneDeep(args))
+        res = await this.apiMiddleware.request(
+          methodApi,
+          _.cloneDeep(args),
+          isCheckCall
+        )
 
         break
       } catch (err) {
@@ -755,19 +767,7 @@ class DataInserter extends EventEmitter {
       await this.dao.insertElemsToDb(
         collName,
         isPublic ? null : { ..._args.auth },
-        this._normalizeApiData(res, model, itemRes => {
-          if (
-            collName === ALLOWED_COLLS.PUBLIC_TRADES &&
-            args.params.symbol
-          ) {
-            itemRes._symbol = args.params.symbol
-          }
-          if (collName === ALLOWED_COLLS.LEDGERS) {
-            itemRes._isMarginFundingPayment = this._isMarginFundingPayment(
-              itemRes.description
-            )
-          }
-        })
+        this._normalizeApiData(res, model)
       )
 
       count += res.length
@@ -786,10 +786,6 @@ class DataInserter extends EventEmitter {
         currIterationArgs.params.end = lastItem[dateFieldName] - 1
       }
     }
-  }
-
-  _isMarginFundingPayment (str) {
-    return /Margin Funding Payment/gi.test(str)
   }
 
   async _updateApiDataArrTypeToDb (
