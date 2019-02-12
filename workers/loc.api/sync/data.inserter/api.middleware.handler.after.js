@@ -1,9 +1,80 @@
 'use strict'
 
+const { searchClosePrice } = require('./halpers')
+
 class ApiMiddlewareHandlerAfter {
   constructor (reportService, dao) {
     this.reportService = reportService
     this.dao = dao
+  }
+
+  async _getPositionsHistory ({ auth }, apiRes, isCheckCall) {
+    if (isCheckCall) {
+      return apiRes
+    }
+
+    const res = []
+
+    for (const position of apiRes.res) {
+      const {
+        basePrice,
+        symbol,
+        mtsUpdate: end,
+        id
+      } = position
+
+      if (
+        !symbol ||
+        typeof symbol !== 'string' ||
+        /tBFX/gi.test(symbol) ||
+        !Number.isInteger(end) ||
+        !Number.isInteger(id) ||
+        !Number.isFinite(basePrice)
+      ) {
+        res.push({
+          ...position,
+          closePrice: null
+        })
+
+        continue
+      }
+
+      const closePrice = await searchClosePrice(
+        this.dao,
+        {
+          auth,
+          symbol,
+          end,
+          id
+        }
+      )
+
+      if (!Number.isFinite(closePrice)) {
+        res.push({
+          ...position,
+          closePrice,
+          pl: null,
+          plPerc: null
+        })
+
+        continue
+      }
+
+      const pl = closePrice - basePrice
+      const plPerc = ((closePrice / basePrice) - 1) * 100
+
+      res.push({
+        ...position,
+        closePrice,
+        pl,
+        plPerc
+      })
+    }
+
+    return {
+      ...apiRes,
+      res
+    }
   }
 
   _getPublicTrades (args, apiRes) {
