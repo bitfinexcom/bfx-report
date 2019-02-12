@@ -116,8 +116,8 @@ const createMockRESTv2SrvWithDate = (
   limit = null,
   opts = {
     'tickers_hist': { limit: 250 },
-    'wallets_hist': { limit: 100 },
-    'wallets': { limit: 100 },
+    'wallets_hist': { limit: 100, isNotMoreThanLimit: true },
+    'wallets': { limit: 100, isNotMoreThanLimit: true },
     'positions_hist': { limit: 50 },
     'positions_audit': { limit: 250 },
     'ledgers': { limit: 500 },
@@ -145,7 +145,7 @@ const createMockRESTv2SrvWithDate = (
       return
     }
 
-    const _limit = limit || val.limit
+    const _limit = limit && !val.isNotMoreThanLimit ? limit : val.limit
     const step = (end - start) / _limit
     let date = start
     let id = 12345

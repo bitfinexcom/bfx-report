@@ -468,6 +468,12 @@ class SqliteDAO extends DAO {
       where,
       values
     } = this._getWhereQuery(filter)
+    const group = (
+      Array.isArray(methodColl.groupResBy) &&
+      methodColl.groupResBy.length > 0
+    )
+      ? `GROUP BY ${methodColl.groupResBy.join(', ')}`
+      : ''
 
     if (params.limit) {
       values.$limit = params.limit
@@ -484,6 +490,7 @@ class SqliteDAO extends DAO {
 
     const sql = `SELECT ${fields.join(', ')} FROM ${methodColl.name}
       ${where}
+      ${group}
       ${sort}
       ${limit}`
 

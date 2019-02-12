@@ -14,6 +14,7 @@ module.exports = {
   FUNDING_CREDIT_HISTORY: 'fundingCreditHistory',
   TICKERS_HISTORY: 'tickersHistory',
   POSITIONS_HISTORY: 'positionsHistory',
+  WALLETS: 'wallets',
   SYMBOLS: 'symbols',
   CURRENCIES: 'currencies'
 }

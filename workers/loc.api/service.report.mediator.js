@@ -706,6 +706,115 @@ class MediatorReportService extends ReportService {
     }
   }
 
+  /**
+   * @override
+   */
+  async getWallets (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getWallets(space, args, cb)
+
+        return
+      }
+
+      checkParams(args, 'paramsSchemaForWallets')
+
+      const auth = args.auth && typeof args.auth === 'object'
+        ? args.auth
+        : {}
+      const end = args.params && args.params.end
+        ? args.params.end
+        : Date.now()
+      const date = new Date(end)
+      const utcDate = new Date(Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate()
+      ))
+
+      const walletsArgs = {
+        auth,
+        params: { end: utcDate.getTime() }
+      }
+      const wallets = await this.dao.findInCollBy(
+        '_getWallets',
+        walletsArgs
+      )
+
+      if (
+        !Array.isArray(wallets) ||
+        wallets.length === 0 ||
+        (
+          date.getUTCHours() === 0 &&
+          date.getUTCMinutes() === 0 &&
+          date.getUTCSeconds() === 0 &&
+          date.getUTCMilliseconds() === 0
+        )
+      ) {
+        cb(null, wallets)
+
+        return
+      }
+
+      const ledgersArgs = {
+        auth,
+        params: {
+          start: utcDate.getTime() + 1,
+          end
+        }
+      }
+      const ledgers = await this.dao.findInCollBy(
+        '_getLedgers',
+        ledgersArgs
+      )
+
+      if (
+        !Array.isArray(ledgers) ||
+        ledgers.length === 0
+      ) {
+        cb(null, wallets)
+
+        return
+      }
+
+      const res = wallets.map(wallet => {
+        if (!Number.isFinite(wallet.balance)) {
+          return { ...wallet }
+        }
+
+        const _ledgers = ledgers.filter(ledger => {
+          return (
+            ledger.currency === wallet.currency &&
+            ledger.wallet === wallet.type
+          )
+        })
+        const res = _ledgers.reduce((accum, ledger) => {
+          const balance = Number.isFinite(ledger.amount)
+            ? accum.balance + ledger.amount
+            : accum.balance
+          const mtsUpdate = ledger.mts > accum.mtsUpdate
+            ? ledger.mts || end
+            : accum.mtsUpdate || end
+
+          return {
+            ...accum,
+            balance,
+            mtsUpdate,
+            unsettledInterest: null,
+            balanceAvailable: null,
+            placeHolder: null
+          }
+        }, { ...wallet })
+
+        return res
+      })
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
   _getTickersHistory (args) {
     return promisify(super.getTickersHistory.bind(this))(null, args)
   }
@@ -744,6 +853,10 @@ class MediatorReportService extends ReportService {
 
   _getFundingCreditHistory (args) {
     return promisify(super.getFundingCreditHistory.bind(this))(null, args)
+  }
+
+  _getWallets (args) {
+    return promisify(super.getWallets.bind(this))(null, args)
   }
 
   async _checkAuthInApi (args) {
