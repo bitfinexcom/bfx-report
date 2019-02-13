@@ -1,6 +1,6 @@
 'use strict'
 
-const { searchClosePrice } = require('./halpers')
+const { searchClosePriceAndSumAmount } = require('./halpers')
 
 class ApiMiddlewareHandlerAfter {
   constructor (reportService, dao) {
@@ -39,7 +39,10 @@ class ApiMiddlewareHandlerAfter {
         continue
       }
 
-      const closePrice = await searchClosePrice(
+      const {
+        closePrice,
+        sumAmount
+      } = await searchClosePriceAndSumAmount(
         this.dao,
         {
           auth,
@@ -49,7 +52,10 @@ class ApiMiddlewareHandlerAfter {
         }
       )
 
-      if (!Number.isFinite(closePrice)) {
+      if (
+        !Number.isFinite(closePrice) ||
+        !Number.isFinite(sumAmount)
+      ) {
         res.push({
           ...position,
           closePrice,
@@ -60,7 +66,7 @@ class ApiMiddlewareHandlerAfter {
         continue
       }
 
-      const pl = closePrice - basePrice
+      const pl = (closePrice - basePrice) * sumAmount
       const plPerc = ((closePrice / basePrice) - 1) * 100
 
       res.push({

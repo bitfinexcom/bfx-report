@@ -1,6 +1,6 @@
 'use strict'
 
-const searchClosePrice = async (
+const searchClosePriceAndSumAmount = async (
   dao,
   {
     auth,
@@ -15,7 +15,8 @@ const searchClosePrice = async (
       auth,
       params: {
         symbol,
-        end
+        end,
+        limit: 100
       }
     }
   )
@@ -24,7 +25,10 @@ const searchClosePrice = async (
     !Array.isArray(trades) ||
     trades.length === 0
   ) {
-    return null
+    return {
+      closePrice: null,
+      sumAmount: null
+    }
   }
   if (
     trades.length > 1 &&
@@ -35,7 +39,27 @@ const searchClosePrice = async (
     trades[0].orderID &&
     trades[0].orderID !== trades[1].orderID
   ) {
-    return trades[0].execPrice
+    const orderID = trades[1].orderID
+    const orderIdTrades = trades.filter(trade => (
+      trade &&
+      typeof trade === 'object' &&
+      trade.orderID === orderID
+    ))
+    const sumAmount = orderIdTrades.reduce((sumAmount, trade) => {
+      const _sumAmount = (
+        Number.isFinite(sumAmount) &&
+        Number.isFinite(trade.execAmount)
+      )
+        ? sumAmount + trade.execAmount
+        : null
+
+      return _sumAmount
+    }, 0)
+
+    return {
+      closePrice: trades[0].execPrice,
+      sumAmount
+    }
   }
 
   const _ledgers = await dao.findInCollBy(
@@ -54,7 +78,7 @@ const searchClosePrice = async (
     regexp.test(ledger.description)
   ))
 
-  return (
+  const closePrice = (
     closedPosition &&
     typeof closedPosition === 'object' &&
     closedPosition.description &&
@@ -62,8 +86,13 @@ const searchClosePrice = async (
   )
     ? closedPosition.description
     : null
+
+  return {
+    closePrice,
+    sumAmount: null
+  }
 }
 
 module.exports = {
-  searchClosePrice
+  searchClosePriceAndSumAmount
 }
