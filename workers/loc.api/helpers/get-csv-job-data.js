@@ -198,7 +198,7 @@ const getCsvJobData = {
         symbol: 'PAIR',
         amount: 'AMOUNT',
         basePrice: 'BASE PRICE',
-        liquidationPrice: 'LIQ PRICE',
+        closePrice: 'CLOSE PRICE',
         pl: 'P/L',
         plPerc: 'P/L%',
         marginFunding: 'FUNDING COST',

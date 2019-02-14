@@ -222,6 +222,7 @@ const _models = new Map([
       status: 'VARCHAR(255)',
       amount: 'DECIMAL(22,12)',
       basePrice: 'DECIMAL(22,12)',
+      closePrice: 'DECIMAL(22,12)',
       marginFunding: 'DECIMAL(22,12)',
       marginFundingType: 'INT',
       pl: 'DECIMAL(22,12)',

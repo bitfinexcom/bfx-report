@@ -51,7 +51,7 @@ describe('Sync mode with SQLite', () => {
   before(async function () {
     this.timeout(20000)
 
-    mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, 10000)
+    mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, 100)
 
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
@@ -194,35 +194,6 @@ describe('Sync mode with SQLite', () => {
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
     assert.isOk(res.body.result)
-  })
-
-  it('it should be successfully performed by the getSyncProgress method', async function () {
-    this.timeout(60000)
-
-    while (true) {
-      const res = await agent
-        .post(`${basePath}/get-data`)
-        .type('json')
-        .send({
-          auth,
-          method: 'getSyncProgress',
-          id: 5
-        })
-        .expect('Content-Type', /json/)
-        .expect(200)
-
-      assert.isObject(res.body)
-      assert.propertyVal(res.body, 'id', 5)
-      assert.isNumber(res.body.result)
-
-      if (
-        typeof res.body.result !== 'number' ||
-        res.body.result === 100
-      ) {
-        break
-      }
-      await delay()
-    }
   })
 
   it('it should be successfully performed by the getSyncProgress method', async function () {
@@ -806,6 +777,7 @@ describe('Sync mode with SQLite', () => {
       'status',
       'amount',
       'basePrice',
+      'closePrice',
       'marginFunding',
       'marginFundingType',
       'pl',
@@ -1140,7 +1112,7 @@ describe('Sync mode with SQLite', () => {
     assert.propertyVal(res.body, 'id', 5)
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.res)
-    assert.isNumber(res.body.result.nextPage)
+    assert.isBoolean(res.body.result.nextPage)
 
     const resItem = res.body.result.res[0]
 
