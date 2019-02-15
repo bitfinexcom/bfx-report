@@ -532,12 +532,12 @@ const _cloneSchema = (map) => {
   return new Map(Array.from(map).map(item => cloneDeep(item)))
 }
 
-const getMethodCollMap = () => {
-  return _cloneSchema(_methodCollMap)
+const getMethodCollMap = (methodCollMap = _methodCollMap) => {
+  return _cloneSchema(methodCollMap)
 }
 
-const getModelsMap = () => {
-  return _cloneSchema(_models)
+const getModelsMap = (models = _models) => {
+  return _cloneSchema(models)
 }
 
 module.exports = {
