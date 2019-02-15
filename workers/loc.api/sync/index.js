@@ -1,6 +1,5 @@
 'use strict'
 
-const syncQueue = require('./sync.queue')
 const {
   setProgress,
   getProgress,
@@ -11,10 +10,13 @@ const { CollSyncPermissionError } = require('../errors')
 const ALLOWED_COLLS = require('./allowed.colls')
 
 let reportService = null
+let syncQueueFactory = null
 
 const _sync = async (isSkipSync) => {
   if (!isSkipSync) {
     try {
+      const syncQueue = syncQueueFactory(true)
+
       await syncQueue.process()
     } catch (err) {
       await logErrorAndSetProgress(reportService, err)
@@ -41,6 +43,8 @@ module.exports = async (
     const currProgress = await getProgress(reportService)
 
     if (isEnable) {
+      const syncQueue = syncQueueFactory(true)
+
       await syncQueue.add(syncColls)
     }
     if (
@@ -73,8 +77,10 @@ module.exports = async (
   return _sync(isSkipSync)
 }
 
-module.exports.setReportService = (rService) => {
+module.exports.injectDeps = (
+  rService,
+  sQueueFactory
+) => {
   reportService = rService
-
-  syncQueue.injectDeps(rService)
+  syncQueueFactory = sQueueFactory
 }

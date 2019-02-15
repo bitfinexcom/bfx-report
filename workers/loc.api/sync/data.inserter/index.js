@@ -21,23 +21,24 @@ class DataInserter extends EventEmitter {
   constructor (
     reportService,
     syncColls = ALLOWED_COLLS.ALL,
-    methodCollMap
+    methodCollMap,
+    allowedColls = ALLOWED_COLLS
   ) {
     super()
 
     this.reportService = reportService
     this.dao = this.reportService.dao
+    this.allowedColls = allowedColls
     this.apiMiddleware = new ApiMiddleware(this.reportService, this.dao)
 
     this._asyncProgressHandler = null
     this._auth = null
-    this._allowedCollsNames = Object.values(ALLOWED_COLLS)
-      .filter(name => !(/^_.*/.test(name)))
+    this._allowedCollsNames = this._getAllowedCollsNames()
     this._syncColls = syncColls && Array.isArray(syncColls)
       ? syncColls
       : [syncColls]
 
-    checkCollPermission(this._syncColls)
+    checkCollPermission(this._syncColls, this.allowedColls)
 
     this._methodCollMap = this._filterMethodCollMapByList(methodCollMap)
   }
@@ -62,6 +63,11 @@ class DataInserter extends EventEmitter {
 
   _isPubColl (coll) {
     return /^public:.*/i.test(coll[1].type)
+  }
+
+  _getAllowedCollsNames () {
+    return Object.values(this.allowedColls)
+      .filter(name => !(/^_.*/.test(name)))
   }
 
   _isAllowedColl (coll) {
