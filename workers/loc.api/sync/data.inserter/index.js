@@ -663,7 +663,8 @@ class DataInserter extends EventEmitter {
     methodApi,
     schema,
     symbol,
-    dates
+    dates,
+    addApiParams = {}
   ) {
     if (
       !dates ||
@@ -682,7 +683,11 @@ class DataInserter extends EventEmitter {
         dates.baseStartFrom,
         dates.baseStartTo
       )
-      args.params.symbol = symbol
+      args.params = {
+        ...args.params,
+        symbol,
+        ...addApiParams
+      }
 
       await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
     }
@@ -693,7 +698,11 @@ class DataInserter extends EventEmitter {
         10000000,
         dates.currStart
       )
-      args.params.symbol = symbol
+      args.params = {
+        ...args.params,
+        symbol,
+        ...addApiParams
+      }
 
       await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
     }
