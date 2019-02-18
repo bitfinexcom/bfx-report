@@ -22,14 +22,17 @@ class DataInserter extends EventEmitter {
     reportService,
     syncColls = ALLOWED_COLLS.ALL,
     methodCollMap,
-    allowedColls = ALLOWED_COLLS
+    allowedColls = ALLOWED_COLLS,
+    apiMiddleware
   ) {
     super()
 
     this.reportService = reportService
     this.dao = this.reportService.dao
     this.allowedColls = allowedColls
-    this.apiMiddleware = new ApiMiddleware(this.reportService, this.dao)
+    this.apiMiddleware = apiMiddleware instanceof ApiMiddleware
+      ? apiMiddleware
+      : new ApiMiddleware(this.reportService, this.dao)
 
     this._asyncProgressHandler = null
     this._auth = null
