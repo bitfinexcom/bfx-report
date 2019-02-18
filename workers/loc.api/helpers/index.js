@@ -11,8 +11,8 @@ const schema = require('./schema')
 
 const { hasS3AndSendgrid } = require('../queue/helpers')
 
-function getMethodLimit (sendLimit, method) {
-  const methodsLimits = {
+const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
+  const _methodsLimits = {
     tickersHistory: { default: 100, max: 250 },
     positionsHistory: { default: 25, max: 50 },
     positionsAudit: { default: 100, max: 250 },
@@ -24,14 +24,15 @@ function getMethodLimit (sendLimit, method) {
     fundingOfferHistory: { default: 100, max: 500 },
     fundingLoanHistory: { default: 100, max: 500 },
     fundingCreditHistory: { default: 100, max: 500 },
-    candles: { default: 500, max: 5000 }
+    ...methodsLimits
   }
 
-  const selectedMethod = methodsLimits[method] || { default: 25, max: 25 }
+  const selectedMethod = _methodsLimits[method] || { default: 25, max: 25 }
 
   if (sendLimit === 'max') return selectedMethod.max
 
   const base = sendLimit || selectedMethod.default
+
   return getLimitNotMoreThan(base, selectedMethod.max)
 }
 
@@ -593,5 +594,6 @@ module.exports = {
   prepareApiResponse,
   mapObjBySchema,
   emptyRes,
-  getCsvArgs
+  getCsvArgs,
+  getMethodLimit
 }
