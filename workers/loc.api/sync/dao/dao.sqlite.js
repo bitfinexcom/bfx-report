@@ -687,7 +687,10 @@ class SqliteDAO extends DAO {
       filter = {},
       sort = [],
       minPropName = null,
-      groupPropName = null
+      groupPropName = null,
+      isDistinct = false,
+      projection = [],
+      limit = null
     } = {}
   ) {
     const subQuery = (
@@ -706,12 +709,19 @@ class SqliteDAO extends DAO {
       where,
       values
     } = this._getWhereQuery(filter, true)
+    const _projection = Array.isArray(projection) && projection.length > 0
+      ? projection.join(', ')
+      : '*'
+    const distinct = isDistinct ? 'DISTINCT ' : ''
+    const _limit = Number.isInteger(limit) ? 'LIMIT $_limit' : ''
+    const limitVal = _limit ? { $_limit: limit } : {}
 
-    const sql = `SELECT * FROM ${collName} AS a
+    const sql = `SELECT ${distinct}${_projection} FROM ${collName} AS a
       ${where || subQuery ? ' WHERE ' : ''}${where}${where && subQuery ? ' AND ' : ''}${subQuery}
-      ${_sort}`
+      ${_sort}
+      ${_limit}`
 
-    return this._all(sql, values)
+    return this._all(sql, { ...values, ...limitVal })
   }
 
   /**
