@@ -15,8 +15,8 @@ const readdir = promisify(fs.readdir)
 const rename = promisify(fs.rename)
 const chmod = promisify(fs.chmod)
 
-const tempDirPath = path.join(__dirname, 'temp')
 const rootDir = path.dirname(require.main.filename)
+const tempDirPath = path.join(rootDir, 'workers/loc.api/queue', 'temp')
 const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 const isElectronjsEnv = argv.isElectronjsEnv
