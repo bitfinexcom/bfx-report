@@ -2,16 +2,16 @@
 
 const { MockRESTv2Server } = require('bfx-api-mock-srv')
 
-const mockData = require('./mock-data')
+const _mockData = require('./mock-data')
 
-const _getMockData = (methodName) => {
+const getMockData = (methodName, mockData = _mockData) => {
   if (!mockData.has(methodName)) throw new Error('NO_MOCKING_DATA')
 
   return mockData.get(methodName)
 }
 
 const _fillAllData = (mockRESTv2Srv) => {
-  for (let [key, val] of mockData) {
+  for (let [key, val] of _mockData) {
     mockRESTv2Srv.setResponse(key, val)
   }
 }
@@ -27,16 +27,16 @@ const createMockRESTv2SrvWithAllData = () => {
   return srv
 }
 
-const _setDataTo = (
+const setDataTo = (
   key,
   dataItem,
-  data = {
-    date: Date.now(),
-    id: 12345,
-    fee: 0.1
-  }
+  {
+    date = Date.now(),
+    id = 12345,
+    fee = 0.1
+  } = {}
 ) => {
-  const _date = Math.round(data.date)
+  const _date = Math.round(date)
 
   switch (key) {
     case 'tickers_hist':
@@ -48,60 +48,60 @@ const _setDataTo = (
       break
 
     case 'positions_hist':
-      dataItem[11] = data.id
+      dataItem[11] = id
       dataItem[12] = _date
       dataItem[13] = _date
       break
 
     case 'positions_audit':
-      dataItem[11] = data.id
+      dataItem[11] = id
       dataItem[12] = _date
       dataItem[13] = _date
       break
 
     case 'ledgers':
-      dataItem[0] = data.id
+      dataItem[0] = id
       dataItem[3] = _date
       break
 
     case 'trades':
-      dataItem[0] = data.id
+      dataItem[0] = id
       dataItem[2] = _date
-      dataItem[3] = data.id
-      dataItem[9] = data.fee
+      dataItem[3] = id
+      dataItem[9] = fee
       break
 
     case 'public_trades':
-      dataItem[0] = data.id
+      dataItem[0] = id
       dataItem[1] = _date
       break
 
     case 'orders':
-      dataItem[0] = data.id
+      dataItem[0] = id
       dataItem[4] = _date
       dataItem[5] = _date
       break
 
     case 'movements':
-      dataItem[0] = data.id
+      dataItem[0] = id
       dataItem[5] = _date
       dataItem[6] = _date
       break
 
     case 'f_offer_hist':
-      dataItem[0] = data.id
+      dataItem[0] = id
       dataItem[2] = _date
       dataItem[3] = _date
       break
 
     case 'f_loan_hist':
-      dataItem[0] = data.id
+      dataItem[0] = id
       dataItem[3] = _date
       dataItem[4] = _date
       break
 
     case 'f_credit_hist':
-      dataItem[0] = data.id
+      dataItem[0] = id
       dataItem[3] = _date
       dataItem[4] = _date
       break
@@ -110,28 +110,34 @@ const _setDataTo = (
   return dataItem
 }
 
+const getMockDataOpts = () => ({
+  tickers_hist: { limit: 250 },
+  wallets_hist: { limit: 100, isNotMoreThanLimit: true },
+  wallets: { limit: 100, isNotMoreThanLimit: true },
+  positions_hist: { limit: 50 },
+  positions_audit: { limit: 250 },
+  ledgers: { limit: 500 },
+  trades: { limit: 1000 },
+  public_trades: { limit: 5000 },
+  orders: { limit: 500 },
+  movements: { limit: 25 },
+  f_offer_hist: { limit: 500 },
+  f_loan_hist: { limit: 500 },
+  f_credit_hist: { limit: 500 },
+  user_info: null,
+  symbols: null,
+  currencies: null
+})
+
 const createMockRESTv2SrvWithDate = (
   start = Date.now(),
   end = start,
   limit = null,
-  opts = {
-    'tickers_hist': { limit: 250 },
-    'wallets_hist': { limit: 100, isNotMoreThanLimit: true },
-    'wallets': { limit: 100, isNotMoreThanLimit: true },
-    'positions_hist': { limit: 50 },
-    'positions_audit': { limit: 250 },
-    'ledgers': { limit: 500 },
-    'trades': { limit: 1000 },
-    'public_trades': { limit: 5000 },
-    'orders': { limit: 500 },
-    'movements': { limit: 25 },
-    'f_offer_hist': { limit: 500 },
-    'f_loan_hist': { limit: 500 },
-    'f_credit_hist': { limit: 500 },
-    'user_info': null,
-    'symbols': null,
-    'currencies': null
-  }
+  opts = getMockDataOpts(),
+  {
+    _getMockData = getMockData,
+    _setDataTo = setDataTo
+  } = {}
 ) => {
   const srv = _createMockRESTv2Srv()
 
@@ -182,5 +188,8 @@ const createMockRESTv2SrvWithDate = (
 
 module.exports = {
   createMockRESTv2SrvWithAllData,
-  createMockRESTv2SrvWithDate
+  createMockRESTv2SrvWithDate,
+  getMockDataOpts,
+  getMockData,
+  setDataTo
 }
