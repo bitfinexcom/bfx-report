@@ -118,7 +118,7 @@ const connToSQLite = (wrk) => {
       }
 
       wrk.grc_bfx.api.db = db
-      await wrk.grc_bfx.api._databaseInitialize(db)
+      await wrk.grc_bfx.api._syncModeInitialize(db)
       resolve(db)
     })
   })
