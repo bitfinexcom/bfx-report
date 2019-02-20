@@ -22,18 +22,13 @@ const rmDB = async (dir, exclude = ['.gitkeep']) => {
   return Promise.all(promisesArr)
 }
 
-const rmAllFiles = async (dir) => {
+const rmAllFiles = async (dir, exclude) => {
   try {
-    const files = await readdir(dir)
-    const promisesArr = files.map(file => unlink(path.join(dir, file)))
-
-    return Promise.all(promisesArr)
+    await rmDB(dir, exclude)
   } catch (err) {
     if (err.syscall === 'scandir') {
       await mkdir(dir)
     }
-
-    return Promise.resolve()
   }
 }
 
