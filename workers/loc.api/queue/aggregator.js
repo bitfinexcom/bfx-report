@@ -60,6 +60,7 @@ module.exports = async job => {
 
       for (const filePath of filePaths) {
         await moveFileToLocalStorage(
+          reportService.ctx.rootPath,
           filePath,
           subParamsArr[count].name || name,
           { ...subParamsArr[count] },

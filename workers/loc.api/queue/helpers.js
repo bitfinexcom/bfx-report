@@ -15,9 +15,6 @@ const readdir = promisify(fs.readdir)
 const rename = promisify(fs.rename)
 const chmod = promisify(fs.chmod)
 
-const rootDir = path.dirname(require.main.filename)
-const tempDirPath = path.join(rootDir, 'workers/loc.api/queue', 'temp')
-const localStorageDirPath = path.join(rootDir, argv.csvFolder || 'csv')
 const basePathToViews = path.join(__dirname, 'views')
 const isElectronjsEnv = argv.isElectronjsEnv
 
@@ -52,12 +49,14 @@ const _checkAndCreateDir = async (dirPath) => {
   }
 }
 
-const createUniqueFileName = async (count = 0) => {
+const createUniqueFileName = async (rootPath, count = 0) => {
   count += 1
 
   if (count > 20) {
-    return Promise.reject(new Error('ERR_CREATE_UNIQUE_FILE_NAME'))
+    throw new Error('ERR_CREATE_UNIQUE_FILE_NAME')
   }
+
+  const tempDirPath = path.join(rootPath, 'workers/loc.api/queue', 'temp')
 
   await _checkAndCreateDir(tempDirPath)
 
@@ -66,10 +65,10 @@ const createUniqueFileName = async (count = 0) => {
   const files = await readdir(tempDirPath)
 
   if (files.some(file => file === uniqueFileName)) {
-    return createUniqueFileName(count)
+    return createUniqueFileName(rootPath, count)
   }
 
-  return Promise.resolve(path.join(tempDirPath, uniqueFileName))
+  return path.join(tempDirPath, uniqueFileName)
 }
 
 const writableToPromise = stream => {
@@ -500,11 +499,14 @@ const hasS3AndSendgrid = async reportService => {
 }
 
 const moveFileToLocalStorage = async (
+  rootPath,
   filePath,
   name,
   params,
   userInfo
 ) => {
+  const localStorageDirPath = path.join(rootPath, argv.csvFolder || 'csv')
+
   await _checkAndCreateDir(localStorageDirPath)
 
   const fileName = _getCompleteFileName(name, params, userInfo)

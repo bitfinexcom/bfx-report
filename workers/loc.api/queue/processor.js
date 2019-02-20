@@ -40,7 +40,9 @@ module.exports = async job => {
         data.args.params = {}
       }
 
-      const filePath = await createUniqueFileName()
+      const filePath = await createUniqueFileName(
+        reportService.ctx.rootPath
+      )
       filePaths.push(filePath)
       subParamsArr.push({
         ...data.args.params,
