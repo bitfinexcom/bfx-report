@@ -4,6 +4,8 @@ const { fork } = require('child_process')
 const path = require('path')
 const worker = require('bfx-svc-boot-js/lib/worker')
 
+const _serviceRoot = path.join(__dirname, '../..')
+
 const ipc = []
 
 let wrksReportServiceApi = []
@@ -36,7 +38,8 @@ const startWorkers = (
   logs,
   isForkWrk,
   countWrk = 1,
-  conf = {}
+  conf = {},
+  serviceRoot = _serviceRoot
 ) => {
   const _conf = {
     env: 'development',
@@ -52,7 +55,7 @@ const startWorkers = (
       const args = Object.keys(_conf).map(key => `--${key}=${_conf[key]}`)
 
       const wrkIpc = fork(
-        path.join(__dirname, '../..', 'worker.js'),
+        path.join(serviceRoot, 'worker.js'),
         args,
         {
           silent: !logs
@@ -63,7 +66,7 @@ const startWorkers = (
     } else {
       const wrk = worker({
         ..._conf,
-        serviceRoot: path.join(__dirname, '../..')
+        serviceRoot
       })
 
       wrksReportServiceApi.push(wrk)

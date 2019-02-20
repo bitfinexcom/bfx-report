@@ -6,13 +6,28 @@ const { bootTwoGrapes, killGrapes } = require('./helpers.grape')
 
 let grapes = null
 
-const startEnviroment = (logs = false, isRootWrk = false, countWrk = 1, conf = {}) => {
+const startEnviroment = (
+  logs = false,
+  isRootWrk = false,
+  countWrk = 1,
+  conf = {},
+  serviceRoot
+) => {
   return new Promise((resolve, reject) => {
     let count = 0
 
     bootTwoGrapes(async (err, g) => {
       if (err) reject(err)
-      const { wrksReportServiceApi, amount } = startWorkers(logs, isRootWrk, countWrk, conf)
+      const {
+        wrksReportServiceApi,
+        amount
+      } = startWorkers(
+        logs,
+        isRootWrk,
+        countWrk,
+        conf,
+        serviceRoot
+      )
 
       grapes = g
 
