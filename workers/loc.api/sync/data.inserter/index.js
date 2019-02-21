@@ -44,6 +44,7 @@ class DataInserter extends EventEmitter {
     checkCollPermission(this._syncColls, this.allowedColls)
 
     this._methodCollMap = this._filterMethodCollMapByList(methodCollMap)
+    this._afterAllInsertsHooks = []
   }
 
   _reduceMethodCollMap (
@@ -206,7 +207,33 @@ class DataInserter extends EventEmitter {
 
     await this.insertNewPublicDataToDb(progress)
 
+    await this._afterAllInserts()
     await this.setProgress(100)
+  }
+
+  async _afterAllInserts () {
+    if (
+      !Array.isArray(this._afterAllInsertsHooks) ||
+      this._afterAllInsertsHooks.length === 0 ||
+      this._afterAllInsertsHooks.some(hook => typeof hook !== 'function')
+    ) {
+      return
+    }
+
+    const promiseArr = this._afterAllInsertsHooks.map(hook => hook(this))
+
+    return Promise.all(promiseArr)
+  }
+
+  addAfterAllInsertsHooks (hook) {
+    if (typeof hook !== 'function') {
+      throw new Error('ERR_AFTER_ALL_INSERTS_HOOK_IS_NOT_FUNCTION')
+    }
+    if (!Array.isArray(this._afterAllInsertsHooks)) {
+      this._afterAllInsertsHooks = []
+    }
+
+    this._afterAllInsertsHooks.push(hook)
   }
 
   async insertNewPublicDataToDb (prevProgress) {
