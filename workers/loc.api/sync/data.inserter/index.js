@@ -37,11 +37,11 @@ class DataInserter extends EventEmitter {
     this._asyncProgressHandler = null
     this._auth = null
     this._allowedCollsNames = this._getAllowedCollsNames()
-    this._syncColls = syncColls && Array.isArray(syncColls)
+    this.syncColls = syncColls && Array.isArray(syncColls)
       ? syncColls
       : [syncColls]
 
-    checkCollPermission(this._syncColls, this.allowedColls)
+    checkCollPermission(this.syncColls, this.allowedColls)
 
     this._methodCollMap = this._filterMethodCollMapByList(methodCollMap)
     this._afterAllInsertsHooks = []
@@ -80,7 +80,7 @@ class DataInserter extends EventEmitter {
 
   _filterMethodCollMapByList (
     methodCollMap,
-    syncColls = this._syncColls
+    syncColls = this.syncColls
   ) {
     const res = []
     const _methodCollMap = (methodCollMap instanceof Map)
