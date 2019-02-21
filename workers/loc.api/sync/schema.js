@@ -260,6 +260,7 @@ const _models = new Map([
       type: 'VARCHAR(255)',
       currency: 'VARCHAR(255)',
       balance: 'DECIMAL(22,12)',
+      balanceUsd: 'DECIMAL(22,12)',
       unsettledInterest: 'DECIMAL(22,12)',
       balanceAvailable: 'DECIMAL(22,12)',
       placeHolder: 'TEXT',
