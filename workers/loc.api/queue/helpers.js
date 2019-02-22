@@ -539,7 +539,7 @@ const uploadS3 = async (
   const deflateFac = wrk.deflate_gzip
   const isMultiExport = (
     queueName === 'getMultiple' ||
-    (Array.isArray(subParamsArr) && subParamsArr.length > 0)
+    (Array.isArray(subParamsArr) && subParamsArr.length > 1)
   )
   const fileNameWithoutExt = _getCompleteFileName(
     subParamsArr[0].name,
