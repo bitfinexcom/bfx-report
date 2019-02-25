@@ -430,7 +430,8 @@ const getCsvJobData = {
         status: 'STATUS',
         amount: 'AMOUNT',
         fees: 'FEES',
-        destinationAddress: 'DESCRIPTION'
+        destinationAddress: 'DESCRIPTION',
+        transactionId: 'TRANSACTION ID'
       },
       formatSettings: {
         mtsUpdated: 'date'
