@@ -21,25 +21,30 @@ class DataInserter extends EventEmitter {
   constructor (
     reportService,
     syncColls = ALLOWED_COLLS.ALL,
-    methodCollMap
+    methodCollMap,
+    allowedColls = ALLOWED_COLLS,
+    apiMiddleware
   ) {
     super()
 
     this.reportService = reportService
     this.dao = this.reportService.dao
-    this.apiMiddleware = new ApiMiddleware(this.reportService, this.dao)
+    this.allowedColls = allowedColls
+    this.apiMiddleware = apiMiddleware instanceof ApiMiddleware
+      ? apiMiddleware
+      : new ApiMiddleware(this.reportService, this.dao)
 
     this._asyncProgressHandler = null
     this._auth = null
-    this._allowedCollsNames = Object.values(ALLOWED_COLLS)
-      .filter(name => !(/^_.*/.test(name)))
-    this._syncColls = syncColls && Array.isArray(syncColls)
+    this._allowedCollsNames = this._getAllowedCollsNames()
+    this.syncColls = syncColls && Array.isArray(syncColls)
       ? syncColls
       : [syncColls]
 
-    checkCollPermission(this._syncColls)
+    checkCollPermission(this.syncColls, this.allowedColls)
 
     this._methodCollMap = this._filterMethodCollMapByList(methodCollMap)
+    this._afterAllInsertsHooks = []
   }
 
   _reduceMethodCollMap (
@@ -64,13 +69,18 @@ class DataInserter extends EventEmitter {
     return /^public:.*/i.test(coll[1].type)
   }
 
+  _getAllowedCollsNames () {
+    return Object.values(this.allowedColls)
+      .filter(name => !(/^_.*/.test(name)))
+  }
+
   _isAllowedColl (coll) {
     return this._allowedCollsNames.some(item => item === coll[1].name)
   }
 
   _filterMethodCollMapByList (
     methodCollMap,
-    syncColls = this._syncColls
+    syncColls = this.syncColls
   ) {
     const res = []
     const _methodCollMap = (methodCollMap instanceof Map)
@@ -197,7 +207,33 @@ class DataInserter extends EventEmitter {
 
     await this.insertNewPublicDataToDb(progress)
 
+    await this._afterAllInserts()
     await this.setProgress(100)
+  }
+
+  async _afterAllInserts () {
+    if (
+      !Array.isArray(this._afterAllInsertsHooks) ||
+      this._afterAllInsertsHooks.length === 0 ||
+      this._afterAllInsertsHooks.some(hook => typeof hook !== 'function')
+    ) {
+      return
+    }
+
+    const promiseArr = this._afterAllInsertsHooks.map(hook => hook(this))
+
+    return Promise.all(promiseArr)
+  }
+
+  addAfterAllInsertsHooks (hook) {
+    if (typeof hook !== 'function') {
+      throw new Error('ERR_AFTER_ALL_INSERTS_HOOK_IS_NOT_FUNCTION')
+    }
+    if (!Array.isArray(this._afterAllInsertsHooks)) {
+      this._afterAllInsertsHooks = []
+    }
+
+    this._afterAllInsertsHooks.push(hook)
   }
 
   async insertNewPublicDataToDb (prevProgress) {
@@ -654,7 +690,8 @@ class DataInserter extends EventEmitter {
     methodApi,
     schema,
     symbol,
-    dates
+    dates,
+    addApiParams = {}
   ) {
     if (
       !dates ||
@@ -673,7 +710,11 @@ class DataInserter extends EventEmitter {
         dates.baseStartFrom,
         dates.baseStartTo
       )
-      args.params.symbol = symbol
+      args.params = {
+        ...args.params,
+        symbol,
+        ...addApiParams
+      }
 
       await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
     }
@@ -684,7 +725,11 @@ class DataInserter extends EventEmitter {
         10000000,
         dates.currStart
       )
-      args.params.symbol = symbol
+      args.params = {
+        ...args.params,
+        symbol,
+        ...addApiParams
+      }
 
       await this._insertApiDataArrObjTypeToDb(args, methodApi, schema, true)
     }

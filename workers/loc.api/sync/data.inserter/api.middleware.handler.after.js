@@ -1,6 +1,6 @@
 'use strict'
 
-const { searchClosePriceAndSumAmount } = require('./halpers')
+const { searchClosePriceAndSumAmount } = require('./helpers')
 
 class ApiMiddlewareHandlerAfter {
   constructor (reportService, dao) {

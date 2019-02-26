@@ -11,8 +11,8 @@ const schema = require('./schema')
 
 const { hasS3AndSendgrid } = require('../queue/helpers')
 
-function getMethodLimit (sendLimit, method) {
-  const methodsLimits = {
+const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
+  const _methodsLimits = {
     tickersHistory: { default: 100, max: 250 },
     positionsHistory: { default: 25, max: 50 },
     positionsAudit: { default: 100, max: 250 },
@@ -24,14 +24,15 @@ function getMethodLimit (sendLimit, method) {
     fundingOfferHistory: { default: 100, max: 500 },
     fundingLoanHistory: { default: 100, max: 500 },
     fundingCreditHistory: { default: 100, max: 500 },
-    candles: { default: 500, max: 5000 }
+    ...methodsLimits
   }
 
-  const selectedMethod = methodsLimits[method] || { default: 25, max: 25 }
+  const selectedMethod = _methodsLimits[method] || { default: 25, max: 25 }
 
   if (sendLimit === 'max') return selectedMethod.max
 
   const base = sendLimit || selectedMethod.default
+
   return getLimitNotMoreThan(base, selectedMethod.max)
 }
 
@@ -59,7 +60,7 @@ const getLimitNotMoreThan = (limit, maxLimit = 25) => {
   return Math.min(num, maxLimit)
 }
 
-const _getDateNotMoreNow = (date, now = Date.now()) => {
+const getDateNotMoreNow = (date, now = Date.now()) => {
   return getLimitNotMoreThan(date, now)
 }
 
@@ -136,7 +137,7 @@ const getParams = (
     const paramsOrder = _getParamsOrder(methodApi)
     paramsObj = _.cloneDeep(args.params)
 
-    paramsObj.end = _getDateNotMoreNow(args.params.end)
+    paramsObj.end = getDateNotMoreNow(args.params.end)
     paramsObj.limit = getMethodLimit(args.params.limit, methodApi)
 
     if (cb) cb(paramsObj)
@@ -156,15 +157,17 @@ const checkParams = (
   args,
   schemaName = 'paramsSchemaForCsv',
   requireFields = [],
-  checkParamsField = false
+  checkParamsField = false,
+  additionalSchema = {}
 ) => {
   const ajv = new Ajv()
+  const extendedSchema = { ...schema, ...additionalSchema }
 
-  if (!schema[schemaName]) {
+  if (!extendedSchema[schemaName]) {
     throw new Error('ERR_PARAMS_SCHEMA_NOT_FOUND')
   }
 
-  const _schema = _.cloneDeep(schema[schemaName])
+  const _schema = _.cloneDeep(extendedSchema[schemaName])
 
   if (
     Array.isArray(requireFields) &&
@@ -192,7 +195,7 @@ const checkParams = (
 }
 
 const _setDefaultTimeIfNotExist = (args) => {
-  args.params.end = _getDateNotMoreNow(args.params.end)
+  args.params.end = getDateNotMoreNow(args.params.end)
   args.params.start = args.params.start
     ? args.params.start
     : 0
@@ -572,6 +575,7 @@ const emptyRes = (cb) => {
 module.exports = {
   getREST,
   getLimitNotMoreThan,
+  getDateNotMoreNow,
   getParams,
   checkParams,
   checkParamsAuth,
@@ -593,5 +597,6 @@ module.exports = {
   prepareApiResponse,
   mapObjBySchema,
   emptyRes,
-  getCsvArgs
+  getCsvArgs,
+  getMethodLimit
 }

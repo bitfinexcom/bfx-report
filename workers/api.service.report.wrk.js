@@ -32,6 +32,8 @@ const logger = require('./loc.api/logger')
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
 const sync = require('./loc.api/sync')
+const DataInserter = require('./loc.api/sync/data.inserter')
+const SyncQueue = require('./loc.api/sync/sync.queue')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -150,6 +152,57 @@ class WrkReportServiceApi extends WrkApi {
     this.setInitFacs(facs)
   }
 
+  _depsFactory (Module, args = [], singletonName) {
+    const isSingleton = !!singletonName
+
+    if (!isSingleton) {
+      return new Module(...args)
+    }
+
+    if (this[singletonName] instanceof Module) {
+      return this[singletonName]
+    }
+
+    this[singletonName] = new Module(...args)
+
+    return this[singletonName]
+  }
+
+  _dataInserterFactory (isSingleton, ...args) {
+    return this._depsFactory(
+      DataInserter,
+      args,
+      isSingleton && 'dataInserter'
+    )
+  }
+
+  _syncQueueFactory (isSingleton, ...args) {
+    const name = 'syncQueue'
+    const reportService = this.grc_bfx.api
+    const syncQueue = this._depsFactory(
+      SyncQueue,
+      args.length > 0 ? args : [name],
+      isSingleton && name
+    )
+
+    syncQueue.setReportService(reportService)
+    syncQueue.setDao(reportService.dao)
+    syncQueue.setDataInserterFactory(
+      this._dataInserterFactory.bind(this)
+    )
+
+    return syncQueue
+  }
+
+  _injectDepsToSync () {
+    const reportService = this.grc_bfx.api
+
+    sync.injectDeps(
+      reportService,
+      this._syncQueueFactory.bind(this)
+    )
+  }
+
   _start (cb) {
     async.series([
       next => {
@@ -173,7 +226,7 @@ class WrkReportServiceApi extends WrkApi {
             this.logger.error(err.stack || err)
           }
 
-          sync.setReportService(reportService)
+          this._injectDepsToSync()
 
           if (conf.isSchedulerEnabled) {
             const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))

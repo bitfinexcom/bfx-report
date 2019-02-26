@@ -896,8 +896,8 @@ class MediatorReportService extends ReportService {
     }
   }
 
-  async _syncModeInitialize () {
-    await this._databaseInitialize()
+  async _syncModeInitialize (db) {
+    await this._databaseInitialize(db)
 
     await this.dao.updateProgress('SYNCHRONIZATION_HAS_NOT_STARTED_YET')
     await this.dao.updateStateOf('syncMode', true)

@@ -57,7 +57,7 @@ const delay = (mc = 80000) => {
   })
 }
 
-const checkCollPermission = (syncColls) => {
+const checkCollPermission = (syncColls, allowedColls = ALLOWED_COLLS) => {
   if (
     !syncColls ||
     !Array.isArray(syncColls) ||
@@ -65,7 +65,7 @@ const checkCollPermission = (syncColls) => {
     syncColls.some(item => (
       !item ||
       typeof item !== 'string' ||
-      Object.values(ALLOWED_COLLS).every(collName => item !== collName)
+      Object.values(allowedColls).every(collName => item !== collName)
     ))
   ) {
     throw new CollSyncPermissionError()

@@ -3,14 +3,20 @@
 const ApiMiddlewareHandlerAfter = require('./api.middleware.handler.after')
 
 class ApiMiddleware {
-  constructor (reportService, dao) {
+  constructor (
+    reportService,
+    dao,
+    apiMiddlewareHandlerAfter
+  ) {
     this.reportService = reportService
     this.dao = dao
 
-    this._apiMiddlewareHandlerAfter = new ApiMiddlewareHandlerAfter(
-      reportService,
-      dao
-    )
+    this._apiMiddlewareHandlerAfter = apiMiddlewareHandlerAfter instanceof ApiMiddlewareHandlerAfter
+      ? apiMiddlewareHandlerAfter
+      : new ApiMiddlewareHandlerAfter(
+        reportService,
+        dao
+      )
   }
 
   hasMethod (method) {
