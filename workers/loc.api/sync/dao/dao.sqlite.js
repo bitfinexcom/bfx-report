@@ -128,7 +128,8 @@ class SqliteDAO extends DAO {
     origFieldName,
     isArr,
     gtKeys,
-    ltKeys
+    ltKeys,
+    isNot
   ) {
     if (origFieldName === 'start') {
       return '>='
@@ -148,8 +149,11 @@ class SqliteDAO extends DAO {
     ) {
       return '<'
     }
+    if (isArr) {
+      return isNot ? 'NOT IN' : 'IN'
+    }
 
-    return isArr ? 'IN' : '='
+    return isNot ? '!=' : '='
   }
 
   _getKeysAndValuesForWhereQuery (
@@ -205,10 +209,14 @@ class SqliteDAO extends DAO {
     const ltObj = filter.$lt && typeof filter.$lt === 'object'
       ? filter.$lt
       : {}
+    const notObj = filter.$not && typeof filter.$not === 'object'
+      ? filter.$not
+      : {}
     const _filter = {
-      ...omit(filter, ['$gt', '$lt']),
+      ...omit(filter, ['$gt', '$lt', '$not']),
       ...gtObj,
-      ...ltObj
+      ...ltObj,
+      ...notObj
     }
     const keys = Object.keys(omit(_filter, ['_dateFieldName']))
     const where = keys.reduce(
@@ -227,7 +235,8 @@ class SqliteDAO extends DAO {
           curr,
           isArr,
           Object.keys(gtObj),
-          Object.keys(ltObj)
+          Object.keys(ltObj),
+          Object.keys(notObj).length > 0
         )
 
         const {
