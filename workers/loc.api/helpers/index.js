@@ -413,8 +413,38 @@ const tryParseJSON = jsonString => {
   return false
 }
 
-const prepareResponse = (
+const _requestToApi = (
+  wrk,
+  method,
+  paramsArr,
+  auth
+) => {
+  const rest = getREST(auth, wrk)
+
+  return rest[_parseMethodApi(method)].bind(rest)(...paramsArr)
+}
+
+const _filterSymbs = (
   res,
+  symbols,
+  symbPropName
+) => {
+  if (
+    typeof symbPropName !== 'string' ||
+    !Array.isArray(res) ||
+    !Array.isArray(symbols) ||
+    symbols.length === 0
+  ) {
+    return res
+  }
+
+  return res.filter(item => {
+    return symbols.some(s => s === item[symbPropName])
+  })
+}
+
+const prepareResponse = (
+  apiRes,
   datePropName,
   limit = 1000,
   notThrowError = false,
@@ -424,38 +454,32 @@ const prepareResponse = (
 ) => {
   let nextPage = (
     !notCheckNextPage &&
-    Array.isArray(res) &&
-    res.length === limit
+    Array.isArray(apiRes) &&
+    apiRes.length === limit
   )
 
   if (nextPage) {
-    const date = res[res.length - 1][datePropName]
+    const date = apiRes[apiRes.length - 1][datePropName]
 
     while (
-      res[res.length - 1] &&
-      date === res[res.length - 1][datePropName]
+      apiRes[apiRes.length - 1] &&
+      date === apiRes[apiRes.length - 1][datePropName]
     ) {
-      res.pop()
+      apiRes.pop()
     }
 
     nextPage = date
 
-    if (!notThrowError && res.length === 0) {
+    if (!notThrowError && apiRes.length === 0) {
       throw new Error('ERR_GREATER_LIMIT_IS_NEEDED')
     }
   }
 
-  if (
-    symbols &&
-    symbPropName &&
-    typeof symbPropName === 'string' &&
-    Array.isArray(symbols) &&
-    symbols.length > 0
-  ) {
-    res = res.filter(item => {
-      return symbols.some(s => s === item[symbPropName])
-    })
-  }
+  const res = _filterSymbs(
+    apiRes,
+    symbols,
+    symbPropName
+  )
 
   return { res, nextPage }
 }
@@ -505,18 +529,95 @@ const prepareApiResponse = async (
       }
     }
   )
-  const rest = getREST(args.auth, wrk)
 
-  let res = await rest[_parseMethodApi(methodApi)].bind(rest)(...paramsArr)
+  const _res = await _requestToApi(
+    wrk,
+    methodApi,
+    paramsArr,
+    args.auth
+  )
 
-  return prepareResponse(
+  const {
     res,
+    nextPage
+  } = prepareResponse(
+    _res,
     datePropName,
     paramsObj.limit,
     args.params && args.params.notThrowError,
     args.params && args.params.notCheckNextPage,
     symbols,
     symbPropName
+  )
+
+  if (
+    !Array.isArray(res) |
+    res.length > 0 ||
+    !Number.isInteger(nextPage) ||
+    !Number.isInteger(paramsObj.limit)
+  ) {
+    return { res, nextPage }
+  }
+
+  const _paramsArr = [...paramsArr]
+  const paramsOrder = _getParamsOrder(methodApi)
+  const symbIndex = paramsOrder.indexOf('symbol')
+  const searchRes = []
+
+  if (symbIndex !== -1) {
+    for (const symb of symbols) {
+      _paramsArr[symbIndex] = symb
+
+      const res = await _requestToApi(
+        wrk,
+        methodApi,
+        _paramsArr,
+        args.auth
+      )
+
+      if (
+        Array.isArray(res) &&
+        res.length > 0
+      ) {
+        searchRes.push(...res)
+      }
+    }
+  } else {
+    // TODO:
+    const limitIndex = paramsOrder.indexOf('limit')
+    _paramsArr[limitIndex] = getMethodLimit('max', methodApi)
+
+    const res = await _requestToApi(
+      wrk,
+      methodApi,
+      _paramsArr,
+      args.auth
+    )
+
+    if (
+      Array.isArray(res) &&
+      res.length > 0
+    ) {
+      const filteredRes = _filterSymbs(
+        res,
+        symbols,
+        symbPropName
+      )
+
+      searchRes.push(...filteredRes)
+    }
+  }
+
+  const sortedRes = _
+    .orderBy(searchRes, [datePropName], ['desc'])
+    .slice(0, paramsObj.limit)
+
+  return prepareResponse(
+    sortedRes,
+    datePropName,
+    paramsObj.limit,
+    args.params && args.params.notThrowError,
+    args.params && args.params.notCheckNextPage
   )
 }
 
