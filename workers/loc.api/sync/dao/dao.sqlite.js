@@ -485,10 +485,32 @@ class SqliteDAO extends DAO {
     return res
   }
 
+  _getSymbFilter (params) {
+    if (typeof params.symbol === 'string') {
+      return params.symbol
+    }
+    if (
+      !Array.isArray(params.symbol) ||
+      params.symbol.length === 0
+    ) {
+      return
+    }
+    if (params.symbol.length === 1) {
+      return params.symbol[0]
+    }
+
+    return params.symbol
+  }
+
   /**
    * @override
    */
-  async findInCollBy (method, args, isPrepareResponse, isPublic) {
+  async findInCollBy (
+    method,
+    args,
+    isPrepareResponse,
+    isPublic
+  ) {
     const user = isPublic ? null : await this.checkAuthInDb(args)
     const methodColl = this._getMethodCollMap().get(method)
     const params = { ...args.params }
@@ -511,15 +533,11 @@ class SqliteDAO extends DAO {
       ) {
         filter._isMarginFundingPayment = Number(params.isMarginFundingPayment)
       }
-      if (params.symbol) {
-        if (typeof params.symbol === 'string') {
-          filter[methodColl.symbolFieldName] = params.symbol
-        } else if (
-          Array.isArray(params.symbol) &&
-          params.symbol.length === 1
-        ) {
-          filter[methodColl.symbolFieldName] = params.symbol[0]
-        }
+
+      const symbFilter = this._getSymbFilter(params)
+
+      if (symbFilter) {
+        filter[methodColl.symbolFieldName] = symbFilter
       }
     }
     if (!isPublic) {
@@ -560,7 +578,7 @@ class SqliteDAO extends DAO {
       ${limit}`
 
     const _res = await this._all(sql, values)
-    let res = this._convertDataType(_res)
+    const res = this._convertDataType(_res)
 
     if (isPrepareResponse) {
       const symbols = (
@@ -569,7 +587,7 @@ class SqliteDAO extends DAO {
         params.symbol.length > 1
       ) ? params.symbol : []
 
-      res = prepareResponse(
+      return prepareResponse(
         res,
         methodColl.dateFieldName,
         params.limit,
