@@ -484,6 +484,93 @@ const prepareResponse = (
   return { res, nextPage }
 }
 
+const _searchDataFromApiBySymbs = async (
+  wrk,
+  methodApi,
+  args,
+  symbols,
+  symbPropName,
+  datePropName,
+  paramsArr,
+  paramsObj
+) => {
+  const _paramsArr = [...paramsArr]
+  const paramsOrder = _getParamsOrder(methodApi)
+  const symbIndex = paramsOrder.indexOf('symbol')
+  const searchRes = []
+
+  if (symbIndex !== -1) {
+    for (const symb of symbols) {
+      _paramsArr[symbIndex] = symb
+
+      const res = await _requestToApi(
+        wrk,
+        methodApi,
+        _paramsArr,
+        args.auth
+      )
+
+      if (
+        Array.isArray(res) &&
+        res.length > 0
+      ) {
+        searchRes.push(...res)
+      }
+    }
+  } else {
+    const limitIndex = paramsOrder.indexOf('limit')
+    const endIndex = paramsOrder.indexOf('end')
+    _paramsArr[limitIndex] = getMethodLimit('max', methodApi)
+
+    while (true) {
+      const res = await _requestToApi(
+        wrk,
+        methodApi,
+        _paramsArr,
+        args.auth
+      )
+
+      if (
+        !Array.isArray(res) ||
+        res.length === 0
+      ) {
+        break
+      }
+
+      const filteredRes = _filterSymbs(
+        res,
+        symbols,
+        symbPropName
+      )
+      const uniqRes = filteredRes.filter(item => {
+        return paramsObj.end >= item[datePropName]
+      })
+
+      searchRes.push(...uniqRes)
+      _paramsArr[endIndex] = res[res.length - 1][datePropName]
+
+      if (
+        uniqRes.length === 0 ||
+        searchRes.length >= paramsObj.limit
+      ) {
+        break
+      }
+    }
+  }
+
+  const sortedRes = _
+    .orderBy(searchRes, [datePropName], ['desc'])
+    .slice(0, paramsObj.limit)
+
+  return prepareResponse(
+    sortedRes,
+    datePropName,
+    paramsObj.limit,
+    args.params && args.params.notThrowError,
+    args.params && args.params.notCheckNextPage
+  )
+}
+
 const prepareApiResponse = async (
   args,
   wrk,
@@ -559,65 +646,15 @@ const prepareApiResponse = async (
     return { res, nextPage }
   }
 
-  const _paramsArr = [...paramsArr]
-  const paramsOrder = _getParamsOrder(methodApi)
-  const symbIndex = paramsOrder.indexOf('symbol')
-  const searchRes = []
-
-  if (symbIndex !== -1) {
-    for (const symb of symbols) {
-      _paramsArr[symbIndex] = symb
-
-      const res = await _requestToApi(
-        wrk,
-        methodApi,
-        _paramsArr,
-        args.auth
-      )
-
-      if (
-        Array.isArray(res) &&
-        res.length > 0
-      ) {
-        searchRes.push(...res)
-      }
-    }
-  } else {
-    // TODO:
-    const limitIndex = paramsOrder.indexOf('limit')
-    _paramsArr[limitIndex] = getMethodLimit('max', methodApi)
-
-    const res = await _requestToApi(
-      wrk,
-      methodApi,
-      _paramsArr,
-      args.auth
-    )
-
-    if (
-      Array.isArray(res) &&
-      res.length > 0
-    ) {
-      const filteredRes = _filterSymbs(
-        res,
-        symbols,
-        symbPropName
-      )
-
-      searchRes.push(...filteredRes)
-    }
-  }
-
-  const sortedRes = _
-    .orderBy(searchRes, [datePropName], ['desc'])
-    .slice(0, paramsObj.limit)
-
-  return prepareResponse(
-    sortedRes,
+  return _searchDataFromApiBySymbs(
+    wrk,
+    methodApi,
+    args,
+    symbols,
+    symbPropName,
     datePropName,
-    paramsObj.limit,
-    args.params && args.params.notThrowError,
-    args.params && args.params.notCheckNextPage
+    paramsArr,
+    paramsObj
   )
 }
 
