@@ -61,34 +61,77 @@ const _getSchemaNameByMethodName = (
     : map.default
 }
 
+const _getSymbols = (
+  methodApi,
+  symbPropName,
+  args
+) => {
+  if (
+    typeof symbPropName !== 'string' ||
+    !args.params ||
+    typeof args.params !== 'object' ||
+    !args.params.symbol
+  ) {
+    return []
+  }
+
+  const symbol = args.params.symbol
+
+  if (
+    methodApi === 'positionsHistory' ||
+    methodApi === 'getPositionsAudit'
+  ) {
+    return (
+      Array.isArray(symbol) &&
+      symbol.length > 0
+    )
+      ? [...symbol]
+      : [symbol]
+  }
+
+  return (
+    Array.isArray(symbol) &&
+    symbol.length > 1
+  )
+    ? [...symbol]
+    : []
+}
+
+const _getSymbolParam = (methodApi, symbol) => {
+  if (
+    methodApi !== 'positionsHistory' &&
+    methodApi !== 'getPositionsAudit' &&
+    Array.isArray(symbol)
+  ) {
+    return symbol.length > 1 ? null : symbol[0]
+  }
+
+  return symbol
+}
+
 const _getParams = (
   args,
-  requireFields,
-  methodApi,
-  cb
+  methodApi
 ) => {
-  const paramsArr = []
-  let paramsObj = {}
-
-  checkParams(
-    args,
-    _getSchemaNameByMethodName(methodApi),
-    requireFields
-  )
-
-  if (args.params) {
-    const paramsOrder = _getParamsOrder(methodApi)
-    paramsObj = cloneDeep(args.params)
-
-    paramsObj.end = getDateNotMoreNow(args.params.end)
-    paramsObj.limit = getMethodLimit(args.params.limit, methodApi)
-
-    if (cb) cb(paramsObj)
-
-    paramsArr.push(
-      ...paramsOrder.map(key => paramsObj[key])
-    )
+  if (
+    !args.params ||
+    typeof args.params !== 'object'
+  ) {
+    return {
+      paramsArr: [],
+      paramsObj: {}
+    }
   }
+
+  const paramsObj = {
+    ...cloneDeep(args.params),
+    end: getDateNotMoreNow(args.params.end),
+    limit: getMethodLimit(args.params.limit, methodApi),
+    symbol: _getSymbolParam(methodApi, args.params.symbol)
+  }
+
+  const paramsOrder = _getParamsOrder(methodApi)
+  const paramsArr = paramsOrder.map(key => paramsObj[key])
 
   return {
     paramsArr,
@@ -106,8 +149,38 @@ const _parseMethodApi = name => {
   return refactor[name] || name
 }
 
-const prepareResponse = (
+const _requestToApi = (
+  wrk,
+  method,
+  paramsArr,
+  auth
+) => {
+  const rest = getREST(auth, wrk)
+
+  return rest[_parseMethodApi(method)].bind(rest)(...paramsArr)
+}
+
+const _filterSymbs = (
   res,
+  symbols,
+  symbPropName
+) => {
+  if (
+    typeof symbPropName !== 'string' ||
+    !Array.isArray(res) ||
+    !Array.isArray(symbols) ||
+    symbols.length === 0
+  ) {
+    return res
+  }
+
+  return res.filter(item => {
+    return symbols.some(s => s === item[symbPropName])
+  })
+}
+
+const prepareResponse = (
+  apiRes,
   datePropName,
   limit = 1000,
   notThrowError = false,
@@ -117,38 +190,32 @@ const prepareResponse = (
 ) => {
   let nextPage = (
     !notCheckNextPage &&
-    Array.isArray(res) &&
-    res.length === limit
+    Array.isArray(apiRes) &&
+    apiRes.length === limit
   )
 
   if (nextPage) {
-    const date = res[res.length - 1][datePropName]
+    const date = apiRes[apiRes.length - 1][datePropName]
 
     while (
-      res[res.length - 1] &&
-      date === res[res.length - 1][datePropName]
+      apiRes[apiRes.length - 1] &&
+      date === apiRes[apiRes.length - 1][datePropName]
     ) {
-      res.pop()
+      apiRes.pop()
     }
 
     nextPage = date
 
-    if (!notThrowError && res.length === 0) {
+    if (!notThrowError && apiRes.length === 0) {
       throw new Error('ERR_GREATER_LIMIT_IS_NEEDED')
     }
   }
 
-  if (
-    symbols &&
-    symbPropName &&
-    typeof symbPropName === 'string' &&
-    Array.isArray(symbols) &&
-    symbols.length > 0
-  ) {
-    res = res.filter(item => {
-      return symbols.some(s => s === item[symbPropName])
-    })
-  }
+  const res = _filterSymbs(
+    apiRes,
+    symbols,
+    symbPropName
+  )
 
   return { res, nextPage }
 }
@@ -161,46 +228,26 @@ const prepareApiResponse = async (
   symbPropName,
   requireFields
 ) => {
-  const symbols = []
+  const schemaName = _getSchemaNameByMethodName(methodApi)
+
+  checkParams(args, schemaName, requireFields)
+
+  const symbols = _getSymbols(
+    methodApi,
+    symbPropName,
+    args
+  )
   const {
     paramsArr,
     paramsObj
-  } = _getParams(
-    args,
-    requireFields,
-    methodApi,
-    params => {
-      if (
-        symbPropName &&
-        typeof symbPropName === 'string' &&
-        params.symbol
-      ) {
-        if (
-          methodApi === 'positionsHistory' ||
-          methodApi === 'getPositionsAudit'
-        ) {
-          if (
-            Array.isArray(params.symbol) &&
-            params.symbol.length > 0
-          ) {
-            symbols.push(...params.symbol)
-          } else {
-            symbols.push(params.symbol)
-          }
-        } else if (Array.isArray(params.symbol)) {
-          if (params.symbol.length > 1) {
-            symbols.push(...params.symbol)
-            params.symbol = null
-          } else {
-            params.symbol = params.symbol[0]
-          }
-        }
-      }
-    }
-  )
-  const rest = getREST(args.auth, wrk)
+  } = _getParams(args, methodApi)
 
-  let res = await rest[_parseMethodApi(methodApi)].bind(rest)(...paramsArr)
+  const res = await _requestToApi(
+    wrk,
+    methodApi,
+    paramsArr,
+    args.auth
+  )
 
   return prepareResponse(
     res,
