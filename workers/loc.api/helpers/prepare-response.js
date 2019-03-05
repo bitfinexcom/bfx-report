@@ -72,19 +72,16 @@ const _getSymbols = (
     typeof args.params !== 'object' ||
     !args.params.symbol
   ) {
-    return []
+    return null
   }
 
   const symbol = args.params.symbol
 
   if (
     methodApi === 'positionsHistory' ||
-    methodApi === 'getPositionsAudit'
+    methodApi === 'positionsAudit'
   ) {
-    return (
-      Array.isArray(symbol) &&
-      symbol.length > 0
-    )
+    return Array.isArray(symbol)
       ? [...symbol]
       : [symbol]
   }
@@ -94,13 +91,18 @@ const _getSymbols = (
     symbol.length > 1
   )
     ? [...symbol]
-    : []
+    : null
 }
 
-const _getSymbolParam = (methodApi, symbol) => {
+const _getSymbolParam = (
+  methodApi,
+  symbol,
+  symbPropName
+) => {
   if (
+    typeof symbPropName === 'string' &&
     methodApi !== 'positionsHistory' &&
-    methodApi !== 'getPositionsAudit' &&
+    methodApi !== 'positionsAudit' &&
     Array.isArray(symbol)
   ) {
     return symbol.length > 1 ? null : symbol[0]
@@ -111,7 +113,8 @@ const _getSymbolParam = (methodApi, symbol) => {
 
 const _getParams = (
   args,
-  methodApi
+  methodApi,
+  symbPropName
 ) => {
   if (
     !args.params ||
@@ -127,7 +130,7 @@ const _getParams = (
     ...cloneDeep(args.params),
     end: getDateNotMoreNow(args.params.end),
     limit: getMethodLimit(args.params.limit, methodApi),
-    symbol: _getSymbolParam(methodApi, args.params.symbol)
+    symbol: _getSymbolParam(methodApi, args.params.symbol, symbPropName)
   }
 
   const paramsOrder = _getParamsOrder(methodApi)
@@ -232,15 +235,11 @@ const prepareApiResponse = async (
 
   checkParams(args, schemaName, requireFields)
 
-  const symbols = _getSymbols(
-    methodApi,
-    symbPropName,
-    args
-  )
+  const symbols = _getSymbols(methodApi, symbPropName, args)
   const {
     paramsArr,
     paramsObj
-  } = _getParams(args, methodApi)
+  } = _getParams(args, methodApi, symbPropName)
 
   const res = await _requestToApi(
     wrk,
