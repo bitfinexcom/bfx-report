@@ -144,6 +144,14 @@ const paramsSchemaForWalletsCsv = {
   }
 }
 
+const paramsSchemaForActivePositionsCsv = {
+  type: 'object',
+  properties: {
+    timezone: paramsSchemaForCsv.properties.timezone,
+    dateFormat: paramsSchemaForCsv.properties.dateFormat
+  }
+}
+
 const paramsSchemaForMultipleCsv = {
   type: 'object',
   required: ['multiExport'],
@@ -177,5 +185,6 @@ module.exports = {
   paramsSchemaForPositionsAuditCsv,
   paramsSchemaForWallets,
   paramsSchemaForWalletsCsv,
-  paramsSchemaForMultipleCsv
+  paramsSchemaForMultipleCsv,
+  paramsSchemaForActivePositionsCsv
 }
