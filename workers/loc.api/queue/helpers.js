@@ -319,7 +319,11 @@ const writeDataToStream = async (reportService, stream, jobData) => {
     )
 
     const isGetWalletsMethod = method === 'getWallets'
-    let { res, nextPage } = isGetWalletsMethod
+    const isGetActivePositionsMethod = method === 'getActivePositions'
+    let { res, nextPage } = (
+      isGetWalletsMethod ||
+      isGetActivePositionsMethod
+    )
       ? { res: _res, nextPage: null }
       : _res
 
@@ -363,9 +367,7 @@ const writeDataToStream = async (reportService, stream, jobData) => {
 
     if (
       !lastItem ||
-      typeof lastItem !== 'object' ||
-      !lastItem[propName] ||
-      !Number.isInteger(lastItem[propName])
+      typeof lastItem !== 'object'
     ) break
 
     const currTime = lastItem[propName]
@@ -373,6 +375,8 @@ const writeDataToStream = async (reportService, stream, jobData) => {
 
     if (
       !isGetWalletsMethod &&
+      !isGetActivePositionsMethod &&
+      Number.isInteger(currTime) &&
       _args.params.start >= currTime
     ) {
       res = res.filter((item) => _args.params.start <= item[propName])
@@ -391,7 +395,7 @@ const writeDataToStream = async (reportService, stream, jobData) => {
 
     if (
       isAllData ||
-      !nextPage ||
+      !Number.isInteger(currTime) ||
       !Number.isInteger(nextPage)
     ) {
       queue.emit('progress', 100)
@@ -427,7 +431,8 @@ const _fileNamesMap = new Map([
   ['getPositionsHistory', 'positions_history'],
   ['getPositionsAudit', 'positions_audit'],
   ['getWallets', 'wallets'],
-  ['getTickersHistory', 'tickers_history']
+  ['getTickersHistory', 'tickers_history'],
+  ['getActivePositions', 'active_positions']
 ])
 
 const _getBaseName = queueName => {
