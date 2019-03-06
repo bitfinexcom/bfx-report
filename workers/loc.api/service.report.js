@@ -179,6 +179,20 @@ class ReportService extends Api {
     }
   }
 
+  async getActivePositions (space, args, cb) {
+    try {
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const positions = await rest.positions()
+      const res = Array.isArray(positions)
+        ? positions.filter(({ status }) => status === 'ACTIVE')
+        : []
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getActivePositions', cb)
+    }
+  }
+
   async getPositionsAudit (space, args, cb) {
     try {
       const res = await prepareApiResponse(
