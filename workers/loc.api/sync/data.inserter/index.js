@@ -1,8 +1,21 @@
 'use strict'
 
 const EventEmitter = require('events')
-const _ = require('lodash')
+const {
+  isEmpty,
+  cloneDeep
+} = require('lodash')
 
+const {
+  filterMethodCollMapByList,
+  invertSort,
+  filterMethodCollMap,
+  checkCollType,
+  compareElemsDbAndApi,
+  normalizeApiData,
+  getAuthFromDb,
+  getAllowedCollsNames
+} = require('./helpers')
 const {
   delay,
   checkCollPermission
@@ -11,7 +24,6 @@ const {
   isRateLimitError,
   isNonceSmallError
 } = require('../../helpers')
-const { getMethodCollMap } = require('../schema')
 const ALLOWED_COLLS = require('../allowed.colls')
 const ApiMiddleware = require('./api.middleware')
 
@@ -36,102 +48,19 @@ class DataInserter extends EventEmitter {
 
     this._asyncProgressHandler = null
     this._auth = null
-    this._allowedCollsNames = this._getAllowedCollsNames()
+    this._allowedCollsNames = getAllowedCollsNames(this.allowedColls)
     this.syncColls = syncColls && Array.isArray(syncColls)
       ? syncColls
       : [syncColls]
 
     checkCollPermission(this.syncColls, this.allowedColls)
 
-    this._methodCollMap = this._filterMethodCollMapByList(methodCollMap)
+    this._methodCollMap = filterMethodCollMapByList(
+      methodCollMap,
+      this.syncColls,
+      this._allowedCollsNames
+    )
     this._afterAllInsertsHooks = []
-  }
-
-  _reduceMethodCollMap (
-    _methodCollMap,
-    res,
-    cb = () => true
-  ) {
-    return [..._methodCollMap].reduce((accum, curr) => {
-      if (
-        accum.every(item => item.name !== curr[1].name) &&
-        res.every(item => item.name !== curr[1].name) &&
-        cb(curr)
-      ) {
-        accum.push(curr)
-      }
-
-      return accum
-    }, [])
-  }
-
-  _isPubColl (coll) {
-    return /^public:.*/i.test(coll[1].type)
-  }
-
-  _getAllowedCollsNames () {
-    return Object.values(this.allowedColls)
-      .filter(name => !(/^_.*/.test(name)))
-  }
-
-  _isAllowedColl (coll) {
-    return this._allowedCollsNames.some(item => item === coll[1].name)
-  }
-
-  _filterMethodCollMapByList (
-    methodCollMap,
-    syncColls = this.syncColls
-  ) {
-    const res = []
-    const _methodCollMap = (methodCollMap instanceof Map)
-      ? new Map(methodCollMap)
-      : getMethodCollMap()
-
-    for (const collName of syncColls) {
-      if (collName === ALLOWED_COLLS.ALL) {
-        const subRes = this._reduceMethodCollMap(
-          _methodCollMap,
-          res,
-          coll => this._isAllowedColl(coll)
-        )
-
-        res.push(...subRes)
-
-        break
-      }
-      if (collName === ALLOWED_COLLS.PUBLIC) {
-        const subRes = this._reduceMethodCollMap(
-          _methodCollMap,
-          res,
-          coll => (this._isAllowedColl(coll) && this._isPubColl(coll))
-        )
-
-        res.push(...subRes)
-
-        continue
-      }
-      if (collName === ALLOWED_COLLS.PRIVATE) {
-        const subRes = this._reduceMethodCollMap(
-          _methodCollMap,
-          res,
-          coll => (this._isAllowedColl(coll) && !this._isPubColl(coll))
-        )
-
-        res.push(...subRes)
-
-        continue
-      }
-
-      const subRes = this._reduceMethodCollMap(
-        _methodCollMap,
-        res,
-        curr => curr[1].name === collName
-      )
-
-      res.push(...subRes)
-    }
-
-    return new Map(res)
   }
 
   setAsyncProgressHandler (cb) {
@@ -150,37 +79,8 @@ class DataInserter extends EventEmitter {
     this.emit('progress', progress)
   }
 
-  async getAuthFromDb () {
-    try {
-      const users = await this.dao.getActiveUsers()
-      const auth = new Map()
-
-      if (_.isEmpty(users)) {
-        return auth
-      }
-
-      users.forEach(user => {
-        auth.set(
-          user.apiKey,
-          {
-            apiKey: user.apiKey,
-            apiSecret: user.apiSecret
-          }
-        )
-      })
-
-      this._auth = auth
-
-      return this._auth
-    } catch (err) {
-      this._auth = null
-
-      return this._auth
-    }
-  }
-
   async insertNewDataToDbMultiUser () {
-    await this.getAuthFromDb()
+    this._auth = await getAuthFromDb(this.dao)
 
     if (
       !this._auth ||
@@ -295,20 +195,12 @@ class DataInserter extends EventEmitter {
     return progress
   }
 
-  _filterMethodCollMap (methodCollMap, isPublic) {
-    return new Map([...methodCollMap].filter(([key, schema]) => {
-      const _isPub = /^public:.*/i.test(schema.type)
-
-      return schema.hasNewData && (isPublic ? _isPub : !_isPub)
-    }))
-  }
-
   async checkNewData (auth) {
     const methodCollMap = this._getMethodCollMap()
 
     await this._checkNewDataArrObjType(auth, methodCollMap)
 
-    return this._filterMethodCollMap(methodCollMap)
+    return filterMethodCollMap(methodCollMap)
   }
 
   async checkNewPublicData () {
@@ -316,7 +208,7 @@ class DataInserter extends EventEmitter {
 
     await this._checkNewDataPublicArrObjType(methodCollMap)
 
-    return this._filterMethodCollMap(methodCollMap, true)
+    return filterMethodCollMap(methodCollMap, true)
   }
 
   async _checkNewDataPublicArrObjType (methodCollMap) {
@@ -350,7 +242,7 @@ class DataInserter extends EventEmitter {
       }
     )
 
-    if (_.isEmpty(publicСollsСonf)) {
+    if (isEmpty(publicСollsСonf)) {
       return
     }
 
@@ -372,7 +264,7 @@ class DataInserter extends EventEmitter {
       )
 
       if (
-        _.isEmpty(lastElemFromApi) ||
+        isEmpty(lastElemFromApi) ||
         (
           Array.isArray(lastElemFromApi) &&
           lastElemFromApi[0][symbFieldName] &&
@@ -382,14 +274,14 @@ class DataInserter extends EventEmitter {
       ) {
         continue
       }
-      if (_.isEmpty(lastElemFromDb)) {
+      if (isEmpty(lastElemFromDb)) {
         schema.hasNewData = true
         schema.start.push([symbol, { currStart: start }])
 
         continue
       }
 
-      const lastDateInDb = this._compareElemsDbAndApi(
+      const lastDateInDb = compareElemsDbAndApi(
         schema.dateFieldName,
         lastElemFromDb,
         lastElemFromApi
@@ -409,11 +301,11 @@ class DataInserter extends EventEmitter {
       const firstElemFromDb = await this.dao.getElemInCollBy(
         schema.name,
         filter,
-        this._invertSort(schema.sort)
+        invertSort(schema.sort)
       )
 
-      if (!_.isEmpty(firstElemFromDb)) {
-        const isChangedBaseStart = this._compareElemsDbAndApi(
+      if (!isEmpty(firstElemFromDb)) {
+        const isChangedBaseStart = compareElemsDbAndApi(
           schema.dateFieldName,
           { [schema.dateFieldName]: start },
           firstElemFromDb
@@ -428,16 +320,6 @@ class DataInserter extends EventEmitter {
 
       schema.start.push([symbol, startConf])
     }
-  }
-
-  _invertSort (sortArr) {
-    return sortArr.map(item => {
-      const _arr = [ ...item ]
-
-      _arr[1] = item[1] > 0 ? -1 : 1
-
-      return _arr
-    })
   }
 
   async _checkItemNewDataArrObjType (
@@ -461,17 +343,17 @@ class DataInserter extends EventEmitter {
       true
     )
 
-    if (_.isEmpty(lastElemFromApi)) {
+    if (isEmpty(lastElemFromApi)) {
       return
     }
 
-    if (_.isEmpty(lastElemFromDb)) {
+    if (isEmpty(lastElemFromDb)) {
       schema.hasNewData = true
       schema.start = 0
       return
     }
 
-    const lastDateInDb = this._compareElemsDbAndApi(
+    const lastDateInDb = compareElemsDbAndApi(
       schema.dateFieldName,
       lastElemFromDb,
       lastElemFromApi
@@ -504,15 +386,8 @@ class DataInserter extends EventEmitter {
     return methodCollMap
   }
 
-  _checkCollType (type, coll, isPublic) {
-    const _pub = isPublic ? 'public:' : ''
-    const regExp = new RegExp(`^${_pub}${type}$`, 'i')
-
-    return regExp.test(coll.type)
-  }
-
   _isInsertableArrObjTypeOfColl (coll, isPublic) {
-    return this._checkCollType(
+    return checkCollType(
       'insertable:array:objects',
       coll,
       isPublic
@@ -520,7 +395,7 @@ class DataInserter extends EventEmitter {
   }
 
   _isUpdatableArrObjTypeOfColl (coll, isPublic) {
-    return this._checkCollType(
+    return checkCollType(
       'updatable:array:objects',
       coll,
       isPublic
@@ -528,7 +403,7 @@ class DataInserter extends EventEmitter {
   }
 
   _isUpdatableArrTypeOfColl (coll, isPublic) {
-    return this._checkCollType(
+    return checkCollType(
       'updatable:array',
       coll,
       isPublic
@@ -548,7 +423,7 @@ class DataInserter extends EventEmitter {
       try {
         res = await this.apiMiddleware.request(
           methodApi,
-          _.cloneDeep(args),
+          cloneDeep(args),
           isCheckCall
         )
 
@@ -620,8 +495,8 @@ class DataInserter extends EventEmitter {
       model
     } = schema
 
-    const _args = _.cloneDeep(args)
-    const currIterationArgs = _.cloneDeep(_args)
+    const _args = cloneDeep(args)
+    const currIterationArgs = cloneDeep(_args)
     let count = 0
 
     while (true) {
@@ -647,7 +522,7 @@ class DataInserter extends EventEmitter {
       ) break
 
       const comparFieldsNames = ['type', 'currency', 'mtsUpdate']
-      const normData = this._normalizeApiData(res, model)
+      const normData = normalizeApiData(res, model)
 
       const filter = comparFieldsNames.reduce((obj, curr) => {
         obj[curr] = normData.reduce((accum, subCurr) => {
@@ -751,9 +626,9 @@ class DataInserter extends EventEmitter {
       model
     } = schema
 
-    const _args = _.cloneDeep(args)
+    const _args = cloneDeep(args)
     _args.params.notThrowError = true
-    const currIterationArgs = _.cloneDeep(_args)
+    const currIterationArgs = cloneDeep(_args)
 
     let count = 0
     let serialRequestsCount = 0
@@ -812,7 +687,7 @@ class DataInserter extends EventEmitter {
       await this.dao.insertElemsToDb(
         collName,
         isPublic ? null : { ..._args.auth },
-        this._normalizeApiData(res, model)
+        normalizeApiData(res, model)
       )
 
       count += res.length
@@ -899,18 +774,9 @@ class DataInserter extends EventEmitter {
       await this.dao.insertElemsToDbIfNotExists(
         collName,
         null,
-        this._normalizeApiData(elemsFromApi, model)
+        normalizeApiData(elemsFromApi, model)
       )
     }
-  }
-
-  _compareElemsDbAndApi (dateFieldName, elDb, elApi) {
-    const _elDb = Array.isArray(elDb) ? elDb[0] : elDb
-    const _elApi = Array.isArray(elApi) ? elApi[0] : elApi
-
-    return (_elDb[dateFieldName] < _elApi[dateFieldName])
-      ? _elDb[dateFieldName]
-      : false
   }
 
   _getMethodArgMap (
@@ -941,22 +807,6 @@ class DataInserter extends EventEmitter {
 
   _getMethodCollMap () {
     return new Map(this._methodCollMap)
-  }
-
-  _normalizeApiData (data = [], model, cb = () => {}) {
-    return data.map(item => {
-      if (
-        typeof item !== 'object' ||
-        typeof model !== 'object' ||
-        Object.keys(model).length === 0
-      ) {
-        return item
-      }
-
-      cb(item)
-
-      return _.pick(item, Object.keys(model))
-    })
   }
 }
 
