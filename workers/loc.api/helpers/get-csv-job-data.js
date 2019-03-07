@@ -217,6 +217,54 @@ const getCsvJobData = {
 
     return jobData
   },
+  async getActivePositionsCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args, 'paramsSchemaForActivePositionsCsv')
+
+    const {
+      userId,
+      userInfo
+    } = await _checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getActivePositions',
+      args,
+      propNameForPagination: 'mtsUpdate',
+      columnsCsv: {
+        id: '#',
+        symbol: 'PAIR',
+        amount: 'AMOUNT',
+        basePrice: 'BASE PRICE',
+        closePrice: 'CLOSE PRICE',
+        pl: 'P/L',
+        plPerc: 'P/L%',
+        marginFunding: 'FUNDING COST',
+        marginFundingType: 'FUNDING TYPE',
+        status: 'STATUS',
+        mtsUpdate: 'UPDATED',
+        mtsCreate: 'CREATED',
+        leverage: 'LEVERAGE'
+      },
+      formatSettings: {
+        mtsUpdate: 'date',
+        mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
+  },
   async getPositionsAuditCsvJobData (
     reportService,
     args,

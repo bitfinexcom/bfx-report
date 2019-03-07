@@ -17,6 +17,7 @@ const {
   getTickersHistoryCsvJobData,
   getWalletsCsvJobData,
   getPositionsHistoryCsvJobData,
+  getActivePositionsCsvJobData,
   getPositionsAuditCsvJobData,
   getPublicTradesCsvJobData,
   getLedgersCsvJobData,
@@ -176,6 +177,20 @@ class ReportService extends Api {
       cb(null, res)
     } catch (err) {
       this._err(err, 'getPositionsHistory', cb)
+    }
+  }
+
+  async getActivePositions (space, args, cb) {
+    try {
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const positions = await rest.positions()
+      const res = Array.isArray(positions)
+        ? positions.filter(({ status }) => status === 'ACTIVE')
+        : []
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getActivePositions', cb)
     }
   }
 
@@ -413,6 +428,20 @@ class ReportService extends Api {
       cb(null, status)
     } catch (err) {
       this._err(err, 'getPositionsHistoryCsv', cb)
+    }
+  }
+
+  async getActivePositionsCsv (space, args, cb) {
+    try {
+      const status = await getCsvStoreStatus(this, args)
+      const jobData = await getActivePositionsCsvJobData(this, args)
+      const processorQueue = this.ctx.lokue_processor.q
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getActivePositionsCsv', cb)
     }
   }
 

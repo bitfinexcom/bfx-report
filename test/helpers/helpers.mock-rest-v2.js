@@ -53,6 +53,12 @@ const setDataTo = (
       dataItem[13] = _date
       break
 
+    case 'positions':
+      dataItem[11] = id
+      dataItem[12] = _date
+      dataItem[13] = _date
+      break
+
     case 'positions_audit':
       dataItem[11] = id
       dataItem[12] = _date
@@ -115,6 +121,7 @@ const getMockDataOpts = () => ({
   wallets_hist: { limit: 100, isNotMoreThanLimit: true },
   wallets: { limit: 100, isNotMoreThanLimit: true },
   positions_hist: { limit: 50 },
+  positions: { limit: 50 },
   positions_audit: { limit: 250 },
   ledgers: { limit: 500 },
   trades: { limit: 1000 },
