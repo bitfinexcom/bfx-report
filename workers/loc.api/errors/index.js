@@ -41,8 +41,38 @@ class AsyncProgressHandlerIsNotFnError extends BaseError {
   }
 }
 
+class AuthError extends BaseError {
+  constructor (message = 'ERR_AUTH_UNAUTHORIZED') {
+    super(message)
+  }
+}
+
 class AfterAllInsertsHookIsNotFnError extends BaseError {
   constructor (message = 'ERR_AFTER_ALL_INSERTS_HOOK_IS_NOT_FUNCTION') {
+    super(message)
+  }
+}
+
+class RemoveListElemsError extends BaseError {
+  constructor (message = 'ERR_LIST_IS_NOT_ARRAY') {
+    super(message)
+  }
+}
+
+class UpdateStateCollError extends BaseError {
+  constructor (name) {
+    super(`ERR_CAN_NOT_UPDATE_STATE_OF_${name.toUpperCase()}`)
+  }
+}
+
+class UpdateSyncProgressError extends BaseError {
+  constructor (name) {
+    super(`ERR_CAN_NOT_UPDATE_${name.toUpperCase()}`)
+  }
+}
+
+class ImplementationError extends BaseError {
+  constructor (message = 'ERR_NOT_IMPLEMENTED') {
     super(message)
   }
 }
@@ -54,5 +84,10 @@ module.exports = {
   FindMethodError,
   FindMethodToGetCsvFileError,
   AsyncProgressHandlerIsNotFnError,
-  AfterAllInsertsHookIsNotFnError
+  AuthError,
+  AfterAllInsertsHookIsNotFnError,
+  RemoveListElemsError,
+  UpdateStateCollError,
+  UpdateSyncProgressError,
+  ImplementationError
 }

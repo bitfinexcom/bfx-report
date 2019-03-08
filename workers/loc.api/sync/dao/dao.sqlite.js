@@ -18,6 +18,12 @@ const {
   getOrderQuery,
   getUniqueIndexQuery
 } = require('./helpers')
+const {
+  AuthError,
+  RemoveListElemsError,
+  UpdateStateCollError,
+  UpdateSyncProgressError
+} = require('../../errors')
 
 class SqliteDAO extends DAO {
   _run (sql, params = []) {
@@ -261,7 +267,7 @@ class SqliteDAO extends DAO {
       isEmpty(user) ||
       (isCheckActiveState && !user.active)
     ) {
-      throw new Error('ERR_AUTH_UNAUTHORIZED')
+      throw new AuthError()
     }
 
     return user
@@ -428,7 +434,7 @@ class SqliteDAO extends DAO {
 
     if (isEmpty(user)) {
       if (!data.email) {
-        throw new Error('ERR_AUTH_UNAUTHORIZED')
+        throw new AuthError()
       }
 
       return this.insertElemsToDb(
@@ -467,7 +473,7 @@ class SqliteDAO extends DAO {
     )
 
     if (res && res.changes < 1) {
-      throw new Error('ERR_AUTH_UNAUTHORIZED')
+      throw new AuthError()
     }
 
     return res
@@ -485,7 +491,7 @@ class SqliteDAO extends DAO {
     )
 
     if (res && res.changes < 1) {
-      throw new Error('ERR_AUTH_UNAUTHORIZED')
+      throw new AuthError()
     }
 
     return res
@@ -609,7 +615,7 @@ class SqliteDAO extends DAO {
     const values = {}
     let where = Object.keys(lists).reduce((accum, curr, i) => {
       if (!Array.isArray(lists[curr])) {
-        throw new Error('ERR_LIST_IS_NOT_ARRAY')
+        throw new RemoveListElemsError()
       }
 
       let key = '('
@@ -660,7 +666,7 @@ class SqliteDAO extends DAO {
     )
 
     if (res && res.changes < 1) {
-      throw new Error(`ERR_CAN_NOT_UPDATE_STATE_OF_${name.toUpperCase()}`)
+      throw new UpdateStateCollError()
     }
 
     return res
@@ -711,7 +717,7 @@ class SqliteDAO extends DAO {
     )
 
     if (res && res.changes < 1) {
-      throw new Error(`ERR_CAN_NOT_UPDATE_${name.toUpperCase()}`)
+      throw new UpdateSyncProgressError()
     }
 
     return res
