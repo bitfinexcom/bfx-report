@@ -7,10 +7,17 @@ const {
   checkParamsAuth,
   getLimitNotMoreThan,
   refreshObj,
-  tryParseJSON,
   prepareResponse,
   mapObjBySchema
 } = require('../../helpers')
+const {
+  mixUserIdToArrData,
+  convertDataType,
+  serializeVal,
+  getWhereQuery,
+  getOrderQuery,
+  getUniqueIndexQuery
+} = require('./helpers')
 
 class SqliteDAO extends DAO {
   _run (sql, params = []) {
@@ -55,219 +62,12 @@ class SqliteDAO extends DAO {
     })
   }
 
-  _serializeVal (val) {
-    if (typeof val === 'boolean') {
-      return +val
-    } else if (typeof val === 'object') {
-      return JSON.stringify(val)
-    }
-
-    return val
+  _commit () {
+    return this._run('COMMIT')
   }
 
-  _deserializeVal (
-    val,
-    key,
-    boolFields = [
-      'notify',
-      'hidden',
-      'renew',
-      'noClose',
-      'maker',
-      '_isMarginFundingPayment'
-    ]
-  ) {
-    if (
-      typeof val === 'string' &&
-      /^null$/.test(val)
-    ) {
-      return null
-    } else if (
-      typeof val === 'number' &&
-      boolFields.some(item => item === key)
-    ) {
-      return !!val
-    } else if (
-      typeof val === 'string' &&
-      key === 'rate'
-    ) {
-      const _val = parseFloat(val)
-
-      return isFinite(_val) ? _val : val
-    } else if (tryParseJSON(val)) {
-      return tryParseJSON(val)
-    }
-
-    return val
-  }
-
-  _getOrderQuery (sort = []) {
-    if (
-      !sort ||
-      !Array.isArray(sort)
-    ) {
-      return ''
-    }
-
-    const _sort = sort.reduce((accum, curr, i) => {
-      if (
-        Array.isArray(curr) &&
-        typeof curr[0] === 'string' &&
-        typeof curr[1] === 'number'
-      ) {
-        accum.push(`${curr[0]} ${curr[1] > 0 ? 'ASC' : 'DESC'}`)
-      }
-
-      return accum
-    }, [])
-
-    return `${isEmpty(_sort) ? '' : `ORDER BY ${_sort.join(', ')}`}`
-  }
-
-  _getCompareOperator (
-    origFieldName,
-    isArr,
-    gtKeys,
-    ltKeys,
-    isNot
-  ) {
-    if (origFieldName === 'start') {
-      return '>='
-    }
-    if (origFieldName === 'end') {
-      return '<='
-    }
-    if (
-      Array.isArray(gtKeys) &&
-      gtKeys.some(key => key === origFieldName)
-    ) {
-      return '>'
-    }
-    if (
-      Array.isArray(ltKeys) &&
-      ltKeys.some(key => key === origFieldName)
-    ) {
-      return '<'
-    }
-    if (isArr) {
-      return isNot ? 'NOT IN' : 'IN'
-    }
-
-    return isNot ? '!=' : '='
-  }
-
-  _getKeysAndValuesForWhereQuery (
-    filter,
-    origFieldName,
-    isArr
-  ) {
-    if (!isArr) {
-      const key = `$${origFieldName}`
-      const subValues = { [key]: filter[origFieldName] }
-
-      return { key, subValues }
-    }
-
-    const subValues = {}
-    const preKey = filter[origFieldName].map((item, j) => {
-      const subKey = `$${origFieldName}_${j}`
-      subValues[subKey] = item
-
-      return subKey
-    }).join(', ')
-
-    const key = `(${preKey})`
-
-    return { key, subValues }
-  }
-
-  _getIsNullOperator (
-    fieldName,
-    filter
-  ) {
-    if (
-      fieldName !== '$isNull' ||
-      (
-        Array.isArray(filter[fieldName]) &&
-        filter[fieldName].length === 0
-      )
-    ) {
-      return false
-    }
-
-    return Array.isArray(filter[fieldName])
-      ? filter[fieldName].map(name => `${name} IS NULL`).join(' AND ')
-      : `${filter[fieldName]} IS NULL`
-  }
-
-  _getWhereQuery (filter = {}, isNotSetWhereClause) {
-    let values = {}
-
-    const gtObj = filter.$gt && typeof filter.$gt === 'object'
-      ? filter.$gt
-      : {}
-    const ltObj = filter.$lt && typeof filter.$lt === 'object'
-      ? filter.$lt
-      : {}
-    const notObj = filter.$not && typeof filter.$not === 'object'
-      ? filter.$not
-      : {}
-    const _filter = {
-      ...omit(filter, ['$gt', '$lt', '$not']),
-      ...gtObj,
-      ...ltObj,
-      ...notObj
-    }
-    const keys = Object.keys(omit(_filter, ['_dateFieldName']))
-    const where = keys.reduce(
-      (accum, curr, i) => {
-        const isArr = Array.isArray(_filter[curr])
-        const isNullOp = this._getIsNullOperator(curr, _filter)
-
-        if (isNullOp) {
-          return `${accum}${i > 0 ? ' AND ' : ''}${isNullOp}`
-        }
-
-        const fieldName = (curr === 'start' || curr === 'end')
-          ? _filter._dateFieldName
-          : curr
-        const compareOperator = this._getCompareOperator(
-          curr,
-          isArr,
-          Object.keys(gtObj),
-          Object.keys(ltObj),
-          Object.keys(notObj).length > 0
-        )
-
-        const {
-          key,
-          subValues
-        } = this._getKeysAndValuesForWhereQuery(_filter, curr, isArr)
-
-        values = { ...values, ...subValues }
-
-        return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${compareOperator} ${key}`
-      },
-      (isNotSetWhereClause || keys.length === 0)
-        ? '' : 'WHERE '
-    )
-
-    return { where, values }
-  }
-
-  _getUniqueIndexQuery (name, fields = []) {
-    if (
-      !name ||
-      typeof name !== 'string' ||
-      !fields ||
-      !Array.isArray(fields) ||
-      fields.length === 0
-    ) {
-      return ''
-    }
-
-    return `CREATE UNIQUE INDEX IF NOT EXISTS ${name}_${fields.join('_')}
-      ON ${name}(${fields.join(', ')})`
+  _rollback () {
+    return this._run('ROLLBACK')
   }
 
   _beginTrans (asyncExecQuery) {
@@ -291,34 +91,6 @@ class SqliteDAO extends DAO {
           reject(err)
         }
       })
-    })
-  }
-
-  _commit () {
-    return this._run('COMMIT')
-  }
-
-  _rollback () {
-    return this._run('ROLLBACK')
-  }
-
-  async _mixUserIdToArrData (auth, data = []) {
-    if (auth) {
-      const user = await this.checkAuthInDb({ auth })
-
-      data.forEach(item => {
-        item.user_id = user._id
-      })
-    }
-  }
-
-  /**
-   * @override
-   */
-  async databaseInitialize () {
-    await this._beginTrans(async () => {
-      await this._createTablesIfNotExists()
-      await this._createIndexisIfNotExists()
     })
   }
 
@@ -354,13 +126,13 @@ class SqliteDAO extends DAO {
         item.fieldsOfUniqueIndex &&
         Array.isArray(item.fieldsOfUniqueIndex)
       ) {
-        const sql = this._getUniqueIndexQuery(item.name, item.fieldsOfUniqueIndex)
+        const sql = getUniqueIndexQuery(item.name, item.fieldsOfUniqueIndex)
 
         await this._run(sql)
       }
     }
 
-    const publicСollsСonfSql = this._getUniqueIndexQuery(
+    const publicСollsСonfSql = getUniqueIndexQuery(
       'publicСollsСonf',
       ['symbol', 'user_id', 'confName']
     )
@@ -368,11 +140,39 @@ class SqliteDAO extends DAO {
     await this._run(publicСollsСonfSql)
   }
 
+  async _getUserByAuth (auth) {
+    const sql = `SELECT * FROM users
+      WHERE users.apiKey = $apiKey
+      AND users.apiSecret = $apiSecret`
+
+    const res = await this._get(sql, {
+      $apiKey: auth.apiKey,
+      $apiSecret: auth.apiSecret
+    })
+
+    if (res && typeof res === 'object') {
+      res.active = !!res.active
+      res.isDataFromDb = !!res.isDataFromDb
+    }
+
+    return res
+  }
+
+  /**
+   * @override
+   */
+  async databaseInitialize () {
+    await this._beginTrans(async () => {
+      await this._createTablesIfNotExists()
+      await this._createIndexisIfNotExists()
+    })
+  }
+
   /**
    * @override
    */
   async getLastElemFromDb (name, auth, sort = []) {
-    const _sort = this._getOrderQuery(sort)
+    const _sort = getOrderQuery(sort)
 
     const sql = `SELECT ${name}.* FROM ${name}
       INNER JOIN users ON users._id = ${name}.user_id
@@ -390,7 +190,7 @@ class SqliteDAO extends DAO {
    * @override
    */
   async insertElemsToDb (name, auth, data = []) {
-    await this._mixUserIdToArrData(auth, data)
+    await mixUserIdToArrData(this, auth, data)
 
     await this._beginTrans(async () => {
       for (const obj of data) {
@@ -400,7 +200,7 @@ class SqliteDAO extends DAO {
           .map((item) => {
             const key = `$${item}`
 
-            values[key] = this._serializeVal(obj[item])
+            values[key] = serializeVal(obj[item])
 
             return `${key}`
           })
@@ -417,7 +217,7 @@ class SqliteDAO extends DAO {
    * @override
    */
   async insertElemsToDbIfNotExists (name, auth, data = []) {
-    await this._mixUserIdToArrData(auth, data)
+    await mixUserIdToArrData(this, auth, data)
 
     await this._beginTrans(async () => {
       for (const obj of data) {
@@ -435,7 +235,7 @@ class SqliteDAO extends DAO {
             const key = `$${item}`
             where += `${i > 0 ? ' AND ' : ''}${item} = ${key}`
 
-            values[key] = this._serializeVal(obj[item])
+            values[key] = serializeVal(obj[item])
 
             return `${key}`
           })
@@ -465,24 +265,6 @@ class SqliteDAO extends DAO {
     }
 
     return user
-  }
-
-  async _getUserByAuth (auth) {
-    const sql = `SELECT * FROM users
-      WHERE users.apiKey = $apiKey
-      AND users.apiSecret = $apiSecret`
-
-    const res = await this._get(sql, {
-      $apiKey: auth.apiKey,
-      $apiSecret: auth.apiSecret
-    })
-
-    if (res && typeof res === 'object') {
-      res.active = !!res.active
-      res.isDataFromDb = !!res.isDataFromDb
-    }
-
-    return res
   }
 
   /**
@@ -528,11 +310,11 @@ class SqliteDAO extends DAO {
     }
 
     const limit = params.limit ? 'LIMIT $limit' : ''
-    const sort = this._getOrderQuery(methodColl.sort)
+    const sort = getOrderQuery(methodColl.sort)
     const {
       where,
       values
-    } = this._getWhereQuery(filter)
+    } = getWhereQuery(filter)
     const group = (
       Array.isArray(methodColl.groupResBy) &&
       methodColl.groupResBy.length > 0
@@ -560,7 +342,7 @@ class SqliteDAO extends DAO {
       ${limit}`
 
     const _res = await this._all(sql, values)
-    let res = this._convertDataType(_res)
+    let res = convertDataType(_res)
 
     if (isPrepareResponse) {
       const symbols = (
@@ -581,28 +363,6 @@ class SqliteDAO extends DAO {
     }
 
     return res
-  }
-
-  _convertDataType (
-    arr = [],
-    boolFields
-  ) {
-    arr.forEach(obj => {
-      Object.keys(obj).forEach(key => {
-        if (
-          obj &&
-          typeof obj === 'object'
-        ) {
-          obj[key] = this._deserializeVal(
-            obj[key],
-            key,
-            boolFields
-          )
-        }
-      })
-    })
-
-    return arr
   }
 
   /**
@@ -627,7 +387,7 @@ class SqliteDAO extends DAO {
     const {
       where,
       values
-    } = this._getWhereQuery(filter)
+    } = getWhereQuery(filter)
     const fields = Object.keys(data).map(item => {
       const key = `$new_${item}`
       values[key] = data[item]
@@ -768,12 +528,12 @@ class SqliteDAO extends DAO {
         GROUP BY ${groupPropName}`
       : ''
 
-    const _sort = this._getOrderQuery(sort)
+    const _sort = getOrderQuery(sort)
 
     const {
       where,
       values
-    } = this._getWhereQuery(filter, true)
+    } = getWhereQuery(filter, true)
     const _projection = Array.isArray(projection) && projection.length > 0
       ? projection.join(', ')
       : '*'
@@ -793,11 +553,11 @@ class SqliteDAO extends DAO {
    * @override
    */
   getElemInCollBy (collName, filter = {}, sort = []) {
-    const _sort = this._getOrderQuery(sort)
+    const _sort = getOrderQuery(sort)
     const {
       where,
       values
-    } = this._getWhereQuery(filter)
+    } = getWhereQuery(filter)
 
     const sql = `SELECT * FROM ${collName}
       ${where}
@@ -856,7 +616,7 @@ class SqliteDAO extends DAO {
 
       key += lists[curr].map((item, i) => {
         const subKey = `$${curr}_${i}`
-        values[subKey] = this._serializeVal(item)
+        values[subKey] = serializeVal(item)
 
         return subKey
       }).join(', ')
@@ -913,7 +673,7 @@ class SqliteDAO extends DAO {
     const {
       where,
       values
-    } = this._getWhereQuery(filter)
+    } = getWhereQuery(filter)
 
     const sql = `SELECT * FROM ${collName} ${where}`
 
@@ -964,7 +724,7 @@ class SqliteDAO extends DAO {
     const {
       where,
       values
-    } = this._getWhereQuery(filter)
+    } = getWhereQuery(filter)
 
     const sql = `SELECT count(*) AS res FROM ${name} ${where}`
     const { res } = await this._get(sql, values)
