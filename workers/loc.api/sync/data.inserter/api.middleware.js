@@ -1,6 +1,7 @@
 'use strict'
 
 const ApiMiddlewareHandlerAfter = require('./api.middleware.handler.after')
+const { FindMethodError } = require('../../errors')
 
 class ApiMiddleware {
   constructor (
@@ -36,7 +37,7 @@ class ApiMiddleware {
 
   _requestToReportService (method, args) {
     if (!this.hasMethod(method)) {
-      throw new Error('ERR_METHOD_NOT_FOUND')
+      throw new FindMethodError()
     }
 
     const fn = this.reportService[method].bind(this.reportService)

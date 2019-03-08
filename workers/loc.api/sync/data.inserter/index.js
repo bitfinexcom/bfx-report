@@ -26,6 +26,11 @@ const {
 } = require('../../helpers')
 const ALLOWED_COLLS = require('../allowed.colls')
 const ApiMiddleware = require('./api.middleware')
+const {
+  FindMethodError,
+  AsyncProgressHandlerIsNotFnError,
+  AfterAllInsertsHookIsNotFnError
+} = require('../../errors')
 
 const MESS_ERR_UNAUTH = 'ERR_AUTH_UNAUTHORIZED'
 
@@ -65,7 +70,7 @@ class DataInserter extends EventEmitter {
 
   setAsyncProgressHandler (cb) {
     if (typeof cb !== 'function') {
-      throw new Error('ERR_ASYNC_PROGRESS_HANDLER_IS_NOT_FUNCTION')
+      throw new AsyncProgressHandlerIsNotFnError()
     }
 
     this._asyncProgressHandler = cb
@@ -127,7 +132,7 @@ class DataInserter extends EventEmitter {
 
   addAfterAllInsertsHooks (hook) {
     if (typeof hook !== 'function') {
-      throw new Error('ERR_AFTER_ALL_INSERTS_HOOK_IS_NOT_FUNCTION')
+      throw new AfterAllInsertsHookIsNotFnError()
     }
     if (!Array.isArray(this._afterAllInsertsHooks)) {
       this._afterAllInsertsHooks = []
@@ -412,7 +417,7 @@ class DataInserter extends EventEmitter {
 
   async _getDataFromApi (methodApi, args, isCheckCall) {
     if (!this.apiMiddleware.hasMethod(methodApi)) {
-      throw new Error('ERR_METHOD_NOT_FOUND')
+      throw new FindMethodError()
     }
 
     let countRateLimitError = 0

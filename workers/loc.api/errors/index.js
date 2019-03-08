@@ -23,8 +23,26 @@ class UpdateSyncQueueJobError extends BaseError {
   }
 }
 
-class FindMethodToGetCsvFileError extends BaseError {
+class FindMethodError extends BaseError {
+  constructor (message = 'ERR_METHOD_NOT_FOUND') {
+    super(message)
+  }
+}
+
+class FindMethodToGetCsvFileError extends FindMethodError {
   constructor (message = 'ERR_METHOD_TO_GET_CSV_FILE_NOT_FOUND') {
+    super(message)
+  }
+}
+
+class AsyncProgressHandlerIsNotFnError extends BaseError {
+  constructor (message = 'ERR_ASYNC_PROGRESS_HANDLER_IS_NOT_FUNCTION') {
+    super(message)
+  }
+}
+
+class AfterAllInsertsHookIsNotFnError extends BaseError {
+  constructor (message = 'ERR_AFTER_ALL_INSERTS_HOOK_IS_NOT_FUNCTION') {
     super(message)
   }
 }
@@ -33,5 +51,8 @@ module.exports = {
   BaseError,
   CollSyncPermissionError,
   UpdateSyncQueueJobError,
-  FindMethodToGetCsvFileError
+  FindMethodError,
+  FindMethodToGetCsvFileError,
+  AsyncProgressHandlerIsNotFnError,
+  AfterAllInsertsHookIsNotFnError
 }
