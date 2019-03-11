@@ -6,13 +6,13 @@ const ALLOWED_COLLS = require('../../allowed.colls')
 const _reduceMethodCollMap = (
   _methodCollMap,
   res,
-  cb = () => true
+  isAllowed = () => true
 ) => {
   return [..._methodCollMap].reduce((accum, curr) => {
     if (
       accum.every(item => item.name !== curr[1].name) &&
       res.every(item => item.name !== curr[1].name) &&
-      cb(curr)
+      isAllowed(curr)
     ) {
       accum.push(curr)
     }
