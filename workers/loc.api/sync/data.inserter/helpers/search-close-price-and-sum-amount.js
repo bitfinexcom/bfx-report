@@ -1,6 +1,6 @@
 'use strict'
 
-const searchClosePriceAndSumAmount = async (
+module.exports = async (
   dao,
   {
     auth,
@@ -91,8 +91,4 @@ const searchClosePriceAndSumAmount = async (
     closePrice,
     sumAmount: null
   }
-}
-
-module.exports = {
-  searchClosePriceAndSumAmount
 }
