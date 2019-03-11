@@ -15,6 +15,7 @@ const {
   convertDataType,
   serializeVal,
   getWhereQuery,
+  getLimitQuery,
   getOrderQuery,
   getUniqueIndexQuery
 } = require('./helpers')
@@ -315,7 +316,10 @@ class SqliteDAO extends DAO {
       filter.user_id = user._id
     }
 
-    const limit = params.limit ? 'LIMIT $limit' : ''
+    const {
+      limit,
+      limitVal
+    } = getLimitQuery(params)
     const sort = getOrderQuery(methodColl.sort)
     const {
       where,
@@ -327,10 +331,6 @@ class SqliteDAO extends DAO {
     )
       ? `GROUP BY ${methodColl.groupResBy.join(', ')}`
       : ''
-
-    if (params.limit) {
-      values.$limit = params.limit
-    }
 
     Object.keys(methodColl.model).forEach(field => {
       if (
@@ -347,7 +347,7 @@ class SqliteDAO extends DAO {
       ${sort}
       ${limit}`
 
-    const _res = await this._all(sql, values)
+    const _res = await this._all(sql, { ...values, ...limitVal })
     let res = convertDataType(_res)
 
     if (isPrepareResponse) {
@@ -535,7 +535,6 @@ class SqliteDAO extends DAO {
       : ''
 
     const _sort = getOrderQuery(sort)
-
     const {
       where,
       values
@@ -544,8 +543,10 @@ class SqliteDAO extends DAO {
       ? projection.join(', ')
       : '*'
     const distinct = isDistinct ? 'DISTINCT ' : ''
-    const _limit = Number.isInteger(limit) ? 'LIMIT $_limit' : ''
-    const limitVal = _limit ? { $_limit: limit } : {}
+    const {
+      limit: _limit,
+      limitVal
+    } = getLimitQuery({ limit })
 
     const sql = `SELECT ${distinct}${_projection} FROM ${collName} AS a
       ${where || subQuery ? ' WHERE ' : ''}${where}${where && subQuery ? ' AND ' : ''}${subQuery}
