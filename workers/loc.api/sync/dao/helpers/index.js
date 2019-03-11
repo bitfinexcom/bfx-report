@@ -13,6 +13,7 @@ const getLimitQuery = require('./get-limit-query')
 const getOrderQuery = require('./get-order-query')
 const getUniqueIndexQuery = require('./get-unique-index-query')
 const getInsertableArrayObjectsFilter = require('./get-insertable-array-objects-filter')
+const getProjectionQuery = require('./get-projection-query')
 
 module.exports = {
   mixUserIdToArrData,
@@ -23,5 +24,6 @@ module.exports = {
   getLimitQuery,
   getOrderQuery,
   getUniqueIndexQuery,
-  getInsertableArrayObjectsFilter
+  getInsertableArrayObjectsFilter,
+  getProjectionQuery
 }

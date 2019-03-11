@@ -18,7 +18,8 @@ const {
   getLimitQuery,
   getOrderQuery,
   getUniqueIndexQuery,
-  getInsertableArrayObjectsFilter
+  getInsertableArrayObjectsFilter,
+  getProjectionQuery
 } = require('./helpers')
 const {
   AuthError,
@@ -287,7 +288,6 @@ class SqliteDAO extends DAO {
       : null
 
     const exclude = ['_id']
-    const fields = []
     const filter = getInsertableArrayObjectsFilter(
       methodColl,
       params
@@ -313,17 +313,13 @@ class SqliteDAO extends DAO {
     )
       ? `GROUP BY ${methodColl.groupResBy.join(', ')}`
       : ''
+    const projection = getProjectionQuery(
+      methodColl.model,
+      exclude,
+      true
+    )
 
-    Object.keys(methodColl.model).forEach(field => {
-      if (
-        exclude.every(item => item !== field) &&
-        !/^_.*/.test(field)
-      ) {
-        fields.push(field)
-      }
-    })
-
-    const sql = `SELECT ${fields.join(', ')} FROM ${methodColl.name}
+    const sql = `SELECT ${projection} FROM ${methodColl.name}
       ${where}
       ${group}
       ${sort}
@@ -521,9 +517,7 @@ class SqliteDAO extends DAO {
       where,
       values
     } = getWhereQuery(filter, true)
-    const _projection = Array.isArray(projection) && projection.length > 0
-      ? projection.join(', ')
-      : '*'
+    const _projection = getProjectionQuery(projection)
     const distinct = isDistinct ? 'DISTINCT ' : ''
     const {
       limit: _limit,
