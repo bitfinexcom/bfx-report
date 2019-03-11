@@ -17,7 +17,8 @@ const {
   getWhereQuery,
   getLimitQuery,
   getOrderQuery,
-  getUniqueIndexQuery
+  getUniqueIndexQuery,
+  getInsertableArrayObjectsFilter
 } = require('./helpers')
 const {
   AuthError,
@@ -287,30 +288,11 @@ class SqliteDAO extends DAO {
 
     const exclude = ['_id']
     const fields = []
-    const filter = {}
+    const filter = getInsertableArrayObjectsFilter(
+      methodColl,
+      params
+    )
 
-    if (/^((public:)|())insertable:array:objects$/i.test(methodColl.type)) {
-      filter._dateFieldName = methodColl.dateFieldName
-      filter.start = params.start ? params.start : 0
-      filter.end = params.end ? params.end : (new Date()).getTime()
-
-      if (
-        typeof params.isMarginFundingPayment === 'boolean' &&
-        Object.keys(methodColl.model).some(key => key === '_isMarginFundingPayment')
-      ) {
-        filter._isMarginFundingPayment = Number(params.isMarginFundingPayment)
-      }
-      if (params.symbol) {
-        if (typeof params.symbol === 'string') {
-          filter[methodColl.symbolFieldName] = params.symbol
-        } else if (
-          Array.isArray(params.symbol) &&
-          params.symbol.length === 1
-        ) {
-          filter[methodColl.symbolFieldName] = params.symbol[0]
-        }
-      }
-    }
     if (!isPublic) {
       exclude.push('user_id')
       filter.user_id = user._id
@@ -348,7 +330,7 @@ class SqliteDAO extends DAO {
       ${limit}`
 
     const _res = await this._all(sql, { ...values, ...limitVal })
-    let res = convertDataType(_res)
+    const res = convertDataType(_res)
 
     if (isPrepareResponse) {
       const symbols = (
@@ -357,7 +339,7 @@ class SqliteDAO extends DAO {
         params.symbol.length > 1
       ) ? params.symbol : []
 
-      res = prepareResponse(
+      return prepareResponse(
         res,
         methodColl.dateFieldName,
         params.limit,
