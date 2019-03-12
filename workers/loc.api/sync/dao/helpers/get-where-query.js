@@ -80,20 +80,35 @@ const _getIsNullOperator = (
     : `${filter[fieldName]} IS NULL`
 }
 
+const _isOrOp = (filter) => (
+  filter &&
+  typeof filter === 'object' &&
+  filter.$or &&
+  typeof filter.$or === 'object'
+)
+
 module.exports = (filter = {}, isNotSetWhereClause) => {
   let values = {}
 
-  const gtObj = filter.$gt && typeof filter.$gt === 'object'
-    ? filter.$gt
+  const isOrOp = _isOrOp(filter)
+  const filterObj = isOrOp
+    ? { ...filter.$or }
+    : { ...filter }
+  const operator = isOrOp
+    ? 'OR'
+    : 'AND'
+
+  const gtObj = filterObj.$gt && typeof filterObj.$gt === 'object'
+    ? filterObj.$gt
     : {}
-  const ltObj = filter.$lt && typeof filter.$lt === 'object'
-    ? filter.$lt
+  const ltObj = filterObj.$lt && typeof filterObj.$lt === 'object'
+    ? filterObj.$lt
     : {}
-  const notObj = filter.$not && typeof filter.$not === 'object'
-    ? filter.$not
+  const notObj = filterObj.$not && typeof filterObj.$not === 'object'
+    ? filterObj.$not
     : {}
   const _filter = {
-    ...omit(filter, ['$gt', '$lt', '$not']),
+    ...omit(filterObj, ['$gt', '$lt', '$not']),
     ...gtObj,
     ...ltObj,
     ...notObj
@@ -103,9 +118,10 @@ module.exports = (filter = {}, isNotSetWhereClause) => {
     (accum, curr, i) => {
       const isArr = Array.isArray(_filter[curr])
       const isNullOp = _getIsNullOperator(curr, _filter)
+      const op = i > 0 ? ` ${operator} ` : ''
 
       if (isNullOp) {
-        return `${accum}${i > 0 ? ' AND ' : ''}${isNullOp}`
+        return `${accum}${op}${isNullOp}`
       }
 
       const fieldName = (curr === 'start' || curr === 'end')
@@ -126,7 +142,7 @@ module.exports = (filter = {}, isNotSetWhereClause) => {
 
       values = { ...values, ...subValues }
 
-      return `${accum}${i > 0 ? ' AND ' : ''}${fieldName} ${compareOperator} ${key}`
+      return `${accum}${op}${fieldName} ${compareOperator} ${key}`
     },
     (isNotSetWhereClause || keys.length === 0)
       ? '' : 'WHERE '
