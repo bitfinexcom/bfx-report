@@ -1,14 +1,14 @@
 'use strict'
 
 const _getProjArr = (model) => {
+  if (Array.isArray(model)) {
+    return model
+  }
   if (
     model &&
     typeof model === 'object'
   ) {
     return Object.keys(model)
-  }
-  if (Array.isArray(model)) {
-    return model
   }
 
   return []
