@@ -4,6 +4,7 @@ const {
   getMethodCollMap,
   getModelsMap
 } = require('./../schema')
+const { ImplementationError } = require('../../errors')
 
 class DAO {
   constructor (db) {
@@ -21,102 +22,102 @@ class DAO {
   /**
    * @abstract
    */
-  async databaseInitialize () { throw new Error('NOT_IMPLEMENTED') }
+  async databaseInitialize () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async getLastElemFromDb () { throw new Error('NOT_IMPLEMENTED') }
+  async getLastElemFromDb () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async insertElemsToDb () { throw new Error('NOT_IMPLEMENTED') }
+  async insertElemsToDb () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async checkAuthInDb () { throw new Error('NOT_IMPLEMENTED') }
+  async checkAuthInDb () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async findInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+  async findInCollBy () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async getActiveUsers () { throw new Error('NOT_IMPLEMENTED') }
+  async getActiveUsers () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async updateElemsInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+  async updateElemsInCollBy () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async updateCollBy () { throw new Error('NOT_IMPLEMENTED') }
+  async updateCollBy () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async insertOrUpdateUser () { throw new Error('NOT_IMPLEMENTED') }
+  async insertOrUpdateUser () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async updateUserByAuth () { throw new Error('NOT_IMPLEMENTED') }
+  async updateUserByAuth () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async deactivateUser () { throw new Error('NOT_IMPLEMENTED') }
+  async deactivateUser () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async getElemsInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+  async getElemsInCollBy () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async getElemInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+  async getElemInCollBy () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async removeElemsFromDb () { throw new Error('NOT_IMPLEMENTED') }
+  async removeElemsFromDb () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async updateStateOf () { throw new Error('NOT_IMPLEMENTED') }
+  async updateStateOf () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async getFirstElemInCollBy () { throw new Error('NOT_IMPLEMENTED') }
+  async getFirstElemInCollBy () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async updateProgress () { throw new Error('NOT_IMPLEMENTED') }
+  async updateProgress () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async insertElemsToDbIfNotExists () { throw new Error('NOT_IMPLEMENTED') }
+  async insertElemsToDbIfNotExists () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async removeElemsFromDbIfNotInLists () { throw new Error('NOT_IMPLEMENTED') }
+  async removeElemsFromDbIfNotInLists () { throw new ImplementationError() }
 
   /**
    * @abstract
    */
-  async getCountBy () { throw new Error('NOT_IMPLEMENTED') }
+  async getCountBy () { throw new ImplementationError() }
 }
 
 module.exports = DAO
