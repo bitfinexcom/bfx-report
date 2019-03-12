@@ -557,27 +557,10 @@ class SqliteDAO extends DAO {
 
       data.user_id = user._id
     }
-
-    const values = {}
-    let where = Object.keys(data).reduce((accum, curr, i) => {
-      const isArr = Array.isArray(data[curr])
-      let key = `$${curr}`
-
-      if (isArr) {
-        key = '('
-        key += data[curr].map((item, i) => {
-          const subKey = `$${curr}_${i}`
-          values[subKey] = item
-
-          return subKey
-        }).join(', ')
-        key += ')'
-      } else {
-        values[key] = data[curr]
-      }
-
-      return `${accum}${i > 0 ? ' AND ' : ''}${curr} ${isArr ? 'IN' : '='} ${key}`
-    }, 'WHERE ')
+    const {
+      where,
+      values
+    } = getWhereQuery(data)
 
     const sql = `DELETE FROM ${name} ${where}`
 
