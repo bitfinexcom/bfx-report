@@ -247,12 +247,13 @@ class SqliteDAO extends DAO {
         }
 
         const projection = getProjectionQuery(keys)
-        const values = {}
-        let where = 'WHERE '
+        const {
+          where,
+          values
+        } = getWhereQuery(obj)
         const placeholders = keys
           .map((item, i) => {
             const key = `$${item}`
-            where += `${i > 0 ? ' AND ' : ''}${item} = ${key}`
 
             values[key] = serializeVal(obj[item])
 
