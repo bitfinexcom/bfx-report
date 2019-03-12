@@ -13,7 +13,6 @@ const {
 const {
   mixUserIdToArrData,
   convertDataType,
-  serializeVal,
   getWhereQuery,
   getLimitQuery,
   getOrderQuery,
@@ -571,24 +570,26 @@ class SqliteDAO extends DAO {
    * @override
    */
   async removeElemsFromDbIfNotInLists (name, lists) {
-    const values = {}
-    let where = Object.keys(lists).reduce((accum, curr, i) => {
-      if (!Array.isArray(lists[curr])) {
-        throw new RemoveListElemsError()
+    const areAllListsNotArr = Object.keys(lists).every(key => (
+      !Array.isArray(lists[key])
+    ))
+
+    if (areAllListsNotArr) {
+      throw new RemoveListElemsError()
+    }
+
+    const $or = Object.entries(lists).reduce((accum, [key, val]) => {
+      return {
+        $not: {
+          ...accum.$not,
+          [key]: val
+        }
       }
-
-      let key = '('
-
-      key += lists[curr].map((item, i) => {
-        const subKey = `$${curr}_${i}`
-        values[subKey] = serializeVal(item)
-
-        return subKey
-      }).join(', ')
-      key += ')'
-
-      return `${accum}${i > 0 ? ' OR ' : ''}${curr} NOT IN ${key}`
-    }, 'WHERE ')
+    }, { $not: {} })
+    const {
+      where,
+      values
+    } = getWhereQuery({ $or })
 
     const sql = `DELETE FROM ${name} ${where}`
 
