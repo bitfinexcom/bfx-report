@@ -198,6 +198,7 @@ class SqliteDAO extends DAO {
   }
 
   /**
+   * TODO:
    * @override
    */
   async insertElemsToDb (name, auth, data = []) {
@@ -205,9 +206,15 @@ class SqliteDAO extends DAO {
 
     await this._beginTrans(async () => {
       for (const obj of data) {
-        const fields = Object.keys(obj).join(', ')
+        const keys = Object.keys(obj)
+
+        if (keys.length === 0) {
+          continue
+        }
+
+        const projection = getProjectionQuery(keys)
         const values = {}
-        const placeholders = Object.keys(obj)
+        const placeholders = keys
           .map((item) => {
             const key = `$${item}`
 
@@ -217,7 +224,7 @@ class SqliteDAO extends DAO {
           })
           .join(', ')
 
-        const sql = `INSERT INTO ${name}(${fields}) VALUES (${placeholders})`
+        const sql = `INSERT INTO ${name}(${projection}) VALUES (${placeholders})`
 
         await this._run(sql, values)
       }
@@ -225,6 +232,7 @@ class SqliteDAO extends DAO {
   }
 
   /**
+   * TODO:
    * @override
    */
   async insertElemsToDbIfNotExists (name, auth, data = []) {
@@ -238,7 +246,7 @@ class SqliteDAO extends DAO {
           continue
         }
 
-        const fields = keys.join(', ')
+        const projection = getProjectionQuery(keys)
         const values = {}
         let where = 'WHERE '
         const placeholders = keys
@@ -252,7 +260,7 @@ class SqliteDAO extends DAO {
           })
           .join(', ')
 
-        const sql = `INSERT INTO ${name}(${fields}) SELECT ${placeholders}
+        const sql = `INSERT INTO ${name}(${projection}) SELECT ${placeholders}
                       WHERE NOT EXISTS(SELECT 1 FROM ${name} ${where})`
 
         await this._run(sql, values)
