@@ -19,7 +19,8 @@ const {
   getOrderQuery,
   getUniqueIndexQuery,
   getInsertableArrayObjectsFilter,
-  getProjectionQuery
+  getProjectionQuery,
+  getPlaceholdersQuery
 } = require('./helpers')
 const {
   AuthError,
@@ -198,7 +199,6 @@ class SqliteDAO extends DAO {
   }
 
   /**
-   * TODO:
    * @override
    */
   async insertElemsToDb (name, auth, data = []) {
@@ -213,26 +213,19 @@ class SqliteDAO extends DAO {
         }
 
         const projection = getProjectionQuery(keys)
-        const values = {}
-        const placeholders = keys
-          .map((item) => {
-            const key = `$${item}`
-
-            values[key] = serializeVal(obj[item])
-
-            return `${key}`
-          })
-          .join(', ')
+        const {
+          placeholders,
+          placeholderVal
+        } = getPlaceholdersQuery(obj, keys)
 
         const sql = `INSERT INTO ${name}(${projection}) VALUES (${placeholders})`
 
-        await this._run(sql, values)
+        await this._run(sql, placeholderVal)
       }
     })
   }
 
   /**
-   * TODO:
    * @override
    */
   async insertElemsToDbIfNotExists (name, auth, data = []) {
@@ -251,20 +244,15 @@ class SqliteDAO extends DAO {
           where,
           values
         } = getWhereQuery(obj)
-        const placeholders = keys
-          .map((item, i) => {
-            const key = `$${item}`
-
-            values[key] = serializeVal(obj[item])
-
-            return `${key}`
-          })
-          .join(', ')
+        const {
+          placeholders,
+          placeholderVal
+        } = getPlaceholdersQuery(obj, keys)
 
         const sql = `INSERT INTO ${name}(${projection}) SELECT ${placeholders}
                       WHERE NOT EXISTS(SELECT 1 FROM ${name} ${where})`
 
-        await this._run(sql, values)
+        await this._run(sql, { ...values, ...placeholderVal })
       }
     })
   }

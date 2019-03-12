@@ -14,6 +14,7 @@ const getOrderQuery = require('./get-order-query')
 const getUniqueIndexQuery = require('./get-unique-index-query')
 const getInsertableArrayObjectsFilter = require('./get-insertable-array-objects-filter')
 const getProjectionQuery = require('./get-projection-query')
+const getPlaceholdersQuery = require('./get-placeholders-query')
 
 module.exports = {
   mixUserIdToArrData,
@@ -25,5 +26,6 @@ module.exports = {
   getOrderQuery,
   getUniqueIndexQuery,
   getInsertableArrayObjectsFilter,
-  getProjectionQuery
+  getProjectionQuery,
+  getPlaceholdersQuery
 }
