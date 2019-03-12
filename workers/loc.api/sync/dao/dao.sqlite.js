@@ -105,15 +105,17 @@ class SqliteDAO extends DAO {
 
   async _createTablesIfNotExists () {
     for (const [name, model] of this._getModelsMap()) {
-      let sql = `CREATE TABLE IF NOT EXISTS ${name} (\n`
-
-      Object.keys(model).forEach((field, i, arr) => {
+      const keys = Object.keys(model)
+      const columnDefs = keys.reduce((accum, field, i, arr) => {
         const isLast = arr.length === (i + 1)
+        const type = model[field].replace(/[#]\{field\}/g, field)
 
-        sql += `${field} ${model[field].replace(/[#]\{field\}/g, field)}${isLast ? '' : ', \n'}`
-      })
+        return `${accum}${field} ${type}${isLast ? '' : ', \n'}`
+      }, '')
 
-      sql += ')'
+      const sql = `CREATE TABLE IF NOT EXISTS ${name} (
+        ${columnDefs}
+        )`
 
       await this._run(sql)
     }
