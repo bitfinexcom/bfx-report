@@ -2,6 +2,8 @@
 
 const { omit } = require('lodash')
 
+const { serializeVal } = require('./serialization')
+
 const _getCompareOperator = (
   origFieldName,
   isArr,
@@ -41,7 +43,7 @@ const _getKeysAndValuesForWhereQuery = (
 ) => {
   if (!isArr) {
     const key = `$${origFieldName}`
-    const subValues = { [key]: filter[origFieldName] }
+    const subValues = { [key]: serializeVal(filter[origFieldName]) }
 
     return { key, subValues }
   }
@@ -49,7 +51,7 @@ const _getKeysAndValuesForWhereQuery = (
   const subValues = {}
   const preKey = filter[origFieldName].map((item, j) => {
     const subKey = `$${origFieldName}_${j}`
-    subValues[subKey] = item
+    subValues[subKey] = serializeVal(item)
 
     return subKey
   }).join(', ')
