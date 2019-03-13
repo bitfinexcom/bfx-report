@@ -6,7 +6,10 @@ const {
   checkTimeLimit,
   hasJobInQueueWithStatusBy
 } = require('./index')
-const { FindMethodToGetCsvFileError } = require('../errors')
+const {
+  FindMethodToGetCsvFileError,
+  SymbolsTypeError
+} = require('../errors')
 
 const _checkJobAndGetUserData = async (
   reportService,
@@ -102,7 +105,7 @@ const getCsvJobData = {
     })
 
     if (!isTrading && !isFunding) {
-      throw new Error('ERR_SYMBOLS_ARE_NOT_OF_SAME_TYPE')
+      throw new SymbolsTypeError()
     }
 
     const tTickerHistColumns = {

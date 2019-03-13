@@ -2,6 +2,8 @@
 
 const { promisify } = require('util')
 
+const { QueueJobAddingError } = require('../errors')
+
 module.exports = async (
   reportService,
   args,
@@ -46,7 +48,7 @@ module.exports = async (
   }))
 
   if (hasJobInQueue) {
-    throw new Error('ERR_HAS_JOB_IN_QUEUE')
+    throw new QueueJobAddingError()
   }
 
   return userInfo.id

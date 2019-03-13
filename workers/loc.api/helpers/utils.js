@@ -4,6 +4,11 @@ const { transform } = require('lodash')
 const LRU = require('lru')
 
 const { hasS3AndSendgrid } = require('../queue/helpers')
+const {
+  ObjectMappingError,
+  EmailSendingError,
+  AuthError
+} = require('../errors')
 
 const checkParamsAuth = (args) => {
   if (
@@ -12,7 +17,7 @@ const checkParamsAuth = (args) => {
     typeof args.auth.apiKey !== 'string' ||
     typeof args.auth.apiSecret !== 'string'
   ) {
-    throw new Error('ERR_AUTH_UNAUTHORIZED')
+    throw new AuthError()
   }
 }
 
@@ -27,7 +32,7 @@ const getCsvStoreStatus = async (reportService, args) => {
   }
 
   if (!await hasS3AndSendgrid(reportService)) {
-    throw new Error('ERR_CAN_NOT_SEND_EMAIL')
+    throw new EmailSendingError()
   }
 
   return { isSendEmail: true }
@@ -88,7 +93,7 @@ const tryParseJSON = jsonString => {
 }
 
 const mapObjBySchema = (obj, schema = {}) => {
-  const err = new Error('ERR_MAPPING_AN_OBJECT_BY_THE_SCHEMA')
+  const err = new ObjectMappingError()
 
   if (
     !obj ||

@@ -4,6 +4,10 @@ const { cloneDeep } = require('lodash')
 const Ajv = require('ajv')
 
 const schema = require('./schema')
+const {
+  ArgsParamsError,
+  ParamsValidSchemaFindingError
+} = require('../errors')
 
 module.exports = (
   args,
@@ -16,7 +20,7 @@ module.exports = (
   const extendedSchema = { ...schema, ...additionalSchema }
 
   if (!extendedSchema[schemaName]) {
-    throw new Error('ERR_PARAMS_SCHEMA_NOT_FOUND')
+    throw new ParamsValidSchemaFindingError()
   }
 
   const _schema = cloneDeep(extendedSchema[schemaName])
@@ -26,7 +30,7 @@ module.exports = (
     requireFields.length > 0
   ) {
     if (!args.params) {
-      throw new Error('ERR_ARGS_NO_PARAMS')
+      throw new ArgsParamsError()
     }
 
     if (!Array.isArray(_schema.required)) {
@@ -42,6 +46,6 @@ module.exports = (
     (checkParamsField || args.params) &&
     !ajv.validate(_schema, args.params)
   ) {
-    throw new Error(`ERR_ARGS_NO_PARAMS ${JSON.stringify(ajv.errors)}`)
+    throw new ArgsParamsError(ajv.errors)
   }
 }

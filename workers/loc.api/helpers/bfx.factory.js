@@ -2,6 +2,8 @@
 
 const BFX = require('bitfinex-api-node')
 
+const { GrenacheServiceConfigArgsError } = require('../errors')
+
 const isTestEnv = process.env.NODE_ENV === 'test'
 
 const _checkConf = (conf) => {
@@ -12,9 +14,7 @@ const _checkConf = (conf) => {
     return
   }
 
-  const err = new Error('ERR_CONFIG_ARGS_NO_GRENACHE_SERVICE')
-
-  throw err
+  throw new GrenacheServiceConfigArgsError()
 }
 
 const createBFX = ({ apiKey = '', apiSecret = '', authToken = '', ip = '', conf = {} }) => {

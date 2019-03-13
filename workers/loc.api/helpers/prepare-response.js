@@ -6,6 +6,7 @@ const getREST = require('./get-rest')
 const checkParams = require('./check-params')
 const { getMethodLimit } = require('./limit-param.helpers')
 const { getDateNotMoreNow } = require('./date-param.helpers')
+const { MinLimitParamError } = require('../errors')
 
 const _paramsOrderMap = {
   positionsHistory: [
@@ -210,7 +211,7 @@ const prepareResponse = (
     nextPage = date
 
     if (!notThrowError && apiRes.length === 0) {
-      throw new Error('ERR_GREATER_LIMIT_IS_NEEDED')
+      throw new MinLimitParamError()
     }
   }
 

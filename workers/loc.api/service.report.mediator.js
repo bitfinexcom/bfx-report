@@ -25,6 +25,11 @@ const {
 const { getMethodCollMap } = require('./sync/schema')
 const ALLOWED_COLLS = require('./sync/allowed.colls')
 const sync = require('./sync')
+const {
+  AuthError,
+  DAOInitializationError,
+  ServerAvailabilityError
+} = require('./errors')
 
 class MediatorReportService extends ReportService {
   async login (space, args, cb) {
@@ -93,7 +98,7 @@ class MediatorReportService extends ReportService {
       const conf = wrk.conf[group]
 
       const _err = isEnotfoundError(err) || isEaiAgainError(err)
-        ? new Error(`The server ${conf.restUrl} is not available`)
+        ? new ServerAvailabilityError(conf.restUrl)
         : null
 
       if (!cb) throw _err || err
@@ -869,7 +874,7 @@ class MediatorReportService extends ReportService {
     } = await this._getUserInfo(args)
 
     if (!email) {
-      throw new Error('ERR_AUTH_UNAUTHORIZED')
+      throw new AuthError()
     }
 
     return {
@@ -909,7 +914,7 @@ class MediatorReportService extends ReportService {
    */
   async _databaseInitialize (dao) {
     if (!dao || !(dao instanceof DAO)) {
-      throw new Error('ERR_DAO_NOT_INITIALIZED')
+      throw new DAOInitializationError()
     }
 
     this.dao = dao
