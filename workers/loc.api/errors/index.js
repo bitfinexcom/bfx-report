@@ -77,6 +77,76 @@ class ImplementationError extends BaseError {
   }
 }
 
+class DAOInitializationError extends BaseError {
+  constructor (message = 'ERR_DAO_NOT_INITIALIZED') {
+    super(message)
+  }
+}
+
+class ServerAvailabilityError extends BaseError {
+  constructor (restUrl) {
+    super(`The server ${restUrl} is not available`)
+  }
+}
+
+class ArgsParamsError extends BaseError {
+  constructor (obj) {
+    const str = obj && typeof obj === 'object'
+      ? ` ${JSON.stringify(obj)}`
+      : ''
+
+    super(`ERR_ARGS_NO_PARAMS${str}`)
+  }
+}
+
+class GrenacheServiceConfigArgsError extends BaseError {
+  constructor (message = 'ERR_CONFIG_ARGS_NO_GRENACHE_SERVICE') {
+    super(message)
+  }
+}
+
+class ObjectMappingError extends BaseError {
+  constructor (message = 'ERR_MAPPING_AN_OBJECT_BY_THE_SCHEMA') {
+    super(message)
+  }
+}
+
+class EmailSendingError extends BaseError {
+  constructor (message = 'ERR_CAN_NOT_SEND_EMAIL') {
+    super(message)
+  }
+}
+
+class MinLimitParamError extends BaseError {
+  constructor (message = 'ERR_GREATER_LIMIT_IS_NEEDED') {
+    super(message)
+  }
+}
+
+class QueueJobAddingError extends BaseError {
+  constructor (message = 'ERR_HAS_JOB_IN_QUEUE') {
+    super(message)
+  }
+}
+
+class SymbolsTypeError extends BaseError {
+  constructor (message = 'ERR_SYMBOLS_ARE_NOT_OF_SAME_TYPE') {
+    super(message)
+  }
+}
+
+class TimeframeError extends BaseError {
+  constructor (message = 'ERR_TIME_FRAME_MORE_THAN_MONTH') {
+    super(message)
+  }
+}
+
+class ParamsValidSchemaFindingError extends BaseError {
+  constructor (message = 'ERR_PARAMS_SCHEMA_NOT_FOUND') {
+    super(message)
+  }
+}
+
 module.exports = {
   BaseError,
   CollSyncPermissionError,
@@ -89,5 +159,16 @@ module.exports = {
   RemoveListElemsError,
   UpdateStateCollError,
   UpdateSyncProgressError,
-  ImplementationError
+  ImplementationError,
+  DAOInitializationError,
+  ServerAvailabilityError,
+  ArgsParamsError,
+  GrenacheServiceConfigArgsError,
+  ObjectMappingError,
+  EmailSendingError,
+  MinLimitParamError,
+  QueueJobAddingError,
+  SymbolsTypeError,
+  TimeframeError,
+  ParamsValidSchemaFindingError
 }

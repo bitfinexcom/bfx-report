@@ -28,6 +28,7 @@ const {
   getFundingCreditHistoryCsvJobData,
   getMultipleCsvJobData
 } = require('./helpers/get-csv-job-data')
+const { ArgsParamsError } = require('./errors')
 
 class ReportService extends Api {
   space (service, msg) {
@@ -89,7 +90,7 @@ class ReportService extends Api {
   lookUpFunction (space, args, cb) {
     try {
       if (typeof args.params !== 'object') {
-        throw new Error('ERR_ARGS_NO_PARAMS')
+        throw new ArgsParamsError()
       }
 
       const { service } = args.params

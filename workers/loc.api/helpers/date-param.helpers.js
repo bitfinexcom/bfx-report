@@ -3,6 +3,7 @@
 const moment = require('moment-timezone')
 
 const { getLimitNotMoreThan } = require('./limit-param.helpers')
+const { TimeframeError } = require('../errors')
 
 const getDateNotMoreNow = (date, now = Date.now()) => {
   return getLimitNotMoreThan(date, now)
@@ -23,7 +24,7 @@ const checkTimeLimit = (args) => {
   const endDate = moment(end)
 
   if (start >= end || endDate.diff(startDate, 'months') > 1) {
-    throw new Error('ERR_TIME_FRAME_MORE_THAN_MONTH')
+    throw new TimeframeError()
   }
 }
 

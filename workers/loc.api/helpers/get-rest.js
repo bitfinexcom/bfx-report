@@ -1,10 +1,11 @@
 'use strict'
 
 const bfxFactory = require('./bfx.factory')
+const { AuthError } = require('../errors')
 
 module.exports = (auth, wrkReportServiceApi) => {
   if (typeof auth !== 'object') {
-    throw new Error('ERR_AUTH_UNAUTHORIZED')
+    throw new AuthError()
   }
 
   const group = wrkReportServiceApi.group
