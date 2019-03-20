@@ -147,6 +147,12 @@ class ParamsValidSchemaFindingError extends BaseError {
   }
 }
 
+class DuringSyncMethodAccessError extends BaseError {
+  constructor (message = 'ERR_DURING_SYNC_METHOD_IS_NOT_AVAILABLE') {
+    super(message)
+  }
+}
+
 module.exports = {
   BaseError,
   CollSyncPermissionError,
@@ -170,5 +176,6 @@ module.exports = {
   QueueJobAddingError,
   SymbolsTypeError,
   TimeframeError,
-  ParamsValidSchemaFindingError
+  ParamsValidSchemaFindingError,
+  DuringSyncMethodAccessError
 }
