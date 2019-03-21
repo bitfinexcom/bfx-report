@@ -497,6 +497,8 @@ class SqliteDAO extends DAO {
       groupPropName = null,
       isDistinct = false,
       projection = [],
+      exclude = [],
+      isExcludePrivate = false,
       limit = null
     } = {}
   ) {
@@ -515,7 +517,11 @@ class SqliteDAO extends DAO {
       where,
       values
     } = getWhereQuery(filter, true)
-    const _projection = getProjectionQuery(projection)
+    const _projection = getProjectionQuery(
+      projection,
+      exclude,
+      isExcludePrivate
+    )
     const distinct = isDistinct ? 'DISTINCT ' : ''
     const {
       limit: _limit,
