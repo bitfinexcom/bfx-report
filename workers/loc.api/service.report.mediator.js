@@ -28,7 +28,8 @@ const sync = require('./sync')
 const {
   AuthError,
   DAOInitializationError,
-  ServerAvailabilityError
+  ServerAvailabilityError,
+  DuringSyncMethodAccessError
 } = require('./errors')
 
 class MediatorReportService extends ReportService {
@@ -489,6 +490,12 @@ class MediatorReportService extends ReportService {
   async getLedgers (space, args, cb) {
     try {
       if (!await this.isSyncModeWithDbData(space, args)) {
+        const { isMarginFundingPayment } = { ...args.params }
+
+        if (isMarginFundingPayment) {
+          throw new DuringSyncMethodAccessError()
+        }
+
         super.getLedgers(space, args, cb)
 
         return
