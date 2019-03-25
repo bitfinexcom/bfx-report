@@ -339,19 +339,31 @@ const getCsvJobData = {
 
     const csvArgs = getCsvArgs(args, 'publicTrades')
 
+    const isTradingPair = csvArgs.params.symbol.startsWith('t')
+    const columnsCsv = (isTradingPair)
+      ? {
+        id: '#',
+        mts: 'TIME',
+        price: 'PRICE',
+        amount: 'AMOUNT',
+        symbol: 'PAIR'
+      }
+      : {
+        id: '#',
+        mts: 'TIME',
+        rate: 'RATE',
+        amount: 'AMOUNT',
+        period: 'PERIOD',
+        symbol: 'PAIR'
+      }
+
     const jobData = {
       userInfo,
       userId,
       name: 'getPublicTrades',
       args: csvArgs,
       propNameForPagination: 'mts',
-      columnsCsv: {
-        id: '#',
-        mts: 'TIME',
-        price: 'PRICE',
-        amount: 'AMOUNT',
-        symbol: 'PAIR'
-      },
+      columnsCsv,
       formatSettings: {
         mts: 'date',
         symbol: 'symbol'
