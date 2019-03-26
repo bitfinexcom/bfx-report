@@ -67,6 +67,8 @@ const _models = new Map([
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
       id: 'BIGINT',
       mts: 'BIGINT',
+      rate: 'DECIMAL(22,12)',
+      period: 'BIGINT',
       amount: 'DECIMAL(22,12)',
       price: 'DECIMAL(22,12)',
       _symbol: 'VARCHAR(255)'
