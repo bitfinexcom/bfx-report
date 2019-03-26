@@ -354,7 +354,7 @@ const getCsvJobData = {
         rate: 'RATE',
         amount: 'AMOUNT',
         period: 'PERIOD',
-        symbol: 'PAIR'
+        symbol: 'CURRENCY'
       }
 
     const jobData = {
