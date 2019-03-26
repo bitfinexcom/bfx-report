@@ -339,7 +339,9 @@ const getCsvJobData = {
 
     const csvArgs = getCsvArgs(args, 'publicTrades')
 
-    const isTradingPair = csvArgs.params.symbol.startsWith('t')
+    const isTradingPair = Array.isArray(csvArgs.params.symbol)
+      ? csvArgs.params.symbol[0].startsWith('t')
+      : csvArgs.params.symbol.startsWith('t')
     const columnsCsv = (isTradingPair)
       ? {
         id: '#',
@@ -354,7 +356,7 @@ const getCsvJobData = {
         rate: 'RATE',
         amount: 'AMOUNT',
         period: 'PERIOD',
-        symbol: 'PAIR'
+        symbol: 'CURRENCY'
       }
 
     const jobData = {
