@@ -337,11 +337,11 @@ const getCsvJobData = {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'publicTrades')
-
-    const isTradingPair = Array.isArray(csvArgs.params.symbol)
-      ? csvArgs.params.symbol[0].startsWith('t')
-      : csvArgs.params.symbol.startsWith('t')
+    const params = { ...args.params }
+    const isTradingPair = Array.isArray(params.symbol)
+      ? params.symbol[0].startsWith('t')
+      : params.symbol.startsWith('t')
+    const csvArgs = getCsvArgs(args, 'publicTrades', { isTradingPair })
     const columnsCsv = (isTradingPair)
       ? {
         id: '#',
