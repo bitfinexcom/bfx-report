@@ -420,6 +420,10 @@ class DataInserter extends EventEmitter {
       throw new FindMethodError()
     }
 
+    const ms = methodApi === '_getWallets'
+      ? 180000
+      : 80000
+
     let countRateLimitError = 0
     let countNonceSmallError = 0
     let res = null
@@ -437,11 +441,11 @@ class DataInserter extends EventEmitter {
         if (isRateLimitError(err)) {
           countRateLimitError += 1
 
-          if (countRateLimitError > 1) {
+          if (countRateLimitError > 2) {
             throw err
           }
 
-          await delay()
+          await delay(ms)
 
           continue
         } else if (isNonceSmallError(err)) {
@@ -501,68 +505,93 @@ class DataInserter extends EventEmitter {
     } = schema
 
     const _args = cloneDeep(args)
-    const currIterationArgs = cloneDeep(_args)
-    let count = 0
 
-    while (true) {
-      count += 1
+    // eslint-disable-next-line camelcase
+    const { _id: user_id } = await this.dao.checkAuthInDb(_args)
 
-      const date = new Date(currIterationArgs.params.end)
-      const utcDate = new Date(Date.UTC(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate() - 1
-      ))
-      currIterationArgs.params.end = utcDate.getTime()
+    for (let twoIter = 0; twoIter < 2; twoIter += 1) {
+      const currIterationArgs = cloneDeep(_args)
+      let count = 0
 
-      let res = await this._getDataFromApi(
-        methodApi,
-        currIterationArgs
-      )
+      if (twoIter === 0) {
+        const firstElemFromDb = await this.dao.getLastElemFromDb(
+          collName,
+          { ..._args.auth },
+          [['_id', -1]]
+        )
 
-      if (
-        !res ||
-        !Array.isArray(res) ||
-        res.length === 0
-      ) break
+        if (
+          !firstElemFromDb ||
+          typeof firstElemFromDb !== 'object' ||
+          !Number.isInteger(firstElemFromDb._end)
+        ) {
+          continue
+        }
 
-      const comparFieldsNames = ['type', 'currency', 'mtsUpdate']
-      const normData = normalizeApiData(res, model)
+        currIterationArgs.params.end = firstElemFromDb._end
+      }
 
-      const filter = comparFieldsNames.reduce((obj, curr) => {
-        obj[curr] = normData.reduce((accum, subCurr) => {
-          if (accum.every(item => item !== subCurr[curr])) {
-            accum.push(subCurr[curr])
-          }
+      while (true) {
+        count += 1
 
-          return accum
-        }, [])
+        const date = new Date(currIterationArgs.params.end)
+        currIterationArgs.params.end = Date.UTC(
+          date.getUTCFullYear(),
+          date.getUTCMonth(),
+          date.getUTCDate() - 1
+        )
 
-        return obj
-      }, {})
-      const elemsFromDb = await this.dao.getElemsInCollBy(
-        collName,
-        { filter }
-      )
-      const uData = normData.filter(item => {
-        return elemsFromDb.every(subItem => {
-          return comparFieldsNames.some(key => item[key] !== subItem[key])
+        const res = await this._getDataFromApi(
+          methodApi,
+          currIterationArgs
+        )
+
+        if (
+          !res ||
+          !Array.isArray(res) ||
+          res.length === 0
+        ) break
+
+        const comparFieldsNames = ['type', 'currency', 'mtsUpdate']
+        const normData = normalizeApiData(res, model)
+
+        const filter = comparFieldsNames.reduce((obj, curr) => {
+          obj[curr] = normData.reduce((accum, subCurr) => {
+            if (accum.every(item => item !== subCurr[curr])) {
+              accum.push(subCurr[curr])
+            }
+
+            return accum
+          }, [])
+
+          return obj
+        }, {})
+        const elemsFromDb = await this.dao.getElemsInCollBy(
+          collName,
+          { filter: { ...filter, user_id } }
+        )
+        const uData = normData.filter(item => {
+          return elemsFromDb.every(subItem => {
+            return comparFieldsNames.some(key => item[key] !== subItem[key])
+          })
         })
-      })
 
-      if (
-        !uData ||
-        !Array.isArray(uData) ||
-        uData.length === 0
-      ) break
+        if (
+          !uData ||
+          !Array.isArray(uData) ||
+          uData.length === 0
+        ) break
 
-      await this.dao.insertElemsToDb(
-        collName,
-        { ..._args.auth },
-        uData
-      )
+        await this.dao.insertElemsToDb(
+          collName,
+          { ..._args.auth },
+          uData.map(item => (
+            { ...item, _end: currIterationArgs.params.end }
+          ))
+        )
 
-      if (count > 3) await delay(180000)
+        if (count > 3) await delay(180000)
+      }
     }
   }
 

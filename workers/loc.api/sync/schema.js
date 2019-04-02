@@ -264,6 +264,7 @@ const _models = new Map([
       balanceAvailable: 'DECIMAL(22,12)',
       placeHolder: 'TEXT',
       mtsUpdate: 'BIGINT',
+      _end: 'BIGINT',
       user_id: `INT NOT NULL,
         CONSTRAINT wallets_fk_#{field}
         FOREIGN KEY (#{field})
