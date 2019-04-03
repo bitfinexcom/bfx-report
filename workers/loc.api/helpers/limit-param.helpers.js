@@ -25,9 +25,15 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
   return getLimitNotMoreThan(base, selectedMethod.max)
 }
 
-const getCsvArgs = (args, method) => {
-  const csvArgs = args
-  csvArgs.params.limit = getMethodLimit('max', method)
+const getCsvArgs = (args, method, extraParams = {}) => {
+  const csvArgs = {
+    ...args,
+    params: {
+      ...args.params,
+      ...extraParams,
+      limit: getMethodLimit('max', method)
+    }
+  }
 
   return csvArgs
 }

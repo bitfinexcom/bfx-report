@@ -422,6 +422,7 @@ const _writeMessageToStream = (reportService, stream, message) => {
 const _fileNamesMap = new Map([
   ['getTrades', 'trades'],
   ['getPublicTrades', 'public_trades'],
+  ['getPublicFunding', 'public_funding'],
   ['getLedgers', 'ledgers'],
   ['getOrders', 'orders'],
   ['getMovements', 'movements'],
@@ -435,12 +436,37 @@ const _fileNamesMap = new Map([
   ['getActivePositions', 'active_positions']
 ])
 
-const _getBaseName = queueName => {
+const _getBaseName = (
+  queueName,
+  {
+    isMultiExport,
+    isDeposits,
+    isWithdrawals,
+    isTradingPair
+  }
+) => {
   if (!_fileNamesMap.has(queueName)) {
     return queueName.replace(/^get/i, '').toLowerCase()
   }
 
-  return _fileNamesMap.get(queueName)
+  if (
+    queueName === 'getPublicTrades' &&
+    !isTradingPair
+  ) {
+    return _fileNamesMap.get('getPublicFunding')
+  }
+  if (
+    queueName === 'getMovements' &&
+    (isDeposits || isWithdrawals)
+  ) {
+    return isDeposits
+      ? 'deposits'
+      : 'withdrawals'
+  }
+
+  return isMultiExport
+    ? 'multiple-exports'
+    : _fileNamesMap.get(queueName)
 }
 
 const _getCompleteFileName = (
@@ -452,24 +478,15 @@ const _getCompleteFileName = (
 ) => {
   const {
     start,
-    end,
-    isDeposits,
-    isWithdrawals
+    end
   } = params
-  let baseName = ''
-
-  if (
-    queueName === 'getMovements' &&
-    (isDeposits || isWithdrawals)
-  ) {
-    baseName = isDeposits
-      ? 'deposits'
-      : 'withdrawals'
-  } else {
-    baseName = isMultiExport
-      ? 'multiple-exports'
-      : _getBaseName(queueName)
-  }
+  const baseName = _getBaseName(
+    queueName,
+    {
+      ...params,
+      isMultiExport
+    }
+  )
 
   const date = new Date()
   const formattedDateNow = _getDateString(date.getTime())
