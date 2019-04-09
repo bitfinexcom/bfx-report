@@ -738,15 +738,15 @@ class MediatorReportService extends ReportService {
         ? args.params.end
         : Date.now()
       const date = new Date(end)
-      const utcDate = new Date(Date.UTC(
+      const utcMts = Date.UTC(
         date.getUTCFullYear(),
         date.getUTCMonth(),
         date.getUTCDate()
-      ))
+      )
 
       const walletsArgs = {
         auth,
-        params: { end: utcDate.getTime() }
+        params: { end: utcMts }
       }
       const wallets = await this.dao.findInCollBy(
         '_getWallets',
@@ -771,7 +771,7 @@ class MediatorReportService extends ReportService {
       const ledgersArgs = {
         auth,
         params: {
-          start: utcDate.getTime() + 1,
+          start: utcMts + 1,
           end
         }
       }
@@ -821,8 +821,10 @@ class MediatorReportService extends ReportService {
         return res
       })
 
+      if (!cb) return res
       cb(null, res)
     } catch (err) {
+      if (!cb) throw err
       cb(err)
     }
   }
