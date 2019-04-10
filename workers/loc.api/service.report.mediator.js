@@ -724,9 +724,7 @@ class MediatorReportService extends ReportService {
   async getWallets (space, args, cb) {
     try {
       if (!await this.isSyncModeWithDbData(space, args)) {
-        super.getWallets(space, args, cb)
-
-        return
+        return super.getWallets(space, args, cb)
       }
 
       checkParams(args, 'paramsSchemaForWallets')
@@ -763,9 +761,9 @@ class MediatorReportService extends ReportService {
           date.getUTCMilliseconds() === 0
         )
       ) {
-        cb(null, wallets)
+        if (!cb) return wallets
 
-        return
+        return cb(null, wallets)
       }
 
       const ledgersArgs = {
@@ -784,9 +782,9 @@ class MediatorReportService extends ReportService {
         !Array.isArray(ledgers) ||
         ledgers.length === 0
       ) {
-        cb(null, wallets)
+        if (!cb) return wallets
 
-        return
+        return cb(null, wallets)
       }
 
       const res = wallets.map(wallet => {

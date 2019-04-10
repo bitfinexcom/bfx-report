@@ -218,11 +218,12 @@ class ReportService extends Api {
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const end = args.params && args.params.end
 
-      const result = (end)
+      const res = (end)
         ? await rest.walletsHistory(end)
         : await rest.wallets()
 
-      cb(null, result)
+      if (!cb) return res
+      cb(null, res)
     } catch (err) {
       this._err(err, 'getWallet', cb)
     }
