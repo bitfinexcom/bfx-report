@@ -5,7 +5,7 @@ const _ms = Date.now()
 module.exports = new Map([
   [
     'symbols',
-    [
+    [[
       'btcusd',
       'ethusd',
       'ethbtc',
@@ -17,7 +17,7 @@ module.exports = new Map([
       'ifxusd',
       'ioteur',
       'euxusx'
-    ]
+    ]]
   ],
   [
     'user_info',
