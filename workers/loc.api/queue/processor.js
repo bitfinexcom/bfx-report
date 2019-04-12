@@ -1,5 +1,6 @@
 'use strict'
 
+const { omit } = require('lodash')
 const { promisify } = require('util')
 const fs = require('fs')
 const { stringify } = require('csv')
@@ -25,28 +26,25 @@ module.exports = async job => {
     : [job.data]
 
   try {
-    if (
-      !job.data.args.params ||
-      typeof job.data.args.params !== 'object'
-    ) {
-      job.data.args.params = {}
-    }
+    job.data.args.params = { ...job.data.args.params }
 
     for (const data of jobsData) {
-      if (
-        !data.args.params ||
-        typeof data.args.params !== 'object'
-      ) {
-        data.args.params = {}
-      }
+      data.args.params = { ...data.args.params }
 
       const filePath = await createUniqueFileName(
         reportService.ctx.rootPath
       )
       filePaths.push(filePath)
+
+      const {
+        args: { params },
+        name,
+        fileNamesMap
+      } = { ...data }
       subParamsArr.push({
-        ...data.args.params,
-        name: data.name
+        ...omit(params, ['name', 'fileNamesMap']),
+        name,
+        fileNamesMap
       })
 
       const write = isUnauth
