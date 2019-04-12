@@ -322,7 +322,8 @@ const writeDataToStream = async (reportService, stream, jobData) => {
     const isGetActivePositionsMethod = method === 'getActivePositions'
     let { res, nextPage } = (
       isGetWalletsMethod ||
-      isGetActivePositionsMethod
+      isGetActivePositionsMethod ||
+      Object.keys({ ..._res }).every(key => key !== 'nextPage')
     )
       ? { res: _res, nextPage: null }
       : _res
