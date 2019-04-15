@@ -33,7 +33,7 @@ const setDataTo = (
   {
     date = Date.now(),
     id = 12345,
-    fee = 0.1
+    fee = -0.0001
   } = {}
 ) => {
   const _date = Math.round(date)
@@ -149,11 +149,13 @@ const createMockRESTv2SrvWithDate = (
   const srv = _createMockRESTv2Srv()
 
   Object.entries(opts).forEach(([key, val]) => {
+    const mockData = _getMockData(key)
+
     if (
-      !Array.isArray(_getMockData(key)[0]) ||
+      !Array.isArray(mockData[0]) ||
       val === null
     ) {
-      srv.setResponse(key, _getMockData(key).slice())
+      srv.setResponse(key, [...mockData])
 
       return
     }
@@ -165,15 +167,17 @@ const createMockRESTv2SrvWithDate = (
     let fee = 0.1
 
     const data = Array(_limit).fill(null).map((item, i) => {
-      if (_limit === (i + 1)) {
+      if (_limit === (i + mockData.length)) {
         date = end
-      } else if (i > 0) {
+      } else if (i + 1 > mockData.length) {
         date += step
+      }
+      if (i > 0) {
         id += 1
-        fee += 0.1
+        fee -= 0.0001
       }
 
-      const dataItem = _getMockData(key)[0].slice()
+      const dataItem = [...mockData[i % mockData.length]]
       _setDataTo(
         key,
         dataItem,
