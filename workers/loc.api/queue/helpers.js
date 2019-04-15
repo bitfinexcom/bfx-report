@@ -322,7 +322,8 @@ const writeDataToStream = async (reportService, stream, jobData) => {
     const isGetActivePositionsMethod = method === 'getActivePositions'
     let { res, nextPage } = (
       isGetWalletsMethod ||
-      isGetActivePositionsMethod
+      isGetActivePositionsMethod ||
+      Object.keys({ ..._res }).every(key => key !== 'nextPage')
     )
       ? { res: _res, nextPage: null }
       : _res
@@ -442,18 +443,30 @@ const _getBaseName = (
     isMultiExport,
     isDeposits,
     isWithdrawals,
-    isTradingPair
+    isTradingPair,
+    fileNamesMap
   }
 ) => {
-  if (!_fileNamesMap.has(queueName)) {
-    return queueName.replace(/^get/i, '').toLowerCase()
-  }
+  const isValidFileNamesMap = (
+    Array.isArray(fileNamesMap) &&
+    fileNamesMap.every(item => (
+      Array.isArray(item) &&
+      typeof item[0] === 'string' &&
+      typeof item[1] === 'string')
+    )
+  )
+  const namesMap = new Map(
+    [
+      ..._fileNamesMap,
+      ...(isValidFileNamesMap ? fileNamesMap : [])
+    ]
+  )
 
   if (
     queueName === 'getPublicTrades' &&
     !isTradingPair
   ) {
-    return _fileNamesMap.get('getPublicFunding')
+    return namesMap.get('getPublicFunding')
   }
   if (
     queueName === 'getMovements' &&
@@ -463,10 +476,13 @@ const _getBaseName = (
       ? 'deposits'
       : 'withdrawals'
   }
+  if (isMultiExport) {
+    return 'multiple-exports'
+  }
 
-  return isMultiExport
-    ? 'multiple-exports'
-    : _fileNamesMap.get(queueName)
+  return namesMap.has(queueName)
+    ? namesMap.get(queueName)
+    : _.snakeCase(queueName)
 }
 
 const _getCompleteFileName = (

@@ -37,6 +37,9 @@ const {
   mapObjBySchema,
   emptyRes
 } = require('./utils')
+const checkJobAndGetUserData = require(
+  './check-job-and-get-user-data'
+)
 
 module.exports = {
   getREST,
@@ -63,5 +66,6 @@ module.exports = {
   mapObjBySchema,
   emptyRes,
   getCsvArgs,
-  getMethodLimit
+  getMethodLimit,
+  checkJobAndGetUserData
 }

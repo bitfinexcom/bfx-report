@@ -1,34 +1,17 @@
 'use strict'
 
+const { omit } = require('lodash')
+
 const {
   checkParams,
   getCsvArgs,
   checkTimeLimit,
-  hasJobInQueueWithStatusBy
+  checkJobAndGetUserData
 } = require('./index')
 const {
   FindMethodToGetCsvFileError,
   SymbolsTypeError
 } = require('../errors')
-
-const _checkJobAndGetUserData = async (
-  reportService,
-  args,
-  uId,
-  uInfo
-) => {
-  const userId = Number.isInteger(uId)
-    ? uId
-    : await hasJobInQueueWithStatusBy(reportService, args)
-  const userInfo = uInfo && typeof uInfo === 'string'
-    ? uInfo
-    : await reportService._getUsername(args)
-
-  return {
-    userId,
-    userInfo
-  }
-}
 
 const getCsvJobData = {
   async getTradesCsvJobData (
@@ -42,7 +25,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -86,7 +69,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -148,7 +131,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -181,7 +164,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -231,7 +214,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -279,7 +262,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -330,7 +313,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -385,7 +368,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -426,7 +409,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -473,7 +456,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -516,7 +499,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -563,7 +546,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -612,7 +595,7 @@ const getCsvJobData = {
     const {
       userId,
       userInfo
-    } = await _checkJobAndGetUserData(
+    } = await checkJobAndGetUserData(
       reportService,
       args,
       uId,
@@ -655,27 +638,33 @@ const getCsvJobData = {
 
 const getMultipleCsvJobData = async (
   reportService,
-  args,
+  incomingArgs,
   uId,
   uInfo
 ) => {
+  const args = omit(incomingArgs, ['getCsvJobData'])
+
   checkParams(args, 'paramsSchemaForMultipleCsv', false, true)
 
   const {
     userId,
     userInfo
-  } = await _checkJobAndGetUserData(
+  } = await checkJobAndGetUserData(
     reportService,
     args,
     uId,
     uInfo
   )
 
+  const _getCsvJobData = {
+    ...getCsvJobData,
+    ...incomingArgs.getCsvJobData
+  }
   const jobsData = []
 
   for (const params of args.params.multiExport) {
     const getJobDataMethodName = `${params.method}JobData`
-    const hasGetJobDataMethod = Object.keys(getCsvJobData).every((name) => {
+    const hasGetJobDataMethod = Object.keys(_getCsvJobData).every((name) => {
       return name !== getJobDataMethodName
     })
 
@@ -686,7 +675,7 @@ const getMultipleCsvJobData = async (
       throw new FindMethodToGetCsvFileError()
     }
 
-    const jobData = await getCsvJobData[getJobDataMethodName](
+    const jobData = await _getCsvJobData[getJobDataMethodName](
       reportService,
       {
         ...args,
