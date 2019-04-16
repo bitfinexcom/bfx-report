@@ -311,11 +311,59 @@ module.exports = new Map([
   [
     'currencies',
     [
-      ['USD', 'US Dollar'],
-      ['BTC', 'Bitcoin'],
-      ['LTC', 'Litecoin'],
-      ['DSH', 'Dash'],
-      ['ETH', 'Ethereum']
+      [
+        'BTC',
+        'ETH',
+        'EUR',
+        'EUT',
+        'GRG',
+        'IOT',
+        'MLN',
+        'REP',
+        'USD',
+        'UST',
+        'ZRX'
+      ],
+      [
+        ['EUT', 'EURt'],
+        ['GRG', 'WWWWWW'],
+        ['IOT', 'IOTA'],
+        ['UST', 'USDt']
+      ],
+      [
+        ['BTC', 'Bitcoin'],
+        ['ETH', 'Ethereum'],
+        ['EUR', 'Euro'],
+        ['GRG', 'RigoBlock'],
+        ['IOT', 'IOTA'],
+        ['MLN', 'Melonport'],
+        ['USD', 'US Dollar'],
+        ['ZRX', '0x']
+      ],
+      [
+        ['REP', 'ETH'],
+        ['GRG', 'ETH'],
+        ['ZRX', 'ETH'],
+        ['MLN', 'ETH']
+      ],
+      [
+        [
+          'BTC',
+          [
+            'https://blockstream.info',
+            'https://blockstream.info/address/VAL',
+            'https://blockstream.info/tx/VAL'
+          ]
+        ],
+        [
+          'ETH',
+          [
+            'https://etherscan.io',
+            'https://etherscan.io/address/VAL',
+            'https://etherscan.io/tx/VAL'
+          ]
+        ]
+      ]
     ]
   ]
 ])
