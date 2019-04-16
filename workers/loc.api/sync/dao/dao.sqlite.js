@@ -19,7 +19,8 @@ const {
   getUniqueIndexQuery,
   getInsertableArrayObjectsFilter,
   getProjectionQuery,
-  getPlaceholdersQuery
+  getPlaceholdersQuery,
+  serializeVal
 } = require('./helpers')
 const {
   AuthError,
@@ -238,15 +239,19 @@ class SqliteDAO extends DAO {
           continue
         }
 
+        const _obj = keys.reduce((accum, key) => ({
+          ...accum,
+          [key]: serializeVal(obj[key])
+        }), {})
         const projection = getProjectionQuery(keys)
         const {
           where,
           values
-        } = getWhereQuery(obj)
+        } = getWhereQuery(_obj)
         const {
           placeholders,
           placeholderVal
-        } = getPlaceholdersQuery(obj, keys)
+        } = getPlaceholdersQuery(_obj, keys)
 
         const sql = `INSERT INTO ${name}(${projection}) SELECT ${placeholders}
                       WHERE NOT EXISTS(SELECT 1 FROM ${name} ${where})`
