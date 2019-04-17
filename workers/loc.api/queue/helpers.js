@@ -426,6 +426,7 @@ const _fileNamesMap = new Map([
   ['getPublicFunding', 'public_funding'],
   ['getLedgers', 'ledgers'],
   ['getOrders', 'orders'],
+  ['getActiveOrders', 'active_orders'],
   ['getMovements', 'movements'],
   ['getFundingOfferHistory', 'funding_offers_history'],
   ['getFundingLoanHistory', 'funding_loans_history'],

@@ -22,6 +22,7 @@ const {
   getPublicTradesCsvJobData,
   getLedgersCsvJobData,
   getOrdersCsvJobData,
+  getActiveOrdersCsvJobData,
   getMovementsCsvJobData,
   getFundingOfferHistoryCsvJobData,
   getFundingLoanHistoryCsvJobData,
@@ -513,6 +514,20 @@ class ReportService extends Api {
       cb(null, status)
     } catch (err) {
       this._err(err, 'getOrdersCsv', cb)
+    }
+  }
+
+  async getActiveOrdersCsv (space, args, cb) {
+    try {
+      const status = await getCsvStoreStatus(this, args)
+      const jobData = await getActiveOrdersCsvJobData(this, args)
+      const processorQueue = this.ctx.lokue_processor.q
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getActiveOrdersCsv', cb)
     }
   }
 
