@@ -428,10 +428,12 @@ const getCsvJobData = {
         id: '#',
         symbol: 'PAIR',
         type: 'TYPE',
+        typePrev: 'PREVIOUS ORDER TYPE',
         amountOrig: 'AMOUNT',
         amountExecuted: 'EXECUTED AMOUNT',
         price: 'PRICE',
         priceAvg: 'AVERAGE EXECUTION PRICE',
+        priceTrailing: 'TRAILING PRICE',
         mtsCreate: 'CREATED',
         mtsUpdate: 'UPDATED',
         status: 'STATUS'
