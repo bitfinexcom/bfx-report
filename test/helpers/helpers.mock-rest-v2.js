@@ -88,6 +88,12 @@ const setDataTo = (
       dataItem[5] = _date
       break
 
+    case 'active_orders':
+      dataItem[0] = id
+      dataItem[4] = _date
+      dataItem[5] = _date
+      break
+
     case 'movements':
       dataItem[0] = id
       dataItem[5] = _date
@@ -127,6 +133,7 @@ const getMockDataOpts = () => ({
   trades: { limit: 1000 },
   public_trades: { limit: 5000 },
   orders: { limit: 500 },
+  active_orders: { limit: 100 },
   movements: { limit: 25 },
   f_offer_hist: { limit: 500 },
   f_loan_hist: { limit: 500 },

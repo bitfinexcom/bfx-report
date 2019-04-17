@@ -428,10 +428,59 @@ const getCsvJobData = {
         id: '#',
         symbol: 'PAIR',
         type: 'TYPE',
+        typePrev: 'PREVIOUS ORDER TYPE',
         amountOrig: 'AMOUNT',
         amountExecuted: 'EXECUTED AMOUNT',
         price: 'PRICE',
         priceAvg: 'AVERAGE EXECUTION PRICE',
+        priceTrailing: 'TRAILING PRICE',
+        mtsCreate: 'CREATED',
+        mtsUpdate: 'UPDATED',
+        status: 'STATUS'
+      },
+      formatSettings: {
+        mtsUpdate: 'date',
+        mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
+  },
+  async getActiveOrdersCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getActiveOrders',
+      args,
+      propNameForPagination: null,
+      columnsCsv: {
+        id: '#',
+        symbol: 'PAIR',
+        type: 'TYPE',
+        typePrev: 'PREVIOUS ORDER TYPE',
+        amountOrig: 'AMOUNT',
+        amountExecuted: 'EXECUTED AMOUNT',
+        price: 'PRICE',
+        priceAvg: 'AVERAGE EXECUTION PRICE',
+        priceTrailing: 'TRAILING PRICE',
         mtsCreate: 'CREATED',
         mtsUpdate: 'UPDATED',
         status: 'STATUS'

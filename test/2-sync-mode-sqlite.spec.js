@@ -1414,6 +1414,50 @@ describe('Sync mode with SQLite', () => {
     ])
   })
 
+  it('it should be successfully performed by the getActiveOrders method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getActiveOrders',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+
+    const resItem = res.body.result[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'gid',
+      'cid',
+      'symbol',
+      'mtsCreate',
+      'mtsUpdate',
+      'amount',
+      'amountOrig',
+      'type',
+      'typePrev',
+      'flags',
+      'status',
+      'price',
+      'priceAvg',
+      'priceTrailing',
+      'priceAuxLimit',
+      'notify',
+      'placedId',
+      'amountExecuted'
+    ])
+  })
+
   it('it should be successfully performed by the getMovements method', async function () {
     this.timeout(5000)
 
@@ -1981,6 +2025,29 @@ describe('Sync mode with SQLite', () => {
           symbol: 'tBTCUSD',
           end,
           start,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
+  it('it should be successfully performed by the getActiveOrdersCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getActiveOrdersCsv',
+        params: {
           email
         },
         id: 5

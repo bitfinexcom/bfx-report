@@ -523,6 +523,29 @@ describe('Queue', () => {
     await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
+  it('it should be successfully performed by the getActiveOrdersCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getActiveOrdersCsv',
+        params: {
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
   it('it should be successfully performed by the getMovementsCsv method', async function () {
     this.timeout(3 * 60000)
 
