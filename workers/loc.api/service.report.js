@@ -296,6 +296,19 @@ class ReportService extends Api {
     }
   }
 
+  async getActiveOrders (space, args, cb) {
+    try {
+      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+
+      const _res = await rest.activeOrders()
+      const res = parseFields(_res, { executed: true })
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getActiveOrders', cb)
+    }
+  }
+
   async getMovements (space, args, cb) {
     try {
       const res = await prepareApiResponse(
