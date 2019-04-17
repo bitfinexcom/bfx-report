@@ -203,6 +203,37 @@ module.exports = new Map([
     ]]
   ],
   [
+    'active_orders',
+    [[
+      12345,
+      12345,
+      12345,
+      'tBTCUSD',
+      _ms,
+      _ms,
+      0,
+      0.01,
+      'EXCHANGE LIMIT',
+      null,
+      null,
+      null,
+      '0',
+      'EXECUTED @ 15065.0(0.01)',
+      null,
+      null,
+      12345,
+      12345,
+      12345,
+      12345,
+      null,
+      null,
+      null,
+      false,
+      null,
+      null
+    ]]
+  ],
+  [
     'movements',
     [[
       12345,
