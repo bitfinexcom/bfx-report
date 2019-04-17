@@ -526,6 +526,7 @@ const _methodCollMap = new Map([
       sort: [['name', 1]],
       hasNewData: true,
       type: 'public:updatable:array:objects',
+      fieldsOfUniqueIndex: ['id', 'name', 'pool', 'explorer'],
       model: { ..._models.get(ALLOWED_COLLS.CURRENCIES) }
     }
   ]

@@ -169,7 +169,10 @@ const createMockRESTv2SrvWithDate = (
     const data = Array(_limit).fill(null).map((item, i) => {
       if (_limit === (i + mockData.length)) {
         date = end
-      } else if (i + 1 > mockData.length) {
+      } else if (
+        i + 1 > mockData.length &&
+        i % mockData.length === 0
+      ) {
         date += step
       }
       if (i > 0) {
