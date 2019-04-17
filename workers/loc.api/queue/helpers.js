@@ -483,7 +483,7 @@ const _getBaseName = (
 
   return namesMap.has(queueName)
     ? namesMap.get(queueName)
-    : _.snakeCase(queueName)
+    : _.snakeCase(queueName.replace(/^get/, ''))
 }
 
 const _getCompleteFileName = (
