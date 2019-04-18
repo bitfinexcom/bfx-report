@@ -262,6 +262,22 @@ class ReportService extends Api {
     }
   }
 
+  async getFundingTrades (space, args, cb) {
+    try {
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'fundingTrades',
+        'mtsCreate',
+        'symbol'
+      )
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getFundingTrades', cb)
+    }
+  }
+
   async getPublicTrades (space, args, cb) {
     try {
       args.auth = {}
