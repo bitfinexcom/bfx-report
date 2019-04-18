@@ -543,6 +543,31 @@ class MediatorReportService extends ReportService {
   /**
    * @override
    */
+  async getFundingTrades (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getFundingTrades(space, args, cb)
+
+        return
+      }
+
+      checkParams(args, 'paramsSchemaForApi')
+
+      const res = await this.dao.findInCollBy(
+        '_getFundingTrades',
+        args,
+        true
+      )
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
   async getPublicTrades (space, args, cb) {
     try {
       if (!await this.isSyncModeWithDbData(space, args)) {
@@ -841,6 +866,10 @@ class MediatorReportService extends ReportService {
 
   _getTrades (args) {
     return promisify(super.getTrades.bind(this))(null, args)
+  }
+
+  _getFundingTrades (args) {
+    return promisify(super.getFundingTrades.bind(this))(null, args)
   }
 
   _getPublicTrades (args) {

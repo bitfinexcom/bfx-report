@@ -62,6 +62,26 @@ const _models = new Map([
     }
   ],
   [
+    ALLOWED_COLLS.FUNDING_TRADES,
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
+      symbol: 'VARCHAR(255)',
+      mtsCreate: 'BIGINT',
+      offerID: 'BIGINT',
+      amount: 'DECIMAL(22,12)',
+      rate: 'DECIMAL(22,12)',
+      period: 'BIGINT',
+      maker: 'INT',
+      user_id: `INT NOT NULL,
+        CONSTRAINT trades_fk_#{field}
+        FOREIGN KEY (#{field})
+        REFERENCES users(_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE`
+    }
+  ],
+  [
     ALLOWED_COLLS.PUBLIC_TRADES,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
@@ -365,6 +385,21 @@ const _methodCollMap = new Map([
       type: 'insertable:array:objects',
       fieldsOfUniqueIndex: ['id', 'mtsCreate', 'orderID', 'fee'],
       model: { ..._models.get(ALLOWED_COLLS.TRADES) }
+    }
+  ],
+  [
+    '_getFundingTrades',
+    {
+      name: ALLOWED_COLLS.FUNDING_TRADES,
+      maxLimit: 1000,
+      dateFieldName: 'mtsCreate',
+      symbolFieldName: 'symbol',
+      sort: [['mtsCreate', -1]],
+      hasNewData: false,
+      start: 0,
+      type: 'insertable:array:objects',
+      fieldsOfUniqueIndex: ['id', 'mtsCreate', 'offerID'],
+      model: { ..._models.get(ALLOWED_COLLS.FUNDING_TRADES) }
     }
   ],
   [

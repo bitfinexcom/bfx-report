@@ -6,6 +6,7 @@ module.exports = {
   PRIVATE: '_PRIVATE',
   LEDGERS: 'ledgers',
   TRADES: 'trades',
+  FUNDING_TRADES: 'fundingTrades',
   PUBLIC_TRADES: 'publicTrades',
   ORDERS: 'orders',
   MOVEMENTS: 'movements',
