@@ -116,7 +116,10 @@ const _formatters = {
     return val
   },
   symbol: symbol => {
-    if (symbol[0] !== 't') {
+    if (
+      symbol[0] !== 't' &&
+      symbol[0] !== 'f'
+    ) {
       return symbol
     }
 
@@ -422,6 +425,7 @@ const _writeMessageToStream = (reportService, stream, message) => {
 
 const _fileNamesMap = new Map([
   ['getTrades', 'trades'],
+  ['getFundingTrades', 'funding_trades'],
   ['getPublicTrades', 'public_trades'],
   ['getPublicFunding', 'public_funding'],
   ['getLedgers', 'ledgers'],

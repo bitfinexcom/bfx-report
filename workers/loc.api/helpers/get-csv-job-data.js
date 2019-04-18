@@ -58,6 +58,50 @@ const getCsvJobData = {
 
     return jobData
   },
+  async getFundingTradesCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
+
+    const csvArgs = getCsvArgs(args, 'fundingTrades')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getFundingTrades',
+      args: csvArgs,
+      propNameForPagination: 'mtsCreate',
+      columnsCsv: {
+        id: '#',
+        symbol: 'PAIR',
+        amount: 'AMOUNT',
+        rate: 'RATE',
+        period: 'PERIOD',
+        maker: 'MAKER',
+        mtsCreate: 'DATE',
+        offerID: 'OFFER ID'
+      },
+      formatSettings: {
+        mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
+  },
   async getTickersHistoryCsvJobData (
     reportService,
     args,
