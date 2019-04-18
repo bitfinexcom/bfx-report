@@ -811,6 +811,47 @@ describe('API', () => {
     ])
   })
 
+  it('it should be successfully performed by the getFundingTrades method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getFundingTrades',
+        params: {
+          symbol: 'fBTC',
+          start: 0,
+          end,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isNumber(res.body.result.nextPage)
+
+    const resItem = res.body.result.res[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'id',
+      'symbol',
+      'mtsCreate',
+      'offerID',
+      'amount',
+      'rate',
+      'period',
+      'maker'
+    ])
+  })
+
   it('it should be successfully performed by the getPublicTrades method', async function () {
     this.timeout(5000)
 
