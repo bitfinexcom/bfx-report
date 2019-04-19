@@ -74,7 +74,7 @@ const _models = new Map([
       period: 'BIGINT',
       maker: 'INT',
       user_id: `INT NOT NULL,
-        CONSTRAINT trades_fk_#{field}
+        CONSTRAINT fundingTrades_fk_#{field}
         FOREIGN KEY (#{field})
         REFERENCES users(_id)
         ON UPDATE CASCADE
