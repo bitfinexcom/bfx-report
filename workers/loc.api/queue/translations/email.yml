@@ -1,0 +1,27 @@
+en:
+  template:
+    subject: Your report is ready
+    btnText: Download CSV
+    fileName: File name
+    unauth: Your file could not be completed, please try again
+    readyForDownload: The report you request is ready for download
+    ifDidNotInitAction: If you did not initiate this action and you suspect that your account may be compromised, please
+    freezeAccount: freeze your account
+    contactSupport: and contact support
+
+ru:
+  template:
+    subject: Ваш отчет готов
+    btnText: Скачать CSV
+    fileName: Имя файла
+    unauth: Ваш файл не может быть завершен, пожалуйста, попробуйте еще раз
+    readyForDownload: Запрашиваемый вами отчет готов к загрузке
+    ifDidNotInitAction: Если вы не инициировали это действие и подозреваете, что ваша учетная запись может быть взломана, пожалуйста,
+    freezeAccount: заблокируйте ее
+    contactSupport: и обратитесь в службу поддержки
+
+# TODO:
+zh-CN:
+
+# TODO:
+zh-TW:

@@ -65,17 +65,25 @@ const paramsSchemaForApi = {
   }
 }
 
+const timezone = {
+  type: ['number', 'string']
+}
+const dateFormat = {
+  type: 'string',
+  enum: ['DD-MM-YY', 'MM-DD-YY', 'YY-MM-DD']
+}
+const language = {
+  type: 'string',
+  enum: ['en', 'ru', 'zh-CN', 'zh-TW']
+}
+
 const paramsSchemaForCsv = {
   ...paramsSchemaForApi,
   properties: {
     ...paramsSchemaForApi.properties,
-    timezone: {
-      type: ['number', 'string']
-    },
-    dateFormat: {
-      type: 'string',
-      enum: ['DD-MM-YY', 'MM-DD-YY', 'YY-MM-DD']
-    }
+    timezone,
+    dateFormat,
+    language
   }
 }
 
@@ -139,16 +147,18 @@ const paramsSchemaForWalletsCsv = {
     end: {
       type: 'integer'
     },
-    timezone: paramsSchemaForCsv.properties.timezone,
-    dateFormat: paramsSchemaForCsv.properties.dateFormat
+    timezone,
+    dateFormat,
+    language
   }
 }
 
 const paramsSchemaForActivePositionsCsv = {
   type: 'object',
   properties: {
-    timezone: paramsSchemaForCsv.properties.timezone,
-    dateFormat: paramsSchemaForCsv.properties.dateFormat
+    timezone,
+    dateFormat,
+    language
   }
 }
 

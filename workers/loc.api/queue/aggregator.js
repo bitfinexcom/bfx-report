@@ -49,7 +49,11 @@ module.exports = async job => {
         emailConf,
         email,
         'email.pug',
-        s3Data.map(item => ({ ...item, isUnauth }))
+        s3Data.map((item, i) => ({
+          ...item,
+          isUnauth,
+          language: subParamsArr[i].language
+        }))
       )
 
       for (const filePath of filePaths) {
@@ -74,6 +78,7 @@ module.exports = async job => {
     job.done()
     aggregatorQueue.emit('completed')
   } catch (err) {
+    console.log('---ERR---'.bgRed, err)
     if (err.syscall === 'unlink') {
       aggregatorQueue.emit('error:unlink', job)
       job.done()
