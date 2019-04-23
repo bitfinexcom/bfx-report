@@ -705,6 +705,7 @@ const getMultipleCsvJobData = async (
     uInfo
   )
 
+  const { language } = { ...args.params }
   const _getCsvJobData = {
     ...getCsvJobData,
     ...incomingArgs.getCsvJobData
@@ -728,7 +729,10 @@ const getMultipleCsvJobData = async (
       reportService,
       {
         ...args,
-        params: { ...params }
+        params: {
+          ...params,
+          language
+        }
       },
       userId,
       userInfo
