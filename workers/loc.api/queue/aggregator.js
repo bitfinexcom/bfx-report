@@ -78,7 +78,6 @@ module.exports = async job => {
     job.done()
     aggregatorQueue.emit('completed')
   } catch (err) {
-    console.log('---ERR---'.bgRed, err)
     if (err.syscall === 'unlink') {
       aggregatorQueue.emit('error:unlink', job)
       job.done()
