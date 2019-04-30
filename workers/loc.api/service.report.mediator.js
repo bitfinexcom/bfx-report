@@ -735,89 +735,35 @@ class MediatorReportService extends ReportService {
       const end = args.params && args.params.end
         ? args.params.end
         : Date.now()
-      const date = new Date(end)
-      const utcMts = Date.UTC(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate()
-      )
 
       const walletsArgs = {
         auth,
-        params: { end: utcMts }
+        params: { end }
       }
-      const wallets = await this.dao.findInCollBy(
+      const walletsFromLedgers = await this.dao.findInCollBy(
         '_getWallets',
         walletsArgs
       )
 
-      if (
-        !Array.isArray(wallets) ||
-        wallets.length === 0 ||
-        (
-          date.getUTCHours() === 0 &&
-          date.getUTCMinutes() === 0 &&
-          date.getUTCSeconds() === 0 &&
-          date.getUTCMilliseconds() === 0
-        )
-      ) {
-        if (!cb) return wallets
-
-        return cb(null, wallets)
-      }
-
-      const ledgersArgs = {
-        auth,
-        params: {
-          start: utcMts + 1,
-          end
-        }
-      }
-      const ledgers = await this.dao.findInCollBy(
-        '_getLedgers',
-        ledgersArgs
-      )
-
-      if (
-        !Array.isArray(ledgers) ||
-        ledgers.length === 0
-      ) {
-        if (!cb) return wallets
-
-        return cb(null, wallets)
-      }
-
-      const res = wallets.map(wallet => {
-        if (!Number.isFinite(wallet.balance)) {
-          return { ...wallet }
-        }
-
-        const _ledgers = ledgers.filter(ledger => {
-          return (
-            ledger.currency === wallet.currency &&
-            ledger.wallet === wallet.type
-          )
-        })
-        const res = _ledgers.reduce((accum, ledger) => {
-          const balance = Number.isFinite(ledger.amount)
-            ? accum.balance + ledger.amount
-            : accum.balance
-          const mtsUpdate = ledger.mts > accum.mtsUpdate
-            ? ledger.mts || end
-            : accum.mtsUpdate || end
-
-          return {
-            ...accum,
-            balance,
-            mtsUpdate,
-            unsettledInterest: null,
-            balanceAvailable: null,
-            placeHolder: null
-          }
-        }, { ...wallet })
-
-        return res
-      })
+      const res = walletsFromLedgers
+        .filter(ledger => (
+          ledger.wallet &&
+          ledger.balance &&
+          Number.isFinite(ledger.balance)
+        )).map(({
+          wallet: type,
+          currency,
+          balance,
+          mts: mtsUpdate
+        } = {}) => ({
+          type,
+          currency,
+          balance,
+          unsettledInterest: null,
+          balanceAvailable: null,
+          placeHolder: null,
+          mtsUpdate
+        }))
 
       if (!cb) return res
       cb(null, res)
@@ -865,10 +811,6 @@ class MediatorReportService extends ReportService {
 
   _getFundingCreditHistory (args) {
     return promisify(super.getFundingCreditHistory.bind(this))(null, args)
-  }
-
-  _getWallets (args) {
-    return promisify(super.getWallets.bind(this))(null, args)
   }
 
   async _checkAuthInApi (args) {

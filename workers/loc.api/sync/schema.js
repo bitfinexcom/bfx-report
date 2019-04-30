@@ -254,26 +254,6 @@ const _models = new Map([
     }
   ],
   [
-    ALLOWED_COLLS.WALLETS,
-    {
-      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
-      type: 'VARCHAR(255)',
-      currency: 'VARCHAR(255)',
-      balance: 'DECIMAL(22,12)',
-      unsettledInterest: 'DECIMAL(22,12)',
-      balanceAvailable: 'DECIMAL(22,12)',
-      placeHolder: 'TEXT',
-      mtsUpdate: 'BIGINT',
-      _end: 'BIGINT',
-      user_id: `INT NOT NULL,
-        CONSTRAINT wallets_fk_#{field}
-        FOREIGN KEY (#{field})
-        REFERENCES users(_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE`
-    }
-  ],
-  [
     'publicСollsСonf',
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
@@ -492,17 +472,13 @@ const _methodCollMap = new Map([
   [
     '_getWallets',
     {
-      name: ALLOWED_COLLS.WALLETS,
-      maxLimit: null,
-      dateFieldName: 'mtsUpdate',
+      name: ALLOWED_COLLS.LEDGERS,
+      dateFieldName: 'mts',
       symbolFieldName: 'currency',
-      sort: [['mtsUpdate', -1]],
-      groupResBy: ['type', 'currency'],
-      hasNewData: false,
-      start: 0,
-      type: 'insertable:array:objects',
-      fieldsOfUniqueIndex: ['type', 'currency', 'mtsUpdate'],
-      model: { ..._models.get(ALLOWED_COLLS.WALLETS) }
+      sort: [['mts', -1], ['id', -1]],
+      groupResBy: ['wallet', 'currency'],
+      type: 'hidden:insertable:array:objects',
+      model: { ..._models.get(ALLOWED_COLLS.LEDGERS) }
     }
   ],
   [
