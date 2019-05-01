@@ -475,10 +475,31 @@ const _methodCollMap = new Map([
       name: ALLOWED_COLLS.LEDGERS,
       dateFieldName: 'mts',
       symbolFieldName: 'currency',
-      sort: [['mts', -1], ['id', -1]],
+      sort: [['mts', -1]],
       groupResBy: ['wallet', 'currency'],
+      subQuery: {
+        sort: [['mts', 1], ['id', 1]]
+      },
       type: 'hidden:insertable:array:objects',
-      model: { ..._models.get(ALLOWED_COLLS.LEDGERS) }
+      model: { ..._models.get(ALLOWED_COLLS.LEDGERS) },
+      dataStructureConverter: (accum, {
+        wallet: type,
+        currency,
+        balance,
+        mts: mtsUpdate
+      } = {}) => {
+        accum.push({
+          type,
+          currency,
+          balance,
+          unsettledInterest: null,
+          balanceAvailable: null,
+          placeHolder: null,
+          mtsUpdate
+        })
+
+        return accum
+      }
     }
   ],
   [

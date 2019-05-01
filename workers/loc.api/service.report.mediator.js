@@ -729,41 +729,31 @@ class MediatorReportService extends ReportService {
 
       checkParams(args, 'paramsSchemaForWallets')
 
-      const auth = args.auth && typeof args.auth === 'object'
-        ? args.auth
-        : {}
-      const end = args.params && args.params.end
-        ? args.params.end
-        : Date.now()
+      const {
+        auth = {},
+        params: { end = Date.now() } = {}
+      } = { ...args }
 
-      const walletsArgs = {
-        auth,
-        params: { end }
-      }
       const walletsFromLedgers = await this.dao.findInCollBy(
         '_getWallets',
-        walletsArgs
+        {
+          auth,
+          params: { end }
+        }
       )
 
       const res = walletsFromLedgers
-        .filter(ledger => (
-          ledger.wallet &&
-          ledger.balance &&
-          Number.isFinite(ledger.balance)
-        )).map(({
-          wallet: type,
-          currency,
-          balance,
-          mts: mtsUpdate
-        } = {}) => ({
+        .filter(({
           type,
-          currency,
           balance,
-          unsettledInterest: null,
-          balanceAvailable: null,
-          placeHolder: null,
-          mtsUpdate
-        }))
+          currency
+        } = {}) => (
+          type &&
+          typeof type === 'string' &&
+          Number.isFinite(balance) &&
+          typeof currency === 'string' &&
+          currency.length >= 3
+        ))
 
       if (!cb) return res
       cb(null, res)
