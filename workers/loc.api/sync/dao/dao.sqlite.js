@@ -20,7 +20,9 @@ const {
   getInsertableArrayObjectsFilter,
   getProjectionQuery,
   getPlaceholdersQuery,
-  serializeVal
+  serializeVal,
+  getGroupQuery,
+  getSubQuery
 } = require('./helpers')
 const {
   AuthError,
@@ -286,8 +288,16 @@ class SqliteDAO extends DAO {
     const user = isPublic ? null : await this.checkAuthInDb(args)
     const methodColl = this._getMethodCollMap().get(method)
     const params = { ...args.params }
-    params.limit = methodColl.maxLimit
-      ? getLimitNotMoreThan(params.limit, methodColl.maxLimit)
+    const {
+      maxLimit,
+      dateFieldName,
+      symbolFieldName,
+      sort: _sort,
+      model,
+      dataStructureConverter
+    } = { ...methodColl }
+    params.limit = maxLimit
+      ? getLimitNotMoreThan(params.limit, maxLimit)
       : null
 
     const exclude = ['_id']
@@ -305,31 +315,32 @@ class SqliteDAO extends DAO {
       limit,
       limitVal
     } = getLimitQuery(params)
-    const sort = getOrderQuery(methodColl.sort)
+    const sort = getOrderQuery(_sort)
     const {
       where,
       values
     } = getWhereQuery(filter)
-    const group = (
-      Array.isArray(methodColl.groupResBy) &&
-      methodColl.groupResBy.length > 0
-    )
-      ? `GROUP BY ${methodColl.groupResBy.join(', ')}`
-      : ''
+    const group = getGroupQuery(methodColl)
+    const subQuery = getSubQuery(methodColl)
     const projection = getProjectionQuery(
-      methodColl.model,
+      model,
       exclude,
       true
     )
 
-    const sql = `SELECT ${projection} FROM ${methodColl.name}
+    const sql = `SELECT ${projection} FROM ${subQuery}
       ${where}
       ${group}
       ${sort}
       ${limit}`
 
     const _res = await this._all(sql, { ...values, ...limitVal })
-    const res = convertDataType(_res)
+    const convertedDataStructure = (
+      typeof dataStructureConverter === 'function'
+    )
+      ? _res.reduce(methodColl.dataStructureConverter, [])
+      : _res
+    const res = convertDataType(convertedDataStructure)
 
     if (isPrepareResponse) {
       const symbols = (
@@ -340,12 +351,12 @@ class SqliteDAO extends DAO {
 
       return prepareResponse(
         res,
-        methodColl.dateFieldName,
+        dateFieldName,
         params.limit,
         params.notThrowError,
         params.notCheckNextPage,
         symbols,
-        methodColl.symbolFieldName
+        symbolFieldName
       )
     }
 
