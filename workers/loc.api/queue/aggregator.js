@@ -49,7 +49,11 @@ module.exports = async job => {
         emailConf,
         email,
         'email.pug',
-        s3Data.map(item => ({ ...item, isUnauth }))
+        s3Data.map((item, i) => ({
+          ...item,
+          isUnauth,
+          language: subParamsArr[i].language
+        }))
       )
 
       for (const filePath of filePaths) {

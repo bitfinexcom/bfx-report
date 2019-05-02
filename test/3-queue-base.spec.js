@@ -91,14 +91,16 @@ describe('Queue', () => {
               end,
               start,
               limit: 1000,
-              timezone: 'America/Los_Angeles'
+              timezone: 'America/Los_Angeles',
+              language: 'en'
             },
             {
               method: 'getTickersHistoryCsv',
               symbol: 'BTC',
               end,
               start,
-              limit: 1000
+              limit: 1000,
+              language: 'ru'
             }
           ]
         },
@@ -160,7 +162,8 @@ describe('Queue', () => {
           end,
           start,
           limit: 1000,
-          email
+          email,
+          language: 'zh-TW'
         },
         id: 5
       })

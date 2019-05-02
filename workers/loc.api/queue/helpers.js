@@ -8,6 +8,7 @@ const _ = require('lodash')
 const moment = require('moment-timezone')
 const pug = require('pug')
 const argv = require('yargs').argv
+const yaml = require('js-yaml')
 
 const access = promisify(fs.access)
 const mkdir = promisify(fs.mkdir)
@@ -16,6 +17,8 @@ const rename = promisify(fs.rename)
 const chmod = promisify(fs.chmod)
 
 const basePathToViews = path.join(__dirname, 'views')
+const pathToTrans = path.join(__dirname, 'translations/email.yml')
+const translations = yaml.safeLoad(fs.readFileSync(pathToTrans, 'utf8'))
 const isElectronjsEnv = argv.isElectronjsEnv
 
 const isRateLimitError = (err) => {
@@ -653,20 +656,92 @@ const uploadS3 = async (
   return Promise.all(promises)
 }
 
-const sendMail = (reportService, configs, to, viewName, dataArr) => {
+const _getTranslator = (
+  language = 'en',
+  trans = translations,
+  isNotDefaultTranslatorUsed = false
+) => {
+  const translatorByDefault = (
+    !isNotDefaultTranslatorUsed &&
+    _getTranslator('en', trans, true)
+  )
+
+  return (defVal = '', opts) => {
+    const prop = typeof opts === 'string'
+      ? opts
+      : ({ ...opts }).prop
+
+    if (
+      !trans ||
+      typeof trans !== 'object' ||
+      !trans[language] ||
+      typeof trans[language] !== 'object' ||
+      Object.keys(trans[language]) === 0 ||
+      typeof prop !== 'string' ||
+      !prop
+    ) {
+      return translatorByDefault
+        ? translatorByDefault(defVal, prop)
+        : defVal
+    }
+
+    const res = prop.split('.').reduce((accum, curr) => {
+      if (
+        typeof accum[curr] === 'object' ||
+        typeof accum[curr] === 'string' ||
+        Number.isFinite(accum[curr])
+      ) {
+        return accum[curr]
+      }
+
+      return accum
+    }, trans[language])
+
+    if (typeof res === 'object') {
+      return translatorByDefault
+        ? translatorByDefault(defVal, prop)
+        : defVal
+    }
+
+    return res
+  }
+}
+
+const sendMail = async (
+  reportService,
+  configs,
+  to,
+  viewName,
+  dataArr
+) => {
   const grcBfx = reportService.ctx.grc_bfx
+  const pathToView = path.join(basePathToViews, viewName)
 
   const promises = dataArr.map(data => {
-    const text = `Download (${data.fileName}): ${data.presigned_url}`
-    const html = pug.renderFile(
-      path.join(basePathToViews, viewName),
-      data
+    const {
+      presigned_url: url,
+      language = 'en'
+    } = { ...data }
+    const translate = _getTranslator(language)
+    const subject = translate(configs.subject, 'template.subject')
+    const text = pug.renderFile(
+      pathToView,
+      {
+        ...data,
+        filters: { translate }
+      }
     )
+    const button = {
+      url,
+      text: translate('Download CSV', 'template.btnText')
+    }
     const mailOptions = {
+      ...configs,
       to,
       text,
-      html,
-      ...configs
+      subject,
+      button,
+      language
     }
 
     return new Promise((resolve, reject) => {
