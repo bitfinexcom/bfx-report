@@ -14,6 +14,7 @@ const {
 } = require('./helpers')
 const {
   getTradesCsvJobData,
+  getFundingTradesCsvJobData,
   getTickersHistoryCsvJobData,
   getWalletsCsvJobData,
   getPositionsHistoryCsvJobData,
@@ -262,6 +263,22 @@ class ReportService extends Api {
     }
   }
 
+  async getFundingTrades (space, args, cb) {
+    try {
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'fundingTrades',
+        'mtsCreate',
+        'symbol'
+      )
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getFundingTrades', cb)
+    }
+  }
+
   async getPublicTrades (space, args, cb) {
     try {
       args.auth = {}
@@ -402,6 +419,20 @@ class ReportService extends Api {
       cb(null, status)
     } catch (err) {
       this._err(err, 'getTradesCsv', cb)
+    }
+  }
+
+  async getFundingTradesCsv (space, args, cb) {
+    try {
+      const status = await getCsvStoreStatus(this, args)
+      const jobData = await getFundingTradesCsvJobData(this, args)
+      const processorQueue = this.ctx.lokue_processor.q
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getFundingTradesCsv', cb)
     }
   }
 

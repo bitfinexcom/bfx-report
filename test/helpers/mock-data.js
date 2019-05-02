@@ -172,6 +172,19 @@ module.exports = new Map([
     ]]
   ],
   [
+    'f_trade_hist',
+    [[
+      12345,
+      'fBTC',
+      _ms,
+      12345,
+      12345.12345,
+      0.003,
+      30,
+      null
+    ]]
+  ],
+  [
     'orders',
     [[
       12345,

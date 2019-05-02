@@ -7,6 +7,7 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
     positionsAudit: { default: 100, max: 250 },
     ledgers: { default: 250, max: 500 },
     trades: { default: 500, max: 1000 },
+    fundingTrades: { default: 500, max: 1000 },
     publicTrades: { default: 500, max: 5000 },
     orders: { default: 250, max: 500 },
     movements: { default: 25, max: 25 },

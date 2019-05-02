@@ -109,6 +109,13 @@ const _getSymbolParam = (
     return symbol.length > 1 ? null : symbol[0]
   }
 
+  if (
+    !symbol &&
+    methodApi === 'fundingTrades'
+  ) {
+    return null
+  }
+
   return symbol
 }
 
