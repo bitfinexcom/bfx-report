@@ -1,7 +1,7 @@
 'use strict'
 
 const _isInsertableArrayObjects = (type = '') => {
-  return /^((public:)|())insertable:array:objects$/i
+  return /^((hidden:)|(public:)|())insertable:array:objects$/i
     .test(type)
 }
 
