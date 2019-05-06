@@ -775,6 +775,7 @@ class MediatorReportService extends ReportService {
         } = {}) => (
           type &&
           typeof type === 'string' &&
+          balance &&
           Number.isFinite(balance) &&
           typeof currency === 'string' &&
           currency.length >= 3
