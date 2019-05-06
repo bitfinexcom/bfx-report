@@ -203,74 +203,89 @@ class WrkReportServiceApi extends WrkApi {
     )
   }
 
-  _start (cb) {
-    async.series([
-      next => {
-        super._start(next)
-      },
-      async next => {
-        const processorQueue = this.lokue_processor.q
-        const aggregatorQueue = this.lokue_aggregator.q
-        const group = this.group
-        const conf = this.conf[group]
-        const reportService = this.grc_bfx.api
+  async _initService () {
+    const processorQueue = this.lokue_processor.q
+    const aggregatorQueue = this.lokue_aggregator.q
+    const group = this.group
+    const conf = this.conf[group]
+    const reportService = this.grc_bfx.api
 
-        if (!reportService.ctx) {
-          reportService.ctx = reportService.caller.getCtx()
-        }
+    if (!reportService.ctx) {
+      reportService.ctx = reportService.caller.getCtx()
+    }
 
-        if (conf.syncMode) {
-          try {
-            await reportService._syncModeInitialize()
-          } catch (err) {
-            this.logger.error(err.stack || err)
-          }
-
-          this._injectDepsToSync()
-
-          if (conf.isSchedulerEnabled) {
-            const { rule } = require(path.join(this.ctx.root, 'config', 'schedule.json'))
-            const name = 'sync'
-
-            this.scheduler_sync.add(name, sync, rule)
-
-            const job = this.scheduler_sync.mem.get(name)
-            job.rule = rule
-          }
-        }
-
-        processor.setReportService(reportService)
-        aggregator.setReportService(reportService)
-
-        processorQueue.on('job', processor)
-        aggregatorQueue.on('job', aggregator)
-
-        processorQueue.on('completed', (result) => {
-          aggregatorQueue.addJob({
-            ...result,
-            emailConf: conf.emailConf,
-            s3Conf: conf.s3Conf
-          })
-        })
-        processorQueue.on('error:auth', (job) => {
-          const data = _.cloneDeep(job.data)
-          delete data.columnsCsv
-
-          if (Array.isArray(data.jobsData)) {
-            data.jobsData.forEach(item => {
-              delete item.columnsCsv
-            })
-          }
-
-          processorQueue.addJob({
-            ...data,
-            isUnauth: true
-          })
-        })
-
-        next()
+    if (conf.syncMode) {
+      try {
+        await reportService._syncModeInitialize()
+      } catch (err) {
+        this.logger.error(err.stack || err)
       }
-    ], cb)
+
+      this._injectDepsToSync()
+
+      if (conf.isSchedulerEnabled) {
+        const { rule } = require(path.join(
+          this.ctx.root,
+          'config',
+          'schedule.json'
+        ))
+        const name = 'sync'
+
+        this.scheduler_sync.add(name, sync, rule)
+
+        const job = this.scheduler_sync.mem.get(name)
+        job.rule = rule
+      }
+    }
+
+    processor.setReportService(reportService)
+    aggregator.setReportService(reportService)
+
+    processorQueue.on('job', processor)
+    aggregatorQueue.on('job', aggregator)
+
+    processorQueue.on('completed', (result) => {
+      aggregatorQueue.addJob({
+        ...result,
+        emailConf: conf.emailConf,
+        s3Conf: conf.s3Conf
+      })
+    })
+    processorQueue.on('error:auth', (job) => {
+      const data = _.cloneDeep(job.data)
+      delete data.columnsCsv
+
+      if (Array.isArray(data.jobsData)) {
+        data.jobsData.forEach(item => {
+          delete item.columnsCsv
+        })
+      }
+
+      processorQueue.addJob({
+        ...data,
+        isUnauth: true
+      })
+    })
+  }
+
+  _start (cb) {
+    async.series(
+      [
+        next => { super._start(next) },
+        next => { this._initService().then(next).catch(next) }
+      ],
+      err => {
+        if (err) {
+          this.logger.error(err.stack || err)
+
+          cb(err)
+
+          return
+        }
+
+        cb()
+      }
+    )
   }
 }
 
