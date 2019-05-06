@@ -292,7 +292,7 @@ class SqliteDAO extends DAO {
       isPublic = false,
       additionalModel,
       schema = {}
-    }) {
+    } = {}) {
     const user = isPublic ? null : await this.checkAuthInDb(args)
     const methodColl = {
       ...this._getMethodCollMap().get(method),
