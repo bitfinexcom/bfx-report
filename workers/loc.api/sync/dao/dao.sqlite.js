@@ -284,9 +284,20 @@ class SqliteDAO extends DAO {
   /**
    * @override
    */
-  async findInCollBy (method, args, isPrepareResponse, isPublic) {
+  async findInCollBy (
+    method,
+    args,
+    {
+      isPrepareResponse = false,
+      isPublic = false,
+      additionalModel,
+      schema = {}
+    } = {}) {
     const user = isPublic ? null : await this.checkAuthInDb(args)
-    const methodColl = this._getMethodCollMap().get(method)
+    const methodColl = {
+      ...this._getMethodCollMap().get(method),
+      ...schema
+    }
     const params = { ...args.params }
     const {
       maxLimit,
@@ -299,6 +310,7 @@ class SqliteDAO extends DAO {
     params.limit = maxLimit
       ? getLimitNotMoreThan(params.limit, maxLimit)
       : null
+    const _model = { ...model, ...additionalModel }
 
     const exclude = ['_id']
     const filter = getInsertableArrayObjectsFilter(
@@ -323,7 +335,7 @@ class SqliteDAO extends DAO {
     const group = getGroupQuery(methodColl)
     const subQuery = getSubQuery(methodColl)
     const projection = getProjectionQuery(
-      model,
+      _model,
       exclude,
       true
     )

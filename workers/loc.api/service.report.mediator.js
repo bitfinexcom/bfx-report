@@ -371,14 +371,16 @@ class MediatorReportService extends ReportService {
       const symbols = await this.dao.findInCollBy(
         symbolsMethod,
         args,
-        false,
-        true
+        {
+          isPublic: true
+        }
       )
       const currencies = await this.dao.findInCollBy(
         currenciesMethod,
         args,
-        false,
-        true
+        {
+          isPublic: true
+        }
       )
       const pairs = collObjToArr(symbols, field)
       const res = { pairs, currencies }
@@ -449,8 +451,10 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getTickersHistory',
         args,
-        true,
-        true
+        {
+          isPrepareResponse: true,
+          isPublic: true
+        }
       )
 
       cb(null, res)
@@ -475,7 +479,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getPositionsHistory',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
@@ -506,7 +512,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getLedgers',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
@@ -531,7 +539,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getTrades',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
@@ -556,7 +566,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getFundingTrades',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
@@ -608,8 +620,10 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getPublicTrades',
         args,
-        true,
-        true
+        {
+          isPrepareResponse: true,
+          isPublic: true
+        }
       )
 
       cb(null, res)
@@ -634,7 +648,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getOrders',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
@@ -659,7 +675,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getMovements',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
@@ -684,7 +702,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getFundingOfferHistory',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
@@ -709,7 +729,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getFundingLoanHistory',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
@@ -734,7 +756,9 @@ class MediatorReportService extends ReportService {
       const res = await this.dao.findInCollBy(
         '_getFundingCreditHistory',
         args,
-        true
+        {
+          isPrepareResponse: true
+        }
       )
 
       cb(null, res)
