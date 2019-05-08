@@ -22,7 +22,7 @@ const translations = yaml.safeLoad(fs.readFileSync(pathToTrans, 'utf8'))
 const isElectronjsEnv = argv.isElectronjsEnv
 
 const isRateLimitError = (err) => {
-  return /ERR(_RATE)?_LIMIT/.test(err.toString())
+  return /(ERR(_RATE)?_LIMIT)|(ratelimit)/.test(err.toString())
 }
 
 const isNonceSmallError = (err) => {
