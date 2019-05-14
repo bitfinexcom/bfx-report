@@ -291,7 +291,8 @@ class SqliteDAO extends DAO {
       isPrepareResponse = false,
       isPublic = false,
       additionalModel,
-      schema = {}
+      schema = {},
+      isExcludePrivate = true
     } = {}) {
     const user = isPublic ? null : await this.checkAuthInDb(args)
     const methodColl = {
@@ -337,7 +338,7 @@ class SqliteDAO extends DAO {
     const projection = getProjectionQuery(
       _model,
       exclude,
-      true
+      isExcludePrivate
     )
 
     const sql = `SELECT ${projection} FROM ${subQuery}
