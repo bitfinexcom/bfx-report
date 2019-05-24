@@ -113,8 +113,12 @@ class ReportService extends Api {
 
       if (cache) return cb(null, cache)
 
-      const pairs = await this._getSymbols()
+      const symbols = await this._getSymbols()
+      const futures = await this._getFutures()
+      const pairs = [ ...symbols, ...futures ]
+
       const currencies = await this._getCurrencies()
+
       const result = { pairs, currencies }
       accountCache.set('symbols', result)
 
@@ -128,6 +132,12 @@ class ReportService extends Api {
     const rest = getREST({}, this.ctx.grc_bfx.caller)
 
     return rest.symbols()
+  }
+
+  _getFutures () {
+    const rest = getREST({}, this.ctx.grc_bfx.caller)
+
+    return rest.futures()
   }
 
   _getCurrencies () {
