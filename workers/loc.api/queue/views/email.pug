@@ -12,6 +12,13 @@ else
     | :
     b(style='margin-left: 5px;')
       | #{fileName}
+  if signatureS3
+    p(style='color: #606060;font-size: 15px;line-height: 150%;')
+      :translate(prop='template.pgpSignature')
+        PGP digital signature file
+      | :
+      a(style='margin-left: 5px;' target='_blank' href=signatureS3.presigned_url)
+        | link
 
   p(style='color: #606060;font-size: 15px;line-height: 150%;')
     :translate(prop='template.ifDidNotInitAction')

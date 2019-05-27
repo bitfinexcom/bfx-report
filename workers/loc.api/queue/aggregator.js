@@ -20,6 +20,7 @@ module.exports = async job => {
   try {
     const {
       userInfo,
+      userId,
       name,
       filePaths,
       subParamsArr,
@@ -41,7 +42,11 @@ module.exports = async job => {
         filePaths,
         name,
         subParamsArr,
-        userInfo
+        {
+          userId,
+          name: userInfo,
+          email
+        }
       )
 
       await sendMail(
