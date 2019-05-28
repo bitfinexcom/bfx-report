@@ -74,20 +74,6 @@ class ReportService extends Api {
     return rest.userInfo()
   }
 
-  async _getUsername (args) {
-    try {
-      const { username } = await this._getUserInfo(args)
-
-      if (!username || typeof username !== 'string') {
-        return false
-      }
-
-      return username
-    } catch (err) {
-      return false
-    }
-  }
-
   async getEmail (space, args, cb) {
     try {
       const result = await this._getUserInfo(args)

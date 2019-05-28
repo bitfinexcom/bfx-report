@@ -20,7 +20,6 @@ module.exports = async job => {
   try {
     const {
       userInfo,
-      userId,
       name,
       filePaths,
       subParamsArr,
@@ -43,8 +42,7 @@ module.exports = async job => {
         name,
         subParamsArr,
         {
-          userId,
-          name: userInfo,
+          ...userInfo,
           email
         }
       )
@@ -73,7 +71,7 @@ module.exports = async job => {
           filePath,
           subParamsArr[count].name || name,
           { ...subParamsArr[count] },
-          userInfo
+          userInfo.username
         )
 
         count += 1

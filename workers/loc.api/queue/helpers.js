@@ -303,7 +303,7 @@ const writeDataToStream = async (reportService, stream, jobData) => {
     throw new Error('ERR_METHOD_NOT_FOUND')
   }
 
-  const queue = reportService.ctx.lokue_aggregator.q
+  const queue = reportService.ctx.lokue_processor.q
   const propName = jobData.propNameForPagination
   const formatSettings = jobData.formatSettings
 
@@ -641,7 +641,7 @@ const uploadS3 = async (
   const fileNameWithoutExt = _getCompleteFileName(
     subParamsArr[0].name,
     subParamsArr[0],
-    userInfo.name,
+    userInfo.username,
     false,
     isMultiExport
   )
@@ -653,7 +653,7 @@ const uploadS3 = async (
         name: _getCompleteFileName(
           subParamsArr[i].name,
           subParamsArr[i],
-          userInfo.name
+          userInfo.username
         )
       }
     }
