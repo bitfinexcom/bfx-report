@@ -55,7 +55,7 @@ function addFunctions (ExtApi) {
     } = args
 
     if (!signature) return cb(new Error('ERR_API_NO_SIGNATURE'))
-    if (!fileHash) return cb(new Error('ERR_API_NO_FILE_HASH'))
+    if (!file && !fileHash) return cb(new Error('ERR_API_NO_FILE_HASH_AND_FILE'))
 
     const grcBfx = this.ctx.grc_bfx
     const call = {

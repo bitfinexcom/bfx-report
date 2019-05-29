@@ -167,4 +167,17 @@ describe('Signature', () => {
 
     assert.isOk(res)
   })
+
+  it('it should be successfully performed by the /verify-digital-signature route', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/verify-digital-signature`)
+      .attach('file', Buffer.from('some report', 'utf8'), 'some-report.json')
+      .field({ signature })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isOk(res)
+  })
 })
