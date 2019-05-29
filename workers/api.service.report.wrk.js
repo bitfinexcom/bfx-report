@@ -266,6 +266,12 @@ class WrkReportServiceApi extends WrkApi {
         isUnauth: true
       })
     })
+    processorQueue.on('error:base', (err) => {
+      this.logger.error(`PROCESSOR:QUEUE: ${err.stack || err}`)
+    })
+    aggregatorQueue.on('error:base', (err) => {
+      this.logger.error(`AGGREGATOR:QUEUE: ${err.stack || err}`)
+    })
   }
 
   _start (cb) {
