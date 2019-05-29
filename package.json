@@ -1,9 +1,12 @@
 {
   "name": "bfx-report",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Reporting tool",
   "main": "worker.js",
   "license": "Apache-2.0",
+  "contributors": [
+    "Vladimir Voronkov <vsvoronkov@gmail.com>"
+  ],
   "dependencies": {
     "ajv": "^6.5.4",
     "async": "^2.6.1",
