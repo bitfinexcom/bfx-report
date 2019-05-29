@@ -23,6 +23,7 @@ module.exports = async job => {
       name,
       filePaths,
       subParamsArr,
+      isSignatureRequired,
       email,
       isUnauth,
       s3Conf,
@@ -41,6 +42,7 @@ module.exports = async job => {
         filePaths,
         name,
         subParamsArr,
+        isSignatureRequired,
         {
           ...userInfo,
           email

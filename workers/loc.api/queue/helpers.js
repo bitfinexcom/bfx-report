@@ -625,6 +625,7 @@ const uploadS3 = async (
   filePaths,
   queueName,
   subParamsArr,
+  isSignatureRequired,
   userInfo
 ) => {
   const grcBfx = rService.ctx.grc_bfx
@@ -667,7 +668,7 @@ const uploadS3 = async (
   ))
 
   const promises = buffers.map(async (buffer, i) => {
-    const isSignatureRequired = subParamsArr[i].isSignatureRequired && !syncMode
+    const isSignReq = isSignatureRequired && !syncMode
     const fileName = isСompress && isMultiExport
       ? `${fileNameWithoutExt}.zip`
       : `${streams[i].data.name.slice(0, -3)}${isСompress ? 'zip' : 'csv'}`
@@ -678,7 +679,7 @@ const uploadS3 = async (
     }
     const hexStrBuff = buffer.toString('hex')
 
-    const signature = isSignatureRequired
+    const signature = isSignReq
       ? await rService._grcBfxReq({
         service: 'rest:ext:gpg',
         action: 'getDigitalSignature',
@@ -691,7 +692,7 @@ const uploadS3 = async (
       args: [hexStrBuff, opts]
     })
 
-    if (isSignatureRequired) {
+    if (isSignReq) {
       const signatureS3 = await _uploadSignToS3(
         rService,
         configs,

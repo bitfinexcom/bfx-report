@@ -28,6 +28,18 @@ module.exports = async job => {
   try {
     job.data.args.params = { ...job.data.args.params }
 
+    const {
+      userInfo,
+      userId,
+      name,
+      args: {
+        params: {
+          email,
+          isSignatureRequired
+        }
+      }
+    } = { ...job.data }
+
     for (const data of jobsData) {
       data.args.params = { ...data.args.params }
 
@@ -73,12 +85,13 @@ module.exports = async job => {
 
     job.done()
     processorQueue.emit('completed', {
-      userInfo: job.data.userInfo,
-      userId: job.data.userId,
-      name: job.data.name,
+      userInfo,
+      userId,
+      name,
       filePaths,
       subParamsArr,
-      email: job.data.args.params.email,
+      email,
+      isSignatureRequired,
       isUnauth
     })
   } catch (err) {

@@ -91,9 +91,9 @@ describe('Signature', () => {
       .send({
         auth,
         method: 'getMultipleCsv',
-        isSignatureRequired: true,
         params: {
           email,
+          isSignatureRequired: true,
           multiExport: [
             {
               method: 'getTradesCsv',
