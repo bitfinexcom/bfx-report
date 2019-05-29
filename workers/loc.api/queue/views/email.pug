@@ -14,11 +14,20 @@ else
       | #{fileName}
   if signatureS3
     p(style='color: #606060;font-size: 15px;line-height: 150%;')
+      :translate(prop='template.youCan')
+        You can
+      a(
+        style=`
+          margin:0 5px;letter-spacing:.7;line-height:100%;
+          text-decoration:none;color:#4995c4;word-wrap:break-word;
+        `
+        target='_blank'
+        href=signatureS3.presigned_url
+      )
+        :translate(prop='template.download')
+          download
       :translate(prop='template.pgpSignature')
         PGP digital signature file
-      | :
-      a(style='margin-left: 5px;' target='_blank' href=signatureS3.presigned_url)
-        | link
 
   p(style='color: #606060;font-size: 15px;line-height: 150%;')
     :translate(prop='template.ifDidNotInitAction')
