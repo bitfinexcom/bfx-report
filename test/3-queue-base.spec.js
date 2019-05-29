@@ -84,6 +84,7 @@ describe('Queue', () => {
         method: 'getMultipleCsv',
         params: {
           email,
+          language: 'ru',
           multiExport: [
             {
               method: 'getTradesCsv',
@@ -91,16 +92,14 @@ describe('Queue', () => {
               end,
               start,
               limit: 1000,
-              timezone: 'America/Los_Angeles',
-              language: 'en'
+              timezone: 'America/Los_Angeles'
             },
             {
               method: 'getTickersHistoryCsv',
               symbol: 'BTC',
               end,
               start,
-              limit: 1000,
-              language: 'ru'
+              limit: 1000
             }
           ]
         },

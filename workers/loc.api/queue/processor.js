@@ -35,7 +35,8 @@ module.exports = async job => {
       args: {
         params: {
           email,
-          isSignatureRequired
+          isSignatureRequired,
+          language
         }
       }
     } = { ...job.data }
@@ -92,6 +93,7 @@ module.exports = async job => {
       subParamsArr,
       email,
       isSignatureRequired,
+      language,
       isUnauth
     })
   } catch (err) {

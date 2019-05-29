@@ -545,6 +545,18 @@ const hasS3AndSendgrid = async reportService => {
   return !!(countS3Services && countSendgridServices)
 }
 
+const _hasGPGServise = async (rService) => {
+  const lookUpFn = promisify(
+    rService.lookUpFunction.bind(rService)
+  )
+
+  const countPGPServices = await lookUpFn(null, {
+    params: { service: 'rest:ext:gpg' }
+  })
+
+  return !!countPGPServices
+}
+
 const moveFileToLocalStorage = async (
   rootPath,
   filePath,
@@ -630,10 +642,7 @@ const uploadS3 = async (
 ) => {
   const grcBfx = rService.ctx.grc_bfx
   const wrk = grcBfx.caller
-  const {
-    isСompress,
-    syncMode
-  } = wrk.conf[wrk.group]
+  const { isСompress } = wrk.conf[wrk.group]
   const deflateFac = wrk.deflate_gzip
   const isMultiExport = (
     queueName === 'getMultiple' ||
@@ -646,6 +655,8 @@ const uploadS3 = async (
     false,
     isMultiExport
   )
+  const isUppedPGPService = await _hasGPGServise(rService)
+  const isSignReq = isSignatureRequired && isUppedPGPService
 
   const streams = filePaths.map((filePath, i) => {
     return {
@@ -668,7 +679,6 @@ const uploadS3 = async (
   ))
 
   const promises = buffers.map(async (buffer, i) => {
-    const isSignReq = isSignatureRequired && !syncMode
     const fileName = isСompress && isMultiExport
       ? `${fileNameWithoutExt}.zip`
       : `${streams[i].data.name.slice(0, -3)}${isСompress ? 'zip' : 'csv'}`

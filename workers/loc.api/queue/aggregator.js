@@ -27,7 +27,8 @@ module.exports = async job => {
       email,
       isUnauth,
       s3Conf,
-      emailConf
+      emailConf,
+      language
     } = job.data
 
     const isEnableToSendEmail = (
@@ -57,7 +58,7 @@ module.exports = async job => {
         s3Data.map((item, i) => ({
           ...item,
           isUnauth,
-          language: subParamsArr[i].language
+          language
         }))
       )
 
