@@ -147,6 +147,7 @@ const getMockDataOpts = () => ({
   f_credit_hist: { limit: 500 },
   user_info: null,
   symbols: null,
+  futures: null,
   currencies: null
 })
 

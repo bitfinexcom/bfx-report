@@ -20,6 +20,13 @@ module.exports = new Map([
     ]]
   ],
   [
+    'futures',
+    [[
+      'BTCF0:USDF0',
+      'BTCF0:USTF0'
+    ]]
+  ],
+  [
     'user_info',
     [
       123,
