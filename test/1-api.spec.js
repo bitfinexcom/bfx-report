@@ -205,7 +205,7 @@ describe('API', () => {
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.pairs)
     assert.isArray(res.body.result.currencies)
-    assert.lengthOf(res.body.result.pairs, 11)
+    assert.lengthOf(res.body.result.pairs, 13)
     assert.lengthOf(res.body.result.currencies, 11)
 
     res.body.result.pairs.forEach(item => {
