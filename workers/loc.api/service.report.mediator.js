@@ -366,23 +366,32 @@ class MediatorReportService extends ReportService {
       checkParams(args, 'paramsSchemaForApi')
 
       const symbolsMethod = '_getSymbols'
+      const futuresMethod = '_getFutures'
       const currenciesMethod = '_getCurrencies'
-      const { field } = getMethodCollMap().get(symbolsMethod)
+      const {
+        field: symbolsField
+      } = getMethodCollMap().get(symbolsMethod)
+      const {
+        field: futuresField
+      } = getMethodCollMap().get(futuresMethod)
       const symbols = await this.dao.findInCollBy(
         symbolsMethod,
         args,
-        {
-          isPublic: true
-        }
+        { isPublic: true }
+      )
+      const futures = await this.dao.findInCollBy(
+        futuresMethod,
+        args,
+        { isPublic: true }
       )
       const currencies = await this.dao.findInCollBy(
         currenciesMethod,
         args,
-        {
-          isPublic: true
-        }
+        { isPublic: true }
       )
-      const pairs = collObjToArr(symbols, field)
+      const symbolsArr = collObjToArr(symbols, symbolsField)
+      const futuresArr = collObjToArr(futures, futuresField)
+      const pairs = [...symbolsArr, ...futuresArr]
       const res = { pairs, currencies }
 
       cb(null, res)

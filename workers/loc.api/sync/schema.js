@@ -296,6 +296,13 @@ const _models = new Map([
     }
   ],
   [
+    ALLOWED_COLLS.FUTURES,
+    {
+      _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      pairs: 'VARCHAR(255)'
+    }
+  ],
+  [
     ALLOWED_COLLS.CURRENCIES,
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
@@ -547,6 +554,18 @@ const _methodCollMap = new Map([
       hasNewData: true,
       type: 'public:updatable:array',
       model: { ..._models.get(ALLOWED_COLLS.SYMBOLS) }
+    }
+  ],
+  [
+    '_getFutures',
+    {
+      name: ALLOWED_COLLS.FUTURES,
+      maxLimit: 5000,
+      field: 'pairs',
+      sort: [['pairs', 1]],
+      hasNewData: true,
+      type: 'public:updatable:array',
+      model: { ..._models.get(ALLOWED_COLLS.FUTURES) }
     }
   ],
   [
