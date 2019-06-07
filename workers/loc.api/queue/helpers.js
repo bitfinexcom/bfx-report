@@ -201,7 +201,7 @@ const _dataNormalizer = (obj, method, params) => {
   return res
 }
 
-const _write = (res, stream, formatSettings, method, params) => {
+const write = (res, stream, formatSettings, params, method) => {
   res.forEach((item) => {
     const _item = _dataNormalizer(item, method, params)
     const res = _dataFormatter(_item, formatSettings, params)
@@ -241,7 +241,7 @@ const _filterMovementsByAmount = (res, args) => {
   return res
 }
 
-const _getDataFromApi = async (getData, args) => {
+const getDataFromApi = async (getData, args) => {
   let countRateLimitError = 0
   let countNonceSmallError = 0
   let res = null
@@ -319,7 +319,7 @@ const writeDataToStream = async (reportService, stream, jobData) => {
   while (true) {
     queue.emit('progress', 0)
 
-    const _res = await _getDataFromApi(
+    const _res = await getDataFromApi(
       getData,
       currIterationArgs
     )
@@ -390,12 +390,12 @@ const writeDataToStream = async (reportService, stream, jobData) => {
       isAllData = true
     }
 
-    _write(
+    write(
       res,
       stream,
       formatSettings,
-      method,
-      { ..._args.params }
+      { ..._args.params },
+      method
     )
 
     count += res.length
@@ -422,7 +422,7 @@ const _writeMessageToStream = (reportService, stream, message) => {
   const queue = reportService.ctx.lokue_aggregator.q
 
   queue.emit('progress', 0)
-  _write([message], stream)
+  write([message], stream)
   queue.emit('progress', 100)
 }
 
@@ -773,5 +773,7 @@ module.exports = {
   uploadS3,
   sendMail,
   moveFileToLocalStorage,
-  hasS3AndSendgrid
+  hasS3AndSendgrid,
+  write,
+  getDataFromApi
 }
