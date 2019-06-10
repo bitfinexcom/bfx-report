@@ -502,7 +502,8 @@ const _getCompleteFileName = (
 ) => {
   const {
     start,
-    end
+    end,
+    isOnMomentInName
   } = params
   const baseName = _getBaseName(
     queueName,
@@ -523,7 +524,11 @@ const _getCompleteFileName = (
     : formattedDateNow
   const _ext = ext ? `.${ext}` : ''
   const _userInfo = userInfo ? `${userInfo}_` : ''
-  const fileName = queueName === 'getWallets' || isMultiExport
+  const fileName = (
+    queueName === 'getWallets' ||
+    isMultiExport ||
+    isOnMomentInName
+  )
     ? `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${_ext}`
     : `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
 
