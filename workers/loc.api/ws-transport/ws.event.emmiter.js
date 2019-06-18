@@ -10,14 +10,7 @@ class WSEventEmmiter {
     this._active = false
     this._sockets = new Map()
 
-    // TODO:
-    let i = 0
-
-    setInterval(() => {
-      this.emmitProgress({ progress: ++i })
-
-      console.log('[progress]:', { progress: i })
-    }, 1000)
+    this.listen()
   }
 
   static inject (inDeps) {
@@ -31,27 +24,35 @@ class WSEventEmmiter {
       const sid = socket._grc_id = uuid.v4()
 
       this._sockets.set(sid, socket)
+      console.log('[connection]')
 
       socket.on('close', () => {
+        console.log('[2-close]')
         this._sockets.delete(sid)
+      })
+      socket.on('message', (data) => {
+        console.log('[mess:data]:', data)
       })
     })
 
     this.deps.transport.socket.on('close', () => {
+      console.log('[1-close]')
       this._active = false
     })
   }
 
-  send (action, data) {
-    if (this._active) {
+  send (action, err, data) {
+    if (!this._active) {
       return false
     }
 
-    const sData = this.deps.transport.format(
-      { action, data }
-    )
-
     this._sockets.forEach(socket => {
+      const sData = this.deps.transport.format(
+        [socket._grc_id, err ? err.message : null, { action, data }]
+      )
+
+      console.log('[sData]:', sData)
+
       socket.send(sData)
     })
 
@@ -59,7 +60,7 @@ class WSEventEmmiter {
   }
 
   emmitProgress (data) {
-    return this.send('progress', data)
+    return this.send('progress', null, data)
   }
 }
 

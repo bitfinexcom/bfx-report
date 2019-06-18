@@ -37,7 +37,7 @@ const aggregator = require('./loc.api/queue/aggregator')
 const sync = require('./loc.api/sync')
 const DataInserter = require('./loc.api/sync/data.inserter')
 const SyncQueue = require('./loc.api/sync/sync.queue')
-const wsTransport = require('./loc.api/ws-transport')
+const WSTransport = require('./loc.api/ws-transport')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -221,7 +221,9 @@ class WrkReportServiceApi extends WrkApi {
 
     if (conf.syncMode) {
       try {
-        this.wsTransport = await wsTransport(this)
+        this.wsTransport = new WSTransport(this)
+        await this.wsTransport.start()
+
         await reportService._syncModeInitialize()
       } catch (err) {
         this.logger.error(err.stack || err)
@@ -279,6 +281,26 @@ class WrkReportServiceApi extends WrkApi {
       [
         next => { super._start(next) },
         next => { this._initService().then(next).catch(next) }
+      ],
+      err => {
+        if (err) {
+          this.logger.error(err.stack || err)
+
+          cb(err)
+
+          return
+        }
+
+        cb()
+      }
+    )
+  }
+
+  _stop (cb) {
+    async.series(
+      [
+        next => { this.wsTransport.stop(next) },
+        next => { super._stop(next) }
       ],
       err => {
         if (err) {

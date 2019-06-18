@@ -6,58 +6,120 @@ const { PeerRPCServer } = require('grenache-nodejs-ws')
 const { FindMethodError } = require('../errors')
 const WSEventEmmiter = require('./ws.event.emmiter')
 
-module.exports = async ({
-  grc_bfx: grcBfx,
-  group,
-  conf = {}
-} = {}) => {
-  const { wsPort } = { ...conf[group] }
-  const link = grcBfx.link
-  const rService = grcBfx.api
-  const { services } = { ...grcBfx.opts }
+class WSTransport {
+  constructor ({
+    grc_bfx: grcBfx,
+    group,
+    conf = {}
+  } = {}) {
+    const { wsPort } = { ...conf[group] }
 
-  const peer = new PeerRPCServer(link, {})
-  peer.init()
+    this.wsPort = wsPort
+    this.link = grcBfx.link
+    this.rService = grcBfx.api
+    this.opts = { ...grcBfx.opts }
+  }
 
-  const transport = peer.transport('server')
-  transport.listen(wsPort)
+  _initPeer () {
+    this.peer = new PeerRPCServer(this.link, {})
 
-  await services.reduce(async (accum, srv) => {
-    await accum
+    this.peer.init()
+  }
 
-    return new Promise((resolve, reject) => {
-      link.announce(`${srv}:ws`, transport.port, {}, (err) => {
-        if (err) reject(err)
+  _initTransport () {
+    this.transport = this.peer.transport('server')
 
-        resolve()
-      })
+    this.transport.listen(this.wsPort)
+  }
+
+  _announceOne (
+    key,
+    resolve = () => {},
+    reject = () => {}
+  ) {
+    this.link.announce(key, this.transport.port, {}, (err) => {
+      if (err) {
+        reject(err)
+
+        console.error(err)
+      }
+
+      resolve()
     })
-  }, Promise.resolve())
+  }
 
-  WSEventEmmiter.inject({
-    transport
-  })
+  _announce () {
+    const {
+      services = [],
+      tickInterval = 45000
+    } = { ...this.opts }
 
-  void (new WSEventEmmiter()) // TODO:
+    return services.reduce(async (accum, srv) => {
+      await accum
 
-  transport.on('request', (rid, key, payload, { reply }) => {
-    const _payload = { ...payload }
-    const { method = '' } = _payload
-    const args = omit(_payload, ['method'])
+      return new Promise((resolve, reject) => {
+        const key = `${srv}:ws`
 
-    if (
-      typeof rService[method] !== 'function' ||
-      /^_/.test(method)
-    ) {
-      reply(new FindMethodError())
+        this._announceItv = setInterval(() => {
+          this._announceOne(key)
+        }, tickInterval)
 
-      return
-    }
+        this._announceOne(key, resolve, reject)
+      })
+    }, Promise.resolve())
+  }
 
-    const fn = rService[method].bind(rService)
+  _initRPC () {
+    this.transport.on('request', (rid, key, payload, { reply }) => {
+      const _payload = { ...payload }
+      const { method = '' } = _payload
+      const args = omit(_payload, ['method'])
 
-    fn(null, args, reply)
-  })
+      if (
+        typeof this.rService[method] !== 'function' ||
+        /^_/.test(method)
+      ) {
+        reply(new FindMethodError())
 
-  return transport
+        return
+      }
+
+      const fn = this.rService[method].bind(this.rService)
+
+      fn(null, args, reply)
+    })
+  }
+
+  // TODO:
+  _justForTest () {
+    const wsEventEmmiter = new WSEventEmmiter()
+
+    let i = 0
+
+    setInterval(() => {
+      wsEventEmmiter.emmitProgress({ progress: ++i })
+    }, 1000)
+  }
+
+  async start () {
+    this._initPeer()
+    this._initTransport()
+    await this._announce()
+
+    WSEventEmmiter.inject({ transport: this.transport })
+
+    this._initRPC()
+    this._justForTest() // TODO:
+  }
+
+  stop (cb) {
+    clearInterval(this._announceItv)
+
+    this.peer.stop()
+    this.transport.stop()
+
+    cb()
+  }
 }
+
+module.exports = WSTransport
