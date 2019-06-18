@@ -39,7 +39,9 @@ module.exports = async job => {
       const {
         args: { params },
         name,
-        fileNamesMap
+        fileNamesMap,
+        columnsCsv,
+        csvCustomWriter
       } = { ...data }
       subParamsArr.push({
         ...omit(params, ['name', 'fileNamesMap']),
@@ -53,20 +55,29 @@ module.exports = async job => {
 
       const writable = fs.createWriteStream(filePath)
       const writablePromise = writableToPromise(writable)
-      const stringifier = stringify({
-        header: true,
-        columns: data.columnsCsv
-      })
 
-      stringifier.pipe(writable)
+      if (typeof csvCustomWriter === 'function') {
+        await csvCustomWriter(
+          reportService,
+          writable,
+          write
+        )
+      } else {
+        const stringifier = stringify({
+          header: true,
+          columns: columnsCsv
+        })
 
-      await writeDataToStream(
-        reportService,
-        stringifier,
-        write
-      )
+        stringifier.pipe(writable)
 
-      stringifier.end()
+        await writeDataToStream(
+          reportService,
+          stringifier,
+          write
+        )
+
+        stringifier.end()
+      }
 
       await writablePromise
     }

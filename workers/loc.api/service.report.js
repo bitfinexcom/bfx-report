@@ -217,6 +217,7 @@ class ReportService extends Api {
         'symbol'
       )
 
+      if (!cb) return res
       cb(null, res)
     } catch (err) {
       this._err(err, 'getPositionsAudit', cb)

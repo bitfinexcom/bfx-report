@@ -8,7 +8,9 @@ const _getCompareOperator = (
   origFieldName,
   isArr,
   gtKeys,
+  gteKeys,
   ltKeys,
+  lteKeys,
   isNot
 ) => {
   if (origFieldName === 'start') {
@@ -24,10 +26,22 @@ const _getCompareOperator = (
     return '>'
   }
   if (
+    Array.isArray(gteKeys) &&
+    gteKeys.some(key => key === origFieldName)
+  ) {
+    return '>='
+  }
+  if (
     Array.isArray(ltKeys) &&
     ltKeys.some(key => key === origFieldName)
   ) {
     return '<'
+  }
+  if (
+    Array.isArray(lteKeys) &&
+    lteKeys.some(key => key === origFieldName)
+  ) {
+    return '<='
   }
   if (isArr) {
     return isNot ? 'NOT IN' : 'IN'
@@ -104,13 +118,21 @@ module.exports = (filter = {}, isNotSetWhereClause) => {
   const ltObj = filterObj.$lt && typeof filterObj.$lt === 'object'
     ? filterObj.$lt
     : {}
+  const gteObj = filterObj.$gte && typeof filterObj.$gte === 'object'
+    ? filterObj.$gte
+    : {}
+  const lteObj = filterObj.$lte && typeof filterObj.$lte === 'object'
+    ? filterObj.$lte
+    : {}
   const notObj = filterObj.$not && typeof filterObj.$not === 'object'
     ? filterObj.$not
     : {}
   const _filter = {
-    ...omit(filterObj, ['$gt', '$lt', '$not']),
+    ...omit(filterObj, ['$gt', '$gte', '$lt', '$lte', '$not']),
     ...gtObj,
+    ...gteObj,
     ...ltObj,
+    ...lteObj,
     ...notObj
   }
   const keys = Object.keys(omit(_filter, ['_dateFieldName']))
@@ -131,7 +153,9 @@ module.exports = (filter = {}, isNotSetWhereClause) => {
         curr,
         isArr,
         Object.keys(gtObj),
+        Object.keys(gteObj),
         Object.keys(ltObj),
+        Object.keys(lteObj),
         Object.keys(notObj).length > 0
       )
 
