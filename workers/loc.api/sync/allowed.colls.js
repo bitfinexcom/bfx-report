@@ -16,5 +16,6 @@ module.exports = {
   TICKERS_HISTORY: 'tickersHistory',
   POSITIONS_HISTORY: 'positionsHistory',
   SYMBOLS: 'symbols',
+  FUTURES: 'futures',
   CURRENCIES: 'currencies'
 }
