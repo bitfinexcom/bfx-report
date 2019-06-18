@@ -219,11 +219,11 @@ class WrkReportServiceApi extends WrkApi {
       reportService.ctx = reportService.caller.getCtx()
     }
 
+    this.wsTransport = new WSTransport(this)
+    await this.wsTransport.start()
+
     if (conf.syncMode) {
       try {
-        this.wsTransport = new WSTransport(this)
-        await this.wsTransport.start()
-
         await reportService._syncModeInitialize()
       } catch (err) {
         this.logger.error(err.stack || err)
