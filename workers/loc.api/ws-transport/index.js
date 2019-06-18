@@ -1,5 +1,6 @@
 'use strict'
 
+const uuid = require('uuid')
 const { omit } = require('lodash')
 const { PeerRPCServer } = require('grenache-nodejs-ws')
 
@@ -18,6 +19,10 @@ class WSTransport {
     this.link = grcBfx.link
     this.rService = grcBfx.api
     this.opts = { ...grcBfx.opts }
+
+    this._active = false
+    this._sockets = new Map()
+    this._auth = new Map()
   }
 
   _initPeer () {
@@ -90,6 +95,85 @@ class WSTransport {
     })
   }
 
+  _listen () {
+    this.transport.socket.on('connection', socket => {
+      this._active = true
+
+      const sid = socket._grc_id = uuid.v4()
+
+      this._sockets.set(sid, socket)
+
+      socket.on('close', () => {
+        this._auth.delete(sid)
+        this._sockets.delete(sid)
+      })
+      socket.on('message', async (data) => {
+        try {
+          const _data = this.transport.parse(data)
+
+          if (!Array.isArray(_data)) {
+            return
+          }
+
+          const res = _data[2]
+
+          if (
+            !res ||
+            typeof res !== 'object' ||
+            res.method !== 'login' ||
+            !res.auth ||
+            typeof res.auth !== 'object'
+          ) {
+            return
+          }
+
+          await this.rService.login(null, { auth: res.auth })
+
+          this._auth.set(sid, res.auth)
+        } catch (err) {}
+      })
+    })
+
+    this.transport.socket.on('close', () => {
+      this._active = false
+    })
+  }
+
+  _sendToOne (socket, sid, action, err, data) {
+    const res = this.transport.format(
+      [sid, err ? err.message : null, { action, data }]
+    )
+
+    socket.send(res)
+  }
+
+  async send (handler, action) {
+    if (
+      !this._active ||
+      this._auth.size === 0
+    ) {
+      return false
+    }
+
+    for (const [sid, socket] of this._sockets) {
+      if (!this._auth.has(sid)) {
+        continue
+      }
+
+      const auth = this._auth.get(sid)
+
+      try {
+        const res = await handler(auth)
+
+        this._sendToOne(socket, sid, action, null, res)
+      } catch (err) {
+        this._sendToOne(socket, sid, action, err)
+      }
+    }
+
+    return true
+  }
+
   // TODO:
   _justForTest () {
     const wsEventEmmiter = new WSEventEmmiter()
@@ -97,16 +181,19 @@ class WSTransport {
     let i = 0
 
     setInterval(() => {
-      wsEventEmmiter.emmitProgress({ progress: ++i })
+      wsEventEmmiter.emmitProgress((auth) => {
+        return { progress: ++i }
+      })
     }, 1000)
   }
 
   async start () {
     this._initPeer()
     this._initTransport()
+    this._listen()
     await this._announce()
 
-    WSEventEmmiter.inject({ transport: this.transport })
+    WSEventEmmiter.inject({ wsTransport: this })
 
     this._initRPC()
     this._justForTest() // TODO:
