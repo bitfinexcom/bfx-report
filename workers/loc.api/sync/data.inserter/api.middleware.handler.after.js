@@ -21,7 +21,7 @@ class ApiMiddlewareHandlerAfter {
         symbol,
         mtsUpdate: end,
         id
-      } = position
+      } = { ...position }
 
       if (
         !symbol ||
@@ -44,6 +44,7 @@ class ApiMiddlewareHandlerAfter {
         sumAmount
       } = await searchClosePriceAndSumAmount(
         this.dao,
+        this.reportService,
         {
           auth,
           symbol,
@@ -66,7 +67,7 @@ class ApiMiddlewareHandlerAfter {
         continue
       }
 
-      const pl = (closePrice - basePrice) * sumAmount
+      const pl = (closePrice - basePrice) * Math.abs(sumAmount)
       const plPerc = ((closePrice / basePrice) - 1) * 100
 
       res.push({

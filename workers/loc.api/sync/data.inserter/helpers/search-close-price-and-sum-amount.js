@@ -1,7 +1,16 @@
 'use strict'
 
+const _isContainedPosStatus = (positions, status) => {
+  return positions.every(pos => (
+    !pos ||
+    typeof pos !== 'object' ||
+    pos.status !== status
+  ))
+}
+
 module.exports = async (
   dao,
+  rService,
   {
     auth,
     symbol,
@@ -16,14 +25,32 @@ module.exports = async (
       params: {
         symbol,
         end,
-        limit: 100
+        limit: 2
+      }
+    }
+  )
+  const {
+    res: positionsAudit
+  } = await rService.getPositionsAudit(
+    null,
+    {
+      auth,
+      params: {
+        id: [id],
+        limit: 2,
+        notThrowError: true,
+        notCheckNextPage: true
       }
     }
   )
 
   if (
     !Array.isArray(trades) ||
-    trades.length === 0
+    trades.length === 0 ||
+    !Array.isArray(positionsAudit) ||
+    positionsAudit.length < 2 ||
+    _isContainedPosStatus(positionsAudit, 'CLOSED') ||
+    _isContainedPosStatus(positionsAudit, 'ACTIVE')
   ) {
     return {
       closePrice: null,
@@ -39,26 +66,13 @@ module.exports = async (
     trades[0].orderID &&
     trades[0].orderID !== trades[1].orderID
   ) {
-    const orderID = trades[1].orderID
-    const orderIdTrades = trades.filter(trade => (
-      trade &&
-      typeof trade === 'object' &&
-      trade.orderID === orderID
+    const activePosition = positionsAudit.find(pos => (
+      pos.status === 'ACTIVE'
     ))
-    const sumAmount = orderIdTrades.reduce((sumAmount, trade) => {
-      const _sumAmount = (
-        Number.isFinite(sumAmount) &&
-        Number.isFinite(trade.execAmount)
-      )
-        ? sumAmount + trade.execAmount
-        : null
-
-      return _sumAmount
-    }, 0)
 
     return {
       closePrice: trades[0].execPrice,
-      sumAmount
+      sumAmount: activePosition.amount
     }
   }
 
