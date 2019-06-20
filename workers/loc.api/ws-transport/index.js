@@ -80,6 +80,9 @@ class WSTransport {
       const { method = '' } = _payload
       const args = omit(_payload, ['method'])
 
+      if (method === 'login') {
+        return
+      }
       if (
         typeof this.rService[method] !== 'function' ||
         /^_/.test(method)
@@ -107,30 +110,41 @@ class WSTransport {
         this._auth.delete(sid)
         this._sockets.delete(sid)
       })
-      socket.on('message', async (data) => {
+      socket.on('message', async (strData) => {
+        const data = this.transport.parse(strData)
+
+        if (!Array.isArray(data)) {
+          this.transport.emit('request-error')
+
+          return
+        }
+
+        const rid = data[0]
+        const payload = data[2]
+
         try {
-          const _data = this.transport.parse(data)
-
-          if (!Array.isArray(_data)) {
-            return
-          }
-
-          const res = _data[2]
-
           if (
-            !res ||
-            typeof res !== 'object' ||
-            res.method !== 'login' ||
-            !res.auth ||
-            typeof res.auth !== 'object'
+            !payload ||
+            typeof payload !== 'object' ||
+            payload.method !== 'login' ||
+            !payload.auth ||
+            typeof payload.auth !== 'object'
           ) {
             return
           }
 
-          await this.rService.login(null, { auth: res.auth })
+          const user = await this.rService.login(
+            null,
+            { auth: payload.auth },
+            null,
+            true
+          )
 
-          this._auth.set(sid, res.auth)
-        } catch (err) {}
+          this._auth.set(sid, user)
+          this.transport.sendReply(socket, rid, null, user.email)
+        } catch (err) {
+          this.transport.sendReply(socket, rid, err)
+        }
       })
     })
 
@@ -139,7 +153,7 @@ class WSTransport {
     })
   }
 
-  _sendToOne (socket, sid, action, err, data) {
+  _sendToOne (socket, sid, action, err, data = null) {
     const res = this.transport.format(
       [sid, err ? err.message : null, { action, data }]
     )
@@ -160,10 +174,10 @@ class WSTransport {
         continue
       }
 
-      const auth = this._auth.get(sid)
+      const user = this._auth.get(sid)
 
       try {
-        const res = await handler(auth)
+        const res = await handler(user)
 
         this._sendToOne(socket, sid, action, null, res)
       } catch (err) {
@@ -181,8 +195,13 @@ class WSTransport {
     let i = 0
 
     setInterval(() => {
-      wsEventEmmiter.emmitProgress((auth) => {
-        return { progress: ++i }
+      wsEventEmmiter.emmitProgress(async (auth) => {
+        const progress = await this.rService.getSyncProgress(
+          null,
+          { auth }
+        )
+
+        return { count: ++i, progress }
       })
     }, 1000)
   }
