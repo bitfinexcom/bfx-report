@@ -33,7 +33,7 @@ const {
 } = require('./errors')
 
 class MediatorReportService extends ReportService {
-  async login (space, args, cb) {
+  async login (space, args, cb, isInnerCall) {
     try {
       let userInfo = {
         email: null,
@@ -48,15 +48,20 @@ class MediatorReportService extends ReportService {
         }
       }
 
-      const res = {
+      const data = {
         ...args.auth,
         ...userInfo
       }
 
-      await this.dao.insertOrUpdateUser(res)
+      const user = await this.dao.insertOrUpdateUser(data)
+      const isSyncModeConfig = this.isSyncModeConfig()
 
-      if (!cb) return userInfo.email
-      cb(null, userInfo.email)
+      const res = isInnerCall
+        ? { ...user, isSyncModeConfig }
+        : user.email
+
+      if (!cb) return res
+      cb(null, res)
     } catch (err) {
       if (!cb) throw err
       cb(err)

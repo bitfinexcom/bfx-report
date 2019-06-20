@@ -78,12 +78,17 @@ class ReportService extends Api {
     }
   }
 
-  async login (space, args, cb) {
+  async login (space, args, cb, isInnerCall) {
     try {
-      const { email } = await this._getUserInfo(args)
+      const userInfo = await this._getUserInfo(args)
+      const isSyncModeConfig = this.isSyncModeConfig()
 
-      if (!cb) return email
-      cb(null, email)
+      const res = isInnerCall
+        ? { ...userInfo, isSyncModeConfig }
+        : userInfo.email
+
+      if (!cb) return res
+      cb(null, res)
     } catch (err) {
       this._err(err, 'login', cb)
     }
