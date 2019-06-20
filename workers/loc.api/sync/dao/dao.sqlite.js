@@ -442,7 +442,7 @@ class SqliteDAO extends DAO {
         throw new AuthError()
       }
 
-      return this.insertElemsToDb(
+      await this.insertElemsToDb(
         'users',
         null,
         [{
@@ -460,6 +460,8 @@ class SqliteDAO extends DAO {
           isDataFromDb: 1
         }]
       )
+
+      return this._getUserByAuth(data)
     }
 
     const newData = { active: 1 }
@@ -481,7 +483,10 @@ class SqliteDAO extends DAO {
       throw new AuthError()
     }
 
-    return res
+    return {
+      ...user,
+      ...newData
+    }
   }
 
   /**
