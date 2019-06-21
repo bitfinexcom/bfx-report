@@ -153,9 +153,9 @@ class WSTransport {
     })
   }
 
-  _sendToOne (socket, sid, action, err, data = null) {
+  _sendToOne (socket, sid, action, err, result = null) {
     const res = this.transport.format(
-      [sid, err ? err.message : null, { action, data }]
+      [sid, err ? err.message : null, { action, result }]
     )
 
     socket.send(res)
@@ -192,16 +192,16 @@ class WSTransport {
   _justForTest () {
     const wsEventEmmiter = new WSEventEmmiter()
 
-    let i = 0
-
     setInterval(() => {
       wsEventEmmiter.emmitProgress(async (auth) => {
+        auth.i = auth.i ? auth.i + 1 : 1
+
         const progress = await this.rService.getSyncProgress(
           null,
           { auth }
         )
 
-        return { count: ++i, progress }
+        return { count: auth.i, progress }
       })
     }, 1000)
   }
