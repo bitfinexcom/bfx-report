@@ -153,6 +153,37 @@ class WSTransport {
     })
   }
 
+  _getFreshUsersDataFromDb () {
+    const apiKey = [...this._auth].map(([sid, user]) => user.apiKey)
+
+    return this.rService.dao.getElemsInCollBy(
+      'users',
+      {
+        $or: { apiKey }
+      }
+    )
+  }
+
+  _findUser (auth = {}, freshUsersDate = []) {
+    const freshData = freshUsersDate.find(({ apiKey, apiSecret }) => (
+      auth.apiKey === apiKey &&
+      auth.apiSecret === apiSecret
+    ))
+
+    return {
+      ...auth,
+      ...freshData
+    }
+  }
+
+  _isActiveUser (user) {
+    return (
+      user &&
+      typeof user === 'object' &&
+      user.active
+    )
+  }
+
   _sendToOne (socket, sid, action, err, result = null) {
     const res = this.transport.format(
       [sid, err ? err.message : null, { action, result }]
@@ -161,7 +192,12 @@ class WSTransport {
     socket.send(res)
   }
 
-  async send (handler, action, args = {}) {
+  async send (
+    handler,
+    action,
+    args = {},
+    opts = {}
+  ) {
     if (
       !this._active ||
       this._auth.size === 0
@@ -169,15 +205,42 @@ class WSTransport {
       return false
     }
 
+    const {
+      isReceivedFreshUserDataFromDb = false,
+      isEmittedToActiveUsers = false
+    } = { ...opts }
+
+    const freshUsersDate = isReceivedFreshUserDataFromDb
+      ? await this._getFreshUsersDataFromDb()
+      : false
+
     for (const [sid, socket] of this._sockets) {
       if (!this._auth.has(sid)) {
         continue
       }
 
-      const user = this._auth.get(sid)
+      const auth = this._auth.get(sid)
+      const user = isReceivedFreshUserDataFromDb
+        ? this._findUser(auth, freshUsersDate)
+        : auth
 
       try {
-        const res = await handler(user, { ...args, action })
+        if (
+          (
+            typeof handler !== 'function' &&
+            handler === null
+          ) ||
+          (
+            isEmittedToActiveUsers &&
+            !this._isActiveUser(user)
+          )
+        ) {
+          continue
+        }
+
+        const res = typeof handler === 'function'
+          ? await handler(user, { ...args, action })
+          : handler
 
         this._sendToOne(socket, sid, action, null, res)
       } catch (err) {
@@ -186,6 +249,22 @@ class WSTransport {
     }
 
     return true
+  }
+
+  sendToActiveUsers (
+    handler,
+    action,
+    args = {}
+  ) {
+    return this.send(
+      handler,
+      action,
+      args,
+      {
+        isReceivedFreshUserDataFromDb: true,
+        isEmittedToActiveUsers: true
+      }
+    )
   }
 
   // TODO:
@@ -206,13 +285,21 @@ class WSTransport {
     }, 1000)
   }
 
+  getAuth () {
+    return this._auth
+  }
+
   async start () {
     this._initPeer()
     this._initTransport()
     this._listen()
     await this._announce()
 
-    WSEventEmitter.inject({ wsTransport: this })
+    WSEventEmitter.inject({
+      wsTransport: this,
+      rService: this.rService,
+      dao: this.rService.dao
+    })
 
     this._initRPC()
     this._justForTest() // TODO:
