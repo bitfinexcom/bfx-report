@@ -5,7 +5,7 @@ const { omit } = require('lodash')
 const { PeerRPCServer } = require('grenache-nodejs-ws')
 
 const { FindMethodError } = require('../errors')
-const WSEventEmmiter = require('./ws.event.emmiter')
+const WSEventEmitter = require('./ws.event.emitter')
 
 class WSTransport {
   constructor ({
@@ -161,7 +161,7 @@ class WSTransport {
     socket.send(res)
   }
 
-  async send (handler, action) {
+  async send (handler, action, args = {}) {
     if (
       !this._active ||
       this._auth.size === 0
@@ -177,7 +177,7 @@ class WSTransport {
       const user = this._auth.get(sid)
 
       try {
-        const res = await handler(user)
+        const res = await handler(user, { ...args, action })
 
         this._sendToOne(socket, sid, action, null, res)
       } catch (err) {
@@ -190,10 +190,10 @@ class WSTransport {
 
   // TODO:
   _justForTest () {
-    const wsEventEmmiter = new WSEventEmmiter()
+    const wsEventEmitter = new WSEventEmitter()
 
     setInterval(() => {
-      wsEventEmmiter.emmitProgress(async (auth) => {
+      wsEventEmitter.emitProgress(async (auth) => {
         auth.i = auth.i ? auth.i + 1 : 1
 
         const progress = await this.rService.getSyncProgress(
@@ -212,7 +212,7 @@ class WSTransport {
     this._listen()
     await this._announce()
 
-    WSEventEmmiter.inject({ wsTransport: this })
+    WSEventEmitter.inject({ wsTransport: this })
 
     this._initRPC()
     this._justForTest() // TODO:

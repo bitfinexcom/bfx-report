@@ -4,9 +4,13 @@ const { isEmpty } = require('lodash')
 
 const { CollSyncPermissionError } = require('../errors')
 const ALLOWED_COLLS = require('./allowed.colls')
+const WSEventEmitter = require('../ws-transport/ws.event.emitter')
 
-const setProgress = (reportService, progress) => {
-  return reportService.dao.updateProgress(progress)
+const wsEventEmitter = new WSEventEmitter()
+
+const setProgress = async (reportService, progress) => {
+  await reportService.dao.updateProgress(progress)
+  await wsEventEmitter.emitProgress(() => progress)
 }
 
 const getProgress = async (reportService) => {
