@@ -31,6 +31,9 @@ const {
   ServerAvailabilityError,
   DuringSyncMethodAccessError
 } = require('./errors')
+const WSEventEmitter = require('./ws-transport/ws.event.emitter')
+
+const wsEventEmitter = new WSEventEmitter()
 
 class MediatorReportService extends ReportService {
   async login (space, args, cb, isInnerCall) {
@@ -139,10 +142,21 @@ class MediatorReportService extends ReportService {
   async disableSyncMode (space, args, cb) {
     try {
       checkParamsAuth(args)
+
+      const { auth } = { ...args }
+
       await this.dao.updateUserByAuth({
-        ...pick(args.auth, ['apiKey', 'apiSecret']),
+        ...pick(auth, ['apiKey', 'apiSecret']),
         isDataFromDb: 0
       })
+      await wsEventEmitter.emitRedirectingRequestsStatusToApi(
+        (user) => {
+          if (wsEventEmitter.isInvalidAuth(args, user)) {
+            return null
+          }
+
+          return true
+        })
 
       if (!cb) return true
       cb(null, true)

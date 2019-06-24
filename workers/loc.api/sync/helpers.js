@@ -53,6 +53,13 @@ const redirectRequestsToApi = async (
   state = true
 ) => {
   await reportService.dao.updateStateOf('syncMode', !state)
+  await wsEventEmitter.emitRedirectingRequestsStatusToApi((user) => {
+    return (
+      state ||
+      isEmpty(user) ||
+      !user.isDataFromDb
+    )
+  })
 }
 
 const delay = (mc = 80000) => {
