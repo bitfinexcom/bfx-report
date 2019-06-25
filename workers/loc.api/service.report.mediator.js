@@ -33,8 +33,6 @@ const {
 } = require('./errors')
 const WSEventEmitter = require('./ws-transport/ws.event.emitter')
 
-const wsEventEmitter = new WSEventEmitter()
-
 class MediatorReportService extends ReportService {
   async login (space, args, cb, isInnerCall) {
     try {
@@ -144,6 +142,7 @@ class MediatorReportService extends ReportService {
       checkParamsAuth(args)
 
       const { auth } = { ...args }
+      const wsEventEmitter = new WSEventEmitter()
 
       await this.dao.updateUserByAuth({
         ...pick(auth, ['apiKey', 'apiSecret']),

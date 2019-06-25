@@ -6,9 +6,9 @@ const { CollSyncPermissionError } = require('../errors')
 const ALLOWED_COLLS = require('./allowed.colls')
 const WSEventEmitter = require('../ws-transport/ws.event.emitter')
 
-const wsEventEmitter = new WSEventEmitter()
-
 const setProgress = async (reportService, progress) => {
+  const wsEventEmitter = new WSEventEmitter()
+
   await reportService.dao.updateProgress(progress)
   await wsEventEmitter.emitProgress(() => progress)
 }
@@ -52,6 +52,8 @@ const redirectRequestsToApi = async (
   reportService,
   state = true
 ) => {
+  const wsEventEmitter = new WSEventEmitter()
+
   await reportService.dao.updateStateOf('syncMode', !state)
   await wsEventEmitter.emitRedirectingRequestsStatusToApi((user) => {
     return (
