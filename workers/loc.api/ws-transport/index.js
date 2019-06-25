@@ -267,24 +267,6 @@ class WSTransport {
     )
   }
 
-  // TODO:
-  _justForTest () {
-    const wsEventEmitter = new WSEventEmitter()
-
-    setInterval(() => {
-      wsEventEmitter.emitProgress(async (auth) => {
-        auth.i = auth.i ? auth.i + 1 : 1
-
-        const progress = await this.rService.getSyncProgress(
-          null,
-          { auth }
-        )
-
-        return { count: auth.i, progress }
-      })
-    }, 1000)
-  }
-
   getAuth () {
     return this._auth
   }
@@ -302,7 +284,6 @@ class WSTransport {
     })
 
     this._initRPC()
-    this._justForTest() // TODO:
   }
 
   stop (cb) {
