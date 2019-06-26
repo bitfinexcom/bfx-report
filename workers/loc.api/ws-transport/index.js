@@ -101,6 +101,7 @@ class WSTransport {
   _listen () {
     this.transport.socket.on('connection', socket => {
       this._active = true
+      socket.isAlive = true
 
       const sid = socket._grc_id = uuid.v4()
 
@@ -109,6 +110,9 @@ class WSTransport {
       socket.on('close', () => {
         this._auth.delete(sid)
         this._sockets.delete(sid)
+      })
+      socket.on('pong', () => {
+        socket.isAlive = true
       })
       socket.on('message', async (strData) => {
         const data = this.transport.parse(strData)
@@ -148,8 +152,23 @@ class WSTransport {
       })
     })
 
+    const aliveStateInterval = setInterval(() => {
+      this.transport.socket.clients.forEach((socket) => {
+        if (!socket.isAlive) {
+          socket.terminate()
+
+          return
+        }
+
+        socket.isAlive = false
+        socket.ping(null, false)
+      })
+    }, 10000)
+
     this.transport.socket.on('close', () => {
       this._active = false
+
+      clearInterval(aliveStateInterval)
     })
   }
 
