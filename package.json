@@ -5,7 +5,9 @@
   "main": "worker.js",
   "license": "Apache-2.0",
   "contributors": [
-    "Vladimir Voronkov <vsvoronkov@gmail.com>"
+    "Vladimir Voronkov <vsvoronkov@gmail.com>",
+    "Paolo Ardoino <paolo@btifinex.com>",
+    "Ezequiel Wernicke <ezequiel.wernicke@bitfinex.com>"
   ],
   "dependencies": {
     "ajv": "^6.5.4",
