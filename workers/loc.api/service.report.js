@@ -308,6 +308,22 @@ class ReportService extends Api {
     }
   }
 
+  async getOrderTrades (space, args, cb) {
+    try {
+      const res = await prepareApiResponse(
+        args,
+        this.ctx.grc_bfx.caller,
+        'orderTrades',
+        'mtsCreate',
+        'symbol'
+      )
+
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'getOrderTrades', cb)
+    }
+  }
+
   async getOrders (space, args, cb) {
     try {
       const res = await prepareApiResponse(

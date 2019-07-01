@@ -185,6 +185,37 @@ const paramsSchemaForMultipleCsv = {
   }
 }
 
+const paramsSchemaForOrderTradesApi = {
+  type: 'object',
+  required: ['id', 'symbol'],
+  properties: {
+    id: {
+      type: 'integer'
+    },
+    limit: {
+      type: 'integer'
+    },
+    start: {
+      type: 'integer'
+    },
+    end: {
+      type: 'integer'
+    },
+    symbol: {
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        maxItems: 1,
+        items: {
+          type: 'string'
+        }
+      }
+    }
+  }
+}
+
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
@@ -196,5 +227,6 @@ module.exports = {
   paramsSchemaForWallets,
   paramsSchemaForWalletsCsv,
   paramsSchemaForMultipleCsv,
-  paramsSchemaForActivePositionsCsv
+  paramsSchemaForActivePositionsCsv,
+  paramsSchemaForOrderTradesApi
 }
