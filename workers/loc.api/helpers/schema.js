@@ -207,6 +207,7 @@ const paramsSchemaForOrderTradesApi = {
         type: 'array'
       },
       then: {
+        minItems: 1,
         maxItems: 1,
         items: {
           type: 'string'
