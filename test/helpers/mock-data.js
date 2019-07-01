@@ -192,6 +192,22 @@ module.exports = new Map([
     ]]
   ],
   [
+    'order_trades',
+    [[
+      12345,
+      'tBTCUSD',
+      _ms,
+      12345,
+      0.01,
+      12345,
+      null,
+      null,
+      false,
+      -0.00001,
+      'BTC'
+    ]]
+  ],
+  [
     'orders',
     [[
       12345,
