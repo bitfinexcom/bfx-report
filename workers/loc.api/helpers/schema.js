@@ -216,6 +216,16 @@ const paramsSchemaForOrderTradesApi = {
   }
 }
 
+const paramsSchemaForOrderTradesCsv = {
+  ...paramsSchemaForOrderTradesApi,
+  properties: {
+    ...paramsSchemaForOrderTradesApi.properties,
+    timezone,
+    dateFormat,
+    language
+  }
+}
+
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
@@ -228,5 +238,6 @@ module.exports = {
   paramsSchemaForWalletsCsv,
   paramsSchemaForMultipleCsv,
   paramsSchemaForActivePositionsCsv,
-  paramsSchemaForOrderTradesApi
+  paramsSchemaForOrderTradesApi,
+  paramsSchemaForOrderTradesCsv
 }

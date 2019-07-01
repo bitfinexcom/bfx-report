@@ -28,6 +28,7 @@ const {
   getFundingOfferHistoryCsvJobData,
   getFundingLoanHistoryCsvJobData,
   getFundingCreditHistoryCsvJobData,
+  getOrderTradesCsvJobData,
   getMultipleCsvJobData
 } = require('./helpers/get-csv-job-data')
 const { ArgsParamsError } = require('./errors')
@@ -558,6 +559,20 @@ class ReportService extends Api {
       cb(null, status)
     } catch (err) {
       this._err(err, 'getLedgersCsv', cb)
+    }
+  }
+
+  async getOrderTradesCsv (space, args, cb) {
+    try {
+      const status = await getCsvStoreStatus(this, args)
+      const jobData = await getOrderTradesCsvJobData(this, args)
+      const processorQueue = this.ctx.lokue_processor.q
+
+      processorQueue.addJob(jobData)
+
+      cb(null, status)
+    } catch (err) {
+      this._err(err, 'getOrderTradesCsv', cb)
     }
   }
 
