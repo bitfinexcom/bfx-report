@@ -25,6 +25,9 @@ const argv = require('yargs')
     choices: ['sqlite'],
     type: 'string'
   })
+  .option('wsPort', {
+    type: 'number'
+  })
   .help('help')
   .argv
 
@@ -34,6 +37,7 @@ const aggregator = require('./loc.api/queue/aggregator')
 const sync = require('./loc.api/sync')
 const DataInserter = require('./loc.api/sync/data.inserter')
 const SyncQueue = require('./loc.api/sync/sync.queue')
+const WSTransport = require('./loc.api/ws-transport')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -46,7 +50,8 @@ class WrkReportServiceApi extends WrkApi {
       'syncMode',
       'isSpamRestrictionMode',
       'isSchedulerEnabled',
-      'dbDriver'
+      'dbDriver',
+      'wsPort'
     ])
 
     this.init()
@@ -214,6 +219,9 @@ class WrkReportServiceApi extends WrkApi {
       reportService.ctx = reportService.caller.getCtx()
     }
 
+    this.wsTransport = new WSTransport(this)
+    await this.wsTransport.start()
+
     if (conf.syncMode) {
       try {
         await reportService._syncModeInitialize()
@@ -279,6 +287,26 @@ class WrkReportServiceApi extends WrkApi {
       [
         next => { super._start(next) },
         next => { this._initService().then(next).catch(next) }
+      ],
+      err => {
+        if (err) {
+          this.logger.error(err.stack || err)
+
+          cb(err)
+
+          return
+        }
+
+        cb()
+      }
+    )
+  }
+
+  _stop (cb) {
+    async.series(
+      [
+        next => { this.wsTransport.stop(next) },
+        next => { super._stop(next) }
       ],
       err => {
         if (err) {

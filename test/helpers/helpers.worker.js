@@ -46,6 +46,7 @@ const startWorkers = (
     env: 'development',
     wtype: 'wrk-report-service-api',
     apiPort: 13381,
+    wsPort: 23381,
     dbId: 1,
     syncMode: false,
     isSpamRestrictionMode: false,
@@ -74,16 +75,22 @@ const startWorkers = (
     }
 
     _conf.apiPort += 1
+    _conf.wsPort += 1
     _conf.dbId += 1
   }
 
-  ipc.push(...startHelpers(logs))
+  const helperWrks = startHelpers(logs)
+
+  const serviceWrksAmount = isForkWrk
+    ? ipc.length
+    : wrksReportServiceApi.length
+  const helperWrksAmount = helperWrks.length
+
+  ipc.push(...helperWrks)
 
   return {
     wrksReportServiceApi,
-    amount: (isForkWrk
-      ? ipc.length
-      : (ipc.length + wrksReportServiceApi.length))
+    amount: serviceWrksAmount * 2 + helperWrksAmount
   }
 }
 

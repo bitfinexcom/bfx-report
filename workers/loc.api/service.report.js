@@ -84,6 +84,22 @@ class ReportService extends Api {
     }
   }
 
+  async login (space, args, cb, isInnerCall) {
+    try {
+      const userInfo = await this._getUserInfo(args)
+      const isSyncModeConfig = this.isSyncModeConfig()
+
+      const res = isInnerCall
+        ? { ...userInfo, isSyncModeConfig }
+        : userInfo.email
+
+      if (!cb) return res
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'login', cb)
+    }
+  }
+
   async getUsersTimeConf (space, args, cb) {
     try {
       const { timezone } = await this._getUserInfo(args)

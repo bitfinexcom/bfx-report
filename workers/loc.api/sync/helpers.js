@@ -4,9 +4,13 @@ const { isEmpty } = require('lodash')
 
 const { CollSyncPermissionError } = require('../errors')
 const ALLOWED_COLLS = require('./allowed.colls')
+const WSEventEmitter = require('../ws-transport/ws.event.emitter')
 
-const setProgress = (reportService, progress) => {
-  return reportService.dao.updateProgress(progress)
+const setProgress = async (reportService, progress) => {
+  const wsEventEmitter = new WSEventEmitter()
+
+  await reportService.dao.updateProgress(progress)
+  await wsEventEmitter.emitProgress(() => progress)
 }
 
 const getProgress = async (reportService) => {
@@ -48,7 +52,16 @@ const redirectRequestsToApi = async (
   reportService,
   state = true
 ) => {
+  const wsEventEmitter = new WSEventEmitter()
+
   await reportService.dao.updateStateOf('syncMode', !state)
+  await wsEventEmitter.emitRedirectingRequestsStatusToApi((user) => {
+    return (
+      state ||
+      isEmpty(user) ||
+      !user.isDataFromDb
+    )
+  })
 }
 
 const delay = (mc = 80000) => {
