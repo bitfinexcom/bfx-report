@@ -18,7 +18,7 @@ function addFunctions (ExtApi) {
   ExtApi.prototype.addCall = function (space, call, cb) {
     this.ctx.callsDone.push(call)
     console.log('call', call)
-    cb(null, {call})
+    cb(null, { call })
   }
 
   ExtApi.prototype.getCalls = function (space, cb) {

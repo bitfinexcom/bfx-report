@@ -35,11 +35,6 @@ const {
 const { ArgsParamsError } = require('./errors')
 
 class ReportService extends Api {
-  space (service, msg) {
-    const space = super.space(service, msg)
-    return space
-  }
-
   _grcBfxReq (query = {}) {
     return grcBfxReq(this, query)
   }
@@ -697,6 +692,10 @@ class ReportService extends Api {
 
     if (cb) cb(err)
     else throw err
+  }
+
+  _initialize () {
+    this.logger = this.ctx.grc_bfx.caller.logger
   }
 }
 

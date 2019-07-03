@@ -58,7 +58,7 @@ const parseFields = (res, opts) => {
   }, [])
 }
 
-const accountCache = new LRU({maxAge: 900000, max: 1})
+const accountCache = new LRU({ maxAge: 900000, max: 1 })
 
 const refreshObj = (
   oldObj,

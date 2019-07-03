@@ -3,7 +3,6 @@
 const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
-const SqliteDb = require('sqlite3')
 
 const readdir = promisify(fs.readdir)
 const unlink = promisify(fs.unlink)
@@ -103,22 +102,6 @@ const delay = (mc = 500) => {
   })
 }
 
-const connToSQLite = (wrk) => {
-  return new Promise((resolve, reject) => {
-    const db = new SqliteDb.Database(':memory:', async (err) => {
-      if (err) {
-        reject(err)
-
-        return
-      }
-
-      wrk.grc_bfx.api.db = db
-      await wrk.grc_bfx.api._syncModeInitialize(db)
-      resolve(db)
-    })
-  })
-}
-
 const closeSQLite = (db) => {
   return new Promise((resolve, reject) => {
     db.close((err) => {
@@ -140,6 +123,5 @@ module.exports = {
   queueToPromiseMulti,
   queuesToPromiseMulti,
   delay,
-  connToSQLite,
   closeSQLite
 }

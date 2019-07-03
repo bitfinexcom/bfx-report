@@ -22,7 +22,7 @@ function addFunctions (ExtApi) {
       const call = {
         worker: 'ext.sendgrid',
         on: 'sendEmail',
-        params: {msg},
+        params: { msg },
         res: res[0],
         timestamp: Date.now()
       }
