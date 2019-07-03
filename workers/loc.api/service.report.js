@@ -10,7 +10,8 @@ const {
   parseFields,
   accountCache,
   getTimezoneConf,
-  prepareApiResponse
+  prepareApiResponse,
+  grcBfxReq
 } = require('./helpers')
 const {
   getTradesCsvJobData,
@@ -38,6 +39,25 @@ class ReportService extends Api {
     return space
   }
 
+  _grcBfxReq (query = {}) {
+    return grcBfxReq(this, query)
+  }
+
+  async verifyDigitalSignature (space, args, cb) {
+    try {
+      const res = await this._grcBfxReq({
+        service: 'rest:ext:gpg',
+        action: 'verifyDigitalSignature',
+        args: [null, args]
+      })
+
+      if (!cb) return res
+      cb(null, res)
+    } catch (err) {
+      this._err(err, 'verifyDigitalSignature', cb)
+    }
+  }
+
   isSyncModeConfig (space, args, cb = () => { }) {
     const wrk = this.ctx.grc_bfx.caller
     const group = wrk.group
@@ -52,20 +72,6 @@ class ReportService extends Api {
     const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
 
     return rest.userInfo()
-  }
-
-  async _getUsername (args) {
-    try {
-      const { username } = await this._getUserInfo(args)
-
-      if (!username || typeof username !== 'string') {
-        return false
-      }
-
-      return username
-    } catch (err) {
-      return false
-    }
   }
 
   async getEmail (space, args, cb) {

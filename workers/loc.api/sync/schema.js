@@ -9,6 +9,7 @@ const _models = new Map([
     'users',
     {
       _id: 'INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT',
+      id: 'BIGINT',
       email: 'VARCHAR(255)',
       apiKey: 'VARCHAR(255)',
       apiSecret: 'VARCHAR(255)',

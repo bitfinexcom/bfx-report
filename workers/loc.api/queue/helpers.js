@@ -1,5 +1,6 @@
 'use strict'
 
+const { Readable } = require('stream')
 const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
@@ -302,7 +303,7 @@ const writeDataToStream = async (reportService, stream, jobData) => {
     throw new Error('ERR_METHOD_NOT_FOUND')
   }
 
-  const queue = reportService.ctx.lokue_aggregator.q
+  const queue = reportService.ctx.lokue_processor.q
   const propName = jobData.propNameForPagination
   const formatSettings = jobData.formatSettings
 
@@ -549,6 +550,18 @@ const hasS3AndSendgrid = async reportService => {
   return !!(countS3Services && countSendgridServices)
 }
 
+const _hasGPGServise = async (rService) => {
+  const lookUpFn = promisify(
+    rService.lookUpFunction.bind(rService)
+  )
+
+  const countPGPServices = await lookUpFn(null, {
+    params: { service: 'rest:ext:gpg' }
+  })
+
+  return !!countPGPServices
+}
+
 const moveFileToLocalStorage = async (
   rootPath,
   filePath,
@@ -578,17 +591,63 @@ const moveFileToLocalStorage = async (
   }
 }
 
+const _uploadSignToS3 = async (
+  rService,
+  configs,
+  signature,
+  fileNameWithoutExt
+) => {
+  const wrk = rService.ctx.grc_bfx.caller
+  const { isСompress } = wrk.conf[wrk.group]
+  const deflateFac = wrk.deflate_gzip
+  const fileName = `SIGNATURE_${fileNameWithoutExt}.sig`
+  const signFileName = isСompress
+    ? `SIGNATURE_${fileNameWithoutExt}.zip`
+    : fileName
+
+  const stream = new Readable()
+  stream._read = () => {}
+  stream.push(signature)
+  stream.push(null)
+  const signStream = {
+    stream,
+    data: { name: fileName }
+  }
+
+  const signBuffers = await Promise.all(deflateFac.createBuffZip(
+    [signStream],
+    isСompress,
+    {
+      comment: `SIGNATURE_${fileNameWithoutExt.replace(/_/g, ' ')}`
+    }
+  ))
+
+  const signHexStrBuff = signBuffers[0].toString('hex')
+  const signOpts = {
+    ...configs,
+    contentDisposition: `attachment; filename="${signFileName}"`,
+    contentType: isСompress ? 'application/zip' : 'application/pgp-signature'
+  }
+
+  return rService._grcBfxReq({
+    service: 'rest:ext:s3',
+    action: 'uploadPresigned',
+    args: [signHexStrBuff, signOpts]
+  })
+}
+
 const uploadS3 = async (
-  reportService,
+  rService,
   configs,
   filePaths,
   queueName,
   subParamsArr,
+  isSignatureRequired,
   userInfo
 ) => {
-  const grcBfx = reportService.ctx.grc_bfx
+  const grcBfx = rService.ctx.grc_bfx
   const wrk = grcBfx.caller
-  const isСompress = wrk.conf[wrk.group].isСompress
+  const { isСompress } = wrk.conf[wrk.group]
   const deflateFac = wrk.deflate_gzip
   const isMultiExport = (
     queueName === 'getMultiple' ||
@@ -597,10 +656,12 @@ const uploadS3 = async (
   const fileNameWithoutExt = _getCompleteFileName(
     subParamsArr[0].name,
     subParamsArr[0],
-    userInfo,
+    userInfo.username,
     false,
     isMultiExport
   )
+  const isUppedPGPService = await _hasGPGServise(rService)
+  const isSignReq = isSignatureRequired && isUppedPGPService
 
   const streams = filePaths.map((filePath, i) => {
     return {
@@ -609,7 +670,7 @@ const uploadS3 = async (
         name: _getCompleteFileName(
           subParamsArr[i].name,
           subParamsArr[i],
-          userInfo
+          userInfo.username
         )
       }
     }
@@ -622,7 +683,7 @@ const uploadS3 = async (
     }
   ))
 
-  const promises = buffers.map((buffer, i) => {
+  const promises = buffers.map(async (buffer, i) => {
     const fileName = isСompress && isMultiExport
       ? `${fileNameWithoutExt}.zip`
       : `${streams[i].data.name.slice(0, -3)}${isСompress ? 'zip' : 'csv'}`
@@ -631,31 +692,40 @@ const uploadS3 = async (
       contentDisposition: `attachment; filename="${fileName}"`,
       contentType: isСompress ? 'application/zip' : 'text/csv'
     }
-    const parsedData = [
-      buffer.toString('hex'),
-      opts
-    ]
+    const hexStrBuff = buffer.toString('hex')
 
-    return new Promise((resolve, reject) => {
-      grcBfx.req(
-        'rest:ext:s3',
-        'uploadPresigned',
-        parsedData,
-        { timeout: 10000 },
-        (err, data) => {
-          if (err) {
-            reject(err)
-
-            return
-          }
-
-          resolve({
-            ...data,
-            fileName
-          })
-        }
-      )
+    const signature = isSignReq
+      ? await rService._grcBfxReq({
+        service: 'rest:ext:gpg',
+        action: 'getDigitalSignature',
+        args: [hexStrBuff, userInfo]
+      })
+      : null
+    const reportS3 = await rService._grcBfxReq({
+      service: 'rest:ext:s3',
+      action: 'uploadPresigned',
+      args: [hexStrBuff, opts]
     })
+
+    if (isSignReq) {
+      const signatureS3 = await _uploadSignToS3(
+        rService,
+        configs,
+        signature,
+        fileNameWithoutExt
+      )
+
+      return {
+        ...reportS3,
+        fileName,
+        signatureS3
+      }
+    }
+
+    return {
+      ...reportS3,
+      fileName
+    }
   })
 
   return Promise.all(promises)
@@ -713,13 +783,12 @@ const _getTranslator = (
 }
 
 const sendMail = async (
-  reportService,
+  rService,
   configs,
   to,
   viewName,
   dataArr
 ) => {
-  const grcBfx = reportService.ctx.grc_bfx
   const pathToView = path.join(basePathToViews, viewName)
 
   const promises = dataArr.map(data => {
@@ -749,22 +818,10 @@ const sendMail = async (
       language
     }
 
-    return new Promise((resolve, reject) => {
-      grcBfx.req(
-        'rest:ext:sendgrid',
-        'sendEmail',
-        [mailOptions],
-        { timeout: 10000 },
-        (err, data) => {
-          if (err) {
-            reject(err)
-
-            return
-          }
-
-          resolve(data)
-        }
-      )
+    return rService._grcBfxReq({
+      service: 'rest:ext:sendgrid',
+      action: 'sendEmail',
+      args: [mailOptions]
     })
   })
 

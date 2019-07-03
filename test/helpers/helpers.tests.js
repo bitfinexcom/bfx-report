@@ -14,7 +14,10 @@ const testProcQueue = (procRes) => {
     'subParamsArr',
     'isUnauth'
   ])
-  assert.isString(procRes.userInfo)
+  assert.isObject(procRes.userInfo)
+  assert.isString(procRes.userInfo.username)
+  assert.isString(procRes.userInfo.email)
+  assert.isNumber(procRes.userInfo.userId)
   assert.isString(procRes.name)
   assert.isString(procRes.email)
   assert.isArray(procRes.filePaths)

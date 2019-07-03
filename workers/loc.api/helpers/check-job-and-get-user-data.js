@@ -13,9 +13,23 @@ module.exports = async (
   const userId = Number.isInteger(uId)
     ? uId
     : await hasJobInQueueWithStatusBy(reportService, args)
-  const userInfo = uInfo && typeof uInfo === 'string'
+
+  const {
+    username,
+    email,
+    id
+  } = { ...uInfo }
+  const _userInfo = (
+    username && typeof username === 'string' &&
+    email && typeof email === 'string' &&
+    Number.isInteger(id)
+  )
     ? uInfo
-    : await reportService._getUsername(args)
+    : await reportService._getUserInfo(args)
+  const userInfo = {
+    ..._userInfo,
+    userId: _userInfo.id
+  }
 
   return {
     userId,

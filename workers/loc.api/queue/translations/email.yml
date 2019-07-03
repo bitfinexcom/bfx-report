@@ -8,6 +8,9 @@ en:
     ifDidNotInitAction: If you did not initiate this action and you suspect that your account may be compromised, please
     freezeAccount: freeze your account
     contactSupport: and contact support
+    youCan: You can
+    download: download
+    pgpSignature: a PGP digital signature file
 
 ru:
   template:
@@ -19,6 +22,9 @@ ru:
     ifDidNotInitAction: Если вы не инициировали это действие и подозреваете, что ваша учетная запись может быть взломана, пожалуйста,
     freezeAccount: заблокируйте ее
     contactSupport: и обратитесь в службу поддержки
+    youCan: Вы можете
+    download: скачать
+    pgpSignature: файл цифровой подписи PGP
 
 zh-CN:
   template:

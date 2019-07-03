@@ -169,6 +169,7 @@ const paramsSchemaForMultipleCsv = {
     email: {
       type: 'string'
     },
+    language,
     multiExport: {
       type: 'array',
       minItems: 1,

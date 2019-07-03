@@ -23,10 +23,12 @@ module.exports = async job => {
       name,
       filePaths,
       subParamsArr,
+      isSignatureRequired,
       email,
       isUnauth,
       s3Conf,
-      emailConf
+      emailConf,
+      language
     } = job.data
 
     const isEnableToSendEmail = (
@@ -41,7 +43,11 @@ module.exports = async job => {
         filePaths,
         name,
         subParamsArr,
-        userInfo
+        isSignatureRequired,
+        {
+          ...userInfo,
+          email
+        }
       )
 
       await sendMail(
@@ -52,7 +58,7 @@ module.exports = async job => {
         s3Data.map((item, i) => ({
           ...item,
           isUnauth,
-          language: subParamsArr[i].language
+          language
         }))
       )
 
@@ -68,7 +74,7 @@ module.exports = async job => {
           filePath,
           subParamsArr[count].name || name,
           { ...subParamsArr[count] },
-          userInfo
+          userInfo.username
         )
 
         count += 1

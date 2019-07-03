@@ -40,6 +40,7 @@ const {
 const checkJobAndGetUserData = require(
   './check-job-and-get-user-data'
 )
+const grcBfxReq = require('./grc-bfx-req')
 
 module.exports = {
   getREST,
@@ -67,5 +68,6 @@ module.exports = {
   emptyRes,
   getCsvArgs,
   getMethodLimit,
-  checkJobAndGetUserData
+  checkJobAndGetUserData,
+  grcBfxReq
 }

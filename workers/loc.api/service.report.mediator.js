@@ -37,7 +37,8 @@ class MediatorReportService extends ReportService {
     try {
       let userInfo = {
         email: null,
-        timezone: null
+        timezone: null,
+        id: null
       }
 
       try {
@@ -872,8 +873,9 @@ class MediatorReportService extends ReportService {
     const {
       email,
       timezone,
-      username
-    } = await this._getUserInfo(args)
+      username,
+      id
+    } = await super._getUserInfo(args)
 
     if (!email) {
       throw new AuthError()
@@ -882,22 +884,33 @@ class MediatorReportService extends ReportService {
     return {
       email,
       timezone,
-      username
+      username,
+      id
     }
   }
 
   /**
    * @override
    */
-  async _getUsername (args) {
+  async _getUserInfo (args) {
     try {
-      const { username } = await this.dao.checkAuthInDb(args)
+      const {
+        username,
+        timezone,
+        email,
+        id
+      } = await this.dao.checkAuthInDb(args)
 
       if (!username || typeof username !== 'string') {
         return false
       }
 
-      return username
+      return {
+        username,
+        timezone,
+        email,
+        id
+      }
     } catch (err) {
       return false
     }
