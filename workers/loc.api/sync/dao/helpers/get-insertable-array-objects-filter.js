@@ -22,7 +22,8 @@ module.exports = (
     type,
     dateFieldName,
     model,
-    symbolFieldName
+    symbolFieldName,
+    additionalFilteringProps
   } = {},
   params = {}
 ) => {
@@ -38,7 +39,8 @@ module.exports = (
   const filter = {
     _dateFieldName: dateFieldName,
     start,
-    end
+    end,
+    ...additionalFilteringProps
   }
 
   if (

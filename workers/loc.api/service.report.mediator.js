@@ -663,6 +663,38 @@ class MediatorReportService extends ReportService {
   /**
    * @override
    */
+  async getOrderTrades (space, args, cb) {
+    try {
+      if (!await this.isSyncModeWithDbData(space, args)) {
+        super.getOrderTrades(space, args, cb)
+
+        return
+      }
+
+      checkParams(args, 'paramsSchemaForOrderTradesApi')
+
+      const { id: orderID } = { ...args.params }
+
+      const res = await this.dao.findInCollBy(
+        '_getTrades',
+        args,
+        {
+          isPrepareResponse: true,
+          schema: {
+            additionalFilteringProps: { orderID }
+          }
+        }
+      )
+
+      cb(null, res)
+    } catch (err) {
+      cb(err)
+    }
+  }
+
+  /**
+   * @override
+   */
   async getOrders (space, args, cb) {
     try {
       if (!await this.isSyncModeWithDbData(space, args)) {

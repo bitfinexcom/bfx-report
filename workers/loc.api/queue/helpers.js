@@ -429,6 +429,7 @@ const _writeMessageToStream = (reportService, stream, message) => {
 
 const _fileNamesMap = new Map([
   ['getTrades', 'trades'],
+  ['getOrderTrades', 'order_trades'],
   ['getFundingTrades', 'funding_trades'],
   ['getPublicTrades', 'public_trades'],
   ['getPublicFunding', 'public_funding'],

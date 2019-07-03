@@ -526,6 +526,35 @@ describe('Queue', () => {
     assert.propertyVal(res.body, 'id', 5)
   })
 
+  it('it should be successfully performed by the getOrderTradesCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getOrderTradesCsv',
+        params: {
+          id: 12345,
+          symbol: 'tBTCUSD',
+          end,
+          start,
+          limit: 1000,
+          timezone: 'America/Los_Angeles',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
   it('it should be successfully performed by the getOrdersCsv method', async function () {
     this.timeout(60000)
 

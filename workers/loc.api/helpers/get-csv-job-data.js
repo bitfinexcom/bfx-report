@@ -437,6 +437,50 @@ const getCsvJobData = {
 
     return jobData
   },
+  async getOrderTradesCsvJobData (
+    reportService,
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args, 'paramsSchemaForOrderTradesCsv')
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      reportService,
+      args,
+      uId,
+      uInfo
+    )
+
+    const csvArgs = getCsvArgs(args, 'orderTrades')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getOrderTrades',
+      args: csvArgs,
+      propNameForPagination: 'mtsCreate',
+      columnsCsv: {
+        id: '#',
+        symbol: 'PAIR',
+        execAmount: 'AMOUNT',
+        execPrice: 'PRICE',
+        fee: 'FEE',
+        feeCurrency: 'FEE CURRENCY',
+        mtsCreate: 'DATE',
+        orderID: 'ORDER ID'
+      },
+      formatSettings: {
+        mtsCreate: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
+  },
   async getOrdersCsvJobData (
     reportService,
     args,

@@ -20,6 +20,13 @@ const _paramsOrderMap = {
     'end',
     'limit'
   ],
+  orderTrades: [
+    'symbol',
+    'start',
+    'end',
+    'limit',
+    'id'
+  ],
   default: [
     'symbol',
     'start',
@@ -31,6 +38,7 @@ const _paramsOrderMap = {
 const _paramsSchemasMap = {
   publicTrades: 'paramsSchemaForPublicTrades',
   positionsAudit: 'paramsSchemaForPositionsAudit',
+  orderTrades: 'paramsSchemaForOrderTradesApi',
   default: 'paramsSchemaForApi'
 }
 
