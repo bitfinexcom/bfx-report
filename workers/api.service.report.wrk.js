@@ -14,7 +14,6 @@ const argv = require('yargs')
   .option('isSpamRestrictionMode', {
     type: 'boolean'
   })
-  // TODO:
   .option('isLoggerDisabled', {
     type: 'boolean',
     default: false
@@ -33,11 +32,11 @@ class WrkReportServiceApi extends WrkApi {
     this.loadConf('service.report', 'report')
 
     this._setArgsOfCommandLineToConf([
-      'isSpamRestrictionMode'
+      'isSpamRestrictionMode',
+      'isLoggerDisabled'
     ])
 
-    // TODO:
-    this.logger = logger
+    this.logger = logger(conf.report.isLoggerDisabled)
 
     this.init()
     this.start()
@@ -62,7 +61,10 @@ class WrkReportServiceApi extends WrkApi {
       if (typeof argv[name] !== 'undefined') {
         conf[name] = argv[name]
         this.ctx[name] = argv[name]
-      } else if (typeof this.ctx[name] !== 'undefined') {
+
+        return
+      }
+      if (typeof this.ctx[name] !== 'undefined') {
         conf[name] = this.ctx[name]
       }
     })
@@ -102,22 +104,6 @@ class WrkReportServiceApi extends WrkApi {
     ]
 
     this.setInitFacs(facs)
-  }
-
-  _depsFactory (Module, args = [], singletonName) {
-    const isSingleton = !!singletonName
-
-    if (!isSingleton) {
-      return new Module(...args)
-    }
-
-    if (this[singletonName] instanceof Module) {
-      return this[singletonName]
-    }
-
-    this[singletonName] = new Module(...args)
-
-    return this[singletonName]
   }
 
   async _initService () {
@@ -179,9 +165,7 @@ class WrkReportServiceApi extends WrkApi {
         if (err) {
           this.logger.error(err.stack || err)
 
-          cb(err)
-
-          return
+          setTimeout(() => process.exit(1), 2000)
         }
 
         cb()
@@ -198,9 +182,7 @@ class WrkReportServiceApi extends WrkApi {
         if (err) {
           this.logger.error(err.stack || err)
 
-          cb(err)
-
-          return
+          setTimeout(() => process.exit(1), 2000)
         }
 
         cb()

@@ -14,5 +14,6 @@
     "signedUrlExpireTime": 28800
   },
   "isSpamRestrictionMode": true,
-  "isСompress": true
+  "isСompress": true,
+  "isLoggerDisabled": false
 }
