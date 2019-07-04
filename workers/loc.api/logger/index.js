@@ -1,21 +1,48 @@
 'use strict'
 
+require('colors')
 const path = require('path')
 const argv = require('yargs').argv
-require('colors')
-const { createLogger, format, transports } = require('winston')
-const { combine, timestamp, label, printf, align } = format
+const {
+  createLogger,
+  format,
+  transports
+} = require('winston')
+const {
+  combine,
+  timestamp,
+  label,
+  printf,
+  align
+} = format
 
-const isProdEnv = argv.env === 'production' || process.env.NODE_ENV === 'production'
-const isTestEnv = argv.env === 'test' || process.env.NODE_ENV === 'test'
-const isElectronjsEnv = argv.isElectronjsEnv
+const isProdEnv = (
+  argv.env === 'production' ||
+  process.env.NODE_ENV === 'production'
+)
+const isTestEnv = (
+  argv.env === 'test' ||
+  process.env.NODE_ENV === 'test'
+)
+
 const basePath = '../../../logs'
 const ext = '.log'
 
-const pathError = path.join(__dirname, basePath, `errors-worker${ext}`)
-const pathExcLogger = path.join(__dirname, basePath, `exceptions-worker${ext}`)
+const pathError = path.join(
+  __dirname,
+  basePath,
+  `errors-worker${ext}`
+)
+const pathExcLogger = path.join(
+  __dirname,
+  basePath,
+  `exceptions-worker${ext}`
+)
 const logLabel = 'WORKER'
 const maxSize = 1024000
+
+const baseTransports = []
+const exceptionHandlers = []
 
 const _combineFormat = (colorize = !isProdEnv) => {
   return combine(
@@ -23,39 +50,35 @@ const _combineFormat = (colorize = !isProdEnv) => {
     timestamp(),
     align(),
     printf(obj => {
-      let str = `${obj.label}:${obj.level.toUpperCase()} [${obj.timestamp}]`
+      const str = `${obj.label}:${obj.level.toUpperCase()}`
+      const ts = `[${obj.timestamp}]`
 
-      if (colorize) str = str.red
+      if (colorize) {
+        const colorStr = obj.level === 'error'
+          ? str.red
+          : str.blue
+        const colorTs = ts.rainbow
+        const colorMessage = obj.level === 'error'
+          ? `${obj.message}`.red
+          : `${obj.message}`.blue
 
-      return `${str} ${obj.message}`
+        return `${colorStr} ${colorTs} ${colorMessage}`
+      }
+
+      return `${str} ${ts} ${obj.message}`
     })
   )
 }
 
-const baseTransports = []
-if (!isElectronjsEnv) {
-  if (isProdEnv) {
-    baseTransports.push(
-      new transports.File({
-        filename: pathError,
-        level: 'error',
-        maxsize: maxSize,
-        colorize: false
-      })
-    )
-  } else {
-    baseTransports.push(
-      new transports.Console({
-        level: 'error',
-        colorize: false,
-        handleExceptions: true
-      })
-    )
-  }
-}
-
-const exceptionHandlers = []
-if (isProdEnv && !isElectronjsEnv) {
+if (isProdEnv) {
+  baseTransports.push(
+    new transports.File({
+      filename: pathError,
+      level: 'error',
+      maxsize: maxSize,
+      colorize: false
+    })
+  )
   exceptionHandlers.push(
     new transports.File({
       filename: pathExcLogger,
@@ -66,22 +89,22 @@ if (isProdEnv && !isElectronjsEnv) {
       colorize: false
     })
   )
+} else {
+  baseTransports.push(
+    new transports.Console({
+      level: 'debug',
+      colorize: false,
+      handleExceptions: true
+    })
+  )
 }
 
-const logger = createLogger({
-  format: _combineFormat(),
-  transports: baseTransports,
-  exceptionHandlers,
-  silent: isElectronjsEnv || isTestEnv,
-  exitOnError: false
-})
-
-if (exceptionHandlers[0]) {
-  exceptionHandlers[0].on('logged', () => {
-    setTimeout(() => {
-      process.exit(1)
-    }, 2000)
+module.exports = (isLoggerDisabled) => {
+  return createLogger({
+    format: _combineFormat(),
+    transports: baseTransports,
+    exceptionHandlers,
+    silent: isLoggerDisabled || isTestEnv,
+    exitOnError: true
   })
 }
-
-module.exports = logger
