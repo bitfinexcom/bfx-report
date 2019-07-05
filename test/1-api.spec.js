@@ -18,17 +18,17 @@ process.env.NODE_CONFIG_DIR = path.join(__dirname, 'config')
 const { app } = require('bfx-report-express')
 const agent = request.agent(app)
 
-let auth = {
-  apiKey: 'fake',
-  apiSecret: 'fake'
-}
-let mockRESTv2Srv = null
-
 const basePath = '/api'
 const dbDirPath = path.join(__dirname, '..', 'db')
 const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 1)
+const auth = {
+  apiKey: 'fake',
+  apiSecret: 'fake'
+}
+
+let mockRESTv2Srv = null
 
 describe('API', () => {
   before(async function () {

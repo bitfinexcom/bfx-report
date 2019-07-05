@@ -36,10 +36,6 @@ const { app } = require('bfx-report-express')
 const agent = request.agent(app)
 
 let wrkReportServiceApi = null
-let auth = {
-  apiKey: 'fake',
-  apiSecret: 'fake'
-}
 let processorQueue = null
 let aggregatorQueue = null
 let mockRESTv2Srv = null
@@ -51,6 +47,10 @@ const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
 const email = 'fake@email.fake'
+const auth = {
+  apiKey: 'fake',
+  apiSecret: 'fake'
+}
 
 describe('Signature', () => {
   before(async function () {

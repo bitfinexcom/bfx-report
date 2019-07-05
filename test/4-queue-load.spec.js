@@ -1,5 +1,9 @@
 'use strict'
 
+require('events')
+  .EventEmitter
+  .defaultMaxListeners = 20
+
 const path = require('path')
 const { assert } = require('chai')
 const request = require('supertest')
@@ -25,10 +29,6 @@ const { app } = require('bfx-report-express')
 const agent = request.agent(app)
 
 let wrksReportServiceApi = []
-let auth = {
-  apiKey: 'fake',
-  apiSecret: 'fake'
-}
 let processorQueues = []
 let aggregatorQueues = []
 let mockRESTv2Srv = null
@@ -41,6 +41,10 @@ const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
 const email = 'fake@email.fake'
 const limit = 10000
+const auth = {
+  apiKey: 'fake',
+  apiSecret: 'fake'
+}
 
 describe('Queue load', () => {
   before(async function () {
