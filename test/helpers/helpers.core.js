@@ -96,32 +96,10 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
   })
 }
 
-const delay = (mc = 500) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, mc)
-  })
-}
-
-const closeSQLite = (db) => {
-  return new Promise((resolve, reject) => {
-    db.close((err) => {
-      if (err) {
-        reject(err)
-
-        return
-      }
-
-      resolve()
-    })
-  })
-}
-
 module.exports = {
   rmDB,
   rmAllFiles,
   queueToPromise,
   queueToPromiseMulti,
-  queuesToPromiseMulti,
-  delay,
-  closeSQLite
+  queuesToPromiseMulti
 }

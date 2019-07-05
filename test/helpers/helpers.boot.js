@@ -1,70 +1,57 @@
 'use strict'
 
-const { stopWorkers, startWorkers } = require('./helpers.worker')
-const configRequest = require('./grenacheClientService')
-const { bootTwoGrapes, killGrapes } = require('./helpers.grape')
+const {
+  stopWorkers,
+  startWorkers
+} = require('./helpers.worker')
+const {
+  bootTwoGrapes,
+  killGrapes
+} = require('./helpers.grape')
 
-let grapes = null
+const grapes = []
 
-const startEnviroment = (
+const startEnviroment = async (
   logs = false,
   isRootWrk = false,
   countWrk = 1,
   conf = {},
   serviceRoot
 ) => {
+  let count = 0
+
+  const _grapes = await bootTwoGrapes()
+  const [grape1] = _grapes
+  grapes.push(..._grapes)
+
+  const {
+    wrksReportServiceApi,
+    amount
+  } = startWorkers(
+    logs,
+    isRootWrk,
+    countWrk,
+    conf,
+    serviceRoot
+  )
+
   return new Promise((resolve, reject) => {
-    let count = 0
+    grape1.on('announce', () => {
+      count += 1
 
-    bootTwoGrapes(async (err, g) => {
-      if (err) reject(err)
-      const {
-        wrksReportServiceApi,
-        amount
-      } = startWorkers(
-        logs,
-        isRootWrk,
-        countWrk,
-        conf,
-        serviceRoot
-      )
+      const timeout = setTimeout(reject, 5000)
 
-      grapes = g
-
-      grapes[0].on('announce', async () => {
-        count += 1
-
-        if (count === amount) {
-          try {
-            const request = await configRequest(
-              'http://127.0.0.1:30001',
-              'rest:report:api'
-            )
-            const requestCalls = await configRequest(
-              'http://127.0.0.1:30001',
-              'rest:ext:testcalls'
-            )
-
-            resolve({ request, requestCalls, wrksReportServiceApi })
-          } catch (e) {
-            reject(e)
-          }
-        }
-      })
+      if (count === amount) {
+        clearTimeout(timeout)
+        resolve({ wrksReportServiceApi })
+      }
     })
   })
 }
 
 const stopEnviroment = async () => {
   await stopWorkers()
-
-  return new Promise((resolve, reject) => {
-    try {
-      killGrapes(grapes, resolve)
-    } catch (err) {
-      reject(err)
-    }
-  })
+  await killGrapes(grapes)
 }
 
 module.exports = {

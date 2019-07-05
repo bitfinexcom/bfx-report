@@ -1,7 +1,6 @@
 'use strict'
 
 const { Grape } = require('grenache-grape')
-const waterfall = require('async/waterfall')
 
 const confGrape1 = {
   dht_port: 20002,
@@ -14,35 +13,46 @@ const confGrape2 = {
   api_port: 30001
 }
 
-const bootTwoGrapes = cb => {
+const bootTwoGrapes = async () => {
   const grape1 = new Grape(confGrape1)
   const grape2 = new Grape(confGrape2)
 
-  waterfall(
-    [
-      cb => {
-        grape1.start()
-        grape1.once('ready', cb)
-      },
-      cb => {
-        grape2.start()
-        grape2.once('node', cb)
-      }
-    ],
-    () => {
-      cb(null, [grape1, grape2])
-    }
-  )
-}
-
-const killGrapes = (grapes, done = () => {}) => {
-  grapes[0].stop(err => {
-    if (err) throw err
-    grapes[1].stop(err => {
-      if (err) throw err
-      done()
+  await new Promise((resolve, reject) => {
+    grape1.start()
+    grape1.once('error', reject)
+    grape1.once('ready', (res) => {
+      grape1.removeListener('error', reject)
+      resolve(res)
     })
   })
+  await new Promise((resolve, reject) => {
+    grape2.start()
+    grape2.once('error', reject)
+    grape2.once('node', (res) => {
+      grape2.removeListener('error', reject)
+      resolve(res)
+    })
+  })
+
+  return [grape1, grape2]
+}
+
+const killGrapes = (grapes = []) => {
+  return grapes.reduce(async (accum, grape) => {
+    await accum
+
+    return new Promise((resolve, reject) => {
+      grape.stop((err) => {
+        if (err) {
+          reject(err)
+
+          return
+        }
+
+        resolve()
+      })
+    })
+  }, Promise.resolve())
 }
 
 module.exports = {

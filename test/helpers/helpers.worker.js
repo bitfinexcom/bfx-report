@@ -6,9 +6,8 @@ const worker = require('bfx-svc-boot-js/lib/worker')
 
 const _serviceRoot = path.join(__dirname, '../..')
 
-const ipc = []
-
-let wrksReportServiceApi = []
+const ipcs = []
+const wrksReportServiceApi = []
 
 const startHelpers = (
   logs,
@@ -21,18 +20,51 @@ const startHelpers = (
 ) => {
   return workers.map(worker => {
     return fork(
-      path.join(__dirname, '..', 'simulate/bfx-ext-mockspy-js', 'worker.js'),
+      path.join(
+        __dirname,
+        '..',
+        'simulate/bfx-ext-mockspy-js',
+        'worker.js'
+      ),
       [
         '--env=development',
         '--wtype=wrk-ext-mockspy-api',
         `--apiPort=${worker.port}`,
         `--mockspy=${worker.name}`
       ],
-      {
-        silent: !logs
-      }
+      { silent: !logs }
     )
   })
+}
+
+const _startWrk = (
+  conf = {},
+  isForkWrk,
+  serviceRoot,
+  logs
+) => {
+  if (isForkWrk) {
+    const args = Object
+      .keys(conf)
+      .map(key => `--${key}=${conf[key]}`)
+
+    const wrkIpc = fork(
+      path.join(serviceRoot, 'worker.js'),
+      args,
+      { silent: !logs }
+    )
+
+    ipcs.push(wrkIpc)
+
+    return
+  }
+
+  const wrk = worker({
+    ...conf,
+    serviceRoot
+  })
+
+  wrksReportServiceApi.push(wrk)
 }
 
 const startWorkers = (
@@ -50,40 +82,36 @@ const startWorkers = (
     isSpamRestrictionMode: false,
     ...conf
   }
+
+  let {
+    apiPort,
+    dbId
+  } = { ..._conf }
+
   for (let i = 0; i < countWrk; i += 1) {
-    if (isForkWrk) {
-      const args = Object.keys(_conf).map(key => `--${key}=${_conf[key]}`)
-
-      const wrkIpc = fork(
-        path.join(serviceRoot, 'worker.js'),
-        args,
-        {
-          silent: !logs
-        }
-      )
-
-      ipc.push(wrkIpc)
-    } else {
-      const wrk = worker({
+    _startWrk(
+      {
         ..._conf,
-        serviceRoot
-      })
+        apiPort,
+        dbId
+      },
+      isForkWrk,
+      serviceRoot,
+      logs
+    )
 
-      wrksReportServiceApi.push(wrk)
-    }
-
-    _conf.apiPort += 1
-    _conf.dbId += 1
+    apiPort += 1
+    dbId += 1
   }
 
   const helperWrks = startHelpers(logs)
 
   const serviceWrksAmount = isForkWrk
-    ? ipc.length
+    ? ipcs.length
     : wrksReportServiceApi.length
   const helperWrksAmount = helperWrks.length
 
-  ipc.push(...helperWrks)
+  ipcs.push(...helperWrks)
 
   return {
     wrksReportServiceApi,
@@ -91,41 +119,51 @@ const startWorkers = (
   }
 }
 
-const closeIpc = (ipc, resolve = (() => { })) => {
-  if (ipc.length) {
-    const close = ipc.pop()
-    close.kill()
-    close.on('close', () => {
-      closeIpc(ipc, resolve)
+const closeIpc = async (ipcs) => {
+  while (
+    Array.isArray(ipcs) &&
+    ipcs.length > 0
+  ) {
+    const ipc = ipcs.pop()
+
+    const promise = new Promise((resolve, reject) => {
+      ipc.once('error', reject)
+      ipc.once('close', () => {
+        ipc.removeListener('error', reject)
+        resolve()
+      })
     })
-  } else {
-    resolve()
+
+    ipc.kill()
+
+    await promise
   }
 }
 
-const closeWrks = (wrks, resolve = (() => { })) => {
-  if (wrks.length) {
-    const close = wrks.pop()
-    close.stop(() => {
-      closeWrks(wrks, resolve)
+const closeWrks = async (wrks) => {
+  while (
+    Array.isArray(wrks) &&
+    wrks.length > 0
+  ) {
+    const wrk = wrks.pop()
+
+    await new Promise((resolve, reject) => {
+      wrk.stop((err) => {
+        if (err) {
+          reject(err)
+
+          return
+        }
+
+        resolve()
+      })
     })
-  } else {
-    resolve()
   }
 }
 
-const stopWorkers = () => {
-  return new Promise((resolve, reject) => {
-    try {
-      if (wrksReportServiceApi.length) {
-        closeWrks(wrksReportServiceApi, () => {
-          closeIpc(ipc, resolve)
-        })
-      } else closeIpc(ipc, resolve)
-    } catch (e) {
-      reject(e)
-    }
-  })
+const stopWorkers = async () => {
+  await closeWrks(wrksReportServiceApi)
+  await closeIpc(ipcs)
 }
 
 module.exports = {
