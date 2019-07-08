@@ -33,6 +33,7 @@ const {
   getMultipleCsvJobData
 } = require('./helpers/get-csv-job-data')
 const { ArgsParamsError } = require('./errors')
+const TYPES = require('./di/types')
 
 class ReportService extends Api {
   _grcBfxReq (query = {}) {
@@ -40,18 +41,13 @@ class ReportService extends Api {
   }
 
   async verifyDigitalSignature (space, args, cb) {
-    try {
-      const res = await this._grcBfxReq({
+    return this.responder(() => {
+      return this._grcBfxReq({
         service: 'rest:ext:gpg',
         action: 'verifyDigitalSignature',
         args: [null, args]
       })
-
-      if (!cb) return res
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'verifyDigitalSignature', cb)
-    }
+    }, 'verifyDigitalSignature', cb)
   }
 
   isSyncModeConfig (space, args, cb = () => { }) {
@@ -695,7 +691,8 @@ class ReportService extends Api {
   }
 
   _initialize () {
-    this.logger = this.ctx.grc_bfx.caller.logger
+    this.container = this.ctx.grc_bfx.caller.container
+    this.responder = this.container.get(TYPES.Responder)
   }
 }
 

@@ -21,7 +21,12 @@ const argv = require('yargs')
   .help('help')
   .argv
 
-const logger = require('./loc.api/logger')
+const container = require('./loc.api/di')
+const diConfig = require('./loc.api/di/di.config')
+const appDeps = require('./loc.api/di/app.deps')
+const coreDeps = require('./loc.api/di/core.deps')
+const TYPES = require('./loc.api/di/types')
+
 const processor = require('./loc.api/queue/processor')
 const aggregator = require('./loc.api/queue/aggregator')
 
@@ -36,10 +41,32 @@ class WrkReportServiceApi extends WrkApi {
       'isLoggerDisabled'
     ])
 
-    this.logger = logger(conf.report.isLoggerDisabled)
+    this.loadDIConfig()
+    this.loadCoreDeps()
+
+    this.logger = this.container.get(TYPES.Logger)
 
     this.init()
     this.start()
+  }
+
+  loadDIConfig (cont = container) {
+    const group = this.group
+    const conf = this.conf[group]
+
+    this.container = cont
+
+    diConfig(conf)
+  }
+
+  loadCoreDeps (...args) {
+    this.coreDeps = coreDeps(...args)
+    this.container.load(this.coreDeps)
+  }
+
+  loadAppDeps (...args) {
+    this.appDeps = appDeps(...args)
+    this.container.load(this.appDeps)
   }
 
   getPluginCtx (type) {
@@ -117,6 +144,7 @@ class WrkReportServiceApi extends WrkApi {
       reportService.ctx = reportService.caller.getCtx()
     }
 
+    this.loadAppDeps(reportService)
     await reportService._initialize()
 
     processor.setReportService(reportService)
@@ -176,7 +204,14 @@ class WrkReportServiceApi extends WrkApi {
   _stop (cb) {
     async.series(
       [
-        next => { super._stop(next) }
+        next => { super._stop(next) },
+        next => {
+          this.container.unbindAll()
+          this.container.unload(this.coreDeps)
+          this.container.unload(this.appDeps)
+
+          next()
+        }
       ],
       err => {
         if (err) {

@@ -99,7 +99,7 @@ if (isProdEnv) {
   )
 }
 
-module.exports = (isLoggerDisabled) => {
+module.exports = ({ isLoggerDisabled }) => {
   return createLogger({
     format: _combineFormat(),
     transports: baseTransports,
