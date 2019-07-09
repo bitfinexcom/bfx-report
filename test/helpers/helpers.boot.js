@@ -13,45 +13,62 @@ const grapes = []
 
 const startEnviroment = async (
   logs = false,
-  isRootWrk = false,
+  isForkWrk = false,
   countWrk = 1,
   conf = {},
-  serviceRoot
+  serviceRoot,
+  isNotStartedEnv
 ) => {
   let count = 0
 
-  const _grapes = await bootTwoGrapes()
-  const [grape1] = _grapes
-  grapes.push(..._grapes)
+  if (!isNotStartedEnv) {
+    const _grapes = await bootTwoGrapes()
+
+    grapes.push(..._grapes)
+  }
 
   const {
+    wrkIpcs,
     wrksReportServiceApi,
     amount
   } = startWorkers(
     logs,
-    isRootWrk,
+    isForkWrk,
     countWrk,
     conf,
-    serviceRoot
+    serviceRoot,
+    isNotStartedEnv
   )
 
-  return new Promise((resolve, reject) => {
-    grape1.on('announce', () => {
-      count += 1
+  return isNotStartedEnv
+    ? {
+      wrkIpcs,
+      wrksReportServiceApi
+    }
+    : new Promise((resolve, reject) => {
+      const [grape1] = grapes
 
-      const timeout = setTimeout(reject, 5000)
+      grape1.on('announce', () => {
+        count += 1
 
-      if (count === amount) {
-        clearTimeout(timeout)
-        resolve({ wrksReportServiceApi })
-      }
+        const timeout = setTimeout(reject, 5000)
+
+        if (count === amount) {
+          clearTimeout(timeout)
+          resolve({
+            wrkIpcs,
+            wrksReportServiceApi
+          })
+        }
+      })
     })
-  })
 }
 
 const stopEnviroment = async () => {
   await stopWorkers()
   await killGrapes(grapes)
+
+  grapes.splice(0, grapes.length)
 }
 
 module.exports = {

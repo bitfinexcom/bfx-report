@@ -7,7 +7,14 @@ const worker = require('bfx-svc-boot-js/lib/worker')
 const _serviceRoot = path.join(__dirname, '../..')
 
 const ipcs = []
+const wrkIpcs = []
 const wrksReportServiceApi = []
+
+const _emptyWrksAndIpcs = () => {
+  ipcs.splice(0, ipcs.length)
+  wrkIpcs.splice(0, wrkIpcs.length)
+  wrksReportServiceApi.splice(0, wrksReportServiceApi.length)
+}
 
 const startHelpers = (
   logs,
@@ -48,13 +55,17 @@ const _startWrk = (
       .keys(conf)
       .map(key => `--${key}=${conf[key]}`)
 
+    const wrk = /.*\.js$/.test(serviceRoot)
+      ? serviceRoot
+      : path.join(serviceRoot, 'worker.js')
+
     const wrkIpc = fork(
-      path.join(serviceRoot, 'worker.js'),
+      wrk,
       args,
       { silent: !logs }
     )
 
-    ipcs.push(wrkIpc)
+    wrkIpcs.push(wrkIpc)
 
     return
   }
@@ -72,7 +83,8 @@ const startWorkers = (
   isForkWrk,
   countWrk = 1,
   conf = {},
-  serviceRoot = _serviceRoot
+  serviceRoot = _serviceRoot,
+  isNotStartedEnv
 ) => {
   const _conf = {
     env: 'development',
@@ -104,16 +116,20 @@ const startWorkers = (
     dbId += 1
   }
 
-  const helperWrks = startHelpers(logs)
+  const helperWrks = isNotStartedEnv
+    ? []
+    : startHelpers(logs)
 
   const serviceWrksAmount = isForkWrk
-    ? ipcs.length
+    ? wrkIpcs.length
     : wrksReportServiceApi.length
   const helperWrksAmount = helperWrks.length
 
   ipcs.push(...helperWrks)
+  ipcs.push(...wrkIpcs)
 
   return {
+    wrkIpcs,
     wrksReportServiceApi,
     amount: serviceWrksAmount + helperWrksAmount
   }
@@ -164,6 +180,8 @@ const closeWrks = async (wrks) => {
 const stopWorkers = async () => {
   await closeWrks(wrksReportServiceApi)
   await closeIpc(ipcs)
+
+  _emptyWrksAndIpcs()
 }
 
 module.exports = {
