@@ -5,8 +5,8 @@ const { assert } = require('chai')
 const request = require('supertest')
 
 const {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 } = require('./helpers/helpers.boot')
 const {
   rmDB,
@@ -53,7 +53,7 @@ describe('Queue load', () => {
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
 
-    const env = await startEnviroment(
+    const env = await startEnvironment(
       false,
       true,
       8,
@@ -67,7 +67,7 @@ describe('Queue load', () => {
   after(async function () {
     this.timeout(10000)
 
-    await stopEnviroment()
+    await stopEnvironment()
     await rmDB(dbDirPath)
     await rmAllFiles(tempDirPath)
 

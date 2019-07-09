@@ -5,8 +5,8 @@ const { assert } = require('chai')
 const request = require('supertest')
 
 const {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 } = require('./helpers/helpers.boot')
 const { rmDB } = require('./helpers/helpers.core')
 const {
@@ -37,7 +37,7 @@ describe('API', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, 2)
 
     await rmDB(dbDirPath)
-    await startEnviroment(false, true)
+    await startEnvironment(false, true)
   })
 
   after(async function () {
@@ -47,7 +47,7 @@ describe('API', () => {
       await mockRESTv2Srv.close()
     } catch (err) { }
 
-    await stopEnviroment()
+    await stopEnvironment()
     await rmDB(dbDirPath)
   })
 

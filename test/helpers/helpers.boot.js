@@ -11,7 +11,7 @@ const {
 
 const grapes = []
 
-const startEnviroment = async (
+const startEnvironment = async (
   logs = false,
   isForkWrk = false,
   countWrk = 1,
@@ -64,7 +64,7 @@ const startEnviroment = async (
     })
 }
 
-const stopEnviroment = async () => {
+const stopEnvironment = async () => {
   await stopWorkers()
   await killGrapes(grapes)
 
@@ -72,6 +72,6 @@ const stopEnviroment = async () => {
 }
 
 module.exports = {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 }

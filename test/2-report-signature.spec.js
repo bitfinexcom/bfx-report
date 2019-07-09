@@ -5,8 +5,8 @@ const { assert } = require('chai')
 const request = require('supertest')
 
 const {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 } = require('./helpers/helpers.boot')
 const {
   rmDB,
@@ -60,7 +60,7 @@ describe('Signature', () => {
 
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
-    const env = await startEnviroment()
+    const env = await startEnvironment()
 
     wrkReportServiceApi = env.wrksReportServiceApi[0]
     processorQueue = wrkReportServiceApi.lokue_processor.q
@@ -70,7 +70,7 @@ describe('Signature', () => {
   after(async function () {
     this.timeout(5000)
 
-    await stopEnviroment()
+    await stopEnvironment()
     await rmDB(dbDirPath)
     await rmAllFiles(tempDirPath)
 

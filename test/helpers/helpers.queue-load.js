@@ -7,8 +7,8 @@ require('events')
 const argv = require('yargs').argv
 
 const {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 } = require('./helpers.boot')
 
 const _emitError = (name, err) => {
@@ -20,7 +20,7 @@ const _emitRes = (name, result) => {
 }
 
 const _stop = () => {
-  stopEnviroment()
+  stopEnvironment()
     .then(process.exit)
     .catch(process.exit)
 }
@@ -33,7 +33,7 @@ void (async () => {
   try {
     const {
       wrksReportServiceApi: [wrkReportServiceApi]
-    } = await startEnviroment(
+    } = await startEnvironment(
       true,
       false,
       1,
