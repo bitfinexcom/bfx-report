@@ -96,10 +96,53 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
   })
 }
 
+const ipcsToPromiseMulti = (name, ipcs, count, cb = () => { }) => {
+  return new Promise((resolve, reject) => {
+    let currCount = 0
+
+    const onCompleted = ({
+      action = 'completed',
+      result
+    }) => {
+      if (`${name}:error` === action) {
+        reject(result)
+
+        return
+      }
+      if (`${name}:completed` !== action) {
+        return
+      }
+
+      currCount += 1
+
+      try {
+        cb(result)
+      } catch (err) {
+        reject(err)
+      }
+
+      if (currCount >= count) {
+        ipcs.forEach(ipc => {
+          ipc.removeListener('message', onCompleted)
+          ipc.removeListener('error', reject)
+        })
+
+        resolve()
+      }
+    }
+
+    ipcs.forEach(ipc => {
+      ipc.once('error', reject)
+      ipc.on('message', onCompleted)
+    })
+  })
+}
+
 module.exports = {
   rmDB,
   rmAllFiles,
   queueToPromise,
   queueToPromiseMulti,
-  queuesToPromiseMulti
+  queuesToPromiseMulti,
+  ipcsToPromiseMulti
 }
