@@ -1,9 +1,5 @@
 'use strict'
 
-require('events')
-  .EventEmitter
-  .defaultMaxListeners = 20
-
 const path = require('path')
 const { assert } = require('chai')
 const request = require('supertest')
@@ -15,7 +11,7 @@ const {
 const {
   rmDB,
   rmAllFiles,
-  queuesToPromiseMulti
+  ipcsToPromiseMulti
 } = require('./helpers/helpers.core')
 const {
   createMockRESTv2SrvWithDate
@@ -28,11 +24,10 @@ process.env.NODE_CONFIG_DIR = path.join(__dirname, 'config')
 const { app } = require('bfx-report-express')
 const agent = request.agent(app)
 
-let wrksReportServiceApi = []
-let processorQueues = []
-let aggregatorQueues = []
+const ipcs = []
 let mockRESTv2Srv = null
 
+const serviceTest = path.join(__dirname, 'helpers/helpers.queue-load.js')
 const basePath = '/api'
 const tempDirPath = path.join(__dirname, '..', 'workers/loc.api/queue/temp')
 const dbDirPath = path.join(__dirname, '..', 'db')
@@ -57,14 +52,16 @@ describe('Queue load', () => {
 
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
-    const env = await startEnviroment(false, false, 8)
 
-    wrksReportServiceApi = env.wrksReportServiceApi
+    const env = await startEnviroment(
+      false,
+      true,
+      8,
+      {},
+      serviceTest
+    )
 
-    wrksReportServiceApi.forEach(wrk => {
-      processorQueues.push(wrk.lokue_processor.q)
-      aggregatorQueues.push(wrk.lokue_aggregator.q)
-    })
+    ipcs.push(...env.wrkIpcs)
   })
 
   after(async function () {
@@ -83,12 +80,17 @@ describe('Queue load', () => {
     this.timeout(10 * 60000)
 
     const count = 100
-    const procPromise = queuesToPromiseMulti(
-      processorQueues,
+    const procPromise = ipcsToPromiseMulti(
+      'processor',
+      ipcs,
       count,
       testProcQueue
     )
-    const aggrPromise = queuesToPromiseMulti(aggregatorQueues, count)
+    const aggrPromise = ipcsToPromiseMulti(
+      'aggregator',
+      ipcs,
+      count
+    )
 
     for (let i = 0; i < count; i += 1) {
       const res = await agent

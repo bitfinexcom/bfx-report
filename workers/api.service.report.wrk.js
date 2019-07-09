@@ -187,7 +187,12 @@ class WrkReportServiceApi extends WrkApi {
     async.series(
       [
         next => { super._start(next) },
-        next => { this._initService().then(next).catch(next) }
+        next => { this._initService().then(next).catch(next) },
+        next => {
+          this.emit('wrk:ready')
+
+          next()
+        }
       ],
       err => {
         if (err) {
