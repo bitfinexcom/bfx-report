@@ -15,7 +15,7 @@ module.exports = (
     bind(TYPES.Responder).toConstantValue(
       bindDepsToFn(
         responder,
-        [TYPES.Logger]
+        [TYPES.Container, TYPES.Logger]
       )
     )
   })
