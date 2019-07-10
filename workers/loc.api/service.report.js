@@ -1,12 +1,12 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
+const { promisify } = require('util')
 
 const {
   getREST,
   checkParams,
   getCsvStoreStatus,
-  toString,
   parseFields,
   accountCache,
   getTimezoneConf,
@@ -36,11 +36,45 @@ const { ArgsParamsError } = require('./errors')
 const TYPES = require('./di/types')
 
 class ReportService extends Api {
+  _initialize () {
+    this.container = this.ctx.grc_bfx.caller.container
+    this.responder = this.container.get(TYPES.Responder)
+  }
+
+  // TODO: need to move to some service
   _grcBfxReq (query = {}) {
     return grcBfxReq(this, query)
   }
 
-  async verifyDigitalSignature (space, args, cb) {
+  // TODO: need to move the `getREST` to some service
+  _getUserInfo (args) {
+    const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+
+    return rest.userInfo()
+  }
+
+  // TODO: need to move the `getREST` to some service
+  _getSymbols () {
+    const rest = getREST({}, this.ctx.grc_bfx.caller)
+
+    return rest.symbols()
+  }
+
+  // TODO: need to move the `getREST` to some service
+  _getFutures () {
+    const rest = getREST({}, this.ctx.grc_bfx.caller)
+
+    return rest.futures()
+  }
+
+  // TODO: need to move the `getREST` to some service
+  _getCurrencies () {
+    const rest = getREST({}, this.ctx.grc_bfx.caller)
+
+    return rest.currencies()
+  }
+
+  verifyDigitalSignature (space, args, cb) {
     return this.responder(() => {
       return this._grcBfxReq({
         service: 'rest:ext:gpg',
@@ -50,649 +84,507 @@ class ReportService extends Api {
     }, 'verifyDigitalSignature', cb)
   }
 
-  isSyncModeConfig (space, args, cb = () => { }) {
-    const wrk = this.ctx.grc_bfx.caller
-    const group = wrk.group
-    const conf = wrk.conf[group]
-
-    cb(null, conf.syncMode)
-
-    return conf.syncMode
+  isSyncModeConfig (space, args, cb) {
+    return this.responder(() => {
+      return this.container.get(TYPES.CONF).syncMode
+    }, 'isSyncModeConfig', cb)
   }
 
-  _getUserInfo (args) {
-    const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+  getEmail (space, args, cb) {
+    return this.responder(async () => {
+      const { email } = await this._getUserInfo(args)
 
-    return rest.userInfo()
+      return email
+    }, 'getEmail', cb)
   }
 
-  async getEmail (space, args, cb) {
-    try {
-      const result = await this._getUserInfo(args)
-
-      cb(null, result.email)
-    } catch (err) {
-      this._err(err, 'getEmail', cb)
-    }
-  }
-
-  async login (space, args, cb, isInnerCall) {
-    try {
+  login (space, args, cb, isInnerCall) {
+    return this.responder(async () => {
       const userInfo = await this._getUserInfo(args)
       const isSyncModeConfig = this.isSyncModeConfig()
 
-      const res = isInnerCall
+      return isInnerCall
         ? { ...userInfo, isSyncModeConfig }
         : userInfo.email
-
-      if (!cb) return res
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'login', cb)
-    }
+    }, 'login', cb)
   }
 
-  async getUsersTimeConf (space, args, cb) {
-    try {
+  getUsersTimeConf (space, args, cb) {
+    return this.responder(async () => {
       const { timezone } = await this._getUserInfo(args)
-      const result = getTimezoneConf(timezone)
 
-      cb(null, result)
-    } catch (err) {
-      this._err(err, 'getUsersTimeConf', cb)
-    }
+      return getTimezoneConf(timezone)
+    }, 'getUsersTimeConf', cb)
   }
 
   lookUpFunction (space, args, cb) {
-    try {
-      if (typeof args.params !== 'object') {
+    return this.responder(async () => {
+      if (
+        !args.params ||
+        typeof args.params !== 'object'
+      ) {
         throw new ArgsParamsError()
       }
 
-      const { service } = args.params
-      const grape = this.ctx.grc_bfx
+      const { service } = { ...args.params }
+      const link = this.ctx.grc_bfx.link
+      const lookup = promisify(link.lookup).bind(link)
 
-      grape.link.lookup(service, (err, res) => {
-        const amount = (!err) ? res.length : 0
+      try {
+        const res = await lookup(service)
 
-        cb(null, amount)
-      })
-    } catch (err) {
-      this._err(err, 'lookUpFunction', cb)
-    }
+        return Array.isArray(res)
+          ? res.length
+          : 0
+      } catch (err) {
+        return 0
+      }
+    }, 'lookUpFunction', cb)
   }
 
-  async getSymbols (space, args, cb) {
-    try {
+  getSymbols (space, args, cb) {
+    return this.responder(async () => {
       const cache = accountCache.get('symbols')
 
-      if (cache) return cb(null, cache)
+      if (cache) return cache
 
       const symbols = await this._getSymbols()
       const futures = await this._getFutures()
       const pairs = [ ...symbols, ...futures ]
 
       const currencies = await this._getCurrencies()
+      const res = { pairs, currencies }
 
-      const result = { pairs, currencies }
-      accountCache.set('symbols', result)
+      accountCache.set('symbols', res)
 
-      cb(null, result)
-    } catch (err) {
-      this._err(err, 'getSymbols', cb)
-    }
+      return res
+    }, 'getSymbols', cb)
   }
 
-  _getSymbols () {
-    const rest = getREST({}, this.ctx.grc_bfx.caller)
-
-    return rest.symbols()
-  }
-
-  _getFutures () {
-    const rest = getREST({}, this.ctx.grc_bfx.caller)
-
-    return rest.futures()
-  }
-
-  _getCurrencies () {
-    const rest = getREST({}, this.ctx.grc_bfx.caller)
-
-    return rest.currencies()
-  }
-
-  async getTickersHistory (space, args, cb) {
-    try {
-      if (
-        args &&
-        typeof args === 'object' &&
-        args.params &&
-        typeof args.params === 'object' &&
-        args.params.symbol &&
-        typeof args.params.symbol === 'string'
-      ) {
-        args.params.symbol = [args.params.symbol]
+  getTickersHistory (space, args, cb) {
+    return this.responder(() => {
+      const { symbol: s } = { ...args.params }
+      const symbol = s && typeof s === 'string'
+        ? [s]
+        : s
+      const _args = {
+        ...args,
+        auth: {},
+        params: {
+          ...args.params,
+          symbol
+        }
       }
 
-      args.auth = {}
-
-      const res = await prepareApiResponse(
-        args,
+      // TODO: need to move the `prepareApiResponse` to some service
+      return prepareApiResponse(
+        _args,
         this.ctx.grc_bfx.caller,
         'tickersHistory',
         'mtsUpdate',
         null,
         ['symbol']
       )
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getTickersHistory', cb)
-    }
+    }, 'getTickersHistory', cb)
   }
 
-  async getPositionsHistory (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getPositionsHistory (space, args, cb) {
+    return this.responder(() => {
+      return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'positionsHistory',
         'mtsUpdate',
         'symbol'
       )
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getPositionsHistory', cb)
-    }
+    }, 'getPositionsHistory', cb)
   }
 
-  async getActivePositions (space, args, cb) {
-    try {
+  getActivePositions (space, args, cb) {
+    return this.responder(async () => {
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
       const positions = await rest.positions()
-      const res = Array.isArray(positions)
+
+      return Array.isArray(positions)
         ? positions.filter(({ status }) => status === 'ACTIVE')
         : []
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getActivePositions', cb)
-    }
+    }, 'getActivePositions', cb)
   }
 
-  async getPositionsAudit (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getPositionsAudit (space, args, cb) {
+    return this.responder(() => {
+      return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'positionsAudit',
         'mtsUpdate',
         'symbol'
       )
-
-      if (!cb) return res
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getPositionsAudit', cb)
-    }
+    }, 'getPositionsAudit', cb)
   }
 
-  async getWallets (space, args, cb) {
-    try {
+  getWallets (space, args, cb) {
+    return this.responder(async () => {
       checkParams(args, 'paramsSchemaForWallets')
 
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
-      const end = args.params && args.params.end
+      const { end } = { ...args.params }
 
-      const res = (end)
-        ? await rest.walletsHistory(end)
-        : await rest.wallets()
-
-      if (!cb) return res
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getWallet', cb)
-    }
+      return end
+        ? rest.walletsHistory(end)
+        : rest.wallets()
+    }, 'getWallets', cb)
   }
 
-  async getLedgers (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getLedgers (space, args, cb) {
+    return this.responder(() => {
+      return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'ledgers',
         'mts',
         'currency'
       )
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getLedgers', cb)
-    }
+    }, 'getLedgers', cb)
   }
 
-  async getTrades (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getTrades (space, args, cb) {
+    return this.responder(() => {
+      return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'trades',
         'mtsCreate',
         'symbol'
       )
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getTrades', cb)
-    }
+    }, 'getTrades', cb)
   }
 
-  async getFundingTrades (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getFundingTrades (space, args, cb) {
+    return this.responder(() => {
+      return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'fundingTrades',
         'mtsCreate',
         'symbol'
       )
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getFundingTrades', cb)
-    }
+    }, 'getFundingTrades', cb)
   }
 
-  async getPublicTrades (space, args, cb) {
-    try {
-      args.auth = {}
+  getPublicTrades (space, args, cb) {
+    return this.responder(() => {
+      const _args = {
+        ...args,
+        auth: {}
+      }
 
-      const res = await prepareApiResponse(
-        args,
+      return prepareApiResponse(
+        _args,
         this.ctx.grc_bfx.caller,
         'publicTrades',
         'mts',
         ['symbol']
       )
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getPublicTrades', cb)
-    }
+    }, 'getPublicTrades', cb)
   }
 
-  async getOrderTrades (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getOrderTrades (space, args, cb) {
+    return this.responder(() => {
+      return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'orderTrades',
         'mtsCreate',
         'symbol'
       )
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getOrderTrades', cb)
-    }
+    }, 'getOrderTrades', cb)
   }
 
-  async getOrders (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getOrders (space, args, cb) {
+    return this.responder(async () => {
+      const _res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'orders',
         'mtsUpdate',
         'symbol'
       )
-      res.res = parseFields(res.res, { executed: true })
+      const res = parseFields(_res.res, { executed: true })
 
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getOrders', cb)
-    }
+      return { ..._res, res }
+    }, 'getOrders', cb)
   }
 
-  async getActiveOrders (space, args, cb) {
-    try {
+  getActiveOrders (space, args, cb) {
+    return this.responder(async () => {
       const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
 
       const _res = await rest.activeOrders()
-      const res = parseFields(_res, { executed: true })
 
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getActiveOrders', cb)
-    }
+      return parseFields(_res, { executed: true })
+    }, 'getActiveOrders', cb)
   }
 
-  async getMovements (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getMovements (space, args, cb) {
+    return this.responder(() => {
+      return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'movements',
         'mtsUpdated',
         'currency'
       )
-
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getMovements', cb)
-    }
+    }, 'getMovements', cb)
   }
 
-  async getFundingOfferHistory (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getFundingOfferHistory (space, args, cb) {
+    return this.responder(async () => {
+      const _res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'fundingOfferHistory',
         'mtsUpdate',
         'symbol'
       )
-      res.res = parseFields(res.res, { executed: true, rate: true })
+      const res = parseFields(_res.res, { executed: true, rate: true })
 
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getFundingOfferHistory', cb)
-    }
+      return { ..._res, res }
+    }, 'getFundingOfferHistory', cb)
   }
 
-  async getFundingLoanHistory (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getFundingLoanHistory (space, args, cb) {
+    return this.responder(async () => {
+      const _res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'fundingLoanHistory',
         'mtsUpdate',
         'symbol'
       )
-      res.res = parseFields(res.res, { rate: true })
+      const res = parseFields(_res.res, { rate: true })
 
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getFundingLoanHistory', cb)
-    }
+      return { ..._res, res }
+    }, 'getFundingLoanHistory', cb)
   }
 
-  async getFundingCreditHistory (space, args, cb) {
-    try {
-      const res = await prepareApiResponse(
+  getFundingCreditHistory (space, args, cb) {
+    return this.responder(async () => {
+      const _res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
         'fundingCreditHistory',
         'mtsUpdate',
         'symbol'
       )
-      res.res = parseFields(res.res, { rate: true })
+      const res = parseFields(_res.res, { rate: true })
 
-      cb(null, res)
-    } catch (err) {
-      this._err(err, 'getFundingCreditHistory', cb)
-    }
+      return { ..._res, res }
+    }, 'getFundingCreditHistory', cb)
   }
 
-  async getMultipleCsv (space, args, cb) {
-    try {
+  getMultipleCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getMultipleCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getMultipleCsv', cb)
-    }
+      return status
+    }, 'getMultipleCsv', cb)
   }
 
-  async getTradesCsv (space, args, cb) {
-    try {
+  getTradesCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getTradesCsv', cb)
-    }
+      return status
+    }, 'getTradesCsv', cb)
   }
 
-  async getFundingTradesCsv (space, args, cb) {
-    try {
+  getFundingTradesCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getFundingTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getFundingTradesCsv', cb)
-    }
+      return status
+    }, 'getFundingTradesCsv', cb)
   }
 
-  async getTickersHistoryCsv (space, args, cb) {
-    try {
+  getTickersHistoryCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getTickersHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getTickersHistoryCsv', cb)
-    }
+      return status
+    }, 'getTickersHistoryCsv', cb)
   }
 
-  async getWalletsCsv (space, args, cb) {
-    try {
+  getWalletsCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getWalletsCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getWalletsCsv', cb)
-    }
+      return status
+    }, 'getWalletsCsv', cb)
   }
 
-  async getPositionsHistoryCsv (space, args, cb) {
-    try {
+  getPositionsHistoryCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getPositionsHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getPositionsHistoryCsv', cb)
-    }
+      return status
+    }, 'getPositionsHistoryCsv', cb)
   }
 
-  async getActivePositionsCsv (space, args, cb) {
-    try {
+  getActivePositionsCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getActivePositionsCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getActivePositionsCsv', cb)
-    }
+      return status
+    }, 'getActivePositionsCsv', cb)
   }
 
-  async getPositionsAuditCsv (space, args, cb) {
-    try {
+  getPositionsAuditCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getPositionsAuditCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getPositionsAuditCsv', cb)
-    }
+      return status
+    }, 'getPositionsAuditCsv', cb)
   }
 
-  async getPublicTradesCsv (space, args, cb) {
-    try {
+  getPublicTradesCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getPublicTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getPublicTradesCsv', cb)
-    }
+      return status
+    }, 'getPublicTradesCsv', cb)
   }
 
-  async getLedgersCsv (space, args, cb) {
-    try {
+  getLedgersCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getLedgersCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getLedgersCsv', cb)
-    }
+      return status
+    }, 'getLedgersCsv', cb)
   }
 
-  async getOrderTradesCsv (space, args, cb) {
-    try {
+  getOrderTradesCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getOrderTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getOrderTradesCsv', cb)
-    }
+      return status
+    }, 'getOrderTradesCsv', cb)
   }
 
-  async getOrdersCsv (space, args, cb) {
-    try {
+  getOrdersCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getOrdersCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getOrdersCsv', cb)
-    }
+      return status
+    }, 'getOrdersCsv', cb)
   }
 
-  async getActiveOrdersCsv (space, args, cb) {
-    try {
+  getActiveOrdersCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getActiveOrdersCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getActiveOrdersCsv', cb)
-    }
+      return status
+    }, 'getActiveOrdersCsv', cb)
   }
 
-  async getMovementsCsv (space, args, cb) {
-    try {
+  getMovementsCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getMovementsCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getMovementsCsv', cb)
-    }
+      return status
+    }, 'getMovementsCsv', cb)
   }
 
-  async getFundingOfferHistoryCsv (space, args, cb) {
-    try {
+  getFundingOfferHistoryCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getFundingOfferHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getFundingOfferHistoryCsv', cb)
-    }
+      return status
+    }, 'getFundingOfferHistoryCsv', cb)
   }
 
-  async getFundingLoanHistoryCsv (space, args, cb) {
-    try {
+  getFundingLoanHistoryCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getFundingLoanHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getFundingLoanHistoryCsv', cb)
-    }
+      return status
+    }, 'getFundingLoanHistoryCsv', cb)
   }
 
-  async getFundingCreditHistoryCsv (space, args, cb) {
-    try {
+  getFundingCreditHistoryCsv (space, args, cb) {
+    return this.responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getFundingCreditHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
 
       processorQueue.addJob(jobData)
 
-      cb(null, status)
-    } catch (err) {
-      this._err(err, 'getFundingCreditHistoryCsv', cb)
-    }
-  }
-
-  _err (err, caller, cb) {
-    const options = toString(err.options)
-    const logTxtErr = `
-    function: ${caller}
-    statusCode: ${err.statusCode}
-    name: ${err.name}
-    message: ${err.message}
-    options: ${options}
-
-    `
-    const logger = this.ctx.grc_bfx.caller.logger
-    logger.error(logTxtErr)
-
-    if (cb) cb(err)
-    else throw err
-  }
-
-  _initialize () {
-    this.container = this.ctx.grc_bfx.caller.container
-    this.responder = this.container.get(TYPES.Responder)
+      return status
+    }, 'getFundingCreditHistoryCsv', cb)
   }
 }
 
