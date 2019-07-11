@@ -174,7 +174,8 @@ const _requestToApi = (
   paramsArr,
   auth
 ) => {
-  const rest = getREST(auth, wrk)
+  const conf = wrk.conf[wrk.group]
+  const rest = getREST(conf, auth)
 
   return rest[_parseMethodApi(method)].bind(rest)(...paramsArr)
 }

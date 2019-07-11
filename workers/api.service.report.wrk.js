@@ -51,8 +51,7 @@ class WrkReportServiceApi extends WrkApi {
   }
 
   loadDIConfig (cont = container) {
-    const group = this.group
-    const conf = this.conf[group]
+    const conf = this.conf[this.group]
 
     this.container = cont
 
@@ -136,8 +135,7 @@ class WrkReportServiceApi extends WrkApi {
   async _initService () {
     const processorQueue = this.lokue_processor.q
     const aggregatorQueue = this.lokue_aggregator.q
-    const group = this.group
-    const conf = this.conf[group]
+    const conf = this.conf[this.group]
     const reportService = this.grc_bfx.api
 
     if (!reportService.ctx) {

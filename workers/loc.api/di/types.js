@@ -6,5 +6,7 @@ module.exports = {
   LoggerFactory: Symbol.for('LoggerFactory'),
   Logger: Symbol.for('Logger'),
   RService: Symbol.for('RService'),
-  Responder: Symbol.for('Responder')
+  Responder: Symbol.for('Responder'),
+  GetREST: Symbol.for('GetREST'),
+  InjectDepsToRService: Symbol.for('InjectDepsToRService')
 }

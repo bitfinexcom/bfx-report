@@ -4,7 +4,6 @@ const { Api } = require('bfx-wrk-api')
 const { promisify } = require('util')
 
 const {
-  getREST,
   checkParams,
   getCsvStoreStatus,
   parseFields,
@@ -38,7 +37,8 @@ const TYPES = require('./di/types')
 class ReportService extends Api {
   _initialize () {
     this.container = this.ctx.grc_bfx.caller.container
-    this.responder = this.container.get(TYPES.Responder)
+
+    this.container.get(TYPES.InjectDepsToRService)()
   }
 
   // TODO: need to move to some service
@@ -46,36 +46,32 @@ class ReportService extends Api {
     return grcBfxReq(this, query)
   }
 
-  // TODO: need to move the `getREST` to some service
   _getUserInfo (args) {
-    const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+    const rest = this._getREST(args.auth)
 
     return rest.userInfo()
   }
 
-  // TODO: need to move the `getREST` to some service
   _getSymbols () {
-    const rest = getREST({}, this.ctx.grc_bfx.caller)
+    const rest = this._getREST({})
 
     return rest.symbols()
   }
 
-  // TODO: need to move the `getREST` to some service
   _getFutures () {
-    const rest = getREST({}, this.ctx.grc_bfx.caller)
+    const rest = this._getREST({})
 
     return rest.futures()
   }
 
-  // TODO: need to move the `getREST` to some service
   _getCurrencies () {
-    const rest = getREST({}, this.ctx.grc_bfx.caller)
+    const rest = this._getREST({})
 
     return rest.currencies()
   }
 
   verifyDigitalSignature (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       return this._grcBfxReq({
         service: 'rest:ext:gpg',
         action: 'verifyDigitalSignature',
@@ -85,13 +81,14 @@ class ReportService extends Api {
   }
 
   isSyncModeConfig (space, args, cb) {
-    return this.responder(() => {
+    console.log('[isSyncModeConfig]'.bgBlue)
+    return this._responder(() => {
       return this.container.get(TYPES.CONF).syncMode
     }, 'isSyncModeConfig', cb)
   }
 
   getEmail (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const { email } = await this._getUserInfo(args)
 
       return email
@@ -99,7 +96,7 @@ class ReportService extends Api {
   }
 
   login (space, args, cb, isInnerCall) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const userInfo = await this._getUserInfo(args)
       const isSyncModeConfig = this.isSyncModeConfig()
 
@@ -110,7 +107,7 @@ class ReportService extends Api {
   }
 
   getUsersTimeConf (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const { timezone } = await this._getUserInfo(args)
 
       return getTimezoneConf(timezone)
@@ -118,7 +115,7 @@ class ReportService extends Api {
   }
 
   lookUpFunction (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       if (
         !args.params ||
         typeof args.params !== 'object'
@@ -143,7 +140,7 @@ class ReportService extends Api {
   }
 
   getSymbols (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const cache = accountCache.get('symbols')
 
       if (cache) return cache
@@ -162,7 +159,7 @@ class ReportService extends Api {
   }
 
   getTickersHistory (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       const { symbol: s } = { ...args.params }
       const symbol = s && typeof s === 'string'
         ? [s]
@@ -189,7 +186,7 @@ class ReportService extends Api {
   }
 
   getPositionsHistory (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -201,8 +198,8 @@ class ReportService extends Api {
   }
 
   getActivePositions (space, args, cb) {
-    return this.responder(async () => {
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+    return this._responder(async () => {
+      const rest = this._getREST(args.auth)
       const positions = await rest.positions()
 
       return Array.isArray(positions)
@@ -212,7 +209,7 @@ class ReportService extends Api {
   }
 
   getPositionsAudit (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -224,10 +221,10 @@ class ReportService extends Api {
   }
 
   getWallets (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       checkParams(args, 'paramsSchemaForWallets')
 
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+      const rest = this._getREST(args.auth)
       const { end } = { ...args.params }
 
       return end
@@ -237,7 +234,7 @@ class ReportService extends Api {
   }
 
   getLedgers (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -249,7 +246,7 @@ class ReportService extends Api {
   }
 
   getTrades (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -261,7 +258,7 @@ class ReportService extends Api {
   }
 
   getFundingTrades (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -273,7 +270,7 @@ class ReportService extends Api {
   }
 
   getPublicTrades (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       const _args = {
         ...args,
         auth: {}
@@ -290,7 +287,7 @@ class ReportService extends Api {
   }
 
   getOrderTrades (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -302,7 +299,7 @@ class ReportService extends Api {
   }
 
   getOrders (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const _res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -317,8 +314,8 @@ class ReportService extends Api {
   }
 
   getActiveOrders (space, args, cb) {
-    return this.responder(async () => {
-      const rest = getREST(args.auth, this.ctx.grc_bfx.caller)
+    return this._responder(async () => {
+      const rest = this._getREST(args.auth)
 
       const _res = await rest.activeOrders()
 
@@ -327,7 +324,7 @@ class ReportService extends Api {
   }
 
   getMovements (space, args, cb) {
-    return this.responder(() => {
+    return this._responder(() => {
       return prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -339,7 +336,7 @@ class ReportService extends Api {
   }
 
   getFundingOfferHistory (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const _res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -354,7 +351,7 @@ class ReportService extends Api {
   }
 
   getFundingLoanHistory (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const _res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -369,7 +366,7 @@ class ReportService extends Api {
   }
 
   getFundingCreditHistory (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const _res = await prepareApiResponse(
         args,
         this.ctx.grc_bfx.caller,
@@ -384,7 +381,7 @@ class ReportService extends Api {
   }
 
   getMultipleCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getMultipleCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -396,7 +393,7 @@ class ReportService extends Api {
   }
 
   getTradesCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -408,7 +405,7 @@ class ReportService extends Api {
   }
 
   getFundingTradesCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getFundingTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -420,7 +417,7 @@ class ReportService extends Api {
   }
 
   getTickersHistoryCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getTickersHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -432,7 +429,7 @@ class ReportService extends Api {
   }
 
   getWalletsCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getWalletsCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -444,7 +441,7 @@ class ReportService extends Api {
   }
 
   getPositionsHistoryCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getPositionsHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -456,7 +453,7 @@ class ReportService extends Api {
   }
 
   getActivePositionsCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getActivePositionsCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -468,7 +465,7 @@ class ReportService extends Api {
   }
 
   getPositionsAuditCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getPositionsAuditCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -480,7 +477,7 @@ class ReportService extends Api {
   }
 
   getPublicTradesCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getPublicTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -492,7 +489,7 @@ class ReportService extends Api {
   }
 
   getLedgersCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getLedgersCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -504,7 +501,7 @@ class ReportService extends Api {
   }
 
   getOrderTradesCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getOrderTradesCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -516,7 +513,7 @@ class ReportService extends Api {
   }
 
   getOrdersCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getOrdersCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -528,7 +525,7 @@ class ReportService extends Api {
   }
 
   getActiveOrdersCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getActiveOrdersCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -540,7 +537,7 @@ class ReportService extends Api {
   }
 
   getMovementsCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getMovementsCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -552,7 +549,7 @@ class ReportService extends Api {
   }
 
   getFundingOfferHistoryCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getFundingOfferHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -564,7 +561,7 @@ class ReportService extends Api {
   }
 
   getFundingLoanHistoryCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getFundingLoanHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
@@ -576,7 +573,7 @@ class ReportService extends Api {
   }
 
   getFundingCreditHistoryCsv (space, args, cb) {
-    return this.responder(async () => {
+    return this._responder(async () => {
       const status = await getCsvStoreStatus(this, args)
       const jobData = await getFundingCreditHistoryCsvJobData(this, args)
       const processorQueue = this.ctx.lokue_processor.q
