@@ -1,7 +1,6 @@
 'use strict'
 
 const { Api } = require('bfx-wrk-api')
-const { promisify } = require('util')
 
 const {
   checkParams,
@@ -87,7 +86,7 @@ class ReportService extends Api {
   }
 
   lookUpFunction (space, args, cb) {
-    return this._responder(async () => {
+    return this._responder(() => {
       if (
         !args.params ||
         typeof args.params !== 'object'
@@ -96,18 +95,8 @@ class ReportService extends Api {
       }
 
       const { service } = { ...args.params }
-      const link = this.ctx.grc_bfx.link
-      const lookup = promisify(link.lookup).bind(link)
 
-      try {
-        const res = await lookup(service)
-
-        return Array.isArray(res)
-          ? res.length
-          : 0
-      } catch (err) {
-        return 0
-      }
+      return this._hasGrcService.lookUpFunction(service)
     }, 'lookUpFunction', cb)
   }
 

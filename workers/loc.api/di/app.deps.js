@@ -32,7 +32,8 @@ module.exports = (
             ['_getREST', TYPES.GetREST],
             ['_grcBfxReq', TYPES.GrcBfxReq],
             ['_prepareApiResponse', TYPES.PrepareApiResponse],
-            ['_generateCsv', TYPES.GenerateCsv]
+            ['_generateCsv', TYPES.GenerateCsv],
+            ['_hasGrcService', TYPES.HasGrcService]
           ]
         )
       })
