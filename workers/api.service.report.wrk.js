@@ -142,7 +142,11 @@ class WrkReportServiceApi extends WrkApi {
       reportService.ctx = reportService.caller.getCtx()
     }
 
-    this.loadAppDeps(reportService)
+    this.loadAppDeps(
+      reportService,
+      processorQueue,
+      aggregatorQueue
+    )
     await reportService._initialize()
 
     processor.setReportService(reportService)

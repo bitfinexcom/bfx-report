@@ -537,6 +537,7 @@ const _getCompleteFileName = (
   return fileName
 }
 
+// TODO:
 const hasS3AndSendgrid = async reportService => {
   const lookUpFn = promisify(reportService.lookUpFunction
     .bind(reportService))
@@ -551,7 +552,8 @@ const hasS3AndSendgrid = async reportService => {
   return !!(countS3Services && countSendgridServices)
 }
 
-const _hasGPGServise = async (rService) => {
+// TODO:
+const _hasGPGService = async (rService) => {
   const lookUpFn = promisify(
     rService.lookUpFunction.bind(rService)
   )
@@ -661,7 +663,7 @@ const uploadS3 = async (
     false,
     isMultiExport
   )
-  const isUppedPGPService = await _hasGPGServise(rService)
+  const isUppedPGPService = await _hasGPGService(rService)
   const isSignReq = isSignatureRequired && isUppedPGPService
 
   const streams = filePaths.map((filePath, i) => {

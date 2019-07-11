@@ -1,7 +1,5 @@
 'use strict'
 
-const { promisify } = require('util')
-
 const { QueueJobAddingError } = require('../errors')
 
 module.exports = async (
@@ -18,7 +16,7 @@ module.exports = async (
     conf.syncMode ||
     !conf.isSpamRestrictionMode
   ) {
-    await promisify(reportService.getEmail.bind(reportService))(null, args)
+    await reportService.getEmail(null, args)
 
     return null
   }

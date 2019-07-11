@@ -2,12 +2,12 @@
 
 const { omit } = require('lodash')
 
-const {
-  checkParams,
-  getCsvArgs,
-  checkTimeLimit,
-  checkJobAndGetUserData
-} = require('./index')
+const checkParams = require('./check-params')
+const { getCsvArgs } = require('./limit-param.helpers')
+const { checkTimeLimit } = require('./date-param.helpers')
+const checkJobAndGetUserData = require(
+  './check-job-and-get-user-data'
+)
 const {
   FindMethodToGetCsvFileError,
   SymbolsTypeError

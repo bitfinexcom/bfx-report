@@ -11,5 +11,9 @@ module.exports = {
   InjectDepsToRService: Symbol.for('InjectDepsToRService'),
   GrcBfxReq: Symbol.for('GrcBfxReq'),
   PrepareResponse: Symbol.for('PrepareResponse'),
-  PrepareApiResponse: Symbol.for('PrepareApiResponse')
+  PrepareApiResponse: Symbol.for('PrepareApiResponse'),
+  HasGrcService: Symbol.for('HasGrcService'),
+  ProcessorQueue: Symbol.for('ProcessorQueue'),
+  AggregatorQueue: Symbol.for('AggregatorQueue'),
+  GenerateCsv: Symbol.for('GenerateCsv')
 }

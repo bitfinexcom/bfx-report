@@ -28,7 +28,6 @@ const {
 } = require('./api-errors-testers')
 const {
   checkParamsAuth,
-  getCsvStoreStatus,
   toString,
   parseFields,
   accountCache,
@@ -41,6 +40,7 @@ const checkJobAndGetUserData = require(
   './check-job-and-get-user-data'
 )
 const grcBfxReq = require('./grc-bfx-req')
+const generateCsv = require('./generate-csv')
 
 module.exports = {
   getREST,
@@ -48,7 +48,6 @@ module.exports = {
   getDateNotMoreNow,
   checkParams,
   checkParamsAuth,
-  getCsvStoreStatus,
   hasJobInQueueWithStatusBy,
   toString,
   isAuthError,
@@ -69,5 +68,6 @@ module.exports = {
   getCsvArgs,
   getMethodLimit,
   checkJobAndGetUserData,
-  grcBfxReq
+  grcBfxReq,
+  generateCsv
 }

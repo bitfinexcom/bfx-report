@@ -5,30 +5,10 @@ const { promisify } = require('util')
 
 const {
   checkParams,
-  getCsvStoreStatus,
   parseFields,
   accountCache,
   getTimezoneConf
 } = require('./helpers')
-const {
-  getTradesCsvJobData,
-  getFundingTradesCsvJobData,
-  getTickersHistoryCsvJobData,
-  getWalletsCsvJobData,
-  getPositionsHistoryCsvJobData,
-  getActivePositionsCsvJobData,
-  getPositionsAuditCsvJobData,
-  getPublicTradesCsvJobData,
-  getLedgersCsvJobData,
-  getOrdersCsvJobData,
-  getActiveOrdersCsvJobData,
-  getMovementsCsvJobData,
-  getFundingOfferHistoryCsvJobData,
-  getFundingLoanHistoryCsvJobData,
-  getFundingCreditHistoryCsvJobData,
-  getOrderTradesCsvJobData,
-  getMultipleCsvJobData
-} = require('./helpers/get-csv-job-data')
 const { ArgsParamsError } = require('./errors')
 const TYPES = require('./di/types')
 
@@ -74,7 +54,6 @@ class ReportService extends Api {
   }
 
   isSyncModeConfig (space, args, cb) {
-    console.log('[isSyncModeConfig]'.bgBlue)
     return this._responder(() => {
       return this.container.get(TYPES.CONF).syncMode
     }, 'isSyncModeConfig', cb)
@@ -360,206 +339,155 @@ class ReportService extends Api {
   }
 
   getMultipleCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getMultipleCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getMultipleCsvJobData',
+        args
+      )
     }, 'getMultipleCsv', cb)
   }
 
   getTradesCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getTradesCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getTradesCsvJobData',
+        args
+      )
     }, 'getTradesCsv', cb)
   }
 
   getFundingTradesCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getFundingTradesCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getFundingTradesCsvJobData',
+        args
+      )
     }, 'getFundingTradesCsv', cb)
   }
 
   getTickersHistoryCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getTickersHistoryCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getTickersHistoryCsvJobData',
+        args
+      )
     }, 'getTickersHistoryCsv', cb)
   }
 
   getWalletsCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getWalletsCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getWalletsCsvJobData',
+        args
+      )
     }, 'getWalletsCsv', cb)
   }
 
   getPositionsHistoryCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getPositionsHistoryCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getPositionsHistoryCsvJobData',
+        args
+      )
     }, 'getPositionsHistoryCsv', cb)
   }
 
   getActivePositionsCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getActivePositionsCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getActivePositionsCsvJobData',
+        args
+      )
     }, 'getActivePositionsCsv', cb)
   }
 
   getPositionsAuditCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getPositionsAuditCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getPositionsAuditCsvJobData',
+        args
+      )
     }, 'getPositionsAuditCsv', cb)
   }
 
   getPublicTradesCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getPublicTradesCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getPublicTradesCsvJobData',
+        args
+      )
     }, 'getPublicTradesCsv', cb)
   }
 
   getLedgersCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getLedgersCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getLedgersCsvJobData',
+        args
+      )
     }, 'getLedgersCsv', cb)
   }
 
   getOrderTradesCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getOrderTradesCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getOrderTradesCsvJobData',
+        args
+      )
     }, 'getOrderTradesCsv', cb)
   }
 
   getOrdersCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getOrdersCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getOrdersCsvJobData',
+        args
+      )
     }, 'getOrdersCsv', cb)
   }
 
   getActiveOrdersCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getActiveOrdersCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getActiveOrdersCsvJobData',
+        args
+      )
     }, 'getActiveOrdersCsv', cb)
   }
 
   getMovementsCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getMovementsCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getMovementsCsvJobData',
+        args
+      )
     }, 'getMovementsCsv', cb)
   }
 
   getFundingOfferHistoryCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getFundingOfferHistoryCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getFundingOfferHistoryCsvJobData',
+        args
+      )
     }, 'getFundingOfferHistoryCsv', cb)
   }
 
   getFundingLoanHistoryCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getFundingLoanHistoryCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getFundingLoanHistoryCsvJobData',
+        args
+      )
     }, 'getFundingLoanHistoryCsv', cb)
   }
 
   getFundingCreditHistoryCsv (space, args, cb) {
-    return this._responder(async () => {
-      const status = await getCsvStoreStatus(this, args)
-      const jobData = await getFundingCreditHistoryCsvJobData(this, args)
-      const processorQueue = this.ctx.lokue_processor.q
-
-      processorQueue.addJob(jobData)
-
-      return status
+    return this._responder(() => {
+      return this._generateCsv(
+        'getFundingCreditHistoryCsvJobData',
+        args
+      )
     }, 'getFundingCreditHistoryCsv', cb)
   }
 }

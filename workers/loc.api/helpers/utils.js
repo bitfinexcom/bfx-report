@@ -3,10 +3,8 @@
 const { transform } = require('lodash')
 const LRU = require('lru')
 
-const { hasS3AndSendgrid } = require('../queue/helpers')
 const {
   ObjectMappingError,
-  EmailSendingError,
   AuthError
 } = require('../errors')
 
@@ -19,23 +17,6 @@ const checkParamsAuth = (args) => {
   ) {
     throw new AuthError()
   }
-}
-
-const getCsvStoreStatus = async (reportService, args) => {
-  if (
-    !args.params ||
-    typeof args.params !== 'object' ||
-    !args.params.email ||
-    typeof args.params.email !== 'string'
-  ) {
-    return { isSaveLocaly: true }
-  }
-
-  if (!await hasS3AndSendgrid(reportService)) {
-    throw new EmailSendingError()
-  }
-
-  return { isSendEmail: true }
 }
 
 const toString = (obj) => {
@@ -137,7 +118,6 @@ const emptyRes = (cb) => {
 
 module.exports = {
   checkParamsAuth,
-  getCsvStoreStatus,
   toString,
   parseFields,
   accountCache,
