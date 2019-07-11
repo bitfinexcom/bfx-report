@@ -9,8 +9,7 @@ const {
   parseFields,
   accountCache,
   getTimezoneConf,
-  prepareApiResponse,
-  grcBfxReq
+  prepareApiResponse
 } = require('./helpers')
 const {
   getTradesCsvJobData,
@@ -39,11 +38,6 @@ class ReportService extends Api {
     this.container = this.ctx.grc_bfx.caller.container
 
     this.container.get(TYPES.InjectDepsToRService)()
-  }
-
-  // TODO: need to move to some service
-  _grcBfxReq (query = {}) {
-    return grcBfxReq(this, query)
   }
 
   _getUserInfo (args) {

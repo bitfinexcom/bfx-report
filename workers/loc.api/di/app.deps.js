@@ -8,7 +8,8 @@ const bindDepsToInstance = require('./bind-deps-to-instance')
 
 const responder = require('../responder')
 const {
-  getREST
+  getREST,
+  grcBfxReq
 } = require('../helpers')
 
 module.exports = (
@@ -21,7 +22,8 @@ module.exports = (
         ctx.container.get(TYPES.RService),
         [
           ['_responder', TYPES.Responder],
-          ['_getREST', TYPES.GetREST]
+          ['_getREST', TYPES.GetREST],
+          ['_grcBfxReq', TYPES.GrcBfxReq]
         ]
       )
     }).inSingletonScope()
@@ -35,6 +37,12 @@ module.exports = (
       bindDepsToFn(
         getREST,
         [TYPES.CONF]
+      )
+    )
+    bind(TYPES.GrcBfxReq).toConstantValue(
+      bindDepsToFn(
+        grcBfxReq,
+        [TYPES.RService]
       )
     )
   })

@@ -8,5 +8,6 @@ module.exports = {
   RService: Symbol.for('RService'),
   Responder: Symbol.for('Responder'),
   GetREST: Symbol.for('GetREST'),
-  InjectDepsToRService: Symbol.for('InjectDepsToRService')
+  InjectDepsToRService: Symbol.for('InjectDepsToRService'),
+  GrcBfxReq: Symbol.for('GrcBfxReq')
 }
