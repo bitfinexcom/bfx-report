@@ -9,5 +9,7 @@ module.exports = {
   Responder: Symbol.for('Responder'),
   GetREST: Symbol.for('GetREST'),
   InjectDepsToRService: Symbol.for('InjectDepsToRService'),
-  GrcBfxReq: Symbol.for('GrcBfxReq')
+  GrcBfxReq: Symbol.for('GrcBfxReq'),
+  PrepareResponse: Symbol.for('PrepareResponse'),
+  PrepareApiResponse: Symbol.for('PrepareApiResponse')
 }

@@ -8,8 +8,7 @@ const {
   getCsvStoreStatus,
   parseFields,
   accountCache,
-  getTimezoneConf,
-  prepareApiResponse
+  getTimezoneConf
 } = require('./helpers')
 const {
   getTradesCsvJobData,
@@ -167,10 +166,8 @@ class ReportService extends Api {
         }
       }
 
-      // TODO: need to move the `prepareApiResponse` to some service
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         _args,
-        this.ctx.grc_bfx.caller,
         'tickersHistory',
         'mtsUpdate',
         null,
@@ -181,9 +178,8 @@ class ReportService extends Api {
 
   getPositionsHistory (space, args, cb) {
     return this._responder(() => {
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'positionsHistory',
         'mtsUpdate',
         'symbol'
@@ -204,9 +200,8 @@ class ReportService extends Api {
 
   getPositionsAudit (space, args, cb) {
     return this._responder(() => {
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'positionsAudit',
         'mtsUpdate',
         'symbol'
@@ -229,9 +224,8 @@ class ReportService extends Api {
 
   getLedgers (space, args, cb) {
     return this._responder(() => {
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'ledgers',
         'mts',
         'currency'
@@ -241,9 +235,8 @@ class ReportService extends Api {
 
   getTrades (space, args, cb) {
     return this._responder(() => {
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'trades',
         'mtsCreate',
         'symbol'
@@ -253,9 +246,8 @@ class ReportService extends Api {
 
   getFundingTrades (space, args, cb) {
     return this._responder(() => {
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'fundingTrades',
         'mtsCreate',
         'symbol'
@@ -270,9 +262,8 @@ class ReportService extends Api {
         auth: {}
       }
 
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         _args,
-        this.ctx.grc_bfx.caller,
         'publicTrades',
         'mts',
         ['symbol']
@@ -282,9 +273,8 @@ class ReportService extends Api {
 
   getOrderTrades (space, args, cb) {
     return this._responder(() => {
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'orderTrades',
         'mtsCreate',
         'symbol'
@@ -294,9 +284,8 @@ class ReportService extends Api {
 
   getOrders (space, args, cb) {
     return this._responder(async () => {
-      const _res = await prepareApiResponse(
+      const _res = await this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'orders',
         'mtsUpdate',
         'symbol'
@@ -319,9 +308,8 @@ class ReportService extends Api {
 
   getMovements (space, args, cb) {
     return this._responder(() => {
-      return prepareApiResponse(
+      return this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'movements',
         'mtsUpdated',
         'currency'
@@ -331,9 +319,8 @@ class ReportService extends Api {
 
   getFundingOfferHistory (space, args, cb) {
     return this._responder(async () => {
-      const _res = await prepareApiResponse(
+      const _res = await this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'fundingOfferHistory',
         'mtsUpdate',
         'symbol'
@@ -346,9 +333,8 @@ class ReportService extends Api {
 
   getFundingLoanHistory (space, args, cb) {
     return this._responder(async () => {
-      const _res = await prepareApiResponse(
+      const _res = await this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'fundingLoanHistory',
         'mtsUpdate',
         'symbol'
@@ -361,9 +347,8 @@ class ReportService extends Api {
 
   getFundingCreditHistory (space, args, cb) {
     return this._responder(async () => {
-      const _res = await prepareApiResponse(
+      const _res = await this._prepareApiResponse(
         args,
-        this.ctx.grc_bfx.caller,
         'fundingCreditHistory',
         'mtsUpdate',
         'symbol'
