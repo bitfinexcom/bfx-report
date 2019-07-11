@@ -17,18 +17,15 @@ const readdir = promisify(fs.readdir)
 const rename = promisify(fs.rename)
 const chmod = promisify(fs.chmod)
 
+const {
+  isRateLimitError,
+  isNonceSmallError
+} = require('../helpers/api-errors-testers')
+
 const basePathToViews = path.join(__dirname, 'views')
 const pathToTrans = path.join(__dirname, 'translations/email.yml')
 const translations = yaml.safeLoad(fs.readFileSync(pathToTrans, 'utf8'))
 const isElectronjsEnv = argv.isElectronjsEnv
-
-const isRateLimitError = (err) => {
-  return /(ERR(_RATE)?_LIMIT)|(ratelimit)/.test(err.toString())
-}
-
-const isNonceSmallError = (err) => {
-  return /nonce: small/.test(err.toString())
-}
 
 const _checkAndCreateDir = async (dirPath) => {
   const basePath = path.join(dirPath, '..')

@@ -45,12 +45,6 @@ class GrenacheServiceConfigArgsError extends BaseError {
   }
 }
 
-class ObjectMappingError extends BaseError {
-  constructor (message = 'ERR_MAPPING_AN_OBJECT_BY_THE_SCHEMA') {
-    super(message)
-  }
-}
-
 class EmailSendingError extends BaseError {
   constructor (message = 'ERR_CAN_NOT_SEND_EMAIL') {
     super(message)
@@ -94,7 +88,6 @@ module.exports = {
   AuthError,
   ArgsParamsError,
   GrenacheServiceConfigArgsError,
-  ObjectMappingError,
   EmailSendingError,
   MinLimitParamError,
   QueueJobAddingError,

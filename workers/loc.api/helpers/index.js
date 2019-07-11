@@ -21,20 +21,12 @@ const hasJobInQueueWithStatusBy = require(
 )
 const {
   isAuthError,
-  isEnotfoundError,
-  isEaiAgainError,
   isRateLimitError,
   isNonceSmallError
 } = require('./api-errors-testers')
 const {
-  checkParamsAuth,
-  toString,
   parseFields,
-  accountCache,
-  refreshObj,
-  tryParseJSON,
-  mapObjBySchema,
-  emptyRes
+  accountCache
 } = require('./utils')
 const checkJobAndGetUserData = require(
   './check-job-and-get-user-data'
@@ -47,24 +39,16 @@ module.exports = {
   getLimitNotMoreThan,
   getDateNotMoreNow,
   checkParams,
-  checkParamsAuth,
   hasJobInQueueWithStatusBy,
-  toString,
   isAuthError,
-  isEnotfoundError,
-  isEaiAgainError,
   isRateLimitError,
   isNonceSmallError,
   parseFields,
   accountCache,
   getTimezoneConf,
-  refreshObj,
-  tryParseJSON,
   checkTimeLimit,
   prepareResponse,
   prepareApiResponse,
-  mapObjBySchema,
-  emptyRes,
   getCsvArgs,
   getMethodLimit,
   checkJobAndGetUserData,
