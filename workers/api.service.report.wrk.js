@@ -2,7 +2,6 @@
 
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
-const { cloneDeep } = require('lodash')
 const argv = require('yargs')
   .option('dbId', {
     type: 'number',
@@ -26,9 +25,6 @@ const diConfig = require('./loc.api/di/di.config')
 const appDeps = require('./loc.api/di/app.deps')
 const coreDeps = require('./loc.api/di/core.deps')
 const TYPES = require('./loc.api/di/types')
-
-const processor = require('./loc.api/queue/processor')
-const aggregator = require('./loc.api/queue/aggregator')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -135,48 +131,26 @@ class WrkReportServiceApi extends WrkApi {
   async _initService () {
     const processorQueue = this.lokue_processor.q
     const aggregatorQueue = this.lokue_aggregator.q
-    const conf = this.conf[this.group]
-    const reportService = this.grc_bfx.api
+    const rService = this.grc_bfx.api
 
-    if (!reportService.ctx) {
-      reportService.ctx = reportService.caller.getCtx()
+    if (!rService.ctx) {
+      rService.ctx = rService.caller.getCtx()
     }
 
     this.loadAppDeps(
-      reportService,
+      rService,
       processorQueue,
-      aggregatorQueue
+      aggregatorQueue,
+      this.deflate_gzip
     )
-    await reportService._initialize()
+    await rService._initialize()
 
-    processor.setReportService(reportService)
-    aggregator.setReportService(reportService)
+    const processor = this.container.get(TYPES.Processor)
+    const aggregator = this.container.get(TYPES.Aggregator)
 
     processorQueue.on('job', processor)
     aggregatorQueue.on('job', aggregator)
 
-    processorQueue.on('completed', (result) => {
-      aggregatorQueue.addJob({
-        ...result,
-        emailConf: conf.emailConf,
-        s3Conf: conf.s3Conf
-      })
-    })
-    processorQueue.on('error:auth', (job) => {
-      const data = cloneDeep(job.data)
-      delete data.columnsCsv
-
-      if (Array.isArray(data.jobsData)) {
-        data.jobsData.forEach(item => {
-          delete item.columnsCsv
-        })
-      }
-
-      processorQueue.addJob({
-        ...data,
-        isUnauth: true
-      })
-    })
     processorQueue.on('error:base', (err) => {
       this.logger.error(`PROCESSOR:QUEUE: ${err.stack || err}`)
     })

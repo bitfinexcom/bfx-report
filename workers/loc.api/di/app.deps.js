@@ -15,14 +15,21 @@ const {
   generateCsv
 } = require('../helpers')
 const HasGrcService = require('../has.grc.service')
+const processor = require('../queue/processor')
+const aggregator = require('../queue/aggregator')
+const writeDataToStream = require('../queue/write-data-to-stream')
+const uploadToS3 = require('../queue/upload-to-s3')
+const sendMail = require('../queue/send-mail')
 
 module.exports = (
   rService,
   processorQueue,
-  aggregatorQueue
+  aggregatorQueue,
+  deflateFac
 ) => {
   return new ContainerModule((bind) => {
     bind(TYPES.RService).toConstantValue(rService)
+    bind(TYPES.RootPath).toConstantValue(rService.ctx.rootPath)
     bind(TYPES.InjectDepsToRService)
       .toDynamicValue((ctx) => {
         return bindDepsToInstance(
@@ -74,6 +81,9 @@ module.exports = (
     bind(TYPES.AggregatorQueue).toConstantValue(
       aggregatorQueue
     )
+    bind(TYPES.DeflateFac).toConstantValue(
+      deflateFac
+    )
     bind(TYPES.GenerateCsv).toConstantValue(
       bindDepsToFn(
         generateCsv,
@@ -82,6 +92,60 @@ module.exports = (
           TYPES.ProcessorQueue,
           TYPES.HasGrcService
         ]
+      )
+    )
+    bind(TYPES.WriteDataToStream).toConstantValue(
+      bindDepsToFn(
+        writeDataToStream,
+        [
+          TYPES.RService,
+          TYPES.ProcessorQueue
+        ]
+      )
+    )
+    bind(TYPES.UploadToS3).toConstantValue(
+      bindDepsToFn(
+        uploadToS3,
+        [
+          TYPES.CONF,
+          TYPES.DeflateFac,
+          TYPES.HasGrcService,
+          TYPES.GrcBfxReq
+        ],
+        true
+      )
+    )
+    bind(TYPES.SendMail).toConstantValue(
+      bindDepsToFn(
+        sendMail,
+        [TYPES.GrcBfxReq],
+        true
+      )
+    )
+    bind(TYPES.Processor).toConstantValue(
+      bindDepsToFn(
+        processor,
+        [
+          TYPES.CONF,
+          TYPES.RootPath,
+          TYPES.ProcessorQueue,
+          TYPES.AggregatorQueue,
+          TYPES.WriteDataToStream
+        ],
+        true
+      )
+    )
+    bind(TYPES.Aggregator).toConstantValue(
+      bindDepsToFn(
+        aggregator,
+        [
+          TYPES.RootPath,
+          TYPES.AggregatorQueue,
+          TYPES.HasGrcService,
+          TYPES.UploadToS3,
+          TYPES.SendMail
+        ],
+        true
       )
     )
   })
