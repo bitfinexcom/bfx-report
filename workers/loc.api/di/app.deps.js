@@ -21,27 +21,29 @@ const writeDataToStream = require('../queue/write-data-to-stream')
 const uploadToS3 = require('../queue/upload-to-s3')
 const sendMail = require('../queue/send-mail')
 
-module.exports = (
+module.exports = ({
   rService,
   processorQueue,
   aggregatorQueue,
-  deflateFac
-) => {
+  deflateFac,
+  link
+}) => {
   return new ContainerModule((bind) => {
     bind(TYPES.RService).toConstantValue(rService)
     bind(TYPES.RootPath).toConstantValue(rService.ctx.rootPath)
+    bind(TYPES.RServiceDepsSchema).toConstantValue([
+      ['_responder', TYPES.Responder],
+      ['_getREST', TYPES.GetREST],
+      ['_grcBfxReq', TYPES.GrcBfxReq],
+      ['_prepareApiResponse', TYPES.PrepareApiResponse],
+      ['_generateCsv', TYPES.GenerateCsv],
+      ['_hasGrcService', TYPES.HasGrcService]
+    ])
     bind(TYPES.InjectDepsToRService)
       .toDynamicValue((ctx) => {
         return bindDepsToInstance(
           ctx.container.get(TYPES.RService),
-          [
-            ['_responder', TYPES.Responder],
-            ['_getREST', TYPES.GetREST],
-            ['_grcBfxReq', TYPES.GrcBfxReq],
-            ['_prepareApiResponse', TYPES.PrepareApiResponse],
-            ['_generateCsv', TYPES.GenerateCsv],
-            ['_hasGrcService', TYPES.HasGrcService]
-          ]
+          ctx.container.get(TYPES.RServiceDepsSchema)
         )
       })
       .inSingletonScope()
@@ -72,6 +74,7 @@ module.exports = (
         [TYPES.GetREST]
       )
     )
+    bind(TYPES.Link).toConstantValue(link)
     bind(TYPES.HasGrcService)
       .to(HasGrcService)
       .inSingletonScope()

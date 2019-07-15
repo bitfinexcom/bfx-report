@@ -27,15 +27,15 @@ const coreDeps = require('./loc.api/di/core.deps')
 const TYPES = require('./loc.api/di/types')
 
 class WrkReportServiceApi extends WrkApi {
-  constructor (conf, ctx) {
+  constructor (conf, ctx, args = []) {
     super(conf, ctx)
 
     this.loadConf('service.report', 'report')
 
-    this._setArgsOfCommandLineToConf([
-      'isSpamRestrictionMode',
-      'isLoggerDisabled'
-    ])
+    this.setArgsOfCommandLineToConf()
+
+    this.coreDeps = []
+    this.appDeps = []
 
     this.loadDIConfig()
     this.loadCoreDeps()
@@ -55,13 +55,13 @@ class WrkReportServiceApi extends WrkApi {
   }
 
   loadCoreDeps (...args) {
-    this.coreDeps = coreDeps(...args)
-    this.container.load(this.coreDeps)
+    this.coreDeps.push(coreDeps(...args))
+    this.container.load(...this.coreDeps)
   }
 
   loadAppDeps (...args) {
-    this.appDeps = appDeps(...args)
-    this.container.load(this.appDeps)
+    this.appDeps.push(appDeps(...args))
+    this.container.load(...this.appDeps)
   }
 
   getPluginCtx (type) {
@@ -75,14 +75,19 @@ class WrkReportServiceApi extends WrkApi {
     return ctx
   }
 
-  _setArgsOfCommandLineToConf (names = []) {
-    const group = this.group
-    const conf = this.conf[group]
+  setArgsOfCommandLineToConf (
+    args = argv,
+    names = [
+      'isSpamRestrictionMode',
+      'isLoggerDisabled'
+    ]
+  ) {
+    const conf = this.conf[this.group]
 
     names.forEach(name => {
-      if (typeof argv[name] !== 'undefined') {
-        conf[name] = argv[name]
-        this.ctx[name] = argv[name]
+      if (typeof args[name] !== 'undefined') {
+        conf[name] = args[name]
+        this.ctx[name] = args[name]
 
         return
       }
@@ -128,7 +133,7 @@ class WrkReportServiceApi extends WrkApi {
     this.setInitFacs(facs)
   }
 
-  async _initService () {
+  async initService (deps) {
     const processorQueue = this.lokue_processor.q
     const aggregatorQueue = this.lokue_aggregator.q
     const rService = this.grc_bfx.api
@@ -137,12 +142,14 @@ class WrkReportServiceApi extends WrkApi {
       rService.ctx = rService.caller.getCtx()
     }
 
-    this.loadAppDeps(
+    this.loadAppDeps({
       rService,
       processorQueue,
       aggregatorQueue,
-      this.deflate_gzip
-    )
+      deflateFac: this.deflate_gzip,
+      link: this.grc_bfx.link,
+      ...deps
+    })
     await rService._initialize()
 
     const processor = this.container.get(TYPES.Processor)
@@ -159,11 +166,13 @@ class WrkReportServiceApi extends WrkApi {
     })
   }
 
+  async stopService () {}
+
   _start (cb) {
     async.series(
       [
         next => { super._start(next) },
-        next => { this._initService().then(next).catch(next) },
+        next => { this.initService().then(next).catch(next) },
         next => {
           this.emit('wrk:ready')
 
@@ -185,11 +194,12 @@ class WrkReportServiceApi extends WrkApi {
   _stop (cb) {
     async.series(
       [
+        next => { this.stopService().then(next).catch(next) },
         next => { super._stop(next) },
         next => {
           this.container.unbindAll()
-          this.container.unload(this.coreDeps)
-          this.container.unload(this.appDeps)
+          this.container.unload(...this.coreDeps)
+          this.container.unload(...this.appDeps)
 
           next()
         }

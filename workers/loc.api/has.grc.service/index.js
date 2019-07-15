@@ -10,13 +10,13 @@ const {
 const TYPES = require('../di/types')
 
 class HasGrcService {
-  constructor (rService) {
-    this.rService = rService
+  constructor (link) {
+    this.link = link
   }
 
   async lookUpFunction (service) {
-    const link = this.rService.ctx.grc_bfx.link
-    const lookup = promisify(link.lookup).bind(link)
+    const lookup = promisify(this.link.lookup)
+      .bind(this.link)
 
     try {
       const res = await lookup(service)
@@ -50,6 +50,6 @@ class HasGrcService {
 }
 
 decorate(injectable(), HasGrcService)
-decorate(inject(TYPES.RService), HasGrcService, 0)
+decorate(inject(TYPES.Link), HasGrcService, 0)
 
 module.exports = HasGrcService
