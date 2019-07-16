@@ -1,5 +1,7 @@
 'use strict'
 
+const { omit } = require('lodash')
+
 const getCsvJobData = require('./get-csv-job-data')
 const {
   EmailSendingError
@@ -30,13 +32,18 @@ module.exports = async (
   processorQueue,
   hasGrcService,
   name,
-  args
+  incomingArgs
 ) => {
+  const args = omit(incomingArgs, ['getCsvJobData'])
   const status = await _getCsvStoreStatus(
     hasGrcService,
     args
   )
-  const getter = getCsvJobData[name].bind(getCsvJobData)
+  const _getCsvJobData = {
+    ...getCsvJobData,
+    ...incomingArgs.getCsvJobData
+  }
+  const getter = _getCsvJobData[name].bind(getCsvJobData)
   const jobData = await getter(rService, args)
 
   processorQueue.addJob(jobData)
