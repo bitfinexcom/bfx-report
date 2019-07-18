@@ -12,6 +12,7 @@ module.exports = {
   GetREST: Symbol.for('GetREST'),
   InjectDepsToRService: Symbol.for('InjectDepsToRService'),
   RServiceDepsSchema: Symbol.for('RServiceDepsSchema'),
+  RServiceDepsSchemaAliase: Symbol.for('RServiceDepsSchemaAliase'),
   GrcBfxReq: Symbol.for('GrcBfxReq'),
   PrepareResponse: Symbol.for('PrepareResponse'),
   PrepareApiResponse: Symbol.for('PrepareApiResponse'),

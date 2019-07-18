@@ -39,11 +39,15 @@ module.exports = ({
       ['_generateCsv', TYPES.GenerateCsv],
       ['_hasGrcService', TYPES.HasGrcService]
     ])
+    bind(TYPES.RServiceDepsSchemaAliase)
+      .toDynamicValue((ctx) => {
+        return ctx.container.get(TYPES.RServiceDepsSchema)
+      })
     bind(TYPES.InjectDepsToRService)
       .toDynamicValue((ctx) => {
         return bindDepsToInstance(
           ctx.container.get(TYPES.RService),
-          ctx.container.get(TYPES.RServiceDepsSchema)
+          ctx.container.get(TYPES.RServiceDepsSchemaAliase)
         )
       })
       .inSingletonScope()
