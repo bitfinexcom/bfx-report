@@ -27,7 +27,7 @@ const coreDeps = require('./loc.api/di/core.deps')
 const TYPES = require('./loc.api/di/types')
 
 class WrkReportServiceApi extends WrkApi {
-  constructor (conf, ctx, args = []) {
+  constructor (conf, ctx) {
     super(conf, ctx)
 
     this.loadConf('service.report', 'report')
