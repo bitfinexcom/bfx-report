@@ -54,7 +54,10 @@ module.exports = ({
     bind(TYPES.Responder).toConstantValue(
       bindDepsToFn(
         responder,
-        [TYPES.Container, TYPES.Logger]
+        [
+          TYPES.Container,
+          TYPES.Logger
+        ]
       )
     )
     bind(TYPES.GetREST).toConstantValue(
@@ -118,15 +121,13 @@ module.exports = ({
           TYPES.DeflateFac,
           TYPES.HasGrcService,
           TYPES.GrcBfxReq
-        ],
-        true
+        ]
       )
     )
     bind(TYPES.SendMail).toConstantValue(
       bindDepsToFn(
         sendMail,
-        [TYPES.GrcBfxReq],
-        true
+        [TYPES.GrcBfxReq]
       )
     )
     bind(TYPES.Processor).toConstantValue(
@@ -138,8 +139,7 @@ module.exports = ({
           TYPES.ProcessorQueue,
           TYPES.AggregatorQueue,
           TYPES.WriteDataToStream
-        ],
-        true
+        ]
       )
     )
     bind(TYPES.Aggregator).toConstantValue(
@@ -151,8 +151,7 @@ module.exports = ({
           TYPES.HasGrcService,
           TYPES.UploadToS3,
           TYPES.SendMail
-        ],
-        true
+        ]
       )
     )
   })

@@ -15,7 +15,14 @@ const _prepareErrorData = (err, name) => {
   return `${_name}${_statusCode}${_options}${_err}`
 }
 
-module.exports = (container, logger, handler, name, done) => {
+module.exports = (
+  container,
+  logger
+) => (
+  handler,
+  name,
+  done
+) => {
   const cb = typeof name === 'function'
     ? name
     : done

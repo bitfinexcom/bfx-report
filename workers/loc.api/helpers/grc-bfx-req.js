@@ -1,14 +1,13 @@
 'use strict'
 
 module.exports = (
-  rService,
-  {
-    service,
-    action,
-    args = [],
-    timeout = 10000
-  } = {}
-) => {
+  rService
+) => ({
+  service,
+  action,
+  args = [],
+  timeout = 10000
+} = {}) => {
   return new Promise((resolve, reject) => {
     rService.ctx.grc_bfx.req(
       service,

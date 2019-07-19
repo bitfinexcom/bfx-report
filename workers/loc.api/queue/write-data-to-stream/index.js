@@ -11,9 +11,10 @@ const {
   progress
 } = require('./helpers')
 
-module.exports = async (
+module.exports = (
   rService,
-  processorQueue,
+  processorQueue
+) => async (
   stream,
   jobData
 ) => {

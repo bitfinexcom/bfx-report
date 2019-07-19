@@ -44,7 +44,11 @@ const _bfxFactory = ({
   })
 }
 
-module.exports = (conf, auth) => {
+module.exports = (
+  conf
+) => (
+  auth
+) => {
   if (typeof auth !== 'object') {
     throw new AuthError()
   }

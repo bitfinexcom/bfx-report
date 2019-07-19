@@ -27,10 +27,11 @@ const _getCsvStoreStatus = async (
   return { isSendEmail: true }
 }
 
-module.exports = async (
+module.exports = (
   rService,
   processorQueue,
-  hasGrcService,
+  hasGrcService
+) => async (
   name,
   incomingArgs
 ) => {

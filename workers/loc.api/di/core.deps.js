@@ -13,8 +13,7 @@ module.exports = () => {
     bind(TYPES.Logger).toDynamicValue((ctx) => {
       return bindDepsToFn(
         ctx.container.get(TYPES.LoggerFactory),
-        [TYPES.CONF],
-        true
+        [TYPES.CONF]
       )
     }).inSingletonScope()
   })

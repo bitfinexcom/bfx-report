@@ -238,8 +238,9 @@ const prepareResponse = (
   return { res, nextPage }
 }
 
-const prepareApiResponse = async (
-  getREST,
+const prepareApiResponse = (
+  getREST
+) => async (
   args,
   methodApi,
   datePropName,
