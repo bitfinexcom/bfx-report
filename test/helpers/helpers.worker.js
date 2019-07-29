@@ -84,7 +84,8 @@ const startWorkers = (
   countWrk = 1,
   conf = {},
   serviceRoot = _serviceRoot,
-  isNotStartedEnv
+  isNotStartedEnv,
+  calcServiceWrksAmount = (amount) => amount
 ) => {
   const _conf = {
     env: 'development',
@@ -131,7 +132,9 @@ const startWorkers = (
   return {
     wrkIpcs,
     wrksReportServiceApi,
-    amount: serviceWrksAmount + helperWrksAmount
+    amount: calcServiceWrksAmount(
+      serviceWrksAmount
+    ) + helperWrksAmount
   }
 }
 
