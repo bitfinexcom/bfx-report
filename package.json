@@ -40,9 +40,7 @@
     "mocha": "^6.1.4",
     "nodemon": "^1.18.6",
     "standard": "^12.0.1",
-    "supertest": "^4.0.2",
-    "grenache-nodejs-http": "^0.7.8",
-    "grenache-nodejs-link": "^0.7.10"
+    "supertest": "^4.0.2"
   },
   "standard": {
     "globals": [
