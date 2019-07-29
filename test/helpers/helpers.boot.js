@@ -2,7 +2,7 @@
 
 const {
   stopWorkers,
-  startWorkers
+  startWorkers: _startWorkers
 } = require('./helpers.worker')
 const {
   bootTwoGrapes,
@@ -17,7 +17,8 @@ const startEnvironment = async (
   countWrk = 1,
   conf = {},
   serviceRoot,
-  isNotStartedEnv
+  isNotStartedEnv,
+  startWorkers = _startWorkers
 ) => {
   let count = 0
 
