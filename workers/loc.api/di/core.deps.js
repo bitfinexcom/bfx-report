@@ -3,7 +3,7 @@
 const { ContainerModule } = require('inversify')
 
 const TYPES = require('./types')
-const bindDepsToFn = require('./bind-deps-to-fn')
+const { bindDepsToFn } = require('./helpers')
 
 const loggerFactory = require('../logger')
 

@@ -3,8 +3,10 @@
 const { ContainerModule } = require('inversify')
 
 const TYPES = require('./types')
-const bindDepsToFn = require('./bind-deps-to-fn')
-const bindDepsToInstance = require('./bind-deps-to-instance')
+const {
+  bindDepsToFn,
+  bindDepsToInstance
+} = require('./helpers')
 
 const responder = require('../responder')
 const {
