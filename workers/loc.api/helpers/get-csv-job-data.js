@@ -797,12 +797,12 @@ const getMultipleCsvJobData = async (
 
   for (const params of args.params.multiExport) {
     const getJobDataMethodName = `${params.method}JobData`
-    const hasGetJobDataMethod = Object.keys(_getCsvJobData).every((name) => {
+    const hasNotGetJobDataMethod = Object.keys(_getCsvJobData).every((name) => {
       return name !== getJobDataMethodName
     })
 
     if (
-      hasGetJobDataMethod ||
+      hasNotGetJobDataMethod ||
       typeof reportService[params.method] !== 'function'
     ) {
       throw new FindMethodToGetCsvFileError()
