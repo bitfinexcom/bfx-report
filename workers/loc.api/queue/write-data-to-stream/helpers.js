@@ -44,10 +44,29 @@ const _formatters = {
   },
   symbol: symbol => {
     if (
+      symbol.length > 6 &&
+      /.+[:].+/.test(symbol)
+    ) {
+      const str = (
+        symbol[0] === 't' ||
+        symbol[0] === 'f'
+      )
+        ? symbol.slice(1)
+        : symbol
+
+      return str.split(':').join('/')
+    }
+    if (
       symbol[0] !== 't' &&
       symbol[0] !== 'f'
     ) {
       return symbol
+    }
+    if (
+      symbol.length > 4 &&
+      symbol.length < 7
+    ) {
+      return symbol.slice(1)
     }
 
     return `${symbol.slice(1, 4)}${symbol[4]
