@@ -5,13 +5,13 @@ const { assert } = require('chai')
 const request = require('supertest')
 
 const {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 } = require('./helpers/helpers.boot')
 const {
   rmDB,
   rmAllFiles,
-  queuesToPromiseMulti
+  ipcsToPromiseMulti
 } = require('./helpers/helpers.core')
 const {
   createMockRESTv2SrvWithDate
@@ -24,15 +24,10 @@ process.env.NODE_CONFIG_DIR = path.join(__dirname, 'config')
 const { app } = require('bfx-report-express')
 const agent = request.agent(app)
 
-let wrksReportServiceApi = []
-let auth = {
-  apiKey: 'fake',
-  apiSecret: 'fake'
-}
-let processorQueues = []
-let aggregatorQueues = []
+const ipcs = []
 let mockRESTv2Srv = null
 
+const serviceTest = path.join(__dirname, 'helpers/helpers.queue-load.js')
 const basePath = '/api'
 const tempDirPath = path.join(__dirname, '..', 'workers/loc.api/queue/temp')
 const dbDirPath = path.join(__dirname, '..', 'db')
@@ -41,6 +36,10 @@ const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
 const email = 'fake@email.fake'
 const limit = 10000
+const auth = {
+  apiKey: 'fake',
+  apiSecret: 'fake'
+}
 
 describe('Queue load', () => {
   before(async function () {
@@ -53,20 +52,22 @@ describe('Queue load', () => {
 
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
-    const env = await startEnviroment(false, false, 8)
 
-    wrksReportServiceApi = env.wrksReportServiceApi
+    const env = await startEnvironment(
+      false,
+      true,
+      8,
+      {},
+      serviceTest
+    )
 
-    wrksReportServiceApi.forEach(wrk => {
-      processorQueues.push(wrk.lokue_processor.q)
-      aggregatorQueues.push(wrk.lokue_aggregator.q)
-    })
+    ipcs.push(...env.wrkIpcs)
   })
 
   after(async function () {
     this.timeout(10000)
 
-    await stopEnviroment()
+    await stopEnvironment()
     await rmDB(dbDirPath)
     await rmAllFiles(tempDirPath)
 
@@ -79,12 +80,17 @@ describe('Queue load', () => {
     this.timeout(10 * 60000)
 
     const count = 100
-    const procPromise = queuesToPromiseMulti(
-      processorQueues,
+    const procPromise = ipcsToPromiseMulti(
+      'processor',
+      ipcs,
       count,
       testProcQueue
     )
-    const aggrPromise = queuesToPromiseMulti(aggregatorQueues, count)
+    const aggrPromise = ipcsToPromiseMulti(
+      'aggregator',
+      ipcs,
+      count
+    )
 
     for (let i = 0; i < count; i += 1) {
       const res = await agent

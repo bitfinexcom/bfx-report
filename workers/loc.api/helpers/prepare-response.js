@@ -2,7 +2,6 @@
 
 const { cloneDeep } = require('lodash')
 
-const getREST = require('./get-rest')
 const checkParams = require('./check-params')
 const { getMethodLimit } = require('./limit-param.helpers')
 const { getDateNotMoreNow } = require('./date-param.helpers')
@@ -169,12 +168,12 @@ const _parseMethodApi = name => {
 }
 
 const _requestToApi = (
-  wrk,
+  getREST,
   method,
   paramsArr,
   auth
 ) => {
-  const rest = getREST(auth, wrk)
+  const rest = getREST(auth)
 
   return rest[_parseMethodApi(method)].bind(rest)(...paramsArr)
 }
@@ -239,9 +238,10 @@ const prepareResponse = (
   return { res, nextPage }
 }
 
-const prepareApiResponse = async (
+const prepareApiResponse = (
+  getREST
+) => async (
   args,
-  wrk,
   methodApi,
   datePropName,
   symbPropName,
@@ -258,7 +258,7 @@ const prepareApiResponse = async (
   } = _getParams(args, methodApi, symbPropName)
 
   const res = await _requestToApi(
-    wrk,
+    getREST,
     methodApi,
     paramsArr,
     args.auth

@@ -3,7 +3,6 @@
 const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
-const SqliteDb = require('sqlite3')
 
 const readdir = promisify(fs.readdir)
 const unlink = promisify(fs.unlink)
@@ -97,38 +96,44 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
   })
 }
 
-const delay = (mc = 500) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, mc)
-  })
-}
-
-const connToSQLite = (wrk) => {
+const ipcsToPromiseMulti = (name, ipcs, count, cb = () => { }) => {
   return new Promise((resolve, reject) => {
-    const db = new SqliteDb.Database(':memory:', async (err) => {
-      if (err) {
-        reject(err)
+    let currCount = 0
+
+    const onCompleted = ({
+      action = 'completed',
+      result
+    }) => {
+      if (`${name}:error` === action) {
+        reject(result)
 
         return
       }
-
-      wrk.grc_bfx.api.db = db
-      await wrk.grc_bfx.api._syncModeInitialize(db)
-      resolve(db)
-    })
-  })
-}
-
-const closeSQLite = (db) => {
-  return new Promise((resolve, reject) => {
-    db.close((err) => {
-      if (err) {
-        reject(err)
-
+      if (`${name}:completed` !== action) {
         return
       }
 
-      resolve()
+      currCount += 1
+
+      try {
+        cb(result)
+      } catch (err) {
+        reject(err)
+      }
+
+      if (currCount >= count) {
+        ipcs.forEach(ipc => {
+          ipc.removeListener('message', onCompleted)
+          ipc.removeListener('error', reject)
+        })
+
+        resolve()
+      }
+    }
+
+    ipcs.forEach(ipc => {
+      ipc.once('error', reject)
+      ipc.on('message', onCompleted)
     })
   })
 }
@@ -139,7 +144,5 @@ module.exports = {
   queueToPromise,
   queueToPromiseMulti,
   queuesToPromiseMulti,
-  delay,
-  connToSQLite,
-  closeSQLite
+  ipcsToPromiseMulti
 }

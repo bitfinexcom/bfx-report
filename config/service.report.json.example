@@ -15,7 +15,5 @@
   },
   "isSpamRestrictionMode": true,
   "isСompress": true,
-  "dbDriver": "sqlite",
-  "syncMode": true,
-  "wsPort": 1455
+  "isLoggerDisabled": false
 }

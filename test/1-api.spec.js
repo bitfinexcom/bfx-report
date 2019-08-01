@@ -5,8 +5,8 @@ const { assert } = require('chai')
 const request = require('supertest')
 
 const {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 } = require('./helpers/helpers.boot')
 const { rmDB } = require('./helpers/helpers.core')
 const {
@@ -18,17 +18,17 @@ process.env.NODE_CONFIG_DIR = path.join(__dirname, 'config')
 const { app } = require('bfx-report-express')
 const agent = request.agent(app)
 
-let auth = {
-  apiKey: 'fake',
-  apiSecret: 'fake'
-}
-let mockRESTv2Srv = null
-
 const basePath = '/api'
 const dbDirPath = path.join(__dirname, '..', 'db')
 const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 1)
+const auth = {
+  apiKey: 'fake',
+  apiSecret: 'fake'
+}
+
+let mockRESTv2Srv = null
 
 describe('API', () => {
   before(async function () {
@@ -37,7 +37,7 @@ describe('API', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, 2)
 
     await rmDB(dbDirPath)
-    await startEnviroment(false, true)
+    await startEnvironment(false, true)
   })
 
   after(async function () {
@@ -47,7 +47,7 @@ describe('API', () => {
       await mockRESTv2Srv.close()
     } catch (err) { }
 
-    await stopEnviroment()
+    await stopEnvironment()
     await rmDB(dbDirPath)
   })
 

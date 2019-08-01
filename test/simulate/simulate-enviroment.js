@@ -2,38 +2,61 @@
 
 require('colors')
 
-const { startHelpers, closeIpc } = require('../helpers/helpers.worker')
-const { bootTwoGrapes } = require('../helpers/helpers.grape')
+const {
+  startHelpers,
+  closeIpc
+} = require('../helpers/helpers.worker')
+const {
+  bootTwoGrapes,
+  killGrapes
+} = require('../helpers/helpers.grape')
 
 let count = 0
-let ipc = []
+const grapes = []
+let ipcs = []
 
-console.log('Wait till ready'.yellow)
+const _processExit = async () => {
+  await closeIpc(ipcs)
+  await killGrapes(grapes)
 
-const _processExit = () => {
-  closeIpc(ipc, process.exit)
+  process.exit()
 }
 
 process.on('SIGINT', _processExit)
-process.on('SIGHUP', () => _processExit)
-process.on('SIGTERM', () => _processExit)
+process.on('SIGHUP', _processExit)
+process.on('SIGTERM', _processExit)
 
-bootTwoGrapes((err, g) => {
-  if (err) throw err
+void (async () => {
+  try {
+    console.log('[WAIT]'.yellow)
 
-  ipc = startHelpers(true)
+    const _grapes = await bootTwoGrapes()
+    const [grape1, grape2] = _grapes
+    grapes.push(..._grapes)
 
-  const grapes = g
+    grape1.on('error', (err) => {
+      console.error('[ERR]: '.red, err.toString().red)
+    })
+    grape2.on('error', (err) => {
+      console.error('[ERR]: '.red, err.toString().red)
+    })
 
-  grapes[0].on('announce', async () => {
-    count += 1
+    ipcs = startHelpers(true)
 
-    if (count === 3) {
-      try {
-        console.log('Ready!!'.green)
-      } catch (e) {
-        console.log('Error: '.red, e.toString().red)
-      }
-    }
-  })
-})
+    await new Promise((resolve, reject) => {
+      grape1.once('error', reject)
+      grape1.once('announce', () => {
+        count += 1
+
+        if (count === 4) {
+          grape1.removeListener('error', reject)
+          resolve()
+
+          console.log('[READY]'.green)
+        }
+      })
+    })
+  } catch (err) {
+    console.error('[ERR]: '.red, err.toString().red)
+  }
+})()

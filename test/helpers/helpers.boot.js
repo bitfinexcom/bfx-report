@@ -1,73 +1,78 @@
 'use strict'
 
-const { stopWorkers, startWorkers } = require('./helpers.worker')
-const configRequest = require('./grenacheClientService')
-const { bootTwoGrapes, killGrapes } = require('./helpers.grape')
+const {
+  stopWorkers,
+  startWorkers: _startWorkers
+} = require('./helpers.worker')
+const {
+  bootTwoGrapes,
+  killGrapes
+} = require('./helpers.grape')
 
-let grapes = null
+const grapes = []
 
-const startEnviroment = (
+const startEnvironment = async (
   logs = false,
-  isRootWrk = false,
+  isForkWrk = false,
   countWrk = 1,
   conf = {},
-  serviceRoot
+  serviceRoot,
+  isNotStartedEnv,
+  startWorkers = _startWorkers
 ) => {
-  return new Promise((resolve, reject) => {
-    let count = 0
+  let count = 0
 
-    bootTwoGrapes(async (err, g) => {
-      if (err) reject(err)
-      const {
-        wrksReportServiceApi,
-        amount
-      } = startWorkers(
-        logs,
-        isRootWrk,
-        countWrk,
-        conf,
-        serviceRoot
-      )
+  if (!isNotStartedEnv) {
+    const _grapes = await bootTwoGrapes()
 
-      grapes = g
+    grapes.push(..._grapes)
+  }
 
-      grapes[0].on('announce', async () => {
+  const {
+    wrkIpcs,
+    wrksReportServiceApi,
+    amount
+  } = startWorkers(
+    logs,
+    isForkWrk,
+    countWrk,
+    conf,
+    serviceRoot,
+    isNotStartedEnv
+  )
+
+  return isNotStartedEnv
+    ? {
+      wrkIpcs,
+      wrksReportServiceApi
+    }
+    : new Promise((resolve, reject) => {
+      const [grape1] = grapes
+
+      grape1.on('announce', () => {
         count += 1
 
-        if (count === amount) {
-          try {
-            const request = await configRequest(
-              'http://127.0.0.1:30001',
-              'rest:report:api'
-            )
-            const requestCalls = await configRequest(
-              'http://127.0.0.1:30001',
-              'rest:ext:testcalls'
-            )
+        const timeout = setTimeout(reject, 5000)
 
-            resolve({ request, requestCalls, wrksReportServiceApi })
-          } catch (e) {
-            reject(e)
-          }
+        if (count === amount) {
+          clearTimeout(timeout)
+          resolve({
+            wrkIpcs,
+            wrksReportServiceApi
+          })
         }
       })
     })
-  })
 }
 
-const stopEnviroment = async () => {
+const stopEnvironment = async () => {
   await stopWorkers()
+  await killGrapes(grapes)
 
-  return new Promise((resolve, reject) => {
-    try {
-      killGrapes(grapes, resolve)
-    } catch (err) {
-      reject(err)
-    }
-  })
+  grapes.splice(0, grapes.length)
 }
 
 module.exports = {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 }

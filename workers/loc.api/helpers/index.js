@@ -21,53 +21,37 @@ const hasJobInQueueWithStatusBy = require(
 )
 const {
   isAuthError,
-  isEnotfoundError,
-  isEaiAgainError,
   isRateLimitError,
   isNonceSmallError
 } = require('./api-errors-testers')
 const {
-  checkParamsAuth,
-  getCsvStoreStatus,
-  toString,
   parseFields,
-  accountCache,
-  refreshObj,
-  tryParseJSON,
-  mapObjBySchema,
-  emptyRes
+  accountCache
 } = require('./utils')
 const checkJobAndGetUserData = require(
   './check-job-and-get-user-data'
 )
 const grcBfxReq = require('./grc-bfx-req')
+const generateCsv = require('./generate-csv')
 
 module.exports = {
   getREST,
   getLimitNotMoreThan,
   getDateNotMoreNow,
   checkParams,
-  checkParamsAuth,
-  getCsvStoreStatus,
   hasJobInQueueWithStatusBy,
-  toString,
   isAuthError,
-  isEnotfoundError,
-  isEaiAgainError,
   isRateLimitError,
   isNonceSmallError,
   parseFields,
   accountCache,
   getTimezoneConf,
-  refreshObj,
-  tryParseJSON,
   checkTimeLimit,
   prepareResponse,
   prepareApiResponse,
-  mapObjBySchema,
-  emptyRes,
   getCsvArgs,
   getMethodLimit,
   checkJobAndGetUserData,
-  grcBfxReq
+  grcBfxReq,
+  generateCsv
 }

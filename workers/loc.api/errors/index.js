@@ -11,18 +11,6 @@ class BaseError extends Error {
   }
 }
 
-class CollSyncPermissionError extends BaseError {
-  constructor (message = 'ERR_PERMISSION_DENIED_TO_SYNC_SELECTED_COLL') {
-    super(message)
-  }
-}
-
-class UpdateSyncQueueJobError extends BaseError {
-  constructor (id) {
-    super(`ERR_CAN_NOT_UPDATE_SYNC_QUEUE_JOB_BY_ID_${id}`)
-  }
-}
-
 class FindMethodError extends BaseError {
   constructor (message = 'ERR_METHOD_NOT_FOUND') {
     super(message)
@@ -35,57 +23,9 @@ class FindMethodToGetCsvFileError extends FindMethodError {
   }
 }
 
-class AsyncProgressHandlerIsNotFnError extends BaseError {
-  constructor (message = 'ERR_ASYNC_PROGRESS_HANDLER_IS_NOT_FUNCTION') {
-    super(message)
-  }
-}
-
 class AuthError extends BaseError {
   constructor (message = 'ERR_AUTH_UNAUTHORIZED') {
     super(message)
-  }
-}
-
-class AfterAllInsertsHookIsNotFnError extends BaseError {
-  constructor (message = 'ERR_AFTER_ALL_INSERTS_HOOK_IS_NOT_FUNCTION') {
-    super(message)
-  }
-}
-
-class RemoveListElemsError extends BaseError {
-  constructor (message = 'ERR_LIST_IS_NOT_ARRAY') {
-    super(message)
-  }
-}
-
-class UpdateStateCollError extends BaseError {
-  constructor (name) {
-    super(`ERR_CAN_NOT_UPDATE_STATE_OF_${name.toUpperCase()}`)
-  }
-}
-
-class UpdateSyncProgressError extends BaseError {
-  constructor (name) {
-    super(`ERR_CAN_NOT_UPDATE_${name.toUpperCase()}`)
-  }
-}
-
-class ImplementationError extends BaseError {
-  constructor (message = 'ERR_NOT_IMPLEMENTED') {
-    super(message)
-  }
-}
-
-class DAOInitializationError extends BaseError {
-  constructor (message = 'ERR_DAO_NOT_INITIALIZED') {
-    super(message)
-  }
-}
-
-class ServerAvailabilityError extends BaseError {
-  constructor (restUrl) {
-    super(`The server ${restUrl} is not available`)
   }
 }
 
@@ -101,12 +41,6 @@ class ArgsParamsError extends BaseError {
 
 class GrenacheServiceConfigArgsError extends BaseError {
   constructor (message = 'ERR_CONFIG_ARGS_NO_GRENACHE_SERVICE') {
-    super(message)
-  }
-}
-
-class ObjectMappingError extends BaseError {
-  constructor (message = 'ERR_MAPPING_AN_OBJECT_BY_THE_SCHEMA') {
     super(message)
   }
 }
@@ -147,35 +81,17 @@ class ParamsValidSchemaFindingError extends BaseError {
   }
 }
 
-class DuringSyncMethodAccessError extends BaseError {
-  constructor (message = 'ERR_DURING_SYNC_METHOD_IS_NOT_AVAILABLE') {
-    super(message)
-  }
-}
-
 module.exports = {
   BaseError,
-  CollSyncPermissionError,
-  UpdateSyncQueueJobError,
   FindMethodError,
   FindMethodToGetCsvFileError,
-  AsyncProgressHandlerIsNotFnError,
   AuthError,
-  AfterAllInsertsHookIsNotFnError,
-  RemoveListElemsError,
-  UpdateStateCollError,
-  UpdateSyncProgressError,
-  ImplementationError,
-  DAOInitializationError,
-  ServerAvailabilityError,
   ArgsParamsError,
   GrenacheServiceConfigArgsError,
-  ObjectMappingError,
   EmailSendingError,
   MinLimitParamError,
   QueueJobAddingError,
   SymbolsTypeError,
   TimeframeError,
-  ParamsValidSchemaFindingError,
-  DuringSyncMethodAccessError
+  ParamsValidSchemaFindingError
 }

@@ -5,8 +5,8 @@ const { assert } = require('chai')
 const request = require('supertest')
 
 const {
-  startEnviroment,
-  stopEnviroment
+  startEnvironment,
+  stopEnvironment
 } = require('./helpers/helpers.boot')
 const {
   rmDB,
@@ -27,10 +27,6 @@ const { app } = require('bfx-report-express')
 const agent = request.agent(app)
 
 let wrkReportServiceApi = null
-let auth = {
-  apiKey: 'fake',
-  apiSecret: 'fake'
-}
 let processorQueue = null
 let aggregatorQueue = null
 let mockRESTv2Srv = null
@@ -42,6 +38,10 @@ const date = new Date()
 const end = date.getTime()
 const start = (new Date()).setDate(date.getDate() - 90)
 const email = 'fake@email.fake'
+const auth = {
+  apiKey: 'fake',
+  apiSecret: 'fake'
+}
 
 describe('Queue', () => {
   before(async function () {
@@ -51,7 +51,7 @@ describe('Queue', () => {
 
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
-    const env = await startEnviroment()
+    const env = await startEnvironment()
 
     wrkReportServiceApi = env.wrksReportServiceApi[0]
     processorQueue = wrkReportServiceApi.lokue_processor.q
@@ -61,7 +61,7 @@ describe('Queue', () => {
   after(async function () {
     this.timeout(5000)
 
-    await stopEnviroment()
+    await stopEnvironment()
     await rmDB(dbDirPath)
     await rmAllFiles(tempDirPath)
 

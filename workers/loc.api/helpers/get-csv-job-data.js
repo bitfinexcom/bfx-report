@@ -2,12 +2,12 @@
 
 const { omit } = require('lodash')
 
-const {
-  checkParams,
-  getCsvArgs,
-  checkTimeLimit,
-  checkJobAndGetUserData
-} = require('./index')
+const checkParams = require('./check-params')
+const { getCsvArgs } = require('./limit-param.helpers')
+const { checkTimeLimit } = require('./date-param.helpers')
+const checkJobAndGetUserData = require(
+  './check-job-and-get-user-data'
+)
 const {
   FindMethodToGetCsvFileError,
   SymbolsTypeError
@@ -797,12 +797,12 @@ const getMultipleCsvJobData = async (
 
   for (const params of args.params.multiExport) {
     const getJobDataMethodName = `${params.method}JobData`
-    const hasGetJobDataMethod = Object.keys(_getCsvJobData).every((name) => {
+    const hasNotGetJobDataMethod = Object.keys(_getCsvJobData).every((name) => {
       return name !== getJobDataMethodName
     })
 
     if (
-      hasGetJobDataMethod ||
+      hasNotGetJobDataMethod ||
       typeof reportService[params.method] !== 'function'
     ) {
       throw new FindMethodToGetCsvFileError()

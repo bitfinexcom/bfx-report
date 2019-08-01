@@ -1,131 +1,156 @@
 'use strict'
 
-const { omit } = require('lodash')
+const {
+  omit,
+  cloneDeep
+} = require('lodash')
 const { promisify } = require('util')
 const fs = require('fs')
 const { stringify } = require('csv')
+
 const unlink = promisify(fs.unlink)
 
 const {
   createUniqueFileName,
-  writableToPromise,
-  writeDataToStream
+  writableToPromise
 } = require('./helpers')
 
 const { isAuthError } = require('../helpers')
 
-let reportService = null
+module.exports = (
+  conf,
+  rootPath,
+  processorQueue,
+  aggregatorQueue,
+  writeDataToStream
+) => {
+  processorQueue.on('completed', (result) => {
+    aggregatorQueue.addJob({
+      ...result,
+      emailConf: conf.emailConf,
+      s3Conf: conf.s3Conf
+    })
+  })
+  processorQueue.on('error:auth', (job) => {
+    const data = cloneDeep(job.data)
+    delete data.columnsCsv
 
-module.exports = async job => {
-  const filePaths = []
-  const subParamsArr = []
-  const processorQueue = reportService.ctx.lokue_processor.q
-  const isUnauth = job.data.isUnauth || false
-  const jobsData = Array.isArray(job.data.jobsData)
-    ? job.data.jobsData
-    : [job.data]
+    if (Array.isArray(data.jobsData)) {
+      data.jobsData.forEach(item => {
+        delete item.columnsCsv
+      })
+    }
 
-  try {
-    job.data.args.params = { ...job.data.args.params }
+    processorQueue.addJob({
+      ...data,
+      isUnauth: true
+    })
+  })
 
-    const {
-      userInfo,
-      userId,
-      name,
-      args: {
-        params: {
-          email,
-          isSignatureRequired,
-          language
-        }
-      }
-    } = { ...job.data }
+  return async (job) => {
+    const filePaths = []
+    const subParamsArr = []
+    const isUnauth = job.data.isUnauth || false
+    const jobsData = Array.isArray(job.data.jobsData)
+      ? job.data.jobsData
+      : [job.data]
 
-    for (const data of jobsData) {
-      data.args.params = { ...data.args.params }
-
-      const filePath = await createUniqueFileName(
-        reportService.ctx.rootPath
-      )
-      filePaths.push(filePath)
+    try {
+      job.data.args.params = { ...job.data.args.params }
 
       const {
-        args: { params },
+        userInfo,
+        userId,
         name,
-        fileNamesMap,
-        columnsCsv,
-        csvCustomWriter
-      } = { ...data }
-      subParamsArr.push({
-        ...omit(params, ['name', 'fileNamesMap']),
-        name,
-        fileNamesMap
-      })
+        args: {
+          params: {
+            email,
+            isSignatureRequired,
+            language
+          }
+        }
+      } = { ...job.data }
 
-      const write = isUnauth
-        ? 'Your file could not be completed, please try again'
-        : data
+      for (const data of jobsData) {
+        data.args.params = { ...data.args.params }
 
-      const writable = fs.createWriteStream(filePath)
-      const writablePromise = writableToPromise(writable)
-
-      if (typeof csvCustomWriter === 'function') {
-        await csvCustomWriter(
-          reportService,
-          writable,
-          write
+        const filePath = await createUniqueFileName(
+          rootPath
         )
-      } else {
-        const stringifier = stringify({
-          header: true,
-          columns: columnsCsv
+        filePaths.push(filePath)
+
+        const {
+          args: { params },
+          name,
+          fileNamesMap,
+          columnsCsv,
+          csvCustomWriter
+        } = { ...data }
+        subParamsArr.push({
+          ...omit(params, ['name', 'fileNamesMap']),
+          name,
+          fileNamesMap
         })
 
-        stringifier.pipe(writable)
+        const write = isUnauth
+          ? 'Your file could not be completed, please try again'
+          : data
 
-        await writeDataToStream(
-          reportService,
-          stringifier,
-          write
-        )
+        const writable = fs.createWriteStream(filePath)
+        const writablePromise = writableToPromise(writable)
 
-        stringifier.end()
+        if (typeof csvCustomWriter === 'function') {
+          await csvCustomWriter(
+            writable,
+            write
+          )
+        } else {
+          const stringifier = stringify({
+            header: true,
+            columns: columnsCsv
+          })
+
+          stringifier.pipe(writable)
+
+          await writeDataToStream(
+            stringifier,
+            write
+          )
+
+          stringifier.end()
+        }
+
+        await writablePromise
       }
 
-      await writablePromise
-    }
-
-    job.done()
-    processorQueue.emit('completed', {
-      userInfo,
-      userId,
-      name,
-      filePaths,
-      subParamsArr,
-      email,
-      isSignatureRequired,
-      language,
-      isUnauth
-    })
-  } catch (err) {
-    try {
-      for (const filePath of filePaths) {
-        await unlink(filePath)
-      }
+      job.done()
+      processorQueue.emit('completed', {
+        userInfo,
+        userId,
+        name,
+        filePaths,
+        subParamsArr,
+        email,
+        isSignatureRequired,
+        language,
+        isUnauth
+      })
     } catch (err) {
-      processorQueue.emit('error:unlink', job)
+      try {
+        for (const filePath of filePaths) {
+          await unlink(filePath)
+        }
+      } catch (err) {
+        processorQueue.emit('error:unlink', job)
+      }
+
+      job.done(err)
+
+      if (isAuthError(err)) {
+        processorQueue.emit('error:auth', job)
+      }
+
+      processorQueue.emit('error:base', err, job)
     }
-
-    job.done(err)
-
-    if (isAuthError(err)) {
-      processorQueue.emit('error:auth', job)
-    }
-
-    processorQueue.emit('error:base', err, job)
   }
-}
-
-module.exports.setReportService = (rService) => {
-  reportService = rService
 }
