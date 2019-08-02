@@ -13,6 +13,7 @@
     "ajv": "^6.5.4",
     "async": "^3.1.0",
     "better-npm-run": "^0.1.0",
+    "bfx-facs-base": "git+https://github.com:bitfinexcom/bfx-facs-base.git",
     "bfx-facs-deflate": "git+https://github.com:bitfinexcom/bfx-facs-deflate.git",
     "bfx-facs-interval": "git+https://github.com/bitfinexcom/bfx-facs-interval.git",
     "bfx-facs-lokue": "git+https://github.com:bitfinexcom/bfx-facs-lokue.git",
