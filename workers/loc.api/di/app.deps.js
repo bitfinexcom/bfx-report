@@ -13,8 +13,7 @@ const {
   getREST,
   grcBfxReq,
   prepareResponse,
-  prepareApiResponse,
-  generateCsv
+  prepareApiResponse
 } = require('../helpers')
 const HasGrcService = require('../has.grc.service')
 const processor = require('../queue/processor')
@@ -22,6 +21,8 @@ const aggregator = require('../queue/aggregator')
 const writeDataToStream = require('../queue/write-data-to-stream')
 const uploadToS3 = require('../queue/upload-to-s3')
 const sendMail = require('../queue/send-mail')
+const generateCsv = require('../generate-csv')
+const CsvJobData = require('../generate-csv/csv.job.data')
 
 module.exports = ({
   rService,
@@ -96,16 +97,18 @@ module.exports = ({
     bind(TYPES.DeflateFac).toConstantValue(
       deflateFac
     )
-    bind(TYPES.GenerateCsv).toConstantValue(
-      bindDepsToFn(
+    bind(TYPES.CsvJobData)
+      .to(CsvJobData)
+      .inSingletonScope()
+    bind(TYPES.GenerateCsv)
+      .toDynamicValue(() => bindDepsToFn(
         generateCsv,
         [
-          TYPES.RService,
           TYPES.ProcessorQueue,
-          TYPES.HasGrcService
+          TYPES.HasGrcService,
+          TYPES.CsvJobData
         ]
-      )
-    )
+      ))
     bind(TYPES.WriteDataToStream).toConstantValue(
       bindDepsToFn(
         writeDataToStream,

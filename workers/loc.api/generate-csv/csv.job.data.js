@@ -1,21 +1,30 @@
 'use strict'
 
-const { omit } = require('lodash')
+const {
+  decorate,
+  injectable,
+  inject
+} = require('inversify')
 
-const checkParams = require('./check-params')
-const { getCsvArgs } = require('./limit-param.helpers')
-const { checkTimeLimit } = require('./date-param.helpers')
-const checkJobAndGetUserData = require(
-  './check-job-and-get-user-data'
-)
+const TYPES = require('../di/types')
+
+const {
+  checkParams,
+  getCsvArgs,
+  checkTimeLimit,
+  checkJobAndGetUserData
+} = require('../helpers')
 const {
   FindMethodToGetCsvFileError,
   SymbolsTypeError
 } = require('../errors')
 
-const getCsvJobData = {
+class CsvJobData {
+  constructor (rService) {
+    this.rService = rService
+  }
+
   async getTradesCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -26,7 +35,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -57,9 +66,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getFundingTradesCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -70,7 +79,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -101,9 +110,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getTickersHistoryCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -114,7 +123,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -163,9 +172,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getWalletsCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -176,7 +185,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -196,9 +205,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getPositionsHistoryCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -209,7 +218,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -244,9 +253,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getActivePositionsCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -257,7 +266,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -292,9 +301,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getPositionsAuditCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -305,7 +314,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -339,9 +348,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getPublicTradesCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -353,7 +362,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -395,9 +404,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getLedgersCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -408,7 +417,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -436,9 +445,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getOrderTradesCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -449,7 +458,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -480,9 +489,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getOrdersCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -493,7 +502,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -529,9 +538,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getActiveOrdersCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -542,7 +551,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -576,9 +585,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getMovementsCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -589,7 +598,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -619,9 +628,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getFundingOfferHistoryCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -632,7 +641,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -666,9 +675,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getFundingLoanHistoryCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -679,7 +688,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -715,9 +724,9 @@ const getCsvJobData = {
     }
 
     return jobData
-  },
+  }
+
   async getFundingCreditHistoryCsvJobData (
-    reportService,
     args,
     uId,
     uInfo
@@ -728,7 +737,7 @@ const getCsvJobData = {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
-      reportService,
+      this.rService,
       args,
       uId,
       uInfo
@@ -766,74 +775,64 @@ const getCsvJobData = {
 
     return jobData
   }
-}
 
-const getMultipleCsvJobData = async (
-  reportService,
-  incomingArgs,
-  uId,
-  uInfo
-) => {
-  const args = omit(incomingArgs, ['getCsvJobData'])
-
-  checkParams(args, 'paramsSchemaForMultipleCsv', false, true)
-
-  const {
-    userId,
-    userInfo
-  } = await checkJobAndGetUserData(
-    reportService,
+  async getMultipleCsvJobData (
     args,
     uId,
     uInfo
-  )
+  ) {
+    checkParams(args, 'paramsSchemaForMultipleCsv', false, true)
 
-  const { language } = { ...args.params }
-  const _getCsvJobData = {
-    ...getCsvJobData,
-    ...incomingArgs.getCsvJobData
-  }
-  const jobsData = []
-
-  for (const params of args.params.multiExport) {
-    const getJobDataMethodName = `${params.method}JobData`
-    const hasNotGetJobDataMethod = Object.keys(_getCsvJobData).every((name) => {
-      return name !== getJobDataMethodName
-    })
-
-    if (
-      hasNotGetJobDataMethod ||
-      typeof reportService[params.method] !== 'function'
-    ) {
-      throw new FindMethodToGetCsvFileError()
-    }
-
-    const jobData = await _getCsvJobData[getJobDataMethodName](
-      reportService,
-      {
-        ...args,
-        params: {
-          ...params,
-          language
-        }
-      },
+    const {
       userId,
       userInfo
+    } = await checkJobAndGetUserData(
+      this.rService,
+      args,
+      uId,
+      uInfo
     )
 
-    jobsData.push(jobData)
-  }
+    const { language } = { ...args.params }
+    const jobsData = []
 
-  return {
-    userInfo,
-    userId,
-    name: 'getMultiple',
-    args,
-    jobsData
+    for (const params of args.params.multiExport) {
+      const getJobDataMethodName = `${params.method}JobData`
+
+      if (
+        getJobDataMethodName === 'getMultipleCsvJobData' ||
+        typeof this[getJobDataMethodName] !== 'function' ||
+        typeof this.rService[params.method] !== 'function'
+      ) {
+        throw new FindMethodToGetCsvFileError()
+      }
+
+      const jobData = await this[getJobDataMethodName](
+        {
+          ...args,
+          params: {
+            ...params,
+            language
+          }
+        },
+        userId,
+        userInfo
+      )
+
+      jobsData.push(jobData)
+    }
+
+    return {
+      userInfo,
+      userId,
+      name: 'getMultiple',
+      args,
+      jobsData
+    }
   }
 }
 
-module.exports = {
-  ...getCsvJobData,
-  getMultipleCsvJobData
-}
+decorate(injectable(), CsvJobData)
+decorate(inject(TYPES.RService), CsvJobData, 0)
+
+module.exports = CsvJobData
