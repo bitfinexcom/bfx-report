@@ -291,7 +291,10 @@ class CsvJobData {
         status: 'STATUS',
         mtsUpdate: 'UPDATED',
         mtsCreate: 'CREATED',
-        leverage: 'LEVERAGE'
+        leverage: 'LEVERAGE',
+        collateral: 'COLLATERAL',
+        collateralMin: 'MIN COLLATERAL',
+        meta: 'META INFORMATION'
       },
       formatSettings: {
         mtsUpdate: 'date',

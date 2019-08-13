@@ -338,7 +338,10 @@ describe('API', () => {
       'placeholder',
       'id',
       'mtsCreate',
-      'mtsUpdate'
+      'mtsUpdate',
+      'collateral',
+      'collateralMin',
+      'meta'
     ])
   })
 
