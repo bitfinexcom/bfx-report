@@ -1,6 +1,5 @@
 'use strict'
 
-const getCsvJobData = require('./get-csv-job-data')
 const {
   EmailSendingError
 } = require('../errors')
@@ -26,9 +25,9 @@ const _getCsvStoreStatus = async (
 }
 
 module.exports = (
-  rService,
   processorQueue,
-  hasGrcService
+  hasGrcService,
+  csvJobData
 ) => async (
   name,
   args
@@ -37,12 +36,9 @@ module.exports = (
     hasGrcService,
     args
   )
-  const _getCsvJobData = {
-    ...getCsvJobData,
-    ...args.getCsvJobData
-  }
-  const getter = _getCsvJobData[name].bind(getCsvJobData)
-  const jobData = await getter(rService, args)
+
+  const getter = csvJobData[name].bind(csvJobData)
+  const jobData = await getter(args)
 
   processorQueue.addJob(jobData)
 

@@ -25,5 +25,6 @@ module.exports = {
   Aggregator: Symbol.for('Aggregator'),
   WriteDataToStream: Symbol.for('WriteDataToStream'),
   UploadToS3: Symbol.for('UploadToS3'),
-  SendMail: Symbol.for('SendMail')
+  SendMail: Symbol.for('SendMail'),
+  CsvJobData: Symbol.for('CsvJobData')
 }
