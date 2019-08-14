@@ -197,6 +197,27 @@ const _filterSymbs = (
   })
 }
 
+const _isNotContainedSameMts = (
+  apiRes,
+  methodApi,
+  datePropName,
+  limit
+) => {
+  const firstElem = { ...apiRes[0] }
+  const mts = firstElem[datePropName]
+
+  return (
+    methodApi !== 'movements' ||
+    getMethodLimit('max', methodApi) !== limit ||
+    apiRes.some((item) => {
+      const _item = { ...item }
+      const _mts = _item[datePropName]
+
+      return _mts !== mts
+    })
+  )
+}
+
 const prepareResponse = (
   apiRes,
   datePropName,
@@ -204,25 +225,31 @@ const prepareResponse = (
   notThrowError = false,
   notCheckNextPage = false,
   symbols,
-  symbPropName
+  symbPropName,
+  methodApi
 ) => {
-  let nextPage = (
+  const isCheckedNextPage = (
     !notCheckNextPage &&
     Array.isArray(apiRes) &&
-    apiRes.length === limit
+    apiRes.length === limit &&
+    _isNotContainedSameMts(
+      apiRes,
+      methodApi,
+      datePropName,
+      limit
+    )
   )
+  const nextPage = isCheckedNextPage
+    ? apiRes[apiRes.length - 1][datePropName]
+    : false
 
-  if (nextPage) {
-    const date = apiRes[apiRes.length - 1][datePropName]
-
+  if (isCheckedNextPage) {
     while (
       apiRes[apiRes.length - 1] &&
-      date === apiRes[apiRes.length - 1][datePropName]
+      nextPage === apiRes[apiRes.length - 1][datePropName]
     ) {
       apiRes.pop()
     }
-
-    nextPage = date
 
     if (!notThrowError && apiRes.length === 0) {
       throw new MinLimitParamError()
@@ -271,7 +298,8 @@ const prepareApiResponse = (
     args.params && args.params.notThrowError,
     args.params && args.params.notCheckNextPage,
     symbols,
-    symbPropName
+    symbPropName,
+    methodApi
   )
 }
 
