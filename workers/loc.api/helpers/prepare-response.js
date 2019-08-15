@@ -207,7 +207,6 @@ const _isNotContainedSameMts = (
   const mts = firstElem[datePropName]
 
   return (
-    methodApi !== 'movements' ||
     getMethodLimit('max', methodApi) !== limit ||
     apiRes.some((item) => {
       const _item = { ...item }
