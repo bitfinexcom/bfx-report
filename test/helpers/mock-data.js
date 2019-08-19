@@ -142,7 +142,13 @@ module.exports = new Map([
       null,
       12345,
       _ms,
-      _ms
+      _ms,
+      null,
+      1,
+      null,
+      12345,
+      12345,
+      JSON.stringify({ someMetaData: 'someMetaData' })
     ]]
   ],
   [
