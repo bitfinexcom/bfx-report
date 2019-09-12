@@ -32,6 +32,7 @@ const checkJobAndGetUserData = require(
   './check-job-and-get-user-data'
 )
 const grcBfxReq = require('./grc-bfx-req')
+const filterResponse = require('./filter-response')
 
 module.exports = {
   getREST,
@@ -51,5 +52,6 @@ module.exports = {
   getCsvArgs,
   getMethodLimit,
   checkJobAndGetUserData,
-  grcBfxReq
+  grcBfxReq,
+  filterResponse
 }

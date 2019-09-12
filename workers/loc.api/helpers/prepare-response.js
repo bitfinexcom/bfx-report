@@ -2,6 +2,7 @@
 
 const { cloneDeep } = require('lodash')
 
+const filterResponse = require('./filter-response')
 const checkParams = require('./check-params')
 const { getMethodLimit } = require('./limit-param.helpers')
 const { getDateNotMoreNow } = require('./date-param.helpers')
@@ -178,25 +179,6 @@ const _requestToApi = (
   return rest[_parseMethodApi(method)].bind(rest)(...paramsArr)
 }
 
-const _filterSymbs = (
-  res,
-  symbols,
-  symbPropName
-) => {
-  if (
-    typeof symbPropName !== 'string' ||
-    !Array.isArray(res) ||
-    !Array.isArray(symbols) ||
-    symbols.length === 0
-  ) {
-    return res
-  }
-
-  return res.filter(item => {
-    return symbols.some(s => s === item[symbPropName])
-  })
-}
-
 const _isNotContainedSameMts = (
   apiRes,
   methodApi,
@@ -225,7 +207,8 @@ const prepareResponse = (
   notCheckNextPage = false,
   symbols,
   symbPropName,
-  methodApi
+  methodApi,
+  filter
 ) => {
   const isCheckedNextPage = (
     !notCheckNextPage &&
@@ -255,10 +238,18 @@ const prepareResponse = (
     }
   }
 
-  const res = _filterSymbs(
+  const symbFilter = (
+    Array.isArray(symbols) &&
+    symbols.length > 0
+  )
+    ? { $in: { [symbPropName]: symbols } }
+    : {}
+  const res = filterResponse(
     apiRes,
-    symbols,
-    symbPropName
+    {
+      ...symbFilter,
+      ...filter
+    }
   )
 
   return { res, nextPage }
@@ -282,6 +273,12 @@ const prepareApiResponse = (
     paramsArr,
     paramsObj
   } = _getParams(args, methodApi, symbPropName)
+  const {
+    limit,
+    notThrowError,
+    notCheckNextPage,
+    filter
+  } = paramsObj
 
   const res = await _requestToApi(
     getREST,
@@ -293,12 +290,13 @@ const prepareApiResponse = (
   return prepareResponse(
     res,
     datePropName,
-    paramsObj.limit,
-    args.params && args.params.notThrowError,
-    args.params && args.params.notCheckNextPage,
+    limit,
+    notThrowError,
+    notCheckNextPage,
     symbols,
     symbPropName,
-    methodApi
+    methodApi,
+    filter
   )
 }
 
