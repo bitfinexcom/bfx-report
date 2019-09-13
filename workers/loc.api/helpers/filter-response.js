@@ -22,7 +22,9 @@ const _getComparator = (
   if (fieldName === '$like') {
     const str = value
       .replace(/%/gi, '.*')
-      .replace(/_/gi, '\\s')
+      .replace(/\\\.\*/gi, '%')
+      .replace(/_/gi, '.')
+      .replace(/\\\./gi, '_')
     const regexp = new RegExp(`^${str}$`)
 
     return (item) => (
