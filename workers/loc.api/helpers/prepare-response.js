@@ -238,18 +238,18 @@ const prepareResponse = (
     }
   }
 
-  const symbFilter = (
+  const filteredResBySymb = (
     Array.isArray(symbols) &&
     symbols.length > 0
   )
-    ? { $in: { [symbPropName]: symbols } }
-    : {}
+    ? filterResponse(
+      apiRes,
+      { $in: { [symbPropName]: symbols } }
+    )
+    : apiRes
   const res = filterResponse(
-    apiRes,
-    {
-      ...symbFilter,
-      ...filter
-    }
+    filteredResBySymb,
+    { ...filter }
   )
 
   return { res, nextPage }
