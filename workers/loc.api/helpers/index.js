@@ -33,6 +33,7 @@ const checkJobAndGetUserData = require(
 )
 const grcBfxReq = require('./grc-bfx-req')
 const filterResponse = require('./filter-response')
+const filterModels = require('./filter-models')
 const FILTER_MODELS_NAMES = require('./filter.models.names')
 
 module.exports = {
@@ -55,5 +56,6 @@ module.exports = {
   checkJobAndGetUserData,
   grcBfxReq,
   filterResponse,
+  filterModels,
   FILTER_MODELS_NAMES
 }
