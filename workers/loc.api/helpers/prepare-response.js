@@ -1,6 +1,9 @@
 'use strict'
 
-const { cloneDeep } = require('lodash')
+const {
+  cloneDeep,
+  omit
+} = require('lodash')
 
 const filterResponse = require('./filter-response')
 const checkParams = require('./check-params')
@@ -255,6 +258,41 @@ const prepareResponse = (
   return { res, nextPage }
 }
 
+const _omitPrivateModelFields = (res) => {
+  const omittingFields = [
+    '_events',
+    '_eventsCount',
+    '_fields',
+    '_boolFields',
+    '_fieldKeys'
+  ]
+
+  if (
+    Array.isArray(res) &&
+    res.length > 0 &&
+    res.every((item) => (item && typeof item === 'object'))
+  ) {
+    return res.map((item) => {
+      return {
+        _isDataFromApiV2: true,
+        ...omit(item, omittingFields)
+      }
+    })
+  }
+  if (
+    res &&
+    typeof res === 'object' &&
+    Object.keys(res).length > 0
+  ) {
+    return {
+      _isDataFromApiV2: true,
+      ...omit(res, omittingFields)
+    }
+  }
+
+  return res
+}
+
 const prepareApiResponse = (
   getREST
 ) => async (
@@ -280,12 +318,13 @@ const prepareApiResponse = (
     filter
   } = paramsObj
 
-  const res = await _requestToApi(
+  const _res = await _requestToApi(
     getREST,
     methodApi,
     paramsArr,
     args.auth
   )
+  const res = _omitPrivateModelFields(_res)
 
   return prepareResponse(
     res,
