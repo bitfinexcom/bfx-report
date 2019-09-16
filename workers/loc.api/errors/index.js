@@ -30,12 +30,18 @@ class AuthError extends BaseError {
 }
 
 class ArgsParamsError extends BaseError {
-  constructor (obj) {
+  constructor (obj, message = 'ERR_ARGS_NO_PARAMS') {
     const str = obj && typeof obj === 'object'
       ? ` ${JSON.stringify(obj)}`
       : ''
 
-    super(`ERR_ARGS_NO_PARAMS${str}`)
+    super(`${message}${str}`)
+  }
+}
+
+class ArgsParamsFilterError extends ArgsParamsError {
+  constructor (obj) {
+    super(obj, 'ERR_ARGS_PARAMS_FILTER_IS_NOT_VALID')
   }
 }
 
@@ -100,5 +106,6 @@ module.exports = {
   SymbolsTypeError,
   TimeframeError,
   ParamsValidSchemaFindingError,
-  FilterParamsValidSchemaFindingError
+  FilterParamsValidSchemaFindingError,
+  ArgsParamsFilterError
 }
