@@ -76,7 +76,13 @@ class TimeframeError extends BaseError {
 }
 
 class ParamsValidSchemaFindingError extends BaseError {
-  constructor (message = 'ERR_PARAMS_SCHEMA_NOT_FOUND') {
+  constructor (message = 'ERR_PARAMS_SCHEMA_IS_NOT_FOUND') {
+    super(message)
+  }
+}
+
+class FilterParamsValidSchemaFindingError extends ParamsValidSchemaFindingError {
+  constructor (message = 'ERR_FILTER_SCHEMA_IS_NOT_FOUND') {
     super(message)
   }
 }
@@ -93,5 +99,6 @@ module.exports = {
   QueueJobAddingError,
   SymbolsTypeError,
   TimeframeError,
-  ParamsValidSchemaFindingError
+  ParamsValidSchemaFindingError,
+  FilterParamsValidSchemaFindingError
 }
