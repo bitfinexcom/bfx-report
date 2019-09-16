@@ -1,5 +1,11 @@
 'use strict'
 
+const { upperFirst } = require('lodash')
+
+const {
+  checkFilterParams,
+  FILTER_MODELS_NAMES
+} = require('../helpers')
 const {
   EmailSendingError
 } = require('../errors')
@@ -24,6 +30,22 @@ const _getCsvStoreStatus = async (
   return { isSendEmail: true }
 }
 
+const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
+  .reduce((map, name) => {
+    const key = `get${upperFirst(name)}CsvJobData`
+
+    map.set([key, name])
+
+    if (name === FILTER_MODELS_NAMES.POSITIONS_HISTORY) {
+      map.set(['getPositionsAuditCsvJobData', name])
+    }
+    if (name === FILTER_MODELS_NAMES.TRADES) {
+      map.set(['getOrderTradesCsvJobData', name])
+    }
+
+    return map
+  }, new Map())
+
 module.exports = (
   processorQueue,
   hasGrcService,
@@ -36,6 +58,9 @@ module.exports = (
     hasGrcService,
     args
   )
+  const filterModelName = _filterModelNameMap.get(name)
+
+  checkFilterParams(filterModelName, args)
 
   const getter = csvJobData[name].bind(csvJobData)
   const jobData = await getter(args)
