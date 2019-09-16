@@ -7,6 +7,7 @@ const {
 
 const filterResponse = require('./filter-response')
 const checkParams = require('./check-params')
+const checkFilterParams = require('./check-filter-params')
 const { getMethodLimit } = require('./limit-param.helpers')
 const { getDateNotMoreNow } = require('./date-param.helpers')
 const { MinLimitParamError } = require('../errors')
@@ -305,6 +306,7 @@ const prepareApiResponse = (
   const schemaName = _getSchemaNameByMethodName(methodApi)
 
   checkParams(args, schemaName, requireFields)
+  checkFilterParams(methodApi, args)
 
   const symbols = _getSymbols(methodApi, symbPropName, args)
   const {
