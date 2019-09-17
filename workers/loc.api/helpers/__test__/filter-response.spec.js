@@ -57,11 +57,45 @@ const mockData = [
     balance: 60.20,
     description: 'Trading fees for 0.17 BTC (BTCUSD) @ 8205.0 on BFX...',
     wallet: 'funding'
+  },
+  {
+    id: 2324639940,
+    currency: 'LEO',
+    mts: 1559251505000,
+    amount: null,
+    balance: 60.30,
+    description: 'Trading fees for 0.17 BTC (BTCUSD) @ 8205.0 on BFX...',
+    wallet: 'funding'
+  },
+  {
+    id: 2324639941,
+    currency: 'LEO',
+    mts: 1559251505000,
+    amount: 5.2,
+    balance: undefined,
+    description: 'Trading fees for 0.17 BTC (BTCUSD) @ 8205.0 on BFX...',
+    wallet: 'funding'
+  },
+  {
+    id: 2324639942,
+    currency: 'LEO',
+    mts: 1559251505000,
+    amount: null,
+    balance: undefined,
+    description: 'Trading fees for 0.17 BTC (BTCUSD) @ 8205.0 on BFX...',
+    wallet: 'funding'
   }
 ]
 
+const _isNull = (val) => {
+  return (
+    val === null ||
+    typeof val === 'undefined'
+  )
+}
+
 describe('filterResponse helper', () => {
-  it('it should be successfully with $gt condition', function () {
+  it('it should be successful with $gt condition', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -77,7 +111,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $gte condition', function () {
+  it('it should be successful with $gte condition', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -93,7 +127,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $lt condition', function () {
+  it('it should be successful with $lt condition', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -109,7 +143,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $lte condition', function () {
+  it('it should be successful with $lte condition', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -125,7 +159,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $not condition', function () {
+  it('it should be successful with $not condition', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -141,7 +175,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $like condition using <%>', function () {
+  it('it should be successful with $like condition using <%>', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -157,7 +191,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $like condition using escaping <%>', function () {
+  it('it should be successful with $like condition using escaping <%>', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -173,7 +207,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $like condition using <_>', function () {
+  it('it should be successful with $like condition using <_>', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -189,7 +223,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $like condition using escaping <_>', function () {
+  it('it should be successful with $like condition using escaping <_>', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -205,7 +239,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $eq condition', function () {
+  it('it should be successful with $eq condition', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -221,7 +255,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $ne condition', function () {
+  it('it should be successful with $ne condition', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -237,7 +271,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $in condition', function () {
+  it('it should be successful with $in condition', function () {
     this.timeout(1000)
 
     const walletArr = ['funding', 'margin']
@@ -255,7 +289,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $nin condition', function () {
+  it('it should be successful with $nin condition', function () {
     this.timeout(1000)
 
     const walletArr = ['funding', 'margin']
@@ -273,7 +307,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $gt and $like and $nin conditions', function () {
+  it('it should be successful with $gt and $like and $nin conditions', function () {
     this.timeout(1000)
 
     const walletArr = ['funding', 'margin']
@@ -307,7 +341,7 @@ describe('filterResponse helper', () => {
     })
   })
 
-  it('it should be successfully with $or operator', function () {
+  it('it should be successful with $or operator', function () {
     this.timeout(1000)
 
     const res = filterResponse(
@@ -328,6 +362,57 @@ describe('filterResponse helper', () => {
         amount < 2.0 ||
         amount > 4.0
       )
+    })
+  })
+
+  it('it should be successful with $isNull operator', function () {
+    this.timeout(1000)
+
+    const resWithOneElem = filterResponse(
+      mockData,
+      {
+        $isNull: ['amount', 'balance']
+      }
+    )
+
+    assert.equal(resWithOneElem.length, 1)
+
+    resWithOneElem.forEach(({ amount, balance }) => {
+      assert.isOk(
+        _isNull(amount) &&
+        _isNull(balance)
+      )
+    })
+
+    const resWithTwoElem = filterResponse(
+      mockData,
+      {
+        $isNull: ['amount']
+      }
+    )
+
+    assert.equal(resWithTwoElem.length, 2)
+
+    resWithTwoElem.forEach(({ amount }) => {
+      assert.isOk(_isNull(amount))
+    })
+  })
+
+  it('it should be successful with $isNotNull operator', function () {
+    this.timeout(1000)
+
+    const res = filterResponse(
+      mockData,
+      {
+        $isNotNull: ['amount', 'balance']
+      }
+    )
+
+    assert.isAbove(res.length, 0)
+
+    res.forEach(({ amount, balance }) => {
+      assert.isNumber(amount)
+      assert.isNumber(balance)
     })
   })
 })
