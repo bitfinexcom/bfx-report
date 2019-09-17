@@ -1,23 +1,48 @@
 'use strict'
 
+const _isNull = (val) => {
+  return (
+    val === null ||
+    typeof val === 'undefined'
+  )
+}
+
 const _getComparator = (
   fieldName,
   value
 ) => {
-  const eqFn = (item) => item === value
-  const neFn = (item) => item !== value
+  const eqFn = (item) => (
+    !_isNull(item) &&
+    item === value
+  )
+  const neFn = (item) => (
+    !_isNull(item) &&
+    item !== value
+  )
 
   if (fieldName === '$gt') {
-    return (item) => item > value
+    return (item) => (
+      !_isNull(item) &&
+      item > value
+    )
   }
   if (fieldName === '$gte') {
-    return (item) => item >= value
+    return (item) => (
+      !_isNull(item) &&
+      item >= value
+    )
   }
   if (fieldName === '$lt') {
-    return (item) => item < value
+    return (item) => (
+      !_isNull(item) &&
+      item < value
+    )
   }
   if (fieldName === '$lte') {
-    return (item) => item <= value
+    return (item) => (
+      !_isNull(item) &&
+      item <= value
+    )
   }
   if (fieldName === '$like') {
     const str = value
@@ -39,8 +64,14 @@ const _getComparator = (
     return eqFn
   }
   if (Array.isArray(value)) {
-    const inFn = (item) => value.some((subItem) => item === subItem)
-    const ninFn = (item) => value.every((subItem) => item !== subItem)
+    const inFn = (item) => value.some((subItem) => (
+      !_isNull(item) &&
+      item === subItem
+    ))
+    const ninFn = (item) => value.every((subItem) => (
+      !_isNull(item) &&
+      item !== subItem
+    ))
 
     if (fieldName === '$in') {
       return inFn
@@ -98,8 +129,8 @@ const _getIsNullComparator = (
 
   return (item) => valueArr.every((val) => (
     fieldName === '$isNull'
-      ? !item[val]
-      : !!item[val]
+      ? _isNull(item[val])
+      : !_isNull(item[val])
   ))
 }
 
