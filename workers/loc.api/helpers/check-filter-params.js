@@ -52,6 +52,14 @@ const _getFilterSchema = (model = {}) => {
       }
     }, {})
   }
+  const fieldsArrSchema = {
+    type: 'array',
+    minItems: 1,
+    items: {
+      type: 'string',
+      enum: Object.keys(model)
+    }
+  }
 
   const baseProperties = {
     $gt: objSchema,
@@ -63,7 +71,9 @@ const _getFilterSchema = (model = {}) => {
     $eq: objSchema,
     $ne: objSchema,
     $in: arrSchema,
-    $nin: arrSchema
+    $nin: arrSchema,
+    $isNull: fieldsArrSchema,
+    $isNotNull: fieldsArrSchema
   }
   const filterSchema = {
     type: 'object',
