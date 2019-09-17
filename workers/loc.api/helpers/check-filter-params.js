@@ -76,16 +76,24 @@ const _getFilterSchema = (model = {}) => {
     $isNotNull: fieldsArrSchema
   }
   const filterSchema = {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      ...baseProperties,
-      $or: {
+    oneOf: [
+      {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          $or: {
+            type: 'object',
+            additionalProperties: false,
+            properties: baseProperties
+          }
+        }
+      },
+      {
         type: 'object',
         additionalProperties: false,
         properties: baseProperties
       }
-    }
+    ]
   }
 
   return filterSchema
