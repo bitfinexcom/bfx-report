@@ -33,7 +33,7 @@ const _getComparator = (
     )
   }
   if (fieldName === '$ne') {
-    return (item) => item !== value
+    return neFn
   }
   if (fieldName === '$eq') {
     return eqFn
@@ -46,7 +46,7 @@ const _getComparator = (
       return inFn
     }
     if (fieldName === '$nin') {
-      return (item) => value.every((subItem) => item !== subItem)
+      return ninFn
     }
 
     return fieldName === '$not'
@@ -76,12 +76,14 @@ const _isCondition = (
 }
 
 const _getIsNullComparator = (
-  isOrOp,
   fieldName,
   value
 ) => {
   if (
-    fieldName !== '$isNull' ||
+    (
+      fieldName !== '$isNull' &&
+      fieldName !== '$isNotNull'
+    ) ||
     (
       Array.isArray(value) &&
       value.length === 0
@@ -94,9 +96,11 @@ const _getIsNullComparator = (
     ? value
     : [value]
 
-  return (item) => isOrOp
-    ? valueArr.some((val) => item[val])
-    : valueArr.every((val) => item[val])
+  return (item) => valueArr.every((val) => (
+    fieldName === '$isNull'
+      ? !item[val]
+      : !!item[val]
+  ))
 }
 
 module.exports = (
@@ -141,7 +145,6 @@ module.exports = (
       (accum, fieldName) => {
         const value = _filter[fieldName]
         const isNullComparator = _getIsNullComparator(
-          isOrOp,
           fieldName,
           value
         )
