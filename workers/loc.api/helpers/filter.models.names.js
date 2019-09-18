@@ -3,8 +3,18 @@
 module.exports = {
   TICKERS_HISTORY: 'tickersHistory',
   POSITIONS_HISTORY: 'positionsHistory',
+
+  /**
+   * It's an alias to POSITIONS_HISTORY model
+   */
+  POSITIONS_AUDIT: 'positionsAudit',
   LEDGERS: 'ledgers',
   TRADES: 'trades',
+
+  /**
+   * It's an alias to TRADES model
+   */
+  ORDER_TRADES: 'orderTrades',
   FUNDING_TRADES: 'fundingTrades',
   PUBLIC_TRADES: 'publicTrades',
   ORDERS: 'orders',

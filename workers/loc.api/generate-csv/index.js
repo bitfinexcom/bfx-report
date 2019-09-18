@@ -36,13 +36,6 @@ const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
 
     map.set([key, name])
 
-    if (name === FILTER_MODELS_NAMES.POSITIONS_HISTORY) {
-      map.set(['getPositionsAuditCsvJobData', name])
-    }
-    if (name === FILTER_MODELS_NAMES.TRADES) {
-      map.set(['getOrderTradesCsvJobData', name])
-    }
-
     return map
   }, new Map())
 

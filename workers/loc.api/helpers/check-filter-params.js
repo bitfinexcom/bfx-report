@@ -7,6 +7,7 @@ const {
   ArgsParamsFilterError
 } = require('../errors')
 const _filterModels = require('./filter-models')
+const FILTER_MODELS_NAMES = require('./filter.models.names')
 
 const _getModel = (
   name,
@@ -99,6 +100,17 @@ const _getFilterSchema = (model = {}) => {
   return filterSchema
 }
 
+const _getMethodApiName = (methodApi) => {
+  if (methodApi === FILTER_MODELS_NAMES.POSITIONS_AUDIT) {
+    return FILTER_MODELS_NAMES.POSITIONS_HISTORY
+  }
+  if (methodApi === FILTER_MODELS_NAMES.ORDER_TRADES) {
+    return FILTER_MODELS_NAMES.TRADES
+  }
+
+  return methodApi
+}
+
 module.exports = (
   methodApi,
   args = {},
@@ -116,7 +128,8 @@ module.exports = (
   }
 
   const ajv = new Ajv()
-  const model = _getModel(methodApi, filterModels)
+  const methodName = _getMethodApiName(methodApi)
+  const model = _getModel(methodName, filterModels)
   const filterSchema = _getFilterSchema(model)
 
   if (ajv.validate(filterSchema, filter)) {
