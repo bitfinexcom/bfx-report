@@ -561,6 +561,91 @@ describe('API filter', () => {
     }
   })
 
+  it('it should not be successfully performed by the api methods', async function () {
+    this.timeout(60000)
+
+    const baseArgs = {
+      auth,
+      id: 5
+    }
+    const baseParams = {
+      start,
+      end,
+      limit: 1000,
+      timezone: -3,
+      email
+    }
+    const argsArr = [
+      {
+        args: {
+          ...baseArgs,
+          method: 'getLedgersCsv',
+          params: {
+            ...baseParams,
+            symbol: ['BTC'],
+            filter: {
+              $gte: { someFakeField: 12345 }
+            }
+          }
+        }
+      },
+      {
+        args: {
+          ...baseArgs,
+          method: 'getLedgersCsv',
+          params: {
+            ...baseParams,
+            symbol: ['BTC'],
+            filter: {
+              $gte: '12345'
+            }
+          }
+        }
+      },
+      {
+        args: {
+          ...baseArgs,
+          method: 'getLedgersCsv',
+          params: {
+            ...baseParams,
+            symbol: ['BTC'],
+            filter: {
+              $gte: { id: '12345' }
+            }
+          }
+        }
+      },
+      {
+        args: {
+          ...baseArgs,
+          method: 'getTradesCsv',
+          params: {
+            ...baseParams,
+            symbol: ['tBTCUSD', 'tETHUSD'],
+            filter: {
+              $someCond: { id: 12345 }
+            }
+          }
+        }
+      }
+    ]
+
+    for (const { args } of argsArr) {
+      const res = await agent
+        .post(`${basePath}/get-data`)
+        .type('json')
+        .send(args)
+        .expect('Content-Type', /json/)
+        .expect(500)
+
+      assert.isObject(res.body)
+      assert.isObject(res.body.error)
+      assert.propertyVal(res.body.error, 'code', 500)
+      assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+      assert.propertyVal(res.body, 'id', 5)
+    }
+  })
+
   it('it should be successfully performed by the getMultipleCsv method', async function () {
     this.timeout(20000)
 
