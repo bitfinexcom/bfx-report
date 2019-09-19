@@ -26,7 +26,7 @@ process.on('SIGINT', _processExit)
 process.on('SIGHUP', _processExit)
 process.on('SIGTERM', _processExit)
 
-void (async () => {
+;(async () => {
   try {
     console.log('[WAIT]'.yellow)
 

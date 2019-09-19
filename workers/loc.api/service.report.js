@@ -123,7 +123,7 @@ class ReportService extends Api {
 
       const symbols = await this._getSymbols()
       const futures = await this._getFutures()
-      const pairs = [ ...symbols, ...futures ]
+      const pairs = [...symbols, ...futures]
 
       const currencies = await this._getCurrencies()
       const res = { pairs, currencies }

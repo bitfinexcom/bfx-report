@@ -46,8 +46,8 @@ describe('Queue load', () => {
     this.timeout(20000)
 
     mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, null, {
-      'ledgers': { limit },
-      'user_info': null
+      ledgers: { limit },
+      user_info: null
     })
 
     await rmAllFiles(tempDirPath)
