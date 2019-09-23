@@ -34,7 +34,7 @@ const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
   .reduce((map, name) => {
     const key = `get${upperFirst(name)}CsvJobData`
 
-    map.set([key, name])
+    map.set(key, name)
 
     return map
   }, new Map())
