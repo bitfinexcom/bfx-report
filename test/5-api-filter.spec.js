@@ -646,6 +646,37 @@ describe('API filter', () => {
     }
   })
 
+  it('it should be successfully performed by the getLedgersCsv method', async function () {
+    this.timeout(20000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getLedgersCsv',
+        params: {
+          symbol: ['BTC'],
+          end,
+          start,
+          limit: 1000,
+          timezone: -3,
+          email,
+          filter: {
+            $gte: { id: 12345 }
+          }
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
   it('it should be successfully performed by the getMultipleCsv method', async function () {
     this.timeout(20000)
 
