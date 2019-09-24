@@ -39,6 +39,38 @@ const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
     return map
   }, new Map())
 
+const _getFilterModelNamesAndArgs = (
+  name,
+  args
+) => {
+  if (name !== 'getMultipleCsvJobData') {
+    const filterModelName = _filterModelNameMap.get(name)
+
+    return [{
+      filterModelName,
+      args
+    }]
+  }
+
+  const { params } = { ...args }
+  const { multiExport } = { ...params }
+  const _multiExport = Array.isArray(multiExport)
+    ? multiExport
+    : []
+
+  return _multiExport.map((params) => {
+    const { method } = { ...params }
+    const name = `${method}JobData`
+    const args = { params }
+    const filterModelName = _filterModelNameMap.get(name)
+
+    return {
+      filterModelName,
+      args
+    }
+  })
+}
+
 module.exports = (
   processorQueue,
   hasGrcService,
@@ -51,9 +83,14 @@ module.exports = (
     hasGrcService,
     args
   )
-  const filterModelName = _filterModelNameMap.get(name)
+  const checkingDataArr = _getFilterModelNamesAndArgs(
+    name,
+    args
+  )
 
-  checkFilterParams(filterModelName, args)
+  for (const { filterModelName, args } of checkingDataArr) {
+    checkFilterParams(filterModelName, args)
+  }
 
   const getter = csvJobData[name].bind(csvJobData)
   const jobData = await getter(args)
