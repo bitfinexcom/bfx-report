@@ -8,6 +8,7 @@ const {
 } = require('../errors')
 const _filterModels = require('./filter-models')
 const FILTER_MODELS_NAMES = require('./filter.models.names')
+const FILTER_CONDITIONS = require('./filter.conditions')
 
 const _getModel = (
   name,
@@ -63,18 +64,18 @@ const _getFilterSchema = (model = {}) => {
   }
 
   const baseProperties = {
-    $gt: objSchema,
-    $gte: objSchema,
-    $lt: objSchema,
-    $lte: objSchema,
-    $not: objSchema,
-    $like: objSchema,
-    $eq: objSchema,
-    $ne: objSchema,
-    $in: arrSchema,
-    $nin: arrSchema,
-    $isNull: fieldsArrSchema,
-    $isNotNull: fieldsArrSchema
+    [FILTER_CONDITIONS.GT]: objSchema,
+    [FILTER_CONDITIONS.GTE]: objSchema,
+    [FILTER_CONDITIONS.LT]: objSchema,
+    [FILTER_CONDITIONS.LTE]: objSchema,
+    [FILTER_CONDITIONS.NOT]: objSchema,
+    [FILTER_CONDITIONS.LIKE]: objSchema,
+    [FILTER_CONDITIONS.EQ]: objSchema,
+    [FILTER_CONDITIONS.NE]: objSchema,
+    [FILTER_CONDITIONS.IN]: arrSchema,
+    [FILTER_CONDITIONS.NIN]: arrSchema,
+    [FILTER_CONDITIONS.IS_NULL]: fieldsArrSchema,
+    [FILTER_CONDITIONS.IS_NOT_NULL]: fieldsArrSchema
   }
   const filterSchema = {
     oneOf: [
@@ -82,7 +83,7 @@ const _getFilterSchema = (model = {}) => {
         type: 'object',
         additionalProperties: false,
         properties: {
-          $or: {
+          [FILTER_CONDITIONS.OR]: {
             type: 'object',
             additionalProperties: false,
             properties: baseProperties

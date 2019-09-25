@@ -1,5 +1,7 @@
 'use strict'
 
+const FILTER_CONDITIONS = require('./filter.conditions')
+
 const SPECIAL_CHARS = [
   '-',
   '[',
@@ -50,31 +52,31 @@ const _getComparator = (
     item !== value
   )
 
-  if (fieldName === '$gt') {
+  if (fieldName === FILTER_CONDITIONS.GT) {
     return (item) => (
       !_isNull(item) &&
       item > value
     )
   }
-  if (fieldName === '$gte') {
+  if (fieldName === FILTER_CONDITIONS.GTE) {
     return (item) => (
       !_isNull(item) &&
       item >= value
     )
   }
-  if (fieldName === '$lt') {
+  if (fieldName === FILTER_CONDITIONS.LT) {
     return (item) => (
       !_isNull(item) &&
       item < value
     )
   }
-  if (fieldName === '$lte') {
+  if (fieldName === FILTER_CONDITIONS.LTE) {
     return (item) => (
       !_isNull(item) &&
       item <= value
     )
   }
-  if (fieldName === '$like') {
+  if (fieldName === FILTER_CONDITIONS.LIKE) {
     const escapeRegExp = RegExp(`[${SPECIAL_CHARS.join('\\')}]`, 'g')
     const escapedStr = value.replace(escapeRegExp, '\\$&')
     const _str = replaceStr(escapedStr, '%', '.*')
@@ -87,10 +89,10 @@ const _getComparator = (
       regexp.test(item)
     )
   }
-  if (fieldName === '$ne') {
+  if (fieldName === FILTER_CONDITIONS.NE) {
     return neFn
   }
-  if (fieldName === '$eq') {
+  if (fieldName === FILTER_CONDITIONS.EQ) {
     return eqFn
   }
   if (Array.isArray(value)) {
@@ -103,19 +105,19 @@ const _getComparator = (
       item !== subItem
     ))
 
-    if (fieldName === '$in') {
+    if (fieldName === FILTER_CONDITIONS.IN) {
       return inFn
     }
-    if (fieldName === '$nin') {
+    if (fieldName === FILTER_CONDITIONS.NIN) {
       return ninFn
     }
 
-    return fieldName === '$not'
+    return fieldName === FILTER_CONDITIONS.NOT
       ? ninFn
       : inFn
   }
 
-  return fieldName === '$not'
+  return fieldName === FILTER_CONDITIONS.NOT
     ? neFn
     : eqFn
 }
@@ -123,8 +125,8 @@ const _getComparator = (
 const _isOrOp = (filter) => (
   filter &&
   typeof filter === 'object' &&
-  filter.$or &&
-  typeof filter.$or === 'object'
+  filter[FILTER_CONDITIONS.OR] &&
+  typeof filter[FILTER_CONDITIONS.OR] === 'object'
 )
 
 const _isCondition = (
@@ -142,8 +144,8 @@ const _getIsNullComparator = (
 ) => {
   if (
     (
-      fieldName !== '$isNull' &&
-      fieldName !== '$isNotNull'
+      fieldName !== FILTER_CONDITIONS.IS_NULL &&
+      fieldName !== FILTER_CONDITIONS.IS_NOT_NULL
     ) ||
     (
       Array.isArray(value) &&
@@ -158,7 +160,7 @@ const _getIsNullComparator = (
     : [value]
 
   return (item) => valueArr.every((val) => (
-    fieldName === '$isNull'
+    fieldName === FILTER_CONDITIONS.IS_NULL
       ? _isNull(item[val])
       : !_isNull(item[val])
   ))
@@ -185,19 +187,19 @@ module.exports = (
 
   const isOrOp = _isOrOp(filter)
   const _filter = isOrOp
-    ? { ...filter.$or }
+    ? { ...filter[FILTER_CONDITIONS.OR] }
     : { ...filter }
   const conditions = [
-    '$gt',
-    '$gte',
-    '$lt',
-    '$lte',
-    '$not',
-    '$like',
-    '$eq',
-    '$ne',
-    '$in',
-    '$nin'
+    FILTER_CONDITIONS.GT,
+    FILTER_CONDITIONS.GTE,
+    FILTER_CONDITIONS.LT,
+    FILTER_CONDITIONS.LTE,
+    FILTER_CONDITIONS.NOT,
+    FILTER_CONDITIONS.LIKE,
+    FILTER_CONDITIONS.EQ,
+    FILTER_CONDITIONS.NE,
+    FILTER_CONDITIONS.IN,
+    FILTER_CONDITIONS.NIN
   ]
   const keys = Object.keys(_filter)
 
