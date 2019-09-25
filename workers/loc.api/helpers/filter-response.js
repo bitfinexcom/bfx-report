@@ -1,5 +1,35 @@
 'use strict'
 
+const SPECIAL_CHARS = [
+  '-',
+  '[',
+  ']',
+  '/',
+  '{',
+  '}',
+  '(',
+  ')',
+  '*',
+  '+',
+  '?',
+  '.',
+  '^',
+  '$',
+  '|'
+]
+
+const replaceStr = (str, from, to) => {
+  const regExp = RegExp(`(.?)(${from})`, 'gi')
+
+  return str.replace(regExp, (match, p1) => {
+    if (p1 !== '\\') {
+      return `${p1}${to}`
+    }
+
+    return match
+  })
+}
+
 const _isNull = (val) => {
   return (
     val === null ||
@@ -45,11 +75,11 @@ const _getComparator = (
     )
   }
   if (fieldName === '$like') {
-    const str = value
-      .replace(/%/gi, '.*')
-      .replace(/\\\.\*/gi, '%')
-      .replace(/_/gi, '.')
-      .replace(/\\\./gi, '_')
+    const escapeRegExp = RegExp(`[${SPECIAL_CHARS.join('\\')}]`, 'g')
+    const escapedStr = value.replace(escapeRegExp, '\\$&')
+    const _str = replaceStr(escapedStr, '%', '.*')
+    const str = replaceStr(_str, '_', '.')
+
     const regexp = new RegExp(`^${str}$`)
 
     return (item) => (
