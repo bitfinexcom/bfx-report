@@ -39,6 +39,11 @@ const setDataTo = (
   const _date = Math.round(date)
 
   switch (key) {
+    case 'status_messages':
+      dataItem[1] = _date
+      dataItem[8] = _date
+      break
+
     case 'tickers_hist':
       dataItem[15] = _date
       break
@@ -146,6 +151,7 @@ const getMockDataOpts = () => ({
   trades: { limit: 1000 },
   f_trade_hist: { limit: 1000 },
   public_trades: { limit: 5000 },
+  status_messages: { limit: 10, isNotMoreThanLimit: true },
   order_trades: { limit: 1000 },
   orders: { limit: 500 },
   active_orders: { limit: 100 },
