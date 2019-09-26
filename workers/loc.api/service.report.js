@@ -254,6 +254,33 @@ class ReportService extends Api {
     }, 'getPublicTrades', cb)
   }
 
+  getStatusMessages (space, args, cb) {
+    return this._responder(() => {
+      const { params } = { ...args }
+      const {
+        type = 'deriv',
+        symbol = ['ALL']
+      } = { ...params }
+      const _args = {
+        ...args,
+        auth: {},
+        params: {
+          ...params,
+          type,
+          symbol,
+          notCheckNextPage: true
+        }
+      }
+
+      return this._prepareApiResponse(
+        _args,
+        'statusMessages',
+        'timestamp',
+        ['key']
+      )
+    }, 'getStatusMessages', cb)
+  }
+
   getOrderTrades (space, args, cb) {
     return this._responder(() => {
       return this._prepareApiResponse(

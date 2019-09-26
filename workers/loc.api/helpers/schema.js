@@ -77,6 +77,27 @@ const language = {
   enum: ['en', 'ru', 'zh-CN', 'zh-TW']
 }
 
+const paramsSchemaForStatusMessagesApi = {
+  type: 'object',
+  properties: {
+    type: {
+      type: 'string'
+    },
+    symbol: {
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        minItems: 1,
+        items: {
+          type: 'string'
+        }
+      }
+    }
+  }
+}
+
 const paramsSchemaForCsv = {
   ...paramsSchemaForApi,
   properties: {
@@ -241,5 +262,6 @@ module.exports = {
   paramsSchemaForMultipleCsv,
   paramsSchemaForActivePositionsCsv,
   paramsSchemaForOrderTradesApi,
-  paramsSchemaForOrderTradesCsv
+  paramsSchemaForOrderTradesCsv,
+  paramsSchemaForStatusMessagesApi
 }
