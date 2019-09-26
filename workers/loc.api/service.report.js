@@ -450,6 +450,15 @@ class ReportService extends Api {
     }, 'getPublicTradesCsv', cb)
   }
 
+  getStatusMessagesCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getStatusMessagesCsvJobData',
+        args
+      )
+    }, 'getStatusMessagesCsv', cb)
+  }
+
   getLedgersCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(

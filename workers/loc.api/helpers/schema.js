@@ -98,6 +98,16 @@ const paramsSchemaForStatusMessagesApi = {
   }
 }
 
+const paramsSchemaForStatusMessagesCsv = {
+  type: 'object',
+  properties: {
+    ...paramsSchemaForStatusMessagesApi.properties,
+    timezone,
+    dateFormat,
+    language
+  }
+}
+
 const paramsSchemaForCsv = {
   ...paramsSchemaForApi,
   properties: {
@@ -263,5 +273,6 @@ module.exports = {
   paramsSchemaForActivePositionsCsv,
   paramsSchemaForOrderTradesApi,
   paramsSchemaForOrderTradesCsv,
-  paramsSchemaForStatusMessagesApi
+  paramsSchemaForStatusMessagesApi,
+  paramsSchemaForStatusMessagesCsv
 }

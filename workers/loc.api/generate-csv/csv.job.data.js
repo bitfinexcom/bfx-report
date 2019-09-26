@@ -412,6 +412,47 @@ class CsvJobData {
     return jobData
   }
 
+  async getStatusMessagesCsvJobData (
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args, 'paramsSchemaForStatusMessagesCsv')
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      this.rService,
+      args,
+      uId,
+      uInfo
+    )
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getStatusMessages',
+      args,
+      propNameForPagination: 'timestamp',
+      columnsCsv: {
+        key: 'PAIR',
+        price: 'DERIV PRICE',
+        priceSpot: 'SPOT PRICE',
+        fundBal: 'INSURANCE RUND BALANCE',
+        fundingAccrued: 'NEXT FUNDING ACCRUED',
+        fundingStep: 'NEXT FUNDING STEP',
+        timestamp: 'UPDATED'
+      },
+      formatSettings: {
+        timestamp: 'date',
+        key: 'symbol'
+      }
+    }
+
+    return jobData
+  }
+
   async getLedgersCsvJobData (
     args,
     uId,
