@@ -1,8 +1,13 @@
 'use strict'
 
-const { cloneDeep } = require('lodash')
+const {
+  cloneDeep,
+  omit
+} = require('lodash')
 
+const filterResponse = require('./filter-response')
 const checkParams = require('./check-params')
+const checkFilterParams = require('./check-filter-params')
 const { getMethodLimit } = require('./limit-param.helpers')
 const { getDateNotMoreNow } = require('./date-param.helpers')
 const { MinLimitParamError } = require('../errors')
@@ -178,25 +183,6 @@ const _requestToApi = (
   return rest[_parseMethodApi(method)].bind(rest)(...paramsArr)
 }
 
-const _filterSymbs = (
-  res,
-  symbols,
-  symbPropName
-) => {
-  if (
-    typeof symbPropName !== 'string' ||
-    !Array.isArray(res) ||
-    !Array.isArray(symbols) ||
-    symbols.length === 0
-  ) {
-    return res
-  }
-
-  return res.filter(item => {
-    return symbols.some(s => s === item[symbPropName])
-  })
-}
-
 const _isNotContainedSameMts = (
   apiRes,
   methodApi,
@@ -225,7 +211,8 @@ const prepareResponse = (
   notCheckNextPage = false,
   symbols,
   symbPropName,
-  methodApi
+  methodApi,
+  filter
 ) => {
   const isCheckedNextPage = (
     !notCheckNextPage &&
@@ -255,13 +242,56 @@ const prepareResponse = (
     }
   }
 
-  const res = _filterSymbs(
-    apiRes,
-    symbols,
-    symbPropName
+  const filteredResBySymb = (
+    Array.isArray(symbols) &&
+    symbols.length > 0
+  )
+    ? filterResponse(
+      apiRes,
+      { $in: { [symbPropName]: symbols } }
+    )
+    : apiRes
+  const res = filterResponse(
+    filteredResBySymb,
+    { ...filter }
   )
 
   return { res, nextPage }
+}
+
+const _omitPrivateModelFields = (res) => {
+  const omittingFields = [
+    '_events',
+    '_eventsCount',
+    '_fields',
+    '_boolFields',
+    '_fieldKeys'
+  ]
+
+  if (
+    Array.isArray(res) &&
+    res.length > 0 &&
+    res.every((item) => (item && typeof item === 'object'))
+  ) {
+    return res.map((item) => {
+      return {
+        _isDataFromApiV2: true,
+        ...omit(item, omittingFields)
+      }
+    })
+  }
+  if (
+    res &&
+    typeof res === 'object' &&
+    Object.keys(res).length > 0
+  ) {
+    return {
+      _isDataFromApiV2: true,
+      ...omit(res, omittingFields)
+    }
+  }
+
+  return res
 }
 
 const prepareApiResponse = (
@@ -276,29 +306,38 @@ const prepareApiResponse = (
   const schemaName = _getSchemaNameByMethodName(methodApi)
 
   checkParams(args, schemaName, requireFields)
+  checkFilterParams(methodApi, args)
 
   const symbols = _getSymbols(methodApi, symbPropName, args)
   const {
     paramsArr,
     paramsObj
   } = _getParams(args, methodApi, symbPropName)
+  const {
+    limit,
+    notThrowError,
+    notCheckNextPage,
+    filter
+  } = paramsObj
 
-  const res = await _requestToApi(
+  const _res = await _requestToApi(
     getREST,
     methodApi,
     paramsArr,
     args.auth
   )
+  const res = _omitPrivateModelFields(_res)
 
   return prepareResponse(
     res,
     datePropName,
-    paramsObj.limit,
-    args.params && args.params.notThrowError,
-    args.params && args.params.notCheckNextPage,
+    limit,
+    notThrowError,
+    notCheckNextPage,
     symbols,
     symbPropName,
-    methodApi
+    methodApi,
+    filter
   )
 }
 

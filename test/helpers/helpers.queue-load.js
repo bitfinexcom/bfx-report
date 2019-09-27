@@ -29,7 +29,7 @@ process.on('SIGINT', _stop)
 process.on('SIGHUP', _stop)
 process.on('SIGTERM', _stop)
 
-void (async () => {
+;(async () => {
   try {
     const {
       wrksReportServiceApi: [wrkReportServiceApi]

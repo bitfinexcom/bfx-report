@@ -6,7 +6,8 @@ const {
   checkParams,
   parseFields,
   accountCache,
-  getTimezoneConf
+  getTimezoneConf,
+  filterModels
 } = require('./helpers')
 const { ArgsParamsError } = require('./errors')
 const TYPES = require('./di/types')
@@ -40,6 +41,20 @@ class ReportService extends Api {
     const rest = this._getREST({})
 
     return rest.currencies()
+  }
+
+  getFilterModels (space, args, cb) {
+    return this._responder(() => {
+      const models = [...filterModels]
+        .reduce((accum, [key, val]) => {
+          return {
+            ...accum,
+            [key]: val
+          }
+        }, {})
+
+      return models
+    }, 'getFilterModels', cb)
   }
 
   verifyDigitalSignature (space, args, cb) {
@@ -108,7 +123,7 @@ class ReportService extends Api {
 
       const symbols = await this._getSymbols()
       const futures = await this._getFutures()
-      const pairs = [ ...symbols, ...futures ]
+      const pairs = [...symbols, ...futures]
 
       const currencies = await this._getCurrencies()
       const res = { pairs, currencies }

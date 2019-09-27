@@ -11,7 +11,7 @@ const getMockData = (methodName, mockData = _mockData) => {
 }
 
 const _fillAllData = (mockRESTv2Srv) => {
-  for (let [key, val] of _mockData) {
+  for (const [key, val] of _mockData) {
     mockRESTv2Srv.setResponse(key, val)
   }
 }

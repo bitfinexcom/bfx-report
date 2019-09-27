@@ -30,12 +30,18 @@ class AuthError extends BaseError {
 }
 
 class ArgsParamsError extends BaseError {
-  constructor (obj) {
+  constructor (obj, message = 'ERR_ARGS_NO_PARAMS') {
     const str = obj && typeof obj === 'object'
       ? ` ${JSON.stringify(obj)}`
       : ''
 
-    super(`ERR_ARGS_NO_PARAMS${str}`)
+    super(`${message}${str}`)
+  }
+}
+
+class ArgsParamsFilterError extends ArgsParamsError {
+  constructor (obj) {
+    super(obj, 'ERR_ARGS_PARAMS_FILTER_IS_NOT_VALID')
   }
 }
 
@@ -76,7 +82,13 @@ class TimeframeError extends BaseError {
 }
 
 class ParamsValidSchemaFindingError extends BaseError {
-  constructor (message = 'ERR_PARAMS_SCHEMA_NOT_FOUND') {
+  constructor (message = 'ERR_PARAMS_SCHEMA_IS_NOT_FOUND') {
+    super(message)
+  }
+}
+
+class FilterParamsValidSchemaFindingError extends ParamsValidSchemaFindingError {
+  constructor (message = 'ERR_FILTER_SCHEMA_IS_NOT_FOUND') {
     super(message)
   }
 }
@@ -93,5 +105,7 @@ module.exports = {
   QueueJobAddingError,
   SymbolsTypeError,
   TimeframeError,
-  ParamsValidSchemaFindingError
+  ParamsValidSchemaFindingError,
+  FilterParamsValidSchemaFindingError,
+  ArgsParamsFilterError
 }

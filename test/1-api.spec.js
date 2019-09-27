@@ -87,6 +87,35 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
   })
 
+  it('it should be successfully performed by the getFilterModels method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        method: 'getFilterModels',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isAbove(Object.keys(res.body.result).length, 0)
+
+    Object.values(res.body.result).forEach((model) => {
+      assert.isObject(model)
+      assert.isAbove(Object.keys(model).length, 0)
+
+      Object.values(model).forEach((field) => {
+        assert.isObject(field)
+        assert.isString(field.type)
+      })
+    })
+  })
+
   it('it should be successfully auth, with auth token', async function () {
     this.timeout(5000)
 
