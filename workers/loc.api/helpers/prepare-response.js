@@ -2,6 +2,7 @@
 
 const {
   cloneDeep,
+  isEmpty,
   omit
 } = require('lodash')
 
@@ -13,6 +14,10 @@ const { getDateNotMoreNow } = require('./date-param.helpers')
 const { MinLimitParamError } = require('../errors')
 
 const _paramsOrderMap = {
+  statusMessages: [
+    'type',
+    'symbol'
+  ],
   positionsHistory: [
     'start',
     'end',
@@ -40,6 +45,7 @@ const _paramsOrderMap = {
 }
 
 const _paramsSchemasMap = {
+  statusMessages: 'paramsSchemaForStatusMessagesApi',
   publicTrades: 'paramsSchemaForPublicTrades',
   positionsAudit: 'paramsSchemaForPositionsAudit',
   orderTrades: 'paramsSchemaForOrderTradesApi',
@@ -83,7 +89,8 @@ const _getSymbols = (
     typeof symbPropName !== 'string' ||
     !args.params ||
     typeof args.params !== 'object' ||
-    !args.params.symbol
+    !args.params.symbol ||
+    methodApi === 'statusMessages'
   ) {
     return null
   }
@@ -113,6 +120,17 @@ const _getSymbolParam = (
   symbPropName
 ) => {
   if (
+    methodApi === 'statusMessages'
+  ) {
+    const _symbol = isEmpty(symbol)
+      ? 'ALL'
+      : symbol
+
+    return Array.isArray(_symbol)
+      ? _symbol
+      : [_symbol]
+  }
+  if (
     typeof symbPropName === 'string' &&
     methodApi !== 'positionsHistory' &&
     methodApi !== 'positionsAudit' &&
@@ -120,7 +138,6 @@ const _getSymbolParam = (
   ) {
     return symbol.length > 1 ? null : symbol[0]
   }
-
   if (
     !symbol &&
     methodApi === 'fundingTrades'

@@ -191,6 +191,24 @@ module.exports = new Map([
     ]]
   ],
   [
+    'status_messages',
+    [[
+      'tBTCF0:USTF0',
+      _ms,
+      null,
+      8402.8,
+      8412.8,
+      null,
+      101091.28492701,
+      null,
+      _ms,
+      -0.00019831,
+      5534,
+      null,
+      0.0006622
+    ]]
+  ],
+  [
     'f_trade_hist',
     [[
       12345,

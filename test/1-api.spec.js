@@ -923,6 +923,42 @@ describe('API', () => {
     ])
   })
 
+  it('it should be successfully performed by the getStatusMessages method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        method: 'getStatusMessages',
+        params: {
+          symbol: 'tBTCF0:USTF0'
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isBoolean(res.body.result.nextPage)
+
+    const resItem = res.body.result.res[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'key',
+      'timestamp',
+      'price',
+      'priceSpot',
+      'fundBal',
+      'fundingAccrued',
+      'fundingStep'
+    ])
+  })
+
   it('it should be successfully performed by the getPublicTrades method, where the symbol is an array with length equal to one', async function () {
     this.timeout(5000)
 

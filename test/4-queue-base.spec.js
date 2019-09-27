@@ -440,6 +440,31 @@ describe('Queue', () => {
     await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
+  it('it should be successfully performed by the getStatusMessagesCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getStatusMessagesCsv',
+        params: {
+          symbol: ['tBTCF0:USTF0'],
+          timezone: 'America/Los_Angeles',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
   it('it should be successfully performed by the getPublicTradesCsv method', async function () {
     this.timeout(60000)
 
