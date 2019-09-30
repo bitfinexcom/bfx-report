@@ -192,5 +192,17 @@ module.exports = new Map([
       noClose: { type: 'integer' },
       positionPair: { type: 'string' }
     }
+  ],
+  [
+    FILTER_MODELS_NAMES.STATUS_MESSAGES,
+    {
+      key: { type: 'string' },
+      timestamp: { type: 'integer' },
+      price: { type: 'number' },
+      priceSpot: { type: 'number' },
+      fundBal: { type: 'number' },
+      fundingAccrued: { type: 'number' },
+      fundingStep: { type: 'number' }
+    }
   ]
 ])
