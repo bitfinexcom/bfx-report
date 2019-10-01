@@ -1,5 +1,11 @@
 'use strict'
 
+const {
+  isAuthError,
+  isRateLimitError,
+  isNonceSmallError
+} = require('../helpers')
+
 const _prepareErrorData = (err, name) => {
   const _name = name
     ? `\n  - METHOD_NAME: ${name}`
@@ -8,11 +14,25 @@ const _prepareErrorData = (err, name) => {
     ? `\n  - STATUS_CODE: ${err.statusCode}`
     : ''
   const _options = err.options
-    ? `\n  - OPTION: ${err.options}`
+    ? `\n  - OPTION: ${JSON.stringify(err.options)}`
     : ''
   const _err = `\n  - ${err.stack || err}`
 
   return `${_name}${_statusCode}${_options}${_err}`
+}
+
+const logError = (logger, err, name) => {
+  if (
+    isAuthError(err) ||
+    isRateLimitError(err) ||
+    isNonceSmallError(err)
+  ) {
+    logger.debug(_prepareErrorData(err, name))
+
+    return
+  }
+
+  logger.error(_prepareErrorData(err, name))
 }
 
 module.exports = (
@@ -34,7 +54,7 @@ module.exports = (
       if (!cb) {
         return resFn
           .catch((err) => {
-            logger.error(_prepareErrorData(err, name))
+            logError(logger, err, name)
 
             return Promise.reject(err)
           })
@@ -43,7 +63,7 @@ module.exports = (
       resFn
         .then((res) => cb(null, res))
         .catch((err) => {
-          logger.error(_prepareErrorData(err, name))
+          logError(logger, err, name)
 
           cb(err)
         })
@@ -54,7 +74,7 @@ module.exports = (
     if (!cb) return resFn
     cb(null, resFn)
   } catch (err) {
-    logger.error(_prepareErrorData(err, name))
+    logError(logger, err, name)
 
     if (cb) cb(err)
     else throw err
