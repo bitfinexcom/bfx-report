@@ -1,7 +1,7 @@
 'use strict'
 
 const isAuthError = (err) => {
-  return /(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
+  return /(token: invalid)|(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
 }
 
 const isRateLimitError = (err) => {
