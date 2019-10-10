@@ -151,6 +151,7 @@ module.exports = ({
       bindDepsToFn(
         aggregator,
         [
+          TYPES.CONF,
           TYPES.RootPath,
           TYPES.AggregatorQueue,
           TYPES.HasGrcService,
