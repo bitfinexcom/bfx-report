@@ -52,7 +52,10 @@ const _uploadSignToS3 = async (
 }
 
 module.exports = (
-  { isСompress },
+  {
+    isСompress,
+    isAddedUniqueEndingToCsvName
+  },
   deflateFac,
   hasGrcService,
   grcBfxReq
@@ -75,9 +78,12 @@ module.exports = (
     const fileNameWithoutExt = getCompleteFileName(
       subParamsArr[0].name,
       subParamsArr[0],
-      userInfo.username,
-      false,
-      isMultiExport
+      {
+        userInfo: userInfo.username,
+        ext: false,
+        isMultiExport,
+        isAddedUniqueEndingToCsvName
+      }
     )
     const isUppedPGPService = await hasGrcService.hasGPGService()
     const isSignReq = isSignatureRequired && isUppedPGPService
@@ -89,7 +95,10 @@ module.exports = (
           name: getCompleteFileName(
             subParamsArr[i].name,
             subParamsArr[i],
-            userInfo.username
+            {
+              userInfo: userInfo.username,
+              isAddedUniqueEndingToCsvName
+            }
           )
         }
       }

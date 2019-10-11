@@ -44,13 +44,21 @@ const moveFileToLocalStorage = async (
   filePath,
   name,
   params,
-  userInfo
+  userInfo,
+  isAddedUniqueEndingToCsvName
 ) => {
   const localStorageDirPath = path.join(rootPath, argv.csvFolder || 'csv')
 
   await _checkAndCreateDir(localStorageDirPath)
 
-  const fileName = getCompleteFileName(name, params, userInfo)
+  const fileName = getCompleteFileName(
+    name,
+    params,
+    {
+      userInfo,
+      isAddedUniqueEndingToCsvName
+    }
+  )
   const newFilePath = path.join(localStorageDirPath, fileName)
 
   try {

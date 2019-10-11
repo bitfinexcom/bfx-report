@@ -10,6 +10,7 @@ const {
 } = require('./helpers')
 
 module.exports = (
+  { isAddedUniqueEndingToCsvName },
   rootPath,
   aggregatorQueue,
   hasGrcService,
@@ -72,7 +73,8 @@ module.exports = (
             filePath,
             subParamsArr[count].name || name,
             { ...subParamsArr[count] },
-            userInfo.username
+            userInfo.username,
+            isAddedUniqueEndingToCsvName
           )
 
           count += 1

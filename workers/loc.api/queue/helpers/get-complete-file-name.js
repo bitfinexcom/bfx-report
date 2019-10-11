@@ -1,6 +1,7 @@
 'use strict'
 
 const { snakeCase } = require('lodash')
+const uuidv4 = require('uuid/v4')
 
 const _fileNamesMap = new Map([
   ['getTrades', 'trades'],
@@ -77,9 +78,12 @@ const _getDateString = mc => {
 module.exports = (
   queueName,
   params,
-  userInfo,
-  ext = 'csv',
-  isMultiExport
+  {
+    userInfo,
+    ext = 'csv',
+    isMultiExport,
+    isAddedUniqueEndingToCsvName
+  } = {}
 ) => {
   const {
     start,
@@ -105,13 +109,16 @@ module.exports = (
     : formattedDateNow
   const _ext = ext ? `.${ext}` : ''
   const _userInfo = userInfo ? `${userInfo}_` : ''
+  const uniqEnding = isAddedUniqueEndingToCsvName
+    ? `-${uuidv4()}`
+    : ''
   const fileName = (
     queueName === 'getWallets' ||
     isMultiExport ||
     isOnMomentInName
   )
-    ? `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${_ext}`
-    : `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_ext}`
+    ? `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${uniqEnding}${_ext}`
+    : `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${uniqEnding}${_ext}`
 
   return fileName
 }
