@@ -325,7 +325,6 @@ describe('API', () => {
       'plPerc',
       'liquidationPrice',
       'leverage',
-      'placeholder',
       'id',
       'mtsCreate',
       'mtsUpdate'
@@ -364,7 +363,6 @@ describe('API', () => {
       'plPerc',
       'liquidationPrice',
       'leverage',
-      'placeholder',
       'id',
       'mtsCreate',
       'mtsUpdate',
@@ -415,7 +413,6 @@ describe('API', () => {
       'plPerc',
       'liquidationPrice',
       'leverage',
-      'placeholder',
       'id',
       'mtsCreate',
       'mtsUpdate',
@@ -455,7 +452,6 @@ describe('API', () => {
       'balance',
       'unsettledInterest',
       'balanceAvailable',
-      'placeHolder',
       'mtsUpdate'
     ])
   })

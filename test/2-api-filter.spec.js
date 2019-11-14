@@ -139,7 +139,6 @@ describe('API filter', () => {
               'plPerc',
               'liquidationPrice',
               'leverage',
-              'placeholder',
               'id',
               'mtsCreate',
               'mtsUpdate'
@@ -178,7 +177,6 @@ describe('API filter', () => {
               'plPerc',
               'liquidationPrice',
               'leverage',
-              'placeholder',
               'id',
               'mtsCreate',
               'mtsUpdate',
