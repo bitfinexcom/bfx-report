@@ -55,13 +55,16 @@ module.exports = (
     const isGetActivePositionsMethod = (
       method === 'getActivePositions'
     )
-    let { res, nextPage } = (
+    const { res: apiRes, nextPage } = (
       isGetWalletsMethod ||
       isGetActivePositionsMethod ||
       Object.keys({ ..._res }).every(key => key !== 'nextPage')
     )
       ? { res: _res, nextPage: null }
       : _res
+    let res = method === 'getMovements'
+      ? filterMovementsByAmount(apiRes, _args)
+      : apiRes
 
     currIterationArgs.params.end = nextPage
 
@@ -88,15 +91,6 @@ module.exports = (
       if (count > 0) processorQueue.emit('progress', 100)
 
       break
-    }
-    if (method === 'getMovements') {
-      res = filterMovementsByAmount(res, _args)
-
-      if (!res) {
-        if (count > 0) processorQueue.emit('progress', 100)
-
-        break
-      }
     }
 
     const lastItem = res[res.length - 1]

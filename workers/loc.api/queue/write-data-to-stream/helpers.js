@@ -221,25 +221,24 @@ const getDataFromApi = async (getData, args) => {
   return res
 }
 
-const filterMovementsByAmount = (res, args) => {
+const filterMovementsByAmount = (res, { params }) => {
+  const {
+    isDeposits,
+    isWithdrawals
+  } = { ...params }
+
   if (
-    args.params.isDeposits ||
-    args.params.isWithdrawals
+    !Array.isArray(res) ||
+    (!isDeposits && !isWithdrawals)
   ) {
-    const _res = res.filter((item) => {
-      return args.params.isDeposits
-        ? item.amount > 0
-        : item.amount < 0
-    })
-
-    if (_res.length === 0) {
-      return false
-    }
-
-    return _res
+    return res
   }
 
-  return res
+  return res.filter((item) => {
+    return isDeposits
+      ? item.amount > 0
+      : item.amount < 0
+  })
 }
 
 const progress = (
