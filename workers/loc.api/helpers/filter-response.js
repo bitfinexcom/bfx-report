@@ -39,8 +39,9 @@ const _isNull = (val) => {
   )
 }
 
-const _toLowerCaseStr = (value) => {
+const _toLowerCaseStr = (value, isNotIgnoreCase) => {
   if (
+    isNotIgnoreCase ||
     !value ||
     typeof value !== 'string'
   ) {
@@ -52,25 +53,26 @@ const _toLowerCaseStr = (value) => {
 
 const _getComparator = (
   fieldName,
-  inputValue
+  inputValue,
+  isNotIgnoreCase
 ) => {
-  const value = _toLowerCaseStr(inputValue)
+  const value = _toLowerCaseStr(inputValue, isNotIgnoreCase)
 
   const eqFn = (item) => (
     !_isNull(item) &&
-    _toLowerCaseStr(item) === value
+    _toLowerCaseStr(item, isNotIgnoreCase) === value
   )
   const neFn = (item) => (
     !_isNull(item) &&
-    _toLowerCaseStr(item) !== value
+    _toLowerCaseStr(item, isNotIgnoreCase) !== value
   )
   const inFn = (item) => value.some((subItem) => (
     !_isNull(item) &&
-    _toLowerCaseStr(item) === subItem
+    _toLowerCaseStr(item, isNotIgnoreCase) === subItem
   ))
   const ninFn = (item) => value.every((subItem) => (
     !_isNull(item) &&
-    _toLowerCaseStr(item) !== subItem
+    _toLowerCaseStr(item, isNotIgnoreCase) !== subItem
   ))
   const likeFn = (item) => {
     const escapeRegExp = RegExp(`[${SPECIAL_CHARS.join('\\')}]`, 'g')
@@ -82,7 +84,7 @@ const _getComparator = (
 
     return (
       typeof item === 'string' &&
-      regexp.test(_toLowerCaseStr(item))
+      regexp.test(_toLowerCaseStr(item, isNotIgnoreCase))
     )
   }
 
@@ -183,7 +185,8 @@ const _getIsNullComparator = (
 
 module.exports = (
   data = [],
-  filter = {}
+  filter = {},
+  isNotIgnoreCase
 ) => {
   if (
     !filter ||
@@ -247,7 +250,8 @@ module.exports = (
             (condAccum, curr) => {
               const comparator = _getComparator(
                 fieldName,
-                condFilter[curr]
+                condFilter[curr],
+                isNotIgnoreCase
               )
 
               accum.push(() => comparator(item[curr]))
@@ -262,7 +266,8 @@ module.exports = (
 
         const comparator = _getComparator(
           fieldName,
-          value
+          value,
+          isNotIgnoreCase
         )
         accum.push(() => comparator(item[fieldName]))
 

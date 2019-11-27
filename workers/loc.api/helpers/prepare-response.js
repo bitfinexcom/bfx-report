@@ -265,7 +265,8 @@ const prepareResponse = (
   )
     ? filterResponse(
       apiRes,
-      { $in: { [symbPropName]: symbols } }
+      { $in: { [symbPropName]: symbols } },
+      true
     )
     : apiRes
   const res = filterResponse(
