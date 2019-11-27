@@ -39,18 +39,52 @@ const _isNull = (val) => {
   )
 }
 
+const _toLowerCaseStr = (value) => {
+  if (
+    !value ||
+    typeof value !== 'string'
+  ) {
+    return value
+  }
+
+  return value.toLowerCase()
+}
+
 const _getComparator = (
   fieldName,
-  value
+  inputValue
 ) => {
+  const value = _toLowerCaseStr(inputValue)
+
   const eqFn = (item) => (
     !_isNull(item) &&
-    item === value
+    _toLowerCaseStr(item) === value
   )
   const neFn = (item) => (
     !_isNull(item) &&
-    item !== value
+    _toLowerCaseStr(item) !== value
   )
+  const inFn = (item) => value.some((subItem) => (
+    !_isNull(item) &&
+    _toLowerCaseStr(item) === subItem
+  ))
+  const ninFn = (item) => value.every((subItem) => (
+    !_isNull(item) &&
+    _toLowerCaseStr(item) !== subItem
+  ))
+  const likeFn = (item) => {
+    const escapeRegExp = RegExp(`[${SPECIAL_CHARS.join('\\')}]`, 'g')
+    const escapedStr = value.replace(escapeRegExp, '\\$&')
+    const _str = replaceStr(escapedStr, '%', '.*')
+    const str = replaceStr(_str, '_', '.')
+
+    const regexp = new RegExp(`^${str}$`)
+
+    return (
+      typeof item === 'string' &&
+      regexp.test(_toLowerCaseStr(item))
+    )
+  }
 
   if (fieldName === FILTER_CONDITIONS.GT) {
     return (item) => (
@@ -77,17 +111,7 @@ const _getComparator = (
     )
   }
   if (fieldName === FILTER_CONDITIONS.LIKE) {
-    const escapeRegExp = RegExp(`[${SPECIAL_CHARS.join('\\')}]`, 'g')
-    const escapedStr = value.replace(escapeRegExp, '\\$&')
-    const _str = replaceStr(escapedStr, '%', '.*')
-    const str = replaceStr(_str, '_', '.')
-
-    const regexp = new RegExp(`^${str}$`)
-
-    return (item) => (
-      typeof item === 'string' &&
-      regexp.test(item)
-    )
+    return likeFn
   }
   if (fieldName === FILTER_CONDITIONS.NE) {
     return neFn
@@ -96,15 +120,6 @@ const _getComparator = (
     return eqFn
   }
   if (Array.isArray(value)) {
-    const inFn = (item) => value.some((subItem) => (
-      !_isNull(item) &&
-      item === subItem
-    ))
-    const ninFn = (item) => value.every((subItem) => (
-      !_isNull(item) &&
-      item !== subItem
-    ))
-
     if (fieldName === FILTER_CONDITIONS.IN) {
       return inFn
     }
