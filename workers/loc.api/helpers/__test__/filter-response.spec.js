@@ -443,4 +443,40 @@ describe('filterResponse helper', () => {
       assert.isNumber(balance)
     })
   })
+
+  it('it should be successful by not consider capital letters', function () {
+    this.timeout(1000)
+
+    const res = filterResponse(
+      mockData,
+      {
+        $eq: { wallet: 'fUnding' },
+        $ne: {
+          description: 'wire withDRaWal #13002753 on wallet funding'
+        },
+        $like: { description: 'trading fees%' },
+        $nin: { currency: ['uSD'] },
+        $in: { currency: ['LEO'] }
+      }
+    )
+
+    assert.isAbove(res.length, 0)
+
+    res.forEach((
+      {
+        currency,
+        description,
+        wallet
+      }
+    ) => {
+      assert.strictEqual(wallet, 'funding')
+      assert.notStrictEqual(
+        description,
+        'Wire Withdrawal #13002753 on wallet funding'
+      )
+      assert.match(description, /^Trading fees/)
+      assert.notInclude(['USD'], currency)
+      assert.include(['LEO'], currency)
+    })
+  })
 })
