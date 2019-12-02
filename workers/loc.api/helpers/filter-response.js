@@ -40,15 +40,26 @@ const _isNull = (val) => {
 }
 
 const _toLowerCaseStr = (value, isNotIgnoreCase) => {
-  if (
-    isNotIgnoreCase ||
-    !value ||
-    typeof value !== 'string'
-  ) {
-    return value
-  }
+  const isArray = Array.isArray(value)
+  const valueArr = isArray
+    ? value
+    : [value]
 
-  return value.toLowerCase()
+  const resArr = valueArr.map((item) => {
+    if (
+      isNotIgnoreCase ||
+      !item ||
+      typeof item !== 'string'
+    ) {
+      return item
+    }
+
+    return item.toLowerCase()
+  })
+
+  return isArray
+    ? resArr
+    : resArr[0]
 }
 
 const _getComparator = (
