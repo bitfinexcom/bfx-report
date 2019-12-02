@@ -83,6 +83,12 @@
         "NODE_ENV": "test"
       }
     },
+    "unit": {
+      "command": "mocha './workers/**/__test__/*.spec.js' --config .mocharc.json",
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
     "testDev": {
       "command": "standard && mocha --recursive test/**/*-dev.spec.js --exit --timeout 10000",
       "env": {
@@ -96,6 +102,7 @@
     "startServDev": "better-npm-run start:serv",
     "startSimulEnv": "node test/simulate/simulate-enviroment.js",
     "test": "better-npm-run test",
-    "testDev": "better-npm-run testDev"
+    "testDev": "better-npm-run testDev",
+    "unit": "better-npm-run unit"
   }
 }
