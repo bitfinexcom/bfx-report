@@ -151,7 +151,8 @@ const _getSymbolParam = (
 const _getParams = (
   args,
   methodApi,
-  symbPropName
+  symbPropName,
+  opts = {}
 ) => {
   if (
     !args.params ||
@@ -163,10 +164,14 @@ const _getParams = (
     }
   }
 
+  const { isInnerMax } = { ...opts }
+  const limit = isInnerMax
+    ? { isInnerMax }
+    : args.params.limit
   const paramsObj = {
     ...cloneDeep(args.params),
     end: getDateNotMoreNow(args.params.end),
-    limit: getMethodLimit(args.params.limit, methodApi),
+    limit: getMethodLimit(limit, methodApi),
     symbol: _getSymbolParam(methodApi, args.params.symbol, symbPropName)
   }
 
@@ -204,13 +209,23 @@ const _isNotContainedSameMts = (
   apiRes,
   methodApi,
   datePropName,
-  limit
+  limit,
+  opts = {}
 ) => {
+  if (!Array.isArray(apiRes)) {
+    return false
+  }
+
+  const { isMax = true, isInnerMax } = { ...opts }
   const firstElem = { ...apiRes[0] }
   const mts = firstElem[datePropName]
+  const methodLimit = getMethodLimit(
+    { isMax, isInnerMax },
+    methodApi
+  )
 
   return (
-    getMethodLimit('max', methodApi) !== limit ||
+    methodLimit > limit ||
     apiRes.some((item) => {
       const _item = { ...item }
       const _mts = _item[datePropName]
@@ -218,6 +233,31 @@ const _isNotContainedSameMts = (
       return _mts !== mts
     })
   )
+}
+
+const _getResAndParams = async (
+  getREST,
+  args,
+  methodApi,
+  symbPropName,
+  opts = {}
+) => {
+  const {
+    paramsArr,
+    paramsObj
+  } = _getParams(args, methodApi, symbPropName, opts)
+
+  const apiRes = await _requestToApi(
+    getREST,
+    methodApi,
+    paramsArr,
+    args.auth
+  )
+
+  return {
+    apiRes,
+    paramsObj
+  }
 }
 
 const prepareResponse = (
@@ -229,7 +269,8 @@ const prepareResponse = (
   symbols,
   symbPropName,
   methodApi,
-  filter
+  filter,
+  opts = {}
 ) => {
   const isCheckedNextPage = (
     !notCheckNextPage &&
@@ -239,7 +280,8 @@ const prepareResponse = (
       apiRes,
       methodApi,
       datePropName,
-      limit
+      limit,
+      opts
     )
   )
   const nextPage = isCheckedNextPage
@@ -327,24 +369,41 @@ const prepareApiResponse = (
   checkFilterParams(methodApi, args)
 
   const symbols = _getSymbols(methodApi, symbPropName, args)
+
+  const resData = await _getResAndParams(
+    getREST,
+    args,
+    methodApi,
+    symbPropName
+  )
+  const isNotContainedSameMts = _isNotContainedSameMts(
+    resData.apiRes,
+    methodApi,
+    datePropName,
+    resData.paramsObj.limit
+  )
+  const opts = isNotContainedSameMts
+    ? { isMax: true }
+    : { isInnerMax: true }
   const {
-    paramsArr,
+    apiRes,
     paramsObj
-  } = _getParams(args, methodApi, symbPropName)
+  } = isNotContainedSameMts
+    ? resData
+    : await _getResAndParams(
+      getREST,
+      args,
+      methodApi,
+      symbPropName,
+      opts
+    )
   const {
     limit,
     notThrowError,
     notCheckNextPage,
     filter
   } = paramsObj
-
-  const _res = await _requestToApi(
-    getREST,
-    methodApi,
-    paramsArr,
-    args.auth
-  )
-  const res = _omitPrivateModelFields(_res)
+  const res = _omitPrivateModelFields(apiRes)
 
   return prepareResponse(
     res,
@@ -355,7 +414,8 @@ const prepareApiResponse = (
     symbols,
     symbPropName,
     methodApi,
-    filter
+    filter,
+    opts
   )
 }
 
