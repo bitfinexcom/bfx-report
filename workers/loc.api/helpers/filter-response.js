@@ -39,18 +39,65 @@ const _isNull = (val) => {
   )
 }
 
+const _toLowerCaseStr = (value, isNotIgnoreCase) => {
+  const isArray = Array.isArray(value)
+  const valueArr = isArray
+    ? value
+    : [value]
+
+  const resArr = valueArr.map((item) => {
+    if (
+      isNotIgnoreCase ||
+      !item ||
+      typeof item !== 'string'
+    ) {
+      return item
+    }
+
+    return item.toLowerCase()
+  })
+
+  return isArray
+    ? resArr
+    : resArr[0]
+}
+
 const _getComparator = (
   fieldName,
-  value
+  inputValue,
+  isNotIgnoreCase
 ) => {
+  const value = _toLowerCaseStr(inputValue, isNotIgnoreCase)
+
   const eqFn = (item) => (
     !_isNull(item) &&
-    item === value
+    _toLowerCaseStr(item, isNotIgnoreCase) === value
   )
   const neFn = (item) => (
     !_isNull(item) &&
-    item !== value
+    _toLowerCaseStr(item, isNotIgnoreCase) !== value
   )
+  const inFn = (item) => value.some((subItem) => (
+    !_isNull(item) &&
+    _toLowerCaseStr(item, isNotIgnoreCase) === subItem
+  ))
+  const ninFn = (item) => value.every((subItem) => (
+    !_isNull(item) &&
+    _toLowerCaseStr(item, isNotIgnoreCase) !== subItem
+  ))
+  const likeFn = (item) => {
+    const escapeRegExp = RegExp(`[${SPECIAL_CHARS.join('\\')}]`, 'g')
+    const escapedStr = value.replace(escapeRegExp, '\\$&')
+    const _str = replaceStr(escapedStr, '%', '.*')
+    const str = replaceStr(_str, '_', '.')
+
+    const regexp = new RegExp(`^${str}$`)
+
+    return (
+      typeof item === 'string' &&
+      regexp.test(_toLowerCaseStr(item, isNotIgnoreCase))
+    )
+  }
 
   if (fieldName === FILTER_CONDITIONS.GT) {
     return (item) => (
@@ -77,17 +124,7 @@ const _getComparator = (
     )
   }
   if (fieldName === FILTER_CONDITIONS.LIKE) {
-    const escapeRegExp = RegExp(`[${SPECIAL_CHARS.join('\\')}]`, 'g')
-    const escapedStr = value.replace(escapeRegExp, '\\$&')
-    const _str = replaceStr(escapedStr, '%', '.*')
-    const str = replaceStr(_str, '_', '.')
-
-    const regexp = new RegExp(`^${str}$`)
-
-    return (item) => (
-      typeof item === 'string' &&
-      regexp.test(item)
-    )
+    return likeFn
   }
   if (fieldName === FILTER_CONDITIONS.NE) {
     return neFn
@@ -96,15 +133,6 @@ const _getComparator = (
     return eqFn
   }
   if (Array.isArray(value)) {
-    const inFn = (item) => value.some((subItem) => (
-      !_isNull(item) &&
-      item === subItem
-    ))
-    const ninFn = (item) => value.every((subItem) => (
-      !_isNull(item) &&
-      item !== subItem
-    ))
-
     if (fieldName === FILTER_CONDITIONS.IN) {
       return inFn
     }
@@ -168,7 +196,8 @@ const _getIsNullComparator = (
 
 module.exports = (
   data = [],
-  filter = {}
+  filter = {},
+  isNotIgnoreCase
 ) => {
   if (
     !filter ||
@@ -232,7 +261,8 @@ module.exports = (
             (condAccum, curr) => {
               const comparator = _getComparator(
                 fieldName,
-                condFilter[curr]
+                condFilter[curr],
+                isNotIgnoreCase
               )
 
               accum.push(() => comparator(item[curr]))
@@ -247,7 +277,8 @@ module.exports = (
 
         const comparator = _getComparator(
           fieldName,
-          value
+          value,
+          isNotIgnoreCase
         )
         accum.push(() => comparator(item[fieldName]))
 

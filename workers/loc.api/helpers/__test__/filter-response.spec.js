@@ -191,6 +191,34 @@ describe('filterResponse helper', () => {
     })
   })
 
+  it('it should be successful with $like condition, not consider capital letters', function () {
+    this.timeout(1000)
+
+    const resArr = [
+      filterResponse(
+        mockData,
+        { $like: { description: 'settlement%' } }
+      ),
+      filterResponse(
+        mockData,
+        { $like: { description: 'SETTLEMENT%' } }
+      ),
+      filterResponse(
+        mockData,
+        { $like: { description: 'settleMent%' } }
+      )
+    ]
+
+    resArr.forEach((res) => {
+      assert.isAbove(res.length, 0)
+
+      res.forEach(({ description }) => {
+        assert.isString(description)
+        assert.match(description, /^settlement/i)
+      })
+    })
+  })
+
   it('it should be successful with $like condition using escaping <%>', function () {
     this.timeout(1000)
 
@@ -413,6 +441,42 @@ describe('filterResponse helper', () => {
     res.forEach(({ amount, balance }) => {
       assert.isNumber(amount)
       assert.isNumber(balance)
+    })
+  })
+
+  it('it should be successful by not consider capital letters', function () {
+    this.timeout(1000)
+
+    const res = filterResponse(
+      mockData,
+      {
+        $eq: { wallet: 'fUnding' },
+        $ne: {
+          description: 'wire withDRaWal #13002753 on wallet funding'
+        },
+        $like: { description: 'trading fees%' },
+        $nin: { currency: ['uSD'] },
+        $in: { currency: ['LEO'] }
+      }
+    )
+
+    assert.isAbove(res.length, 0)
+
+    res.forEach((
+      {
+        currency,
+        description,
+        wallet
+      }
+    ) => {
+      assert.strictEqual(wallet, 'funding')
+      assert.notStrictEqual(
+        description,
+        'Wire Withdrawal #13002753 on wallet funding'
+      )
+      assert.match(description, /^Trading fees/)
+      assert.notInclude(['USD'], currency)
+      assert.include(['LEO'], currency)
     })
   })
 })
