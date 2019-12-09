@@ -3,17 +3,6 @@
 const { cloneDeep } = require('lodash')
 const moment = require('moment-timezone')
 
-const {
-  isRateLimitError,
-  isNonceSmallError
-} = require('../../helpers/api-errors-testers')
-
-const _delay = (mc = 80000) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, mc)
-  })
-}
-
 const _validTxtTimeZone = (val, timezone, format) => {
   try {
     return moment(val).tz(timezone).format(format)
@@ -181,46 +170,6 @@ const setDefaultPrams = (args) => {
     : 0
 }
 
-const getDataFromApi = async (getData, args) => {
-  const ms = 80000
-
-  let countRateLimitError = 0
-  let countNonceSmallError = 0
-  let res = null
-
-  while (true) {
-    try {
-      res = await getData(null, cloneDeep(args))
-
-      break
-    } catch (err) {
-      if (isRateLimitError(err)) {
-        countRateLimitError += 1
-
-        if (countRateLimitError > 2) {
-          throw err
-        }
-
-        await _delay(ms)
-
-        continue
-      } else if (isNonceSmallError(err)) {
-        countNonceSmallError += 1
-
-        if (countNonceSmallError > 20) {
-          throw err
-        }
-
-        await _delay(1000)
-
-        continue
-      } else throw err
-    }
-  }
-
-  return res
-}
-
 const filterMovementsByAmount = (res, { params }) => {
   const {
     isDeposits,
@@ -256,7 +205,6 @@ const progress = (
 module.exports = {
   writeMessageToStream,
   setDefaultPrams,
-  getDataFromApi,
   filterMovementsByAmount,
   write,
   progress

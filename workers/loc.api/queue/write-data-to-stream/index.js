@@ -2,10 +2,10 @@
 
 const { cloneDeep } = require('lodash')
 
+const { getDataFromApi } = require('../../helpers')
 const {
   writeMessageToStream,
   setDefaultPrams,
-  getDataFromApi,
   filterMovementsByAmount,
   write,
   progress
