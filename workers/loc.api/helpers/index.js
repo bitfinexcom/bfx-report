@@ -37,6 +37,7 @@ const filterModels = require('./filter-models')
 const checkFilterParams = require('./check-filter-params')
 const FILTER_MODELS_NAMES = require('./filter.models.names')
 const FILTER_CONDITIONS = require('./filter.conditions')
+const getDataFromApi = require('./get-data-from-api')
 
 module.exports = {
   getREST,
@@ -61,5 +62,6 @@ module.exports = {
   filterModels,
   checkFilterParams,
   FILTER_MODELS_NAMES,
-  FILTER_CONDITIONS
+  FILTER_CONDITIONS,
+  getDataFromApi
 }
