@@ -2,19 +2,19 @@
 
 const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
   const _methodsLimits = {
-    tickersHistory: { default: 100, max: 250, innerMax: 10000 },
-    positionsHistory: { default: 25, max: 50, innerMax: 10000 },
-    positionsAudit: { default: 100, max: 250, innerMax: 2500 },
+    tickersHistory: { default: 100, max: 250, innerMax: 250 },
+    positionsHistory: { default: 25, max: 50, innerMax: 100 },
+    positionsAudit: { default: 100, max: 250, innerMax: 250 },
     ledgers: { default: 250, max: 500, innerMax: 2500 },
     trades: { default: 500, max: 1000, innerMax: 2500 },
-    orderTrades: { default: 500, max: 1000, innerMax: 2500 },
+    orderTrades: { default: 500, max: 1000, innerMax: 1000 },
     fundingTrades: { default: 500, max: 1000, innerMax: 1000 },
     publicTrades: { default: 500, max: 5000, innerMax: 5000 },
-    orders: { default: 250, max: 500, innerMax: 2500 },
-    movements: { default: 25, max: 25, innerMax: 250 },
-    fundingOfferHistory: { default: 100, max: 500, innerMax: 10000 },
-    fundingLoanHistory: { default: 100, max: 500, innerMax: 10000 },
-    fundingCreditHistory: { default: 100, max: 500, innerMax: 10000 },
+    orders: { default: 250, max: 500, innerMax: 500 },
+    movements: { default: 25, max: 25, innerMax: 100 },
+    fundingOfferHistory: { default: 100, max: 500, innerMax: 500 },
+    fundingLoanHistory: { default: 100, max: 500, innerMax: 500 },
+    fundingCreditHistory: { default: 100, max: 500, innerMax: 500 },
     ...methodsLimits
   }
 
@@ -23,7 +23,7 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
     typeof _methodsLimits[method] === 'object'
   )
     ? _methodsLimits[method]
-    : { default: 25, max: 25, innerMax: 250 }
+    : { default: 25, max: 25, innerMax: 100 }
   const {
     max,
     default: defVal,
