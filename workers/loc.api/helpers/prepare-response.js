@@ -225,6 +225,7 @@ const _isNotContainedSameMts = (
   )
 
   return (
+    apiRes.length === 0 ||
     methodLimit > limit ||
     apiRes.some((item) => {
       const _item = { ...item }
