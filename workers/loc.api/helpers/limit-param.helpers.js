@@ -10,7 +10,7 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
     orderTrades: { default: 500, max: 1000, innerMax: 1000 },
     fundingTrades: { default: 500, max: 1000, innerMax: 1000 },
     publicTrades: { default: 500, max: 5000, innerMax: 5000 },
-    orders: { default: 250, max: 500, innerMax: 500 },
+    orders: { default: 250, max: 500, innerMax: 2500 },
     movements: { default: 25, max: 25, innerMax: 100 },
     fundingOfferHistory: { default: 100, max: 500, innerMax: 500 },
     fundingLoanHistory: { default: 100, max: 500, innerMax: 500 },
