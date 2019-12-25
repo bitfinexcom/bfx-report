@@ -25,7 +25,10 @@ const isTestEnv = (
   process.env.NODE_ENV === 'test'
 )
 
-const basePath = '../../../logs'
+const rootPath = '../../..'
+const basePath = path.isAbsolute(argv.logsFolder)
+  ? argv.logsFolder
+  : path.join(rootPath, argv.logsFolder)
 const ext = '.log'
 
 const pathError = path.join(

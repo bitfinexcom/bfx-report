@@ -47,7 +47,9 @@ const moveFileToLocalStorage = async (
   userInfo,
   isAddedUniqueEndingToCsvName
 ) => {
-  const localStorageDirPath = path.join(rootPath, argv.csvFolder || 'csv')
+  const localStorageDirPath = path.isAbsolute(argv.csvFolder)
+    ? argv.csvFolder
+    : path.join(rootPath, argv.csvFolder)
 
   await _checkAndCreateDir(localStorageDirPath)
 
@@ -83,7 +85,9 @@ const createUniqueFileName = async (rootPath, count = 0) => {
     throw new Error('ERR_CREATE_UNIQUE_FILE_NAME')
   }
 
-  const tempDirPath = path.join(rootPath, 'workers/loc.api/queue', 'temp')
+  const tempDirPath = path.isAbsolute(argv.tempFolder)
+    ? argv.tempFolder
+    : path.join(rootPath, argv.tempFolder)
 
   await _checkAndCreateDir(tempDirPath)
 
