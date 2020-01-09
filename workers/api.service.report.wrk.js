@@ -2,13 +2,27 @@
 
 const { WrkApi } = require('bfx-wrk-api')
 const async = require('async')
+const path = require('path')
 const argv = require('yargs')
   .option('dbId', {
     type: 'number',
     default: 1
   })
   .option('csvFolder', {
-    type: 'string'
+    type: 'string',
+    default: 'csv'
+  })
+  .option('tempFolder', {
+    type: 'string',
+    default: 'workers/loc.api/queue/temp'
+  })
+  .option('logsFolder', {
+    type: 'string',
+    default: 'logs'
+  })
+  .option('dbFolder', {
+    type: 'string',
+    default: 'db'
   })
   .option('isSpamRestrictionMode', {
     type: 'boolean'
@@ -100,8 +114,12 @@ class WrkReportServiceApi extends WrkApi {
   init () {
     super.init()
 
+    const dbFolder = path.isAbsolute(argv.dbFolder)
+      ? argv.dbFolder
+      : path.join(this.ctx.root, argv.dbFolder)
     const dbId = this.ctx.dbId || argv.dbId || 1
     const opts = {
+      dbFolder,
       persist: true,
       name: `queue_${dbId}`
     }
