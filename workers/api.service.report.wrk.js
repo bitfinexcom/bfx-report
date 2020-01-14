@@ -114,12 +114,12 @@ class WrkReportServiceApi extends WrkApi {
   init () {
     super.init()
 
-    const dbFolder = path.isAbsolute(argv.dbFolder)
+    const dbPathAbsolute = path.isAbsolute(argv.dbFolder)
       ? argv.dbFolder
       : path.join(this.ctx.root, argv.dbFolder)
     const dbId = this.ctx.dbId || argv.dbId || 1
     const opts = {
-      dbFolder,
+      dbPathAbsolute,
       persist: true,
       name: `queue_${dbId}`
     }
