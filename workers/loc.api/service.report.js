@@ -152,9 +152,10 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         _args,
         'tickersHistory',
-        'mtsUpdate',
-        null,
-        ['symbol']
+        {
+          datePropName: 'mtsUpdate',
+          requireFields: ['symbol']
+        }
       )
     }, 'getTickersHistory', cb)
   }
@@ -164,8 +165,10 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         args,
         'positionsHistory',
-        'mtsUpdate',
-        'symbol'
+        {
+          datePropName: 'mtsUpdate',
+          symbPropName: 'symbol'
+        }
       )
     }, 'getPositionsHistory', cb)
   }
@@ -186,8 +189,10 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         args,
         'positionsAudit',
-        'mtsUpdate',
-        'symbol'
+        {
+          datePropName: 'mtsUpdate',
+          symbPropName: 'symbol'
+        }
       )
     }, 'getPositionsAudit', cb)
   }
@@ -210,8 +215,10 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         args,
         'ledgers',
-        'mts',
-        'currency'
+        {
+          datePropName: 'mts',
+          symbPropName: 'currency'
+        }
       )
     }, 'getLedgers', cb)
   }
@@ -221,8 +228,10 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         args,
         'trades',
-        'mtsCreate',
-        'symbol'
+        {
+          datePropName: 'mtsCreate',
+          symbPropName: 'symbol'
+        }
       )
     }, 'getTrades', cb)
   }
@@ -232,8 +241,10 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         args,
         'fundingTrades',
-        'mtsCreate',
-        'symbol'
+        {
+          datePropName: 'mtsCreate',
+          symbPropName: 'symbol'
+        }
       )
     }, 'getFundingTrades', cb)
   }
@@ -248,8 +259,10 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         _args,
         'publicTrades',
-        'mts',
-        ['symbol']
+        {
+          datePropName: 'mts',
+          symbPropName: ['symbol']
+        }
       )
     }, 'getPublicTrades', cb)
   }
@@ -275,8 +288,10 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         _args,
         'statusMessages',
-        'timestamp',
-        ['key']
+        {
+          datePropName: 'timestamp',
+          symbPropName: ['key']
+        }
       )
     }, 'getStatusMessages', cb)
   }
@@ -286,23 +301,28 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         args,
         'orderTrades',
-        'mtsCreate',
-        'symbol'
+        {
+          datePropName: 'mtsCreate',
+          symbPropName: 'symbol'
+        }
       )
     }, 'getOrderTrades', cb)
   }
 
   getOrders (space, args, cb) {
-    return this._responder(async () => {
-      const _res = await this._prepareApiResponse(
+    return this._responder(() => {
+      return this._prepareApiResponse(
         args,
         'orders',
-        'mtsUpdate',
-        'symbol'
+        {
+          datePropName: 'mtsUpdate',
+          symbPropName: 'symbol',
+          parseFieldsFn: (res) => parseFields(
+            res,
+            { executed: true }
+          )
+        }
       )
-      const res = parseFields(_res.res, { executed: true })
-
-      return { ..._res, res }
     }, 'getOrders', cb)
   }
 
@@ -321,51 +341,62 @@ class ReportService extends Api {
       return this._prepareApiResponse(
         args,
         'movements',
-        'mtsUpdated',
-        'currency'
+        {
+          datePropName: 'mtsUpdated',
+          symbPropName: 'currency'
+        }
       )
     }, 'getMovements', cb)
   }
 
   getFundingOfferHistory (space, args, cb) {
-    return this._responder(async () => {
-      const _res = await this._prepareApiResponse(
+    return this._responder(() => {
+      return this._prepareApiResponse(
         args,
         'fundingOfferHistory',
-        'mtsUpdate',
-        'symbol'
+        {
+          datePropName: 'mtsUpdate',
+          symbPropName: 'symbol',
+          parseFieldsFn: (res) => parseFields(
+            res,
+            { executed: true, rate: true }
+          )
+        }
       )
-      const res = parseFields(_res.res, { executed: true, rate: true })
-
-      return { ..._res, res }
     }, 'getFundingOfferHistory', cb)
   }
 
   getFundingLoanHistory (space, args, cb) {
-    return this._responder(async () => {
-      const _res = await this._prepareApiResponse(
+    return this._responder(() => {
+      return this._prepareApiResponse(
         args,
         'fundingLoanHistory',
-        'mtsUpdate',
-        'symbol'
+        {
+          datePropName: 'mtsUpdate',
+          symbPropName: 'symbol',
+          parseFieldsFn: (res) => parseFields(
+            res,
+            { rate: true }
+          )
+        }
       )
-      const res = parseFields(_res.res, { rate: true })
-
-      return { ..._res, res }
     }, 'getFundingLoanHistory', cb)
   }
 
   getFundingCreditHistory (space, args, cb) {
-    return this._responder(async () => {
-      const _res = await this._prepareApiResponse(
+    return this._responder(() => {
+      return this._prepareApiResponse(
         args,
         'fundingCreditHistory',
-        'mtsUpdate',
-        'symbol'
+        {
+          datePropName: 'mtsUpdate',
+          symbPropName: 'symbol',
+          parseFieldsFn: (res) => parseFields(
+            res,
+            { rate: true }
+          )
+        }
       )
-      const res = parseFields(_res.res, { rate: true })
-
-      return { ..._res, res }
     }, 'getFundingCreditHistory', cb)
   }
 
