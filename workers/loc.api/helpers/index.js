@@ -25,8 +25,9 @@ const {
   isNonceSmallError
 } = require('./api-errors-testers')
 const {
+  accountCache,
   parseFields,
-  accountCache
+  parseLoginsExtraDataFields
 } = require('./utils')
 const checkJobAndGetUserData = require(
   './check-job-and-get-user-data'
@@ -48,8 +49,9 @@ module.exports = {
   isAuthError,
   isRateLimitError,
   isNonceSmallError,
-  parseFields,
   accountCache,
+  parseFields,
+  parseLoginsExtraDataFields,
   getTimezoneConf,
   checkTimeLimit,
   prepareResponse,
