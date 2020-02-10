@@ -1429,4 +1429,37 @@ describe('API', () => {
       'transactionId'
     ])
   })
+
+  it('it should be successfully performed by the getAccountSummary method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getAccountSummary',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.containsAllKeys(res.body.result, [
+      'time',
+      'status',
+      'is_locked',
+      'trade_vol_30d',
+      'fees_funding_30d',
+      'fees_funding_total_30d',
+      'fees_trading_30d',
+      'fees_trading_total_30d',
+      'maker_fee',
+      'taker_fee',
+      'deriv_maker_rebate',
+      'deriv_taker_fee'
+    ])
+  })
 })

@@ -462,5 +462,56 @@ module.exports = new Map([
         ]
       ]
     ]
+  ],
+  [
+    'account_summary',
+    [{
+      _id: '2a2a2a22222a2aa22a22aa2a',
+      user_id: 12345,
+      summary: {
+        time: '2020-02-10T06:49:30.270Z',
+        status: {
+          resid_hint: null
+        },
+        is_locked: false,
+        trade_vol_30d: [
+          {
+            curr: 'BTC',
+            vol: 0.12345
+          },
+          {
+            curr: 'ETH',
+            vol: 1.12345
+          },
+          {
+            curr: 'BTCF0',
+            vol: 0.12345
+          },
+          {
+            curr: 'Total (USD)',
+            vol: 12345.12345,
+            vol_maker: 12345.12345,
+            vol_BFX: 12345.12345,
+            vol_BFX_maker: 12345.12345
+          }
+        ],
+        fees_funding_30d: {
+          USD: 123.12345
+        },
+        fees_funding_total_30d: 123.12345,
+        fees_trading_30d: {
+          USTF0: 0.987654321,
+          ETH: 0.0012345,
+          USD: 1.987654321,
+          BTC: 0.000098765
+        },
+        fees_trading_total_30d: 1.12345,
+        maker_fee: 0.001,
+        taker_fee: 0.002,
+        deriv_maker_rebate: -0.0002,
+        deriv_taker_fee: 0.00098
+      },
+      t: 1581317371000
+    }]
   ]
 ])
