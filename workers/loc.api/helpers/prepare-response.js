@@ -360,10 +360,14 @@ const prepareApiResponse = (
 ) => async (
   args,
   methodApi,
-  datePropName,
-  symbPropName,
-  requireFields
+  params = {}
 ) => {
+  const {
+    datePropName,
+    symbPropName,
+    requireFields,
+    parseFieldsFn
+  } = { ...params }
   const schemaName = _getSchemaNameByMethodName(methodApi)
 
   checkParams(args, schemaName, requireFields)
@@ -404,7 +408,10 @@ const prepareApiResponse = (
     notCheckNextPage,
     filter
   } = paramsObj
-  const res = _omitPrivateModelFields(apiRes)
+  const omittedRes = _omitPrivateModelFields(apiRes)
+  const res = typeof parseFieldsFn === 'function'
+    ? parseFieldsFn(omittedRes)
+    : omittedRes
 
   return prepareResponse(
     res,
