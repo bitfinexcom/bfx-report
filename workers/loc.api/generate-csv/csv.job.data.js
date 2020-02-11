@@ -823,6 +823,44 @@ class CsvJobData {
     return jobData
   }
 
+  async getLoginsCsvJobData (
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      this.rService,
+      args,
+      uId,
+      uInfo
+    )
+
+    const csvArgs = getCsvArgs(args, 'logins')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getLogins',
+      args: csvArgs,
+      propNameForPagination: 'time',
+      columnsCsv: {
+        id: '#',
+        ip: 'IP',
+        time: 'DATE'
+      },
+      formatSettings: {
+        time: 'date'
+      }
+    }
+
+    return jobData
+  }
+
   async getMultipleCsvJobData (
     args,
     uId,

@@ -584,6 +584,15 @@ class ReportService extends Api {
       )
     }, 'getFundingCreditHistoryCsv', cb)
   }
+
+  getLoginsCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getLoginsCsvJobData',
+        args
+      )
+    }, 'getLoginsCsv', cb)
+  }
 }
 
 module.exports = ReportService
