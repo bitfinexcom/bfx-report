@@ -39,6 +39,11 @@ const setDataTo = (
   const _date = Math.round(date)
 
   switch (key) {
+    case 'logins_hist':
+      dataItem[0] = id
+      dataItem[2] = _date
+      break
+
     case 'status_messages':
       dataItem[1] = _date
       dataItem[8] = _date
@@ -159,10 +164,12 @@ const getMockDataOpts = () => ({
   f_offer_hist: { limit: 500 },
   f_loan_hist: { limit: 500 },
   f_credit_hist: { limit: 500 },
+  logins_hist: { limit: 250 },
   user_info: null,
   symbols: null,
   futures: null,
-  currencies: null
+  currencies: null,
+  account_summary: null
 })
 
 const createMockRESTv2SrvWithDate = (

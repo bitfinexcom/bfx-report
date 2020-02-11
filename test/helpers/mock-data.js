@@ -513,5 +513,29 @@ module.exports = new Map([
       },
       t: 1581317371000
     }]
+  ],
+  [
+    'logins_hist',
+    [[
+      12345,
+      null,
+      _ms,
+      null,
+      '127.0.0.1',
+      null,
+      null,
+      JSON.stringify({
+        asn: '14061, DigitalOcean, LLC',
+        geo: 'Unknown, SG',
+        user_agent: {
+          os: 'Linux x86_64',
+          raw: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+          browser: 'Chrome',
+          version: '79.0.3945.130',
+          platform: 'X11',
+          is_mobile: false
+        }
+      })
+    ]]
   ]
 ])
