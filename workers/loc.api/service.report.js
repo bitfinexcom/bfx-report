@@ -400,6 +400,15 @@ class ReportService extends Api {
     }, 'getFundingCreditHistory', cb)
   }
 
+  getAccountSummary (space, args, cb) {
+    return this._responder(async () => {
+      const { auth } = { ...args }
+      const rest = this._getREST(auth)
+
+      return rest.accountSummary()
+    }, 'getAccountSummary', cb)
+  }
+
   getMultipleCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(
