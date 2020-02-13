@@ -5,6 +5,7 @@ const { Api } = require('bfx-wrk-api')
 const {
   checkParams,
   parseFields,
+  parseLoginsExtraDataFields,
   accountCache,
   getTimezoneConf,
   filterModels
@@ -409,6 +410,19 @@ class ReportService extends Api {
     }, 'getAccountSummary', cb)
   }
 
+  getLogins (space, args, cb) {
+    return this._responder(() => {
+      return this._prepareApiResponse(
+        args,
+        'logins',
+        {
+          datePropName: 'time',
+          parseFieldsFn: parseLoginsExtraDataFields
+        }
+      )
+    }, 'getLogins', cb)
+  }
+
   getMultipleCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(
@@ -569,6 +583,15 @@ class ReportService extends Api {
         args
       )
     }, 'getFundingCreditHistoryCsv', cb)
+  }
+
+  getLoginsCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getLoginsCsvJobData',
+        args
+      )
+    }, 'getLoginsCsv', cb)
   }
 }
 

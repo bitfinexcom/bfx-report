@@ -204,5 +204,13 @@ module.exports = new Map([
       fundingAccrued: { type: 'number' },
       fundingStep: { type: 'number' }
     }
+  ],
+  [
+    FILTER_MODELS_NAMES.LOGINS,
+    {
+      id: { type: 'integer' },
+      time: { type: 'integer' },
+      ip: { type: 'string', format: 'ipv4' }
+    }
   ]
 ])

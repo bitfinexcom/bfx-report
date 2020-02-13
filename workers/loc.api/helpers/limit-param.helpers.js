@@ -15,6 +15,7 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
     fundingOfferHistory: { default: 100, max: 500, innerMax: 500 },
     fundingLoanHistory: { default: 100, max: 500, innerMax: 500 },
     fundingCreditHistory: { default: 100, max: 500, innerMax: 500 },
+    logins: { default: 100, max: 250, innerMax: 250 },
     ...methodsLimits
   }
 

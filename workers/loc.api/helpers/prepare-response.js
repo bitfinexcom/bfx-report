@@ -36,6 +36,11 @@ const _paramsOrderMap = {
     'limit',
     'id'
   ],
+  logins: [
+    'start',
+    'end',
+    'limit'
+  ],
   default: [
     'symbol',
     'start',
