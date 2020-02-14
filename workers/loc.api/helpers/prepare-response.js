@@ -193,13 +193,13 @@ const _getParams = (
   }
 
   if (methodApi === 'candles') {
-    const query = pick(params, [
+    const query = pick(paramsObj, [
       'limit',
       'start',
       'end',
       'sort'
     ])
-    const _params = pick(params, [
+    const _params = pick(paramsObj, [
       'section',
       'timeframe',
       'symbol'
