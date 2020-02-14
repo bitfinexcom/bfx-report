@@ -88,7 +88,7 @@ const paramsSchemaForCandlesApi = {
   }
 }
 
-const paramsSchemaForCandlesApiCsv = {
+const paramsSchemaForCandlesCsv = {
   type: 'object',
   properties: {
     ...paramsSchemaForCandlesApi.properties,
@@ -296,5 +296,5 @@ module.exports = {
   paramsSchemaForStatusMessagesApi,
   paramsSchemaForStatusMessagesCsv,
   paramsSchemaForCandlesApi,
-  paramsSchemaForCandlesApiCsv
+  paramsSchemaForCandlesCsv
 }

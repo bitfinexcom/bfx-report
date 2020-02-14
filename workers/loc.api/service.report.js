@@ -541,6 +541,15 @@ class ReportService extends Api {
     }, 'getStatusMessagesCsv', cb)
   }
 
+  getCandlesCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getCandlesCsvJobData',
+        args
+      )
+    }, 'getCandlesCsv', cb)
+  }
+
   getLedgersCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(

@@ -102,18 +102,25 @@ const _dataFormatter = (obj, formatSettings, params) => {
   return res
 }
 
-const _normalizers = {
-  getPublicTrades: (obj, params) => {
-    if (
-      params &&
-      typeof params === 'object' &&
-      typeof params.symbol === 'string'
-    ) {
-      obj.symbol = params.symbol
-    }
+const _symbNormalizer = (obj, params) => {
+  const { symbol } = { ...params }
+  const _symbol = Array.isArray(symbol)
+    ? symbol[0]
+    : symbol
 
+  if (typeof _symbol !== 'string') {
     return obj
   }
+
+  return {
+    ...obj,
+    symbol: _symbol
+  }
+}
+
+const _normalizers = {
+  getPublicTrades: _symbNormalizer,
+  getCandles: _symbNormalizer
 }
 
 const _dataNormalizer = (obj, method, params) => {
