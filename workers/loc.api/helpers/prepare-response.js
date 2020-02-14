@@ -3,7 +3,8 @@
 const {
   cloneDeep,
   isEmpty,
-  omit
+  omit,
+  pick
 } = require('lodash')
 
 const filterResponse = require('./filter-response')
@@ -54,6 +55,7 @@ const _paramsSchemasMap = {
   publicTrades: 'paramsSchemaForPublicTrades',
   positionsAudit: 'paramsSchemaForPositionsAudit',
   orderTrades: 'paramsSchemaForOrderTradesApi',
+  candles: 'paramsSchemaForCandlesApi',
   default: 'paramsSchemaForApi'
 }
 
@@ -95,7 +97,8 @@ const _getSymbols = (
     !args.params ||
     typeof args.params !== 'object' ||
     !args.params.symbol ||
-    methodApi === 'statusMessages'
+    methodApi === 'candles' ||
+    methodApi === 'publicTrades'
   ) {
     return null
   }
@@ -124,6 +127,14 @@ const _getSymbolParam = (
   symbol,
   symbPropName
 ) => {
+  if (
+    methodApi === 'candles' ||
+    methodApi === 'publicTrades'
+  ) {
+    return Array.isArray(symbol)
+      ? symbol[0]
+      : symbol
+  }
   if (
     methodApi === 'statusMessages'
   ) {
@@ -169,15 +180,36 @@ const _getParams = (
     }
   }
 
+  const { params } = { ...args }
   const { isInnerMax } = { ...opts }
   const limit = isInnerMax
     ? { isInnerMax }
-    : args.params.limit
+    : params.limit
   const paramsObj = {
-    ...cloneDeep(args.params),
-    end: getDateNotMoreNow(args.params.end),
+    ...cloneDeep(params),
+    end: getDateNotMoreNow(params.end),
     limit: getMethodLimit(limit, methodApi),
-    symbol: _getSymbolParam(methodApi, args.params.symbol, symbPropName)
+    symbol: _getSymbolParam(methodApi, params.symbol, symbPropName)
+  }
+
+  if (methodApi === 'candles') {
+    const query = pick(params, [
+      'limit',
+      'start',
+      'end',
+      'sort'
+    ])
+    const _params = pick(params, [
+      'section',
+      'timeframe',
+      'symbol'
+    ])
+    const paramsArr = [{ ..._params, query }]
+
+    return {
+      paramsArr,
+      paramsObj
+    }
   }
 
   const paramsOrder = _getParamsOrder(methodApi)
