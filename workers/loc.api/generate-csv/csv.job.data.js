@@ -458,11 +458,7 @@ class CsvJobData {
     uId,
     uInfo
   ) {
-    checkParams(
-      args,
-      'paramsSchemaForCandlesCsv',
-      ['section', 'timeframe', 'symbol']
-    )
+    checkParams(args, 'paramsSchemaForCandlesCsv', ['symbol'])
     checkTimeLimit(args)
 
     const {

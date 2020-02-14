@@ -301,8 +301,7 @@ class ReportService extends Api {
       const { params } = { ...args }
       const {
         section = 'hist',
-        timeframe = '1D',
-        symbol = 'tBTCUSD'
+        timeframe = '1D'
       } = { ...params }
       const _args = {
         ...args,
@@ -310,8 +309,7 @@ class ReportService extends Api {
         params: {
           ...params,
           section,
-          timeframe,
-          symbol
+          timeframe
         }
       }
 

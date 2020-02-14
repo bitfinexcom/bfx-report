@@ -54,6 +54,7 @@ const language = {
 
 const paramsSchemaForCandlesApi = {
   type: 'object',
+  required: ['symbol'],
   properties: {
     timeframe: {
       type: 'string'
