@@ -23,5 +23,6 @@ module.exports = {
   FUNDING_LOAN_HISTORY: 'fundingLoanHistory',
   FUNDING_CREDIT_HISTORY: 'fundingCreditHistory',
   STATUS_MESSAGES: 'statusMessages',
-  LOGINS: 'logins'
+  LOGINS: 'logins',
+  CANDLES: 'candles'
 }

@@ -212,5 +212,16 @@ module.exports = new Map([
       time: { type: 'integer' },
       ip: { type: 'string', format: 'ipv4' }
     }
+  ],
+  [
+    FILTER_MODELS_NAMES.CANDLES,
+    {
+      mts: { type: 'integer' },
+      open: { type: 'number' },
+      close: { type: 'number' },
+      high: { type: 'number' },
+      low: { type: 'number' },
+      volume: { type: 'number' }
+    }
   ]
 ])
