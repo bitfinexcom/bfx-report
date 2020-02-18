@@ -261,8 +261,7 @@ class ReportService extends Api {
         _args,
         'publicTrades',
         {
-          datePropName: 'mts',
-          symbPropName: ['symbol']
+          datePropName: 'mts'
         }
       )
     }, 'getPublicTrades', cb)
@@ -291,10 +290,37 @@ class ReportService extends Api {
         'statusMessages',
         {
           datePropName: 'timestamp',
-          symbPropName: ['key']
+          symbPropName: 'key'
         }
       )
     }, 'getStatusMessages', cb)
+  }
+
+  getCandles (space, args, cb) {
+    return this._responder(() => {
+      const { params } = { ...args }
+      const {
+        section = 'hist',
+        timeframe = '1D'
+      } = { ...params }
+      const _args = {
+        ...args,
+        auth: {},
+        params: {
+          ...params,
+          section,
+          timeframe
+        }
+      }
+
+      return this._prepareApiResponse(
+        _args,
+        'candles',
+        {
+          datePropName: 'mts'
+        }
+      )
+    }, 'getCandles', cb)
   }
 
   getOrderTrades (space, args, cb) {
@@ -511,6 +537,15 @@ class ReportService extends Api {
         args
       )
     }, 'getStatusMessagesCsv', cb)
+  }
+
+  getCandlesCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getCandlesCsvJobData',
+        args
+      )
+    }, 'getCandlesCsv', cb)
   }
 
   getLedgersCsv (space, args, cb) {

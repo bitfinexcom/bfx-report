@@ -13,31 +13,6 @@ const _publicTradesSymbol = {
   }
 }
 
-const paramsSchemaForEditPublicСollsСonf = {
-  type: ['array', 'object'],
-  if: {
-    type: 'array'
-  },
-  then: {
-    minItems: 1,
-    items: {
-      type: 'object',
-      required: ['symbol', 'start'],
-      properties: {
-        symbol: { type: 'string' },
-        start: { type: 'integer' }
-      }
-    }
-  },
-  else: {
-    required: ['symbol', 'start'],
-    properties: {
-      symbol: { type: 'string' },
-      start: { type: 'integer' }
-    }
-  }
-}
-
 const paramsSchemaForApi = {
   type: 'object',
   properties: {
@@ -75,6 +50,53 @@ const dateFormat = {
 const language = {
   type: 'string',
   enum: ['en', 'ru', 'zh-CN', 'zh-TW']
+}
+
+const paramsSchemaForCandlesApi = {
+  type: 'object',
+  required: ['symbol'],
+  properties: {
+    timeframe: {
+      type: 'string'
+    },
+    symbol: {
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        maxItems: 1,
+        items: {
+          type: 'string'
+        }
+      }
+    },
+    section: {
+      type: 'string'
+    },
+    limit: {
+      type: 'integer'
+    },
+    start: {
+      type: 'integer'
+    },
+    end: {
+      type: 'integer'
+    },
+    sort: {
+      type: 'integer'
+    }
+  }
+}
+
+const paramsSchemaForCandlesCsv = {
+  type: 'object',
+  properties: {
+    ...paramsSchemaForCandlesApi.properties,
+    timezone,
+    dateFormat,
+    language
+  }
 }
 
 const paramsSchemaForStatusMessagesApi = {
@@ -264,7 +286,6 @@ module.exports = {
   paramsSchemaForCsv,
   paramsSchemaForPublicTradesCsv,
   paramsSchemaForPublicTrades,
-  paramsSchemaForEditPublicСollsСonf,
   paramsSchemaForPositionsAudit,
   paramsSchemaForPositionsAuditCsv,
   paramsSchemaForWallets,
@@ -274,5 +295,7 @@ module.exports = {
   paramsSchemaForOrderTradesApi,
   paramsSchemaForOrderTradesCsv,
   paramsSchemaForStatusMessagesApi,
-  paramsSchemaForStatusMessagesCsv
+  paramsSchemaForStatusMessagesCsv,
+  paramsSchemaForCandlesApi,
+  paramsSchemaForCandlesCsv
 }

@@ -453,6 +453,48 @@ class CsvJobData {
     return jobData
   }
 
+  async getCandlesCsvJobData (
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args, 'paramsSchemaForCandlesCsv', ['symbol'])
+    checkTimeLimit(args)
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      this.rService,
+      args,
+      uId,
+      uInfo
+    )
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getCandles',
+      args,
+      propNameForPagination: 'mts',
+      columnsCsv: {
+        mts: 'TIME',
+        open: 'FIRST EXECUTION',
+        close: 'LAST EXECUTION',
+        high: 'HIGHEST EXECUTION',
+        low: 'LOWEST EXECUTION',
+        volume: 'QUANTITY',
+        symbol: 'PAIR'
+      },
+      formatSettings: {
+        mts: 'date',
+        symbol: 'symbol'
+      }
+    }
+
+    return jobData
+  }
+
   async getLedgersCsvJobData (
     args,
     uId,

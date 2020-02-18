@@ -39,6 +39,10 @@ const setDataTo = (
   const _date = Math.round(date)
 
   switch (key) {
+    case 'candles':
+      dataItem[0] = _date
+      break
+
     case 'logins_hist':
       dataItem[0] = id
       dataItem[2] = _date
@@ -165,6 +169,7 @@ const getMockDataOpts = () => ({
   f_loan_hist: { limit: 500 },
   f_credit_hist: { limit: 500 },
   logins_hist: { limit: 250 },
+  candles: { limit: 500 },
   user_info: null,
   symbols: null,
   futures: null,

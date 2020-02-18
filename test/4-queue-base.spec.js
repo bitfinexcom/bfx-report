@@ -493,6 +493,34 @@ describe('Queue', () => {
     await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
+  it('it should be successfully performed by the getCandlesCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/get-data`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getCandlesCsv',
+        params: {
+          symbol: 'tBTCUSD',
+          end,
+          start: (new Date()).setDate(date.getDate() - 27),
+          limit: 1000,
+          timezone: 'America/Los_Angeles',
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
   it('it should not be successfully performed by the getPublicTradesCsv method, time frame more then a month', async function () {
     this.timeout(60000)
 
