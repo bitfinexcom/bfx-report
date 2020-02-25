@@ -12,7 +12,10 @@ const checkParams = require('./check-params')
 const checkFilterParams = require('./check-filter-params')
 const { getMethodLimit } = require('./limit-param.helpers')
 const { getDateNotMoreNow } = require('./date-param.helpers')
-const { MinLimitParamError } = require('../errors')
+const {
+  MinLimitParamError,
+  LedgerPaymentFilteringParamsError
+} = require('../errors')
 
 const _paramsOrderMap = {
   statusMessages: [
@@ -124,9 +127,15 @@ const _getSymbols = (
 
 const _getSymbolParam = (
   methodApi,
-  symbol,
+  params,
   symbPropName
 ) => {
+  const {
+    isMarginFundingPayment,
+    isAffiliateRebate,
+    symbol
+  } = { ...params }
+
   if (
     methodApi === 'candles' ||
     methodApi === 'publicTrades'
@@ -160,6 +169,25 @@ const _getSymbolParam = (
   ) {
     return null
   }
+  if (
+    methodApi === 'ledgers' &&
+    (
+      isMarginFundingPayment ||
+      isAffiliateRebate
+    )
+  ) {
+    if (
+      isMarginFundingPayment &&
+      isAffiliateRebate
+    ) {
+      throw new LedgerPaymentFilteringParamsError()
+    }
+
+    return {
+      ccy: symbol,
+      category: isMarginFundingPayment ? 28 : 241
+    }
+  }
 
   return symbol
 }
@@ -189,7 +217,7 @@ const _getParams = (
     ...cloneDeep(params),
     end: getDateNotMoreNow(params.end),
     limit: getMethodLimit(limit, methodApi),
-    symbol: _getSymbolParam(methodApi, params.symbol, symbPropName)
+    symbol: _getSymbolParam(methodApi, params, symbPropName)
   }
 
   if (methodApi === 'candles') {

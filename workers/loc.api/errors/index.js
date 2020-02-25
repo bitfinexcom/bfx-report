@@ -93,6 +93,12 @@ class FilterParamsValidSchemaFindingError extends ParamsValidSchemaFindingError 
   }
 }
 
+class LedgerPaymentFilteringParamsError extends ArgsParamsError {
+  constructor (message = 'ERR_FILTER_BY_MARGIN_AND_AFFILIATE_PARAMS_MAY_NOT_APPLY_TOGETHER') {
+    super(message)
+  }
+}
+
 module.exports = {
   BaseError,
   FindMethodError,
@@ -107,5 +113,6 @@ module.exports = {
   TimeframeError,
   ParamsValidSchemaFindingError,
   FilterParamsValidSchemaFindingError,
-  ArgsParamsFilterError
+  ArgsParamsFilterError,
+  LedgerPaymentFilteringParamsError
 }
