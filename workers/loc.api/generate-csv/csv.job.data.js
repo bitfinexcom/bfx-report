@@ -521,6 +521,7 @@ class CsvJobData {
       args: csvArgs,
       propNameForPagination: 'mts',
       columnsCsv: {
+        id: '#',
         description: 'DESCRIPTION',
         currency: 'CURRENCY',
         amount: 'AMOUNT',
