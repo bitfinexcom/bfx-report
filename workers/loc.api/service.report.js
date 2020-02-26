@@ -8,7 +8,8 @@ const {
   parseLoginsExtraDataFields,
   accountCache,
   getTimezoneConf,
-  filterModels
+  filterModels,
+  parsePositionsAuditId
 } = require('./helpers')
 const { ArgsParamsError } = require('./errors')
 const TYPES = require('./di/types')
@@ -187,8 +188,10 @@ class ReportService extends Api {
 
   getPositionsAudit (space, args, cb) {
     return this._responder(() => {
+      const _args = parsePositionsAuditId(args)
+
       return this._prepareApiResponse(
-        args,
+        _args,
         'positionsAudit',
         {
           datePropName: 'mtsUpdate',
