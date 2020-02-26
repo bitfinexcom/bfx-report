@@ -27,7 +27,8 @@ const {
 const {
   accountCache,
   parseFields,
-  parseLoginsExtraDataFields
+  parseLoginsExtraDataFields,
+  parsePositionsAuditId
 } = require('./utils')
 const checkJobAndGetUserData = require(
   './check-job-and-get-user-data'
@@ -65,5 +66,6 @@ module.exports = {
   checkFilterParams,
   FILTER_MODELS_NAMES,
   FILTER_CONDITIONS,
-  getDataFromApi
+  getDataFromApi,
+  parsePositionsAuditId
 }

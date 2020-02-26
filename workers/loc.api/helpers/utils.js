@@ -49,8 +49,27 @@ const parseLoginsExtraDataFields = (res) => {
   })
 }
 
+const parsePositionsAuditId = (args) => {
+  const { params } = { ...args }
+  const { id } = { ...params }
+  const parsedId = Array.isArray(id)
+    ? id.map(_id => (
+      typeof _id === 'string' ? Number.parseInt(_id) : _id)
+    )
+    : id
+
+  return {
+    ...args,
+    params: {
+      ...params,
+      id: parsedId
+    }
+  }
+}
+
 module.exports = {
   accountCache,
   parseFields,
-  parseLoginsExtraDataFields
+  parseLoginsExtraDataFields,
+  parsePositionsAuditId
 }

@@ -12,7 +12,8 @@ const {
   checkParams,
   getCsvArgs,
   checkTimeLimit,
-  checkJobAndGetUserData
+  checkJobAndGetUserData,
+  parsePositionsAuditId
 } = require('../helpers')
 const {
   FindMethodToGetCsvFileError,
@@ -311,19 +312,20 @@ class CsvJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForPositionsAuditCsv', ['id'])
+    const _args = parsePositionsAuditId(args)
+    checkParams(_args, 'paramsSchemaForPositionsAuditCsv', ['id'])
 
     const {
       userId,
       userInfo
     } = await checkJobAndGetUserData(
       this.rService,
-      args,
+      _args,
       uId,
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'positionsAudit')
+    const csvArgs = getCsvArgs(_args, 'positionsAudit')
 
     const jobData = {
       userInfo,
