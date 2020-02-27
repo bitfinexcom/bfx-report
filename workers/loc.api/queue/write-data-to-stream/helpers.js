@@ -1,6 +1,6 @@
 'use strict'
 
-const { cloneDeep } = require('lodash')
+const { cloneDeep, isObject } = require('lodash')
 const moment = require('moment-timezone')
 
 const _validTxtTimeZone = (val, timezone, format) => {
@@ -209,10 +209,34 @@ const progress = (
   queue.emit('progress', percent)
 }
 
+const isSameRes = (prev = [], curr = []) => {
+  if (
+    !Array.isArray(prev) ||
+    prev.length === 0 ||
+    !Array.isArray(curr) ||
+    curr.length === 0
+  ) {
+    return false
+  }
+
+  const keys = Object.entries(prev[0])
+    .filter(([key, val]) => (/^(?!_)/.test(key)) && !isObject(val))
+    .map(([key]) => key)
+
+  return curr.some(currItem => {
+    return prev.some(prevItem => {
+      return keys.every(key => {
+        return prevItem[key] === currItem[key]
+      })
+    })
+  })
+}
+
 module.exports = {
   writeMessageToStream,
   setDefaultPrams,
   filterMovementsByAmount,
   write,
-  progress
+  progress,
+  isSameRes
 }

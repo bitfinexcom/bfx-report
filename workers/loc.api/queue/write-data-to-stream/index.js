@@ -8,7 +8,8 @@ const {
   setDefaultPrams,
   filterMovementsByAmount,
   write,
-  progress
+  progress,
+  isSameRes
 } = require('./helpers')
 
 module.exports = (
@@ -41,7 +42,9 @@ module.exports = (
   const getData = rService[method].bind(rService)
 
   let count = 0
+  let reqCount = 0
   let serialRequestsCount = 0
+  let prevRes = []
 
   while (true) {
     processorQueue.emit('progress', 0)
@@ -51,6 +54,7 @@ module.exports = (
       currIterationArgs
     )
 
+    reqCount += 1
     const isGetWalletsMethod = method === 'getWallets'
     const isGetActivePositionsMethod = (
       method === 'getActivePositions'
@@ -86,13 +90,16 @@ module.exports = (
     if (
       !res ||
       !Array.isArray(res) ||
-      res.length === 0
+      res.length === 0 ||
+      isSameRes(prevRes, res) ||
+      reqCount > 100000
     ) {
       if (count > 0) processorQueue.emit('progress', 100)
 
       break
     }
 
+    prevRes = res
     const lastItem = res[res.length - 1]
 
     if (
