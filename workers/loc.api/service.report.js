@@ -203,11 +203,8 @@ class ReportService extends Api {
       checkParams(args, 'paramsSchemaForWallets')
 
       const rest = this._getREST(args.auth)
-      const { end } = { ...args.params }
 
-      return end
-        ? rest.walletsHistory(end)
-        : rest.wallets()
+      return rest.wallets()
     }, 'getWallets', cb)
   }
 
