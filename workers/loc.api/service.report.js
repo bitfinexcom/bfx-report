@@ -432,7 +432,9 @@ class ReportService extends Api {
       const { auth } = { ...args }
       const rest = this._getREST(auth)
 
-      return rest.accountSummary()
+      const res = await rest.accountSummary()
+
+      return Array.isArray(res) ? res : [res]
     }, 'getAccountSummary', cb)
   }
 

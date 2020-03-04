@@ -1353,21 +1353,26 @@ describe('API', () => {
 
     assert.isObject(res.body)
     assert.propertyVal(res.body, 'id', 5)
-    assert.isObject(res.body.result)
-    assert.containsAllKeys(res.body.result, [
-      'time',
-      'status',
-      'is_locked',
-      'trade_vol_30d',
-      'fees_funding_30d',
-      'fees_funding_total_30d',
-      'fees_trading_30d',
-      'fees_trading_total_30d',
-      'maker_fee',
-      'taker_fee',
-      'deriv_maker_rebate',
-      'deriv_taker_fee'
-    ])
+    assert.isArray(res.body.result)
+    assert.lengthOf(res.body.result, 1)
+
+    res.body.result.forEach((res) => {
+      assert.isObject(res)
+      assert.containsAllKeys(res, [
+        'time',
+        'status',
+        'is_locked',
+        'trade_vol_30d',
+        'fees_funding_30d',
+        'fees_funding_total_30d',
+        'fees_trading_30d',
+        'fees_trading_total_30d',
+        'maker_fee',
+        'taker_fee',
+        'deriv_maker_rebate',
+        'deriv_taker_fee'
+      ])
+    })
   })
 
   it('it should be successfully performed by the getLogins method', async function () {
