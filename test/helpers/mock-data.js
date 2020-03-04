@@ -71,18 +71,6 @@ module.exports = new Map([
     ]]
   ],
   [
-    'wallets_hist',
-    [[
-      'margin',
-      'BTC',
-      -0.04509854,
-      null,
-      null,
-      null,
-      _ms
-    ]]
-  ],
-  [
     'positions_hist',
     [[
       'tBTCUSD',
