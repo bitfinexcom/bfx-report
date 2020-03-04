@@ -263,7 +263,6 @@ describe('Queue', () => {
         auth,
         method: 'getWalletsCsv',
         params: {
-          end,
           email
         },
         id: 5

@@ -422,40 +422,6 @@ describe('API', () => {
     ])
   })
 
-  it('it should be successfully performed by the getWallets method', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/get-data`)
-      .type('json')
-      .send({
-        auth,
-        method: 'getWallets',
-        params: {
-          end
-        },
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(200)
-
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isArray(res.body.result)
-
-    const resItem = res.body.result[0]
-
-    assert.isObject(resItem)
-    assert.containsAllKeys(resItem, [
-      'type',
-      'currency',
-      'balance',
-      'unsettledInterest',
-      'balanceAvailable',
-      'mtsUpdate'
-    ])
-  })
-
   it('it should be successfully performed by the getWallets method, without params', async function () {
     this.timeout(5000)
 
