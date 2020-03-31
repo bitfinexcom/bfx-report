@@ -144,9 +144,7 @@ const _getSymbolParam = (
       ? symbol[0]
       : symbol
   }
-  if (
-    methodApi === 'statusMessages'
-  ) {
+  if (methodApi === 'statusMessages') {
     const _symbol = isEmpty(symbol)
       ? 'ALL'
       : symbol
@@ -154,20 +152,6 @@ const _getSymbolParam = (
     return Array.isArray(_symbol)
       ? _symbol
       : [_symbol]
-  }
-  if (
-    typeof symbPropName === 'string' &&
-    methodApi !== 'positionsHistory' &&
-    methodApi !== 'positionsAudit' &&
-    Array.isArray(symbol)
-  ) {
-    return symbol.length > 1 ? null : symbol[0]
-  }
-  if (
-    !symbol &&
-    methodApi === 'fundingTrades'
-  ) {
-    return null
   }
   if (
     methodApi === 'ledgers' &&
@@ -183,10 +167,28 @@ const _getSymbolParam = (
       throw new LedgerPaymentFilteringParamsError()
     }
 
-    return {
-      ccy: symbol,
-      category: isMarginFundingPayment ? 28 : 241
-    }
+    const isSymbArr = Array.isArray(symbol)
+    const ccyFromArr = (isSymbArr && symbol.length > 1)
+      ? null
+      : symbol[0]
+    const ccy = isSymbArr ? ccyFromArr : symbol
+    const category = isMarginFundingPayment ? 28 : 241
+
+    return { ccy, category }
+  }
+  if (
+    typeof symbPropName === 'string' &&
+    methodApi !== 'positionsHistory' &&
+    methodApi !== 'positionsAudit' &&
+    Array.isArray(symbol)
+  ) {
+    return symbol.length > 1 ? null : symbol[0]
+  }
+  if (
+    !symbol &&
+    methodApi === 'fundingTrades'
+  ) {
+    return null
   }
 
   return symbol
