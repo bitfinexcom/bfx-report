@@ -16,7 +16,7 @@ module.exports = async (
     conf.syncMode ||
     !conf.isSpamRestrictionMode
   ) {
-    await reportService.getEmail(null, args)
+    await reportService.verifyUser(null, args)
 
     return null
   }

@@ -75,23 +75,12 @@ class ReportService extends Api {
     }, 'isSyncModeConfig', cb)
   }
 
-  getEmail (space, args, cb) {
+  verifyUser (space, args, cb) {
     return this._responder(async () => {
       const { email } = await this._getUserInfo(args)
 
-      return email
-    }, 'getEmail', cb)
-  }
-
-  login (space, args, cb, isInnerCall) {
-    return this._responder(async () => {
-      const userInfo = await this._getUserInfo(args)
-      const isSyncModeConfig = this.isSyncModeConfig()
-
-      return isInnerCall
-        ? { ...userInfo, isSyncModeConfig }
-        : userInfo.email
-    }, 'login', cb)
+      return { email, isSubAccount: false }
+    }, 'verifyUser', cb)
   }
 
   getUsersTimeConf (space, args, cb) {
