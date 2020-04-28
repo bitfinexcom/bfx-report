@@ -11,7 +11,10 @@ const {
   filterModels,
   parsePositionsAuditId
 } = require('./helpers')
-const { ArgsParamsError } = require('./errors')
+const {
+  ArgsParamsError,
+  AuthError
+} = require('./errors')
 const TYPES = require('./di/types')
 
 class ReportService extends Api {
@@ -77,9 +80,24 @@ class ReportService extends Api {
 
   verifyUser (space, args, cb) {
     return this._responder(async () => {
-      const { email } = await this._getUserInfo(args)
+      const {
+        username,
+        timezone,
+        email,
+        id
+      } = await this._getUserInfo(args)
 
-      return { email, isSubAccount: false }
+      if (!email) {
+        throw new AuthError()
+      }
+
+      return {
+        username,
+        timezone,
+        email,
+        id,
+        isSubAccount: false
+      }
     }, 'verifyUser', cb)
   }
 
