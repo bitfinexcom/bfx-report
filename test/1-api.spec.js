@@ -55,7 +55,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'isSyncModeConfig',
@@ -73,7 +73,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'verifyUser',
@@ -98,7 +98,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getFilterModels',
@@ -127,7 +127,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'verifyUser',
@@ -153,7 +153,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'verifyUser',
@@ -195,7 +195,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -215,7 +215,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -247,7 +247,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -285,7 +285,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -331,7 +331,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -372,7 +372,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -422,7 +422,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -452,7 +452,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -501,7 +501,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -551,7 +551,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -602,7 +602,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -642,7 +642,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -676,7 +676,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -720,7 +720,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -764,7 +764,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -808,7 +808,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -849,7 +849,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getPublicTrades',
@@ -885,7 +885,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getStatusMessages',
@@ -921,7 +921,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getCandles',
@@ -959,7 +959,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getPublicTrades',
@@ -995,7 +995,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getPublicTrades',
@@ -1021,7 +1021,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1066,7 +1066,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1094,7 +1094,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1139,7 +1139,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1191,7 +1191,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1235,7 +1235,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1278,7 +1278,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1315,7 +1315,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1337,7 +1337,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1375,7 +1375,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1412,7 +1412,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1436,7 +1436,7 @@ describe('API', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithAllData()
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1466,7 +1466,7 @@ describe('API', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithAllData()
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,

@@ -94,7 +94,7 @@ describe('Queue load', () => {
 
     for (let i = 0; i < count; i += 1) {
       const res = await agent
-        .post(`${basePath}/get-data`)
+        .post(`${basePath}/json-rpc`)
         .type('json')
         .send({
           auth,

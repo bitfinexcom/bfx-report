@@ -86,7 +86,7 @@ describe('Signature', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -127,7 +127,7 @@ describe('Signature', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -153,7 +153,7 @@ describe('Signature', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
