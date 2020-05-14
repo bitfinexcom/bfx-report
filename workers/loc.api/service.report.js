@@ -458,6 +458,18 @@ class ReportService extends Api {
     }, 'getLogins', cb)
   }
 
+  changeLogs (space, args, cb) {
+    return this._responder(() => {
+      return this._prepareApiResponse(
+        args,
+        'changeLogs',
+        {
+          datePropName: 'mtsCreate'
+        }
+      )
+    }, 'changeLogs', cb)
+  }
+
   getMultipleCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(

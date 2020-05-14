@@ -45,6 +45,11 @@ const _paramsOrderMap = {
     'end',
     'limit'
   ],
+  changeLogs: [
+    'start',
+    'end',
+    'limit'
+  ],
   default: [
     'symbol',
     'start',
