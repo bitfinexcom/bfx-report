@@ -887,6 +887,44 @@ class CsvJobData {
     return jobData
   }
 
+  async getChangeLogsCsvJobData (
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      this.rService,
+      uId,
+      uInfo
+    )
+
+    const csvArgs = getCsvArgs(args, 'changeLogs')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getChangeLogs',
+      args: csvArgs,
+      propNameForPagination: 'mtsCreate',
+      columnsCsv: {
+        mtsCreate: 'DATE',
+        log: 'LOG',
+        ip: 'IP',
+        userAgent: 'USER AGENT'
+      },
+      formatSettings: {
+        time: 'mtsCreate'
+      }
+    }
+
+    return jobData
+  }
+
   async getMultipleCsvJobData (
     args,
     uId,
