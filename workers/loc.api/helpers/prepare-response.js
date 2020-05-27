@@ -168,7 +168,7 @@ const _getSymbolParam = (
     }
 
     const isSymbArr = Array.isArray(symbol)
-    const ccyFromArr = (isSymbArr && symbol.length > 1)
+    const ccyFromArr = (!isSymbArr || symbol.length > 1)
       ? null
       : symbol[0]
     const ccy = isSymbArr ? ccyFromArr : symbol
