@@ -20,7 +20,9 @@ const _fileNamesMap = new Map([
   ['getPositionsAudit', 'positions_audit'],
   ['getWallets', 'wallets'],
   ['getTickersHistory', 'tickers_history'],
-  ['getActivePositions', 'active_positions']
+  ['getActivePositions', 'active_positions'],
+  ['getLogins', 'logins'],
+  ['getChangeLogs', 'change_logs']
 ])
 
 const _getBaseName = (

@@ -214,6 +214,15 @@ module.exports = new Map([
     }
   ],
   [
+    FILTER_MODELS_NAMES.CHANGE_LOGS,
+    {
+      mtsCreate: { type: 'integer' },
+      log: { type: 'string' },
+      ip: { type: 'string', format: 'ipv4' },
+      userAgent: { type: 'string' }
+    }
+  ],
+  [
     FILTER_MODELS_NAMES.CANDLES,
     {
       mts: { type: 'integer' },

@@ -24,5 +24,6 @@ module.exports = {
   FUNDING_CREDIT_HISTORY: 'fundingCreditHistory',
   STATUS_MESSAGES: 'statusMessages',
   LOGINS: 'logins',
+  CHANGE_LOGS: 'changeLogs',
   CANDLES: 'candles'
 }

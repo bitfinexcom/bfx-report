@@ -458,6 +458,18 @@ class ReportService extends Api {
     }, 'getLogins', cb)
   }
 
+  getChangeLogs (space, args, cb) {
+    return this._responder(() => {
+      return this._prepareApiResponse(
+        args,
+        'changeLogs',
+        {
+          datePropName: 'mtsCreate'
+        }
+      )
+    }, 'getChangeLogs', cb)
+  }
+
   getMultipleCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(
@@ -636,6 +648,15 @@ class ReportService extends Api {
         args
       )
     }, 'getLoginsCsv', cb)
+  }
+
+  getChangeLogsCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getChangeLogsCsvJobData',
+        args
+      )
+    }, 'getChangeLogsCsv', cb)
   }
 }
 
