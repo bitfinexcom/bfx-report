@@ -106,7 +106,8 @@ module.exports = ({
         [
           TYPES.ProcessorQueue,
           TYPES.HasGrcService,
-          TYPES.CsvJobData
+          TYPES.CsvJobData,
+          TYPES.RService
         ]
       ))
     bind(TYPES.WriteDataToStream).toConstantValue(

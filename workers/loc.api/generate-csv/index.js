@@ -74,11 +74,14 @@ const _getFilterModelNamesAndArgs = (
 module.exports = (
   processorQueue,
   hasGrcService,
-  csvJobData
+  csvJobData,
+  rService
 ) => async (
   name,
   args
 ) => {
+  const user = await rService.verifyUser(null, args)
+
   const status = await _getCsvStoreStatus(
     hasGrcService,
     args
@@ -93,7 +96,7 @@ module.exports = (
   }
 
   const getter = csvJobData[name].bind(csvJobData)
-  const jobData = await getter(args)
+  const jobData = await getter(args, null, user)
 
   processorQueue.addJob(jobData)
 

@@ -11,7 +11,10 @@ const {
   filterModels,
   parsePositionsAuditId
 } = require('./helpers')
-const { ArgsParamsError } = require('./errors')
+const {
+  ArgsParamsError,
+  AuthError
+} = require('./errors')
 const TYPES = require('./di/types')
 
 class ReportService extends Api {
@@ -75,23 +78,27 @@ class ReportService extends Api {
     }, 'isSyncModeConfig', cb)
   }
 
-  getEmail (space, args, cb) {
+  verifyUser (space, args, cb) {
     return this._responder(async () => {
-      const { email } = await this._getUserInfo(args)
+      const {
+        username,
+        timezone,
+        email,
+        id
+      } = await this._getUserInfo(args)
 
-      return email
-    }, 'getEmail', cb)
-  }
+      if (!email) {
+        throw new AuthError()
+      }
 
-  login (space, args, cb, isInnerCall) {
-    return this._responder(async () => {
-      const userInfo = await this._getUserInfo(args)
-      const isSyncModeConfig = this.isSyncModeConfig()
-
-      return isInnerCall
-        ? { ...userInfo, isSyncModeConfig }
-        : userInfo.email
-    }, 'login', cb)
+      return {
+        username,
+        timezone,
+        email,
+        id,
+        isSubAccount: false
+      }
+    }, 'verifyUser', cb)
   }
 
   getUsersTimeConf (space, args, cb) {

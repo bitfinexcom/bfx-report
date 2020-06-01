@@ -543,7 +543,7 @@ describe('API filter', () => {
 
     for (const { args, responseTest } of argsArr) {
       const res = await agent
-        .post(`${basePath}/get-data`)
+        .post(`${basePath}/json-rpc`)
         .type('json')
         .send(args)
         .expect('Content-Type', /json/)
@@ -630,7 +630,7 @@ describe('API filter', () => {
 
     for (const { args } of argsArr) {
       const res = await agent
-        .post(`${basePath}/get-data`)
+        .post(`${basePath}/json-rpc`)
         .type('json')
         .send(args)
         .expect('Content-Type', /json/)
@@ -651,7 +651,7 @@ describe('API filter', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -682,7 +682,7 @@ describe('API filter', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
