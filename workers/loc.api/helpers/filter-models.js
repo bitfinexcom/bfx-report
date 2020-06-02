@@ -210,7 +210,7 @@ module.exports = new Map([
     {
       id: { type: 'integer' },
       time: { type: 'integer' },
-      ip: { type: 'string', format: 'ipv4' }
+      ip: { type: 'string' }
     }
   ],
   [
@@ -218,7 +218,7 @@ module.exports = new Map([
     {
       mtsCreate: { type: 'integer' },
       log: { type: 'string' },
-      ip: { type: 'string', format: 'ipv4' },
+      ip: { type: 'string' },
       userAgent: { type: 'string' }
     }
   ],
