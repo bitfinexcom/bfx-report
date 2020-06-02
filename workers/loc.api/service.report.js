@@ -48,6 +48,12 @@ class ReportService extends Api {
     return rest.currencies()
   }
 
+  _getInactiveSymbols () {
+    const rest = this._getREST({})
+
+    return rest.inactiveSymbols()
+  }
+
   getFilterModels (space, args, cb) {
     return this._responder(() => {
       const models = [...filterModels]
@@ -130,12 +136,20 @@ class ReportService extends Api {
 
       if (cache) return cache
 
-      const symbols = await this._getSymbols()
-      const futures = await this._getFutures()
-      const pairs = [...symbols, ...futures]
+      const [
+        symbols,
+        futures,
+        currencies,
+        inactiveSymbols
+      ] = await Promise.all([
+        this._getSymbols(),
+        this._getFutures(),
+        this._getCurrencies(),
+        this._getInactiveSymbols()
+      ])
 
-      const currencies = await this._getCurrencies()
-      const res = { pairs, currencies }
+      const pairs = [...symbols, ...futures]
+      const res = { pairs, currencies, inactiveSymbols }
 
       accountCache.set('symbols', res)
 

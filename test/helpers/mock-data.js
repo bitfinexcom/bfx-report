@@ -20,6 +20,13 @@ module.exports = new Map([
     ]]
   ],
   [
+    'inactive_symbols',
+    [[
+      'GRGETH',
+      'GRGBTC'
+    ]]
+  ],
+  [
     'futures',
     [[
       'BTCF0:USDF0',
