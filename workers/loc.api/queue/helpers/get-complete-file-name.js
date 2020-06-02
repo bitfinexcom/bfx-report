@@ -90,7 +90,8 @@ module.exports = (
   const {
     start,
     end,
-    isOnMomentInName
+    isOnMomentInName,
+    isBaseNameInName
   } = params
   const baseName = _getBaseName(
     queueName,
@@ -114,13 +115,17 @@ module.exports = (
   const uniqEnding = isAddedUniqueEndingToCsvName
     ? `-${uuidv4()}`
     : ''
-  const fileName = (
+
+  if (isBaseNameInName) {
+    return `${_userInfo}${baseName}_${formattedDateNow}${uniqEnding}${_ext}`
+  }
+  if (
     queueName === 'getWallets' ||
     isMultiExport ||
     isOnMomentInName
-  )
-    ? `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${uniqEnding}${_ext}`
-    : `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${uniqEnding}${_ext}`
+  ) {
+    return `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${uniqEnding}${_ext}`
+  }
 
-  return fileName
+  return `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${uniqEnding}${_ext}`
 }
