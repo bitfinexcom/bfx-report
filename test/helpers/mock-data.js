@@ -455,6 +455,26 @@ module.exports = new Map([
             'https://etherscan.io/tx/VAL'
           ]
         ]
+      ],
+      [
+        [
+          'LET',
+          [
+            [
+              'LEO',
+              1
+            ]
+          ]
+        ],
+        [
+          'LBT',
+          [
+            [
+              'BTC',
+              1
+            ]
+          ]
+        ]
       ]
     ]
   ],
