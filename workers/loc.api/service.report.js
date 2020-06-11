@@ -11,7 +11,10 @@ const {
   filterModels,
   parsePositionsAuditId
 } = require('./helpers')
-const { ArgsParamsError } = require('./errors')
+const {
+  ArgsParamsError,
+  AuthError
+} = require('./errors')
 const TYPES = require('./di/types')
 
 class ReportService extends Api {
@@ -45,6 +48,12 @@ class ReportService extends Api {
     return rest.currencies()
   }
 
+  _getInactiveSymbols () {
+    const rest = this._getREST({})
+
+    return rest.inactiveSymbols()
+  }
+
   getFilterModels (space, args, cb) {
     return this._responder(() => {
       const models = [...filterModels]
@@ -75,23 +84,27 @@ class ReportService extends Api {
     }, 'isSyncModeConfig', cb)
   }
 
-  getEmail (space, args, cb) {
+  verifyUser (space, args, cb) {
     return this._responder(async () => {
-      const { email } = await this._getUserInfo(args)
+      const {
+        username,
+        timezone,
+        email,
+        id
+      } = await this._getUserInfo(args)
 
-      return email
-    }, 'getEmail', cb)
-  }
+      if (!email) {
+        throw new AuthError()
+      }
 
-  login (space, args, cb, isInnerCall) {
-    return this._responder(async () => {
-      const userInfo = await this._getUserInfo(args)
-      const isSyncModeConfig = this.isSyncModeConfig()
-
-      return isInnerCall
-        ? { ...userInfo, isSyncModeConfig }
-        : userInfo.email
-    }, 'login', cb)
+      return {
+        username,
+        timezone,
+        email,
+        id,
+        isSubAccount: false
+      }
+    }, 'verifyUser', cb)
   }
 
   getUsersTimeConf (space, args, cb) {
@@ -123,12 +136,20 @@ class ReportService extends Api {
 
       if (cache) return cache
 
-      const symbols = await this._getSymbols()
-      const futures = await this._getFutures()
-      const pairs = [...symbols, ...futures]
+      const [
+        symbols,
+        futures,
+        currencies,
+        inactiveSymbols
+      ] = await Promise.all([
+        this._getSymbols(),
+        this._getFutures(),
+        this._getCurrencies(),
+        this._getInactiveSymbols()
+      ])
 
-      const currencies = await this._getCurrencies()
-      const res = { pairs, currencies }
+      const pairs = [...symbols, ...futures]
+      const res = { pairs, currencies, inactiveSymbols }
 
       accountCache.set('symbols', res)
 
@@ -451,6 +472,18 @@ class ReportService extends Api {
     }, 'getLogins', cb)
   }
 
+  getChangeLogs (space, args, cb) {
+    return this._responder(() => {
+      return this._prepareApiResponse(
+        args,
+        'changeLogs',
+        {
+          datePropName: 'mtsCreate'
+        }
+      )
+    }, 'getChangeLogs', cb)
+  }
+
   getMultipleCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(
@@ -629,6 +662,15 @@ class ReportService extends Api {
         args
       )
     }, 'getLoginsCsv', cb)
+  }
+
+  getChangeLogsCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getChangeLogsCsvJobData',
+        args
+      )
+    }, 'getChangeLogsCsv', cb)
   }
 }
 

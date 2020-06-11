@@ -20,6 +20,13 @@ module.exports = new Map([
     ]]
   ],
   [
+    'inactive_symbols',
+    [[
+      'GRGETH',
+      'GRGBTC'
+    ]]
+  ],
+  [
     'futures',
     [[
       'BTCF0:USDF0',
@@ -448,6 +455,26 @@ module.exports = new Map([
             'https://etherscan.io/tx/VAL'
           ]
         ]
+      ],
+      [
+        [
+          'LET',
+          [
+            [
+              'LEO',
+              1
+            ]
+          ]
+        ],
+        [
+          'LBT',
+          [
+            [
+              'BTC',
+              1
+            ]
+          ]
+        ]
       ]
     ]
   ],
@@ -524,6 +551,18 @@ module.exports = new Map([
           is_mobile: false
         }
       })
+    ]]
+  ],
+  [
+    'change_log',
+    [[
+      _ms,
+      null,
+      'settings: timezone',
+      null,
+      null,
+      '127.0.0.1',
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
     ]]
   ],
   [

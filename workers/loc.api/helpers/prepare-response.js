@@ -45,6 +45,11 @@ const _paramsOrderMap = {
     'end',
     'limit'
   ],
+  changeLogs: [
+    'start',
+    'end',
+    'limit'
+  ],
   default: [
     'symbol',
     'start',
@@ -133,6 +138,7 @@ const _getSymbolParam = (
   const {
     isMarginFundingPayment,
     isAffiliateRebate,
+    isStakingPayments,
     symbol
   } = { ...params }
 
@@ -157,24 +163,33 @@ const _getSymbolParam = (
     methodApi === 'ledgers' &&
     (
       isMarginFundingPayment ||
-      isAffiliateRebate
+      isAffiliateRebate ||
+      isStakingPayments
     )
   ) {
-    if (
-      isMarginFundingPayment &&
-      isAffiliateRebate
-    ) {
+    if ([
+      isMarginFundingPayment,
+      isAffiliateRebate,
+      isStakingPayments
+    ].filter(f => f).length > 1) {
       throw new LedgerPaymentFilteringParamsError()
     }
 
-    const isSymbArr = Array.isArray(symbol)
-    const ccyFromArr = (!isSymbArr || symbol.length > 1)
+    const symbArr = Array.isArray(symbol)
+      ? symbol
+      : [symbol]
+    const ccy = symbArr.length > 1
       ? null
-      : symbol[0]
-    const ccy = isSymbArr ? ccyFromArr : symbol
-    const category = isMarginFundingPayment ? 28 : 241
+      : symbArr[0]
 
-    return { ccy, category }
+    if (isAffiliateRebate) {
+      return { ccy, category: 241 }
+    }
+    if (isStakingPayments) {
+      return { ccy, category: 262 }
+    }
+
+    return { ccy, category: 28 }
   }
   if (
     typeof symbPropName === 'string' &&

@@ -43,6 +43,10 @@ const setDataTo = (
       dataItem[0] = _date
       break
 
+    case 'change_log':
+      dataItem[0] = _date
+      break
+
     case 'logins_hist':
       dataItem[0] = id
       dataItem[2] = _date
@@ -164,9 +168,11 @@ const getMockDataOpts = () => ({
   f_loan_hist: { limit: 500 },
   f_credit_hist: { limit: 500 },
   logins_hist: { limit: 250 },
+  change_log: { limit: 500 },
   candles: { limit: 500 },
   user_info: null,
   symbols: null,
+  inactive_symbols: null,
   futures: null,
   currencies: null,
   account_summary: null

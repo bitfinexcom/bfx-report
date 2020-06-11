@@ -77,7 +77,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -115,7 +115,7 @@ describe('Queue', () => {
     this.timeout(60000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -151,7 +151,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -179,7 +179,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -206,7 +206,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -229,7 +229,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -257,7 +257,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -280,7 +280,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -308,7 +308,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -335,7 +335,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -362,7 +362,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -390,7 +390,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -418,7 +418,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -446,7 +446,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -471,7 +471,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -499,7 +499,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -524,7 +524,7 @@ describe('Queue', () => {
     this.timeout(60000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -553,7 +553,7 @@ describe('Queue', () => {
     this.timeout(60000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -585,7 +585,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -614,7 +614,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -641,7 +641,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -664,7 +664,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -691,7 +691,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -719,7 +719,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -747,7 +747,7 @@ describe('Queue', () => {
     const aggrPromise = queueToPromise(aggregatorQueue)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -766,11 +766,37 @@ describe('Queue', () => {
     await testMethodOfGettingCsv(procPromise, aggrPromise, res)
   })
 
+  it('it should be successfully performed by the getChangeLogsCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const res = await agent
+      .post(`${basePath}/json-rpc`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getChangeLogsCsv',
+        params: {
+          end,
+          start,
+          limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
   it('it should not be successfully auth by the getLedgersCsv method', async function () {
     this.timeout(60000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getLedgersCsv',
@@ -808,7 +834,7 @@ describe('Queue', () => {
 
     for (let i = 0; i < count; i += 1) {
       const res = await agent
-        .post(`${basePath}/get-data`)
+        .post(`${basePath}/json-rpc`)
         .type('json')
         .send({
           auth,

@@ -55,7 +55,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'isSyncModeConfig',
@@ -73,9 +73,10 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/check-auth`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
+        method: 'verifyUser',
         auth,
         id: 5
       })
@@ -83,7 +84,13 @@ describe('API', () => {
       .expect(200)
 
     assert.isObject(res.body)
-    assert.propertyVal(res.body, 'result', true)
+    assert.isObject(res.body.result)
+    assert.isString(res.body.result.username)
+    assert.isString(res.body.result.timezone)
+    assert.isString(res.body.result.email)
+    assert.isNumber(res.body.result.id)
+    assert.isBoolean(res.body.result.isSubAccount)
+    assert.strictEqual(res.body.result.email, 'fake@email.fake')
     assert.propertyVal(res.body, 'id', 5)
   })
 
@@ -91,7 +98,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getFilterModels',
@@ -120,19 +127,25 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/check-auth`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
-        auth: {
-          authToken: 'fake'
-        },
+        method: 'verifyUser',
+        auth: { authToken: 'fake' },
         id: 5
       })
       .expect('Content-Type', /json/)
       .expect(200)
 
     assert.isObject(res.body)
-    assert.propertyVal(res.body, 'result', true)
+    assert.isObject(res.body.result)
+    assert.isString(res.body.result.username)
+    assert.isString(res.body.result.timezone)
+    assert.isString(res.body.result.email)
+    assert.isNumber(res.body.result.id)
+    assert.isBoolean(res.body.result.isSubAccount)
+    assert.strictEqual(res.body.result.email, 'fake@email.fake')
+    assert.propertyVal(res.body, 'id', 5)
     assert.propertyVal(res.body, 'id', 5)
   })
 
@@ -140,9 +153,10 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/check-auth`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
+        method: 'verifyUser',
         auth: {
           apiKey: '',
           apiSecret: ''
@@ -173,33 +187,15 @@ describe('API', () => {
 
     assert.isObject(res.body)
     assert.isString(res.body.result)
+    assert.strictEqual(res.body.result, 'fake@email.fake')
     assert.propertyVal(res.body, 'id', 5)
-  })
-
-  it('it should be successfully performed by the getEmail method', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/get-data`)
-      .type('json')
-      .send({
-        auth,
-        method: 'getEmail',
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(200)
-
-    assert.isObject(res.body)
-    assert.propertyVal(res.body, 'id', 5)
-    assert.isOk(res.body.result === 'fake@email.fake')
   })
 
   it('it should be successfully performed by the getUsersTimeConf method', async function () {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -219,7 +215,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -234,8 +230,10 @@ describe('API', () => {
     assert.isObject(res.body.result)
     assert.isArray(res.body.result.pairs)
     assert.isArray(res.body.result.currencies)
+    assert.isArray(res.body.result.inactiveSymbols)
     assert.lengthOf(res.body.result.pairs, 13)
     assert.lengthOf(res.body.result.currencies, 11)
+    assert.lengthOf(res.body.result.inactiveSymbols, 2)
 
     res.body.result.pairs.forEach(item => {
       assert.isString(item)
@@ -251,7 +249,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -289,7 +287,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -335,7 +333,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -376,7 +374,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -426,7 +424,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -456,7 +454,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -505,7 +503,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -555,7 +553,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -606,7 +604,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -646,7 +644,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -680,7 +678,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -724,7 +722,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -768,7 +766,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -812,7 +810,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -853,7 +851,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getPublicTrades',
@@ -889,7 +887,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getStatusMessages',
@@ -925,7 +923,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getCandles',
@@ -963,7 +961,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getPublicTrades',
@@ -999,7 +997,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         method: 'getPublicTrades',
@@ -1025,7 +1023,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1070,7 +1068,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1098,7 +1096,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1143,7 +1141,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1195,7 +1193,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1239,7 +1237,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1282,7 +1280,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1319,7 +1317,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1341,7 +1339,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1379,7 +1377,7 @@ describe('API', () => {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1412,11 +1410,47 @@ describe('API', () => {
     assert.isObject(resItem.extraData)
   })
 
+  it('it should be successfully performed by the getChangeLogs method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/json-rpc`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getChangeLogs',
+        params: {
+          start: 0,
+          end,
+          limit: 2
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.res)
+    assert.isNumber(res.body.result.nextPage)
+
+    const resItem = res.body.result.res[0]
+
+    assert.isObject(resItem)
+    assert.containsAllKeys(resItem, [
+      'mtsCreate',
+      'log',
+      'ip',
+      'userAgent'
+    ])
+  })
+
   it('it should not be successfully performed by a fake method', async function () {
     this.timeout(5000)
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1440,7 +1474,7 @@ describe('API', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithAllData()
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
@@ -1470,7 +1504,7 @@ describe('API', () => {
     mockRESTv2Srv = createMockRESTv2SrvWithAllData()
 
     const res = await agent
-      .post(`${basePath}/get-data`)
+      .post(`${basePath}/json-rpc`)
       .type('json')
       .send({
         auth,
