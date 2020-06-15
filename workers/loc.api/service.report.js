@@ -11,10 +11,7 @@ const {
   filterModels,
   parsePositionsAuditId
 } = require('./helpers')
-const {
-  ArgsParamsError,
-  AuthError
-} = require('./errors')
+const { AuthError } = require('./errors')
 const TYPES = require('./di/types')
 
 class ReportService extends Api {
@@ -113,21 +110,6 @@ class ReportService extends Api {
 
       return getTimezoneConf(timezone)
     }, 'getUsersTimeConf', cb)
-  }
-
-  lookUpFunction (space, args, cb) {
-    return this._responder(() => {
-      if (
-        !args.params ||
-        typeof args.params !== 'object'
-      ) {
-        throw new ArgsParamsError()
-      }
-
-      const { service } = { ...args.params }
-
-      return this._hasGrcService.lookUpFunction(service)
-    }, 'lookUpFunction', cb)
   }
 
   getSymbols (space, args, cb) {
