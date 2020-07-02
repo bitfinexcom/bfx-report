@@ -172,25 +172,6 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', null)
   })
 
-  it('it should be successfully check, csv is stored locally', async function () {
-    this.timeout(5000)
-
-    const res = await agent
-      .post(`${basePath}/check-stored-locally`)
-      .type('json')
-      .send({
-        auth,
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(200)
-
-    assert.isObject(res.body)
-    assert.isString(res.body.result)
-    assert.strictEqual(res.body.result, 'fake@email.fake')
-    assert.propertyVal(res.body, 'id', 5)
-  })
-
   it('it should be successfully performed by the getUsersTimeConf method', async function () {
     this.timeout(5000)
 

@@ -408,7 +408,8 @@ const _omitPrivateModelFields = (res) => {
     '_eventsCount',
     '_fields',
     '_boolFields',
-    '_fieldKeys'
+    '_fieldKeys',
+    '_apiInterface'
   ]
 
   if (
