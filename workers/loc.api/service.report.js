@@ -139,6 +139,28 @@ class ReportService extends Api {
     }, 'getSymbols', cb)
   }
 
+  getSettings (space, args, cb) {
+    return this._responder(async () => {
+      const { auth, params } = { ...args }
+      const { keys = [] } = { ...params }
+
+      const rest = this._getREST(auth)
+
+      return rest.getSettings(keys)
+    }, 'getSettings', cb)
+  }
+
+  updateSettings (space, args, cb) {
+    return this._responder(async () => {
+      const { auth, params } = { ...args }
+      const { settings = {} } = { ...params }
+
+      const rest = this._getREST(auth)
+
+      return rest.updateSettings(settings)
+    }, 'updateSettings', cb)
+  }
+
   getTickersHistory (space, args, cb) {
     return this._responder(() => {
       const { symbol: s } = { ...args.params }
