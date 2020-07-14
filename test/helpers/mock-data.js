@@ -575,5 +575,25 @@ module.exports = new Map([
       12345,
       12345
     ]]
+  ],
+  [
+    'get_settings',
+    [[
+      'testKey',
+      { value: 'strVal' }
+    ]]
+  ],
+  [
+    'set_settings',
+    [
+      _ms,
+      'acc_ss',
+      null,
+      null,
+      [1],
+      null,
+      'SUCCESS',
+      null
+    ]
   ]
 ])
