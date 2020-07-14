@@ -74,7 +74,7 @@ module.exports = (
       res.length === 0 &&
       nextPage &&
       Number.isInteger(nextPage) &&
-      serialRequestsCount < 1
+      serialRequestsCount < 1000
     ) {
       serialRequestsCount += 1
 
