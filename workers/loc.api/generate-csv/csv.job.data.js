@@ -55,6 +55,7 @@ class CsvJobData {
         execAmount: 'AMOUNT',
         execPrice: 'PRICE',
         fee: 'FEE',
+        feePerc: 'FEE PERC',
         feeCurrency: 'FEE CURRENCY',
         mtsCreate: 'DATE',
         orderID: 'ORDER ID'
