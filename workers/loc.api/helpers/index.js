@@ -41,6 +41,7 @@ const normalizeFilterParams = require('./normalize-filter-params')
 const FILTER_MODELS_NAMES = require('./filter.models.names')
 const FILTER_CONDITIONS = require('./filter.conditions')
 const getDataFromApi = require('./get-data-from-api')
+const splitSymbolPairs = require('./split-symbol-pairs')
 
 module.exports = {
   getREST,
@@ -69,5 +70,6 @@ module.exports = {
   FILTER_MODELS_NAMES,
   FILTER_CONDITIONS,
   getDataFromApi,
-  parsePositionsAuditId
+  parsePositionsAuditId,
+  splitSymbolPairs
 }
