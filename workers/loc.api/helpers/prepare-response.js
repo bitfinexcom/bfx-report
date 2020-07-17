@@ -10,6 +10,7 @@ const {
 const filterResponse = require('./filter-response')
 const checkParams = require('./check-params')
 const checkFilterParams = require('./check-filter-params')
+const normalizeFilterParams = require('./normalize-filter-params')
 const { getMethodLimit } = require('./limit-param.helpers')
 const { getDateNotMoreNow } = require('./date-param.helpers')
 const {
@@ -441,7 +442,7 @@ const _omitPrivateModelFields = (res) => {
 const prepareApiResponse = (
   getREST
 ) => async (
-  args,
+  reqArgs,
   methodApi,
   params = {}
 ) => {
@@ -453,7 +454,8 @@ const prepareApiResponse = (
   } = { ...params }
   const schemaName = _getSchemaNameByMethodName(methodApi)
 
-  checkParams(args, schemaName, requireFields)
+  checkParams(reqArgs, schemaName, requireFields)
+  const args = normalizeFilterParams(methodApi, reqArgs)
   checkFilterParams(methodApi, args)
 
   const symbols = _getSymbols(methodApi, symbPropName, args)
