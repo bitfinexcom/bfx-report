@@ -140,7 +140,8 @@ const _getSymbolParam = (
     isMarginFundingPayment,
     isAffiliateRebate,
     isStakingPayments,
-    symbol
+    symbol,
+    category
   } = { ...params }
 
   if (
@@ -165,13 +166,15 @@ const _getSymbolParam = (
     (
       isMarginFundingPayment ||
       isAffiliateRebate ||
-      isStakingPayments
+      isStakingPayments ||
+      category
     )
   ) {
     if ([
       isMarginFundingPayment,
       isAffiliateRebate,
-      isStakingPayments
+      isStakingPayments,
+      category
     ].filter(f => f).length > 1) {
       throw new LedgerPaymentFilteringParamsError()
     }
@@ -183,6 +186,13 @@ const _getSymbolParam = (
       ? null
       : symbArr[0]
 
+    if (category) {
+      const normCategory = typeof category === 'string'
+        ? Number.parseFloat(category)
+        : category
+
+      return { ccy, category: normCategory }
+    }
     if (isAffiliateRebate) {
       return { ccy, category: 241 }
     }
