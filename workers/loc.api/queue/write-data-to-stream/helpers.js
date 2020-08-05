@@ -3,6 +3,8 @@
 const { cloneDeep } = require('lodash')
 const moment = require('moment-timezone')
 
+const dataNormalizer = require('./data-normalizer')
+
 const _validTxtTimeZone = (val, timezone, format) => {
   try {
     return moment(val).tz(timezone).format(format)
@@ -102,44 +104,6 @@ const _dataFormatter = (obj, formatSettings, params) => {
   return res
 }
 
-const _symbNormalizer = (obj, params) => {
-  const { symbol } = { ...params }
-  const _symbol = Array.isArray(symbol)
-    ? symbol[0]
-    : symbol
-
-  if (typeof _symbol !== 'string') {
-    return obj
-  }
-
-  return {
-    ...obj,
-    symbol: _symbol
-  }
-}
-
-const _normalizers = {
-  getPublicTrades: _symbNormalizer,
-  getCandles: _symbNormalizer
-}
-
-const _dataNormalizer = (obj, method, params) => {
-  if (
-    typeof obj !== 'object' ||
-    typeof _normalizers[method] !== 'function'
-  ) {
-    return obj
-  }
-
-  let res = cloneDeep(obj)
-
-  try {
-    res = _normalizers[method](res, params)
-  } catch (err) {}
-
-  return res
-}
-
 const write = (
   res,
   stream,
@@ -148,7 +112,7 @@ const write = (
   method
 ) => {
   res.forEach((item) => {
-    const _item = _dataNormalizer(item, method, params)
+    const _item = dataNormalizer(item, method, params)
     const res = _dataFormatter(_item, formatSettings, params)
 
     stream.write(res)
