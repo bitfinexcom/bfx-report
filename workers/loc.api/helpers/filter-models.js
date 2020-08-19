@@ -202,7 +202,9 @@ module.exports = new Map([
       priceSpot: { type: 'number' },
       fundBal: { type: 'number' },
       fundingAccrued: { type: 'number' },
-      fundingStep: { type: 'number' }
+      fundingStep: { type: 'number' },
+      clampMin: { type: 'number' },
+      clampMax: { type: 'number' }
     }
   ],
   [
