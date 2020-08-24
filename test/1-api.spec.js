@@ -954,7 +954,9 @@ describe('API', () => {
       'priceSpot',
       'fundBal',
       'fundingAccrued',
-      'fundingStep'
+      'fundingStep',
+      'clampMin',
+      'clampMax'
     ])
   })
 
