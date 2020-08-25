@@ -8,22 +8,34 @@ const readdir = promisify(fs.readdir)
 const unlink = promisify(fs.unlink)
 const mkdir = promisify(fs.mkdir)
 
-const rmDB = async (dir, exclude = ['.gitkeep']) => {
-  const files = await readdir(dir)
-  const promisesArr = files.map(file => {
-    if (exclude.every(exFile => exFile !== file)) {
-      return unlink(path.join(dir, file))
+const rmDB = async (
+  dir,
+  exclude = ['.gitkeep'],
+  isThrownError
+) => {
+  try {
+    const files = await readdir(dir)
+    const promisesArr = files.map(file => {
+      if (exclude.every(exFile => exFile !== file)) {
+        return unlink(path.join(dir, file))
+      }
+    })
+
+    const res = await Promise.all(promisesArr)
+
+    return res
+  } catch (err) {
+    if (!isThrownError) {
+      return
     }
 
-    return Promise.resolve()
-  })
-
-  return Promise.all(promisesArr)
+    throw err
+  }
 }
 
 const rmAllFiles = async (dir, exclude) => {
   try {
-    await rmDB(dir, exclude)
+    await rmDB(dir, exclude, true)
   } catch (err) {
     if (err.syscall === 'scandir') {
       await mkdir(dir)

@@ -200,7 +200,18 @@ module.exports = new Map([
       -0.00019831,
       5534,
       null,
-      0.0006622
+      0.0006622,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      12345,
+      54321
     ]]
   ],
   [
