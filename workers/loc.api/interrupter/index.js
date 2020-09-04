@@ -16,11 +16,7 @@ class Interrupter extends EventEmitter {
 
     this._isInterrupted = false
     this._interruptPromise = Promise.resolve()
-
-    this._init()
   }
-
-  _init () {}
 
   hasInterrupted () {
     return this._isInterrupted
