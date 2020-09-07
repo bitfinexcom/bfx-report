@@ -104,6 +104,20 @@ class ReportService extends Api {
     }, 'verifyUser', cb)
   }
 
+  generateToken (space, args, cb) {
+    return this._responder(async () => {
+      const { auth } = { ...args }
+      const rest = this._getREST(auth)
+
+      return rest.generateToken({
+        ttl: 3600,
+        scope: 'api',
+        writePermission: false,
+        _cust_ip: '0'
+      })
+    }, 'verifyUser', cb)
+  }
+
   getUsersTimeConf (space, args, cb) {
     return this._responder(async () => {
       const { timezone } = await this._getUserInfo(args)
