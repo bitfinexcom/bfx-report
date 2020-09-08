@@ -94,6 +94,31 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
   })
 
+  it('it should be successfully performed by the generateToken method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/json-rpc`)
+      .type('json')
+      .send({
+        method: 'generateToken',
+        auth,
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isArray(res.body.result)
+    assert.lengthOf(res.body.result, 1)
+
+    res.body.result.forEach((token) => {
+      assert.isString(token)
+      assert.strictEqual(token, 'pub:api:12ab12ab-12ab-12ab-12ab-12ab12ab12ab-read')
+    })
+  })
+
   it('it should be successfully performed by the getFilterModels method', async function () {
     this.timeout(5000)
 

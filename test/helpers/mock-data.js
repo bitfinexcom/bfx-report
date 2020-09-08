@@ -606,5 +606,11 @@ module.exports = new Map([
       'SUCCESS',
       null
     ]
+  ],
+  [
+    'generate_token',
+    [
+      'pub:api:12ab12ab-12ab-12ab-12ab-12ab12ab12ab-read'
+    ]
   ]
 ])
