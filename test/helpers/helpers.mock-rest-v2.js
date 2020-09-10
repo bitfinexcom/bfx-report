@@ -177,7 +177,8 @@ const getMockDataOpts = () => ({
   currencies: null,
   account_summary: null,
   get_settings: null,
-  set_settings: null
+  set_settings: null,
+  generate_token: null
 })
 
 const createMockRESTv2SrvWithDate = (
