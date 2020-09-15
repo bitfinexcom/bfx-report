@@ -78,6 +78,25 @@ module.exports = new Map([
     ]]
   ],
   [
+    'positions_snap',
+    [[
+      'tBTCUSD',
+      'ACTIVE',
+      0.1,
+      16500,
+      0,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      12345,
+      _ms,
+      _ms
+    ]]
+  ],
+  [
     'positions_hist',
     [[
       'tBTCUSD',
