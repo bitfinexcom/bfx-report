@@ -18,6 +18,7 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
     logins: { default: 100, max: 250, innerMax: 250 },
     candles: { default: 500, max: 500, innerMax: 10000 },
     changeLogs: { default: 500, max: 500, innerMax: 500 },
+    positionsSnapshot: { default: 50, max: 500, innerMax: 500 },
     ...methodsLimits
   }
 

@@ -19,6 +19,11 @@ const {
 } = require('../errors')
 
 const _paramsOrderMap = {
+  positionsSnapshot: [
+    'start',
+    'end',
+    'limit'
+  ],
   statusMessages: [
     'type',
     'symbol'
