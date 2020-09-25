@@ -102,7 +102,10 @@ const _getFilterSchema = (model = {}) => {
 }
 
 const _getMethodApiName = (methodApi) => {
-  if (methodApi === FILTER_MODELS_NAMES.POSITIONS_AUDIT) {
+  if (
+    methodApi === FILTER_MODELS_NAMES.POSITIONS_AUDIT ||
+    methodApi === FILTER_MODELS_NAMES.POSITIONS_SNAPSHOT
+  ) {
     return FILTER_MODELS_NAMES.POSITIONS_HISTORY
   }
   if (methodApi === FILTER_MODELS_NAMES.ORDER_TRADES) {
