@@ -26,5 +26,6 @@ module.exports = {
   WriteDataToStream: Symbol.for('WriteDataToStream'),
   UploadToS3: Symbol.for('UploadToS3'),
   SendMail: Symbol.for('SendMail'),
-  CsvJobData: Symbol.for('CsvJobData')
+  CsvJobData: Symbol.for('CsvJobData'),
+  Interrupter: Symbol.for('Interrupter')
 }

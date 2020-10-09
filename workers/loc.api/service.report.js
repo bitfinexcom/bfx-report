@@ -51,6 +51,19 @@ class ReportService extends Api {
     return rest.inactiveSymbols()
   }
 
+  getPositionsSnapshot (space, args, cb) {
+    return this._responder(() => {
+      return this._prepareApiResponse(
+        args,
+        'positionsSnapshot',
+        {
+          datePropName: 'mtsUpdate',
+          symbPropName: 'symbol'
+        }
+      )
+    }, 'getPositionsSnapshot', cb)
+  }
+
   getFilterModels (space, args, cb) {
     return this._responder(() => {
       const models = [...filterModels]

@@ -2,22 +2,50 @@
 
 const { cloneDeep } = require('lodash')
 
+const Interrupter = require('../interrupter')
 const {
   isRateLimitError,
   isNonceSmallError
 } = require('./api-errors-testers')
 
-const _delay = (mc = 80000) => {
+const _delay = (mc = 80000, interrupter) => {
   return new Promise((resolve) => {
-    setTimeout(resolve, mc)
+    const hasInterrupter = interrupter instanceof Interrupter
+    const timeout = setTimeout(() => {
+      if (hasInterrupter) {
+        interrupter.offInterrupt(onceInterruptHandler)
+      }
+
+      resolve()
+    }, mc)
+    const onceInterruptHandler = () => {
+      if (!timeout.hasRef()) {
+        return
+      }
+
+      clearTimeout(timeout)
+      resolve()
+    }
+
+    if (hasInterrupter) {
+      interrupter.onceInterrupt(onceInterruptHandler)
+    }
   })
+}
+
+const _isInterrupted = (interrupter) => {
+  return (
+    interrupter instanceof Interrupter &&
+    interrupter.hasInterrupted()
+  )
 }
 
 module.exports = async (
   getData,
   args,
   middleware,
-  params
+  params,
+  interrupter
 ) => {
   const ms = 80000
 
@@ -26,6 +54,10 @@ module.exports = async (
   let res = null
 
   while (true) {
+    if (_isInterrupted(interrupter)) {
+      return { isInterrupted: true }
+    }
+
     try {
       const _args = cloneDeep(args)
 
@@ -52,21 +84,30 @@ module.exports = async (
         if (countRateLimitError > 2) {
           throw err
         }
+        if (_isInterrupted(interrupter)) {
+          return { isInterrupted: true }
+        }
 
-        await _delay(ms)
+        await _delay(ms, interrupter)
 
         continue
-      } else if (isNonceSmallError(err)) {
+      }
+      if (isNonceSmallError(err)) {
         countNonceSmallError += 1
 
         if (countNonceSmallError > 20) {
           throw err
         }
+        if (_isInterrupted(interrupter)) {
+          return { isInterrupted: true }
+        }
 
-        await _delay(1000)
+        await _delay(1000, interrupter)
 
         continue
-      } else throw err
+      }
+
+      throw err
     }
   }
 

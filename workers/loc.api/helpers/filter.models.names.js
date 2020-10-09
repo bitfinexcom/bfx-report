@@ -7,6 +7,10 @@ module.exports = {
   /**
    * It's an alias to POSITIONS_HISTORY model
    */
+  POSITIONS_SNAPSHOT: 'positionsSnapshot',
+  /**
+   * It's an alias to POSITIONS_HISTORY model
+   */
   POSITIONS_AUDIT: 'positionsAudit',
   LEDGERS: 'ledgers',
   TRADES: 'trades',

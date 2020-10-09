@@ -23,6 +23,7 @@ const uploadToS3 = require('../queue/upload-to-s3')
 const sendMail = require('../queue/send-mail')
 const generateCsv = require('../generate-csv')
 const CsvJobData = require('../generate-csv/csv.job.data')
+const Interrupter = require('../interrupter')
 
 module.exports = ({
   rService,
@@ -161,5 +162,7 @@ module.exports = ({
         ]
       )
     )
+    bind(TYPES.Interrupter)
+      .to(Interrupter)
   })
 }
