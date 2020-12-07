@@ -20,6 +20,21 @@ module.exports = new Map([
     ]]
   ],
   [
+    'map_symbols',
+    [[
+      ['BTCF0:USTF0', 'BTC-PERP'],
+      ['ETHF0:BTCF0', 'ETH:BTC-PERP'],
+      ['EURF0:USTF0', 'EUR/USDt-PERP']
+    ]]
+  ],
+  [
+    'inactive_currencies',
+    [[
+      'TTT',
+      'DDD'
+    ]]
+  ],
+  [
     'inactive_symbols',
     [[
       'GRGETH',
