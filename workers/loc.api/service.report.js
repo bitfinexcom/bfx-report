@@ -51,6 +51,32 @@ class ReportService extends Api {
     return rest.inactiveSymbols()
   }
 
+  async _getConf (opts) {
+    const { keys } = { ...opts }
+    const _keys = Array.isArray(keys) ? keys : [keys]
+    const rest = this._getREST({})
+
+    const res = await rest.conf(_keys)
+
+    return Array.isArray(res) ? res : []
+  }
+
+  async _getMapSymbols () {
+    const [res] = await this._getConf({
+      keys: 'pub:map:pair:sym'
+    })
+
+    return Array.isArray(res) ? res : []
+  }
+
+  async _getInactiveCurrencies () {
+    const [res] = await this._getConf({
+      keys: 'pub:list:currency:inactive'
+    })
+
+    return Array.isArray(res) ? res : []
+  }
+
   getPositionsSnapshot (space, args, cb) {
     return this._responder(() => {
       return this._prepareApiResponse(
@@ -149,16 +175,26 @@ class ReportService extends Api {
         symbols,
         futures,
         currencies,
-        inactiveSymbols
+        inactiveSymbols,
+        mapSymbols,
+        inactiveCurrencies
       ] = await Promise.all([
         this._getSymbols(),
         this._getFutures(),
         this._getCurrencies(),
-        this._getInactiveSymbols()
+        this._getInactiveSymbols(),
+        this._getMapSymbols(),
+        this._getInactiveCurrencies()
       ])
 
       const pairs = [...symbols, ...futures]
-      const res = { pairs, currencies, inactiveSymbols }
+      const res = {
+        pairs,
+        currencies,
+        inactiveSymbols,
+        mapSymbols,
+        inactiveCurrencies
+      }
 
       accountCache.set('symbols', res)
 

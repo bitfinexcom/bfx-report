@@ -179,6 +179,8 @@ const getMockDataOpts = () => ({
   candles: { limit: 500 },
   user_info: null,
   symbols: null,
+  map_symbols: null,
+  inactive_currencies: null,
   inactive_symbols: null,
   futures: null,
   currencies: null,
