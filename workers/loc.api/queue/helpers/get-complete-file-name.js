@@ -77,6 +77,12 @@ const _getDateString = mc => {
   return (new Date(mc)).toDateString().split(' ').join('-')
 }
 
+const _getUniqEnding = (uniqEnding = '') => {
+  return uniqEnding && typeof uniqEnding === 'string'
+    ? `-${uniqEnding}`
+    : `-${uuidv4()}`
+}
+
 module.exports = (
   queueName,
   params,
@@ -84,7 +90,8 @@ module.exports = (
     userInfo,
     ext = 'csv',
     isMultiExport,
-    isAddedUniqueEndingToCsvName
+    isAddedUniqueEndingToCsvName,
+    uniqEnding = ''
   } = {}
 ) => {
   const {
@@ -112,20 +119,20 @@ module.exports = (
     : formattedDateNow
   const _ext = ext ? `.${ext}` : ''
   const _userInfo = userInfo ? `${userInfo}_` : ''
-  const uniqEnding = isAddedUniqueEndingToCsvName
-    ? `-${uuidv4()}`
+  const _uniqEnding = isAddedUniqueEndingToCsvName
+    ? _getUniqEnding(uniqEnding)
     : ''
 
   if (isBaseNameInName) {
-    return `${_userInfo}${baseName}_${formattedDateNow}${uniqEnding}${_ext}`
+    return `${_userInfo}${baseName}_${formattedDateNow}${_uniqEnding}${_ext}`
   }
   if (
     queueName === 'getWallets' ||
     isMultiExport ||
     isOnMomentInName
   ) {
-    return `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${uniqEnding}${_ext}`
+    return `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${_uniqEnding}${_ext}`
   }
 
-  return `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${uniqEnding}${_ext}`
+  return `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_uniqEnding}${_ext}`
 }
