@@ -32,7 +32,7 @@ const _checkAndCreateDir = async (dirPath) => {
         } else throw errBasePath
       }
 
-      await mkdir(dirPath)
+      await mkdir(dirPath, { recursive: true })
     }
 
     if (isElectronjsEnv) await chmod(dirPath, '766')
@@ -45,13 +45,20 @@ const moveFileToLocalStorage = async (
   name,
   params,
   userInfo,
-  isAddedUniqueEndingToCsvName
+  isAddedUniqueEndingToCsvName,
+  chunkCommonFolder
 ) => {
   const localStorageDirPath = path.isAbsolute(argv.csvFolder)
     ? argv.csvFolder
     : path.join(rootPath, argv.csvFolder)
+  const fullCsvDirPath = (
+    chunkCommonFolder &&
+    typeof chunkCommonFolder === 'string'
+  )
+    ? path.join(localStorageDirPath, chunkCommonFolder)
+    : localStorageDirPath
 
-  await _checkAndCreateDir(localStorageDirPath)
+  await _checkAndCreateDir(fullCsvDirPath)
 
   let fileName = getCompleteFileName(
     name,
@@ -67,7 +74,7 @@ const moveFileToLocalStorage = async (
     } else throw err
   }
 
-  const files = await readdir(localStorageDirPath)
+  const files = await readdir(fullCsvDirPath)
   let count = 0
 
   while (files.some(file => file === fileName)) {
@@ -84,7 +91,7 @@ const moveFileToLocalStorage = async (
     )
   }
 
-  const newFilePath = path.join(localStorageDirPath, fileName)
+  const newFilePath = path.join(fullCsvDirPath, fileName)
   await rename(filePath, newFilePath)
 
   if (isElectronjsEnv) {

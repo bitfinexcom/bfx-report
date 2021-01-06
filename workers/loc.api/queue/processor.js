@@ -59,6 +59,7 @@ module.exports = (
       job.data.args.params = { ...job.data.args.params }
 
       const {
+        chunkCommonFolder,
         userInfo,
         userId,
         name,
@@ -125,6 +126,7 @@ module.exports = (
 
       job.done()
       processorQueue.emit('completed', {
+        chunkCommonFolder,
         userInfo,
         userId,
         name,
