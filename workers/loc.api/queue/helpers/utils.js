@@ -97,6 +97,8 @@ const moveFileToLocalStorage = async (
   if (isElectronjsEnv) {
     await chmod(newFilePath, '766')
   }
+
+  return { newFilePath }
 }
 
 const createUniqueFileName = async (rootPath, count = 0) => {
