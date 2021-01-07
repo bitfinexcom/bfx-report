@@ -29,7 +29,7 @@ const _checkAndCreateDir = async (dirPath) => {
       } catch (errBasePath) {
         if (errBasePath.code === 'EACCES' && isElectronjsEnv) {
           await chmod(basePath, '766')
-        } else throw errBasePath
+        }
       }
 
       await mkdir(dirPath, { recursive: true })
