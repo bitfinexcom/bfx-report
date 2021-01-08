@@ -10,7 +10,6 @@ const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
 const access = promisify(fs.access)
 const chmod = promisify(fs.chmod)
-const rename = promisify(fs.rename)
 
 const isElectronjsEnv = argv.isElectronjsEnv
 
@@ -37,6 +36,38 @@ const _checkAndCreateDir = async (dirPath) => {
 
     if (isElectronjsEnv) await chmod(dirPath, '766')
   }
+}
+
+const _moveFileAcrossDevice = (src, dest) => {
+  return new Promise((resolve, reject) => {
+    const inStream = fs.createReadStream(src)
+    const outStream = fs.createWriteStream(dest)
+
+    const onFinish = (err) => {
+      const path = err ? dest : src
+
+      fs.unlink(path, (unlinkErr) => {
+        if (err || unlinkErr) {
+          return reject(err || unlinkErr)
+        }
+
+        resolve()
+      })
+    }
+    const onError = (err) => {
+      inStream.destroy()
+      outStream.destroy()
+      outStream.removeListener('finish', onFinish)
+
+      onFinish(err)
+    }
+
+    inStream.once('error', onError)
+    outStream.once('error', onError)
+    outStream.once('finish', onFinish)
+
+    inStream.pipe(outStream)
+  })
 }
 
 const moveFileToLocalStorage = async (
@@ -92,7 +123,7 @@ const moveFileToLocalStorage = async (
   }
 
   const newFilePath = path.join(fullCsvDirPath, fileName)
-  await rename(filePath, newFilePath)
+  await _moveFileAcrossDevice(filePath, newFilePath)
 
   if (isElectronjsEnv) {
     await chmod(newFilePath, '766')
