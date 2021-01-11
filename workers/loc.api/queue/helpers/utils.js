@@ -17,25 +17,28 @@ const isElectronjsEnv = argv.isElectronjsEnv
 const getCompleteFileName = require('./get-complete-file-name')
 
 const _checkAndCreateDir = async (dirPath) => {
-  const basePath = path.join(dirPath, '..')
-
   try {
     await access(dirPath, fs.constants.F_OK | fs.constants.W_OK)
   } catch (err) {
-    if (err.code === 'EACCES' && !isElectronjsEnv) throw err
     if (err.code === 'ENOENT') {
-      try {
-        await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
-      } catch (errBasePath) {
-        if (errBasePath.code === 'EACCES' && isElectronjsEnv) {
-          await chmod(basePath, '766')
-        }
+      await mkdir(dirPath, { recursive: true })
+
+      if (isElectronjsEnv) {
+        await chmod(dirPath, '766')
       }
 
-      await mkdir(dirPath, { recursive: true })
+      return
+    }
+    if (
+      err.code === 'EACCES' &&
+      isElectronjsEnv
+    ) {
+      await chmod(dirPath, '766')
+
+      return
     }
 
-    if (isElectronjsEnv) await chmod(dirPath, '766')
+    throw err
   }
 }
 
