@@ -20,6 +20,7 @@ module.exports = (
   return async (job) => {
     try {
       const {
+        chunkCommonFolder,
         userInfo,
         name,
         filePaths,
@@ -64,25 +65,35 @@ module.exports = (
         for (const filePath of filePaths) {
           await unlink(filePath)
         }
-      } else {
-        let count = 0
 
-        for (const filePath of filePaths) {
-          await moveFileToLocalStorage(
-            rootPath,
-            filePath,
-            subParamsArr[count].name || name,
-            { ...subParamsArr[count] },
-            userInfo.username,
-            isAddedUniqueEndingToCsvName
-          )
+        job.done()
+        aggregatorQueue.emit('completed')
 
-          count += 1
-        }
+        return
+      }
+
+      const newFilePaths = []
+      let count = 0
+
+      for (const filePath of filePaths) {
+        const {
+          newFilePath
+        } = await moveFileToLocalStorage(
+          rootPath,
+          filePath,
+          subParamsArr[count].name || name,
+          { ...subParamsArr[count] },
+          userInfo.username,
+          isAddedUniqueEndingToCsvName,
+          chunkCommonFolder
+        )
+
+        newFilePaths.push(newFilePath)
+        count += 1
       }
 
       job.done()
-      aggregatorQueue.emit('completed')
+      aggregatorQueue.emit('completed', { newFilePaths })
     } catch (err) {
       if (err.syscall === 'unlink') {
         aggregatorQueue.emit('error:unlink', job)
