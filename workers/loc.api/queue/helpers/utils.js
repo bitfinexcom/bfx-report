@@ -53,15 +53,11 @@ const moveFileToLocalStorage = async (
 
   await _checkAndCreateDir(localStorageDirPath)
 
-  const fileName = getCompleteFileName(
+  let fileName = getCompleteFileName(
     name,
     params,
-    {
-      userInfo,
-      isAddedUniqueEndingToCsvName
-    }
+    { userInfo }
   )
-  const newFilePath = path.join(localStorageDirPath, fileName)
 
   try {
     await access(filePath, fs.constants.F_OK | fs.constants.W_OK)
@@ -71,6 +67,24 @@ const moveFileToLocalStorage = async (
     } else throw err
   }
 
+  const files = await readdir(localStorageDirPath)
+  let count = 0
+
+  while (files.some(file => file === fileName)) {
+    count += 1
+
+    fileName = getCompleteFileName(
+      name,
+      params,
+      {
+        userInfo,
+        isAddedUniqueEndingToCsvName,
+        uniqEnding: `(${count})`
+      }
+    )
+  }
+
+  const newFilePath = path.join(localStorageDirPath, fileName)
   await rename(filePath, newFilePath)
 
   if (isElectronjsEnv) {
