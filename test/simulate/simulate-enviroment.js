@@ -1,6 +1,14 @@
 'use strict'
 
 require('colors')
+const argv = require('yargs')
+  .option('onlyGrapes', {
+    alias: 'g',
+    type: 'boolean',
+    default: false
+  })
+  .help('help')
+  .argv
 
 const {
   startHelpers,
@@ -16,7 +24,10 @@ const grapes = []
 let ipcs = []
 
 const _processExit = async () => {
-  await closeIpc(ipcs)
+  if (!argv.onlyGrapes) {
+    await closeIpc(ipcs)
+  }
+
   await killGrapes(grapes)
 
   process.exit()
@@ -28,6 +39,10 @@ process.on('SIGTERM', _processExit)
 
 ;(async () => {
   try {
+    if (argv.onlyGrapes) {
+      console.log('[ONLY GRAPES]'.bgBlue)
+    }
+
     console.log('[WAIT]'.yellow)
 
     const _grapes = await bootTwoGrapes()
@@ -41,7 +56,9 @@ process.on('SIGTERM', _processExit)
       console.error('[ERR]: '.red, err.toString().red)
     })
 
-    ipcs = startHelpers(true)
+    if (!argv.onlyGrapes) {
+      ipcs = startHelpers(true)
+    }
 
     await new Promise((resolve, reject) => {
       grape1.once('error', reject)

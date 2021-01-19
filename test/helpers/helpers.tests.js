@@ -3,23 +3,34 @@
 const { assert } = require('chai')
 const fs = require('fs')
 
-const testProcQueue = (procRes) => {
-  assert.isObject(procRes)
-  assert.containsAllKeys(procRes, [
+const testProcQueue = (procRes, opts) => {
+  const { isSendEmail } = { ...opts }
+
+  const procResKeys = [
     'userInfo',
     'userId',
     'name',
-    'email',
     'filePaths',
     'subParamsArr',
     'isUnauth'
-  ])
+  ]
+
+  if (isSendEmail) {
+    procResKeys.push('email')
+  }
+
+  assert.isObject(procRes)
+  assert.containsAllKeys(procRes, procResKeys)
   assert.isObject(procRes.userInfo)
   assert.isString(procRes.userInfo.username)
   assert.isString(procRes.userInfo.email)
   assert.isNumber(procRes.userInfo.userId)
   assert.isString(procRes.name)
-  assert.isString(procRes.email)
+
+  if (isSendEmail) {
+    assert.isString(procRes.email)
+  }
+
   assert.isArray(procRes.filePaths)
   procRes.filePaths.forEach(filePath => {
     assert.isString(filePath)
@@ -38,13 +49,26 @@ const testMethodOfGettingCsv = async (procPromise, aggrPromise, res) => {
 
   const procRes = await procPromise
 
-  testProcQueue(procRes)
+  testProcQueue(
+    procRes,
+    { isSendEmail: res.body.result.isSendEmail }
+  )
 
-  await aggrPromise
+  const aggrRes = await aggrPromise
 
   procRes.filePaths.forEach(filePath => {
     assert.isNotOk(fs.existsSync(filePath))
   })
+
+  if (res.body.result.isSaveLocaly) {
+    assert.isObject(aggrRes)
+    assert.isArray(aggrRes.newFilePaths)
+    assert.isAtLeast(aggrRes.newFilePaths.length, 1)
+
+    aggrRes.newFilePaths.forEach((newFilePath) => {
+      assert.isOk(fs.existsSync(newFilePath))
+    })
+  }
 }
 
 module.exports = {

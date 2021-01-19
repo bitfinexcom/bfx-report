@@ -10,33 +10,67 @@ const mkdir = promisify(fs.mkdir)
 const readdir = promisify(fs.readdir)
 const access = promisify(fs.access)
 const chmod = promisify(fs.chmod)
-const rename = promisify(fs.rename)
 
 const isElectronjsEnv = argv.isElectronjsEnv
 
 const getCompleteFileName = require('./get-complete-file-name')
 
 const _checkAndCreateDir = async (dirPath) => {
-  const basePath = path.join(dirPath, '..')
-
   try {
     await access(dirPath, fs.constants.F_OK | fs.constants.W_OK)
   } catch (err) {
-    if (err.code === 'EACCES' && !isElectronjsEnv) throw err
     if (err.code === 'ENOENT') {
-      try {
-        await access(basePath, fs.constants.F_OK | fs.constants.W_OK)
-      } catch (errBasePath) {
-        if (errBasePath.code === 'EACCES' && isElectronjsEnv) {
-          await chmod(basePath, '766')
-        } else throw errBasePath
+      await mkdir(dirPath, { recursive: true })
+
+      if (isElectronjsEnv) {
+        await chmod(dirPath, '766')
       }
 
-      await mkdir(dirPath)
+      return
+    }
+    if (
+      err.code === 'EACCES' &&
+      isElectronjsEnv
+    ) {
+      await chmod(dirPath, '766')
+
+      return
     }
 
-    if (isElectronjsEnv) await chmod(dirPath, '766')
+    throw err
   }
+}
+
+const _moveFileAcrossDevice = (src, dest) => {
+  return new Promise((resolve, reject) => {
+    const inStream = fs.createReadStream(src)
+    const outStream = fs.createWriteStream(dest)
+
+    const onFinish = (err) => {
+      const path = err ? dest : src
+
+      fs.unlink(path, (unlinkErr) => {
+        if (err || unlinkErr) {
+          return reject(err || unlinkErr)
+        }
+
+        resolve()
+      })
+    }
+    const onError = (err) => {
+      inStream.destroy()
+      outStream.destroy()
+      outStream.removeListener('finish', onFinish)
+
+      onFinish(err)
+    }
+
+    inStream.once('error', onError)
+    outStream.once('error', onError)
+    outStream.once('finish', onFinish)
+
+    inStream.pipe(outStream)
+  })
 }
 
 const moveFileToLocalStorage = async (
@@ -45,23 +79,26 @@ const moveFileToLocalStorage = async (
   name,
   params,
   userInfo,
-  isAddedUniqueEndingToCsvName
+  isAddedUniqueEndingToCsvName,
+  chunkCommonFolder
 ) => {
   const localStorageDirPath = path.isAbsolute(argv.csvFolder)
     ? argv.csvFolder
     : path.join(rootPath, argv.csvFolder)
+  const fullCsvDirPath = (
+    chunkCommonFolder &&
+    typeof chunkCommonFolder === 'string'
+  )
+    ? path.join(localStorageDirPath, chunkCommonFolder)
+    : localStorageDirPath
 
-  await _checkAndCreateDir(localStorageDirPath)
+  await _checkAndCreateDir(fullCsvDirPath)
 
-  const fileName = getCompleteFileName(
+  let fileName = getCompleteFileName(
     name,
     params,
-    {
-      userInfo,
-      isAddedUniqueEndingToCsvName
-    }
+    { userInfo }
   )
-  const newFilePath = path.join(localStorageDirPath, fileName)
 
   try {
     await access(filePath, fs.constants.F_OK | fs.constants.W_OK)
@@ -71,11 +108,31 @@ const moveFileToLocalStorage = async (
     } else throw err
   }
 
-  await rename(filePath, newFilePath)
+  const files = await readdir(fullCsvDirPath)
+  let count = 0
+
+  while (files.some(file => file === fileName)) {
+    count += 1
+
+    fileName = getCompleteFileName(
+      name,
+      params,
+      {
+        userInfo,
+        isAddedUniqueEndingToCsvName,
+        uniqEnding: `(${count})`
+      }
+    )
+  }
+
+  const newFilePath = path.join(fullCsvDirPath, fileName)
+  await _moveFileAcrossDevice(filePath, newFilePath)
 
   if (isElectronjsEnv) {
     await chmod(newFilePath, '766')
   }
+
+  return { newFilePath }
 }
 
 const createUniqueFileName = async (rootPath, count = 0) => {
