@@ -43,9 +43,9 @@ const startEnvironment = async (
 
   return isNotStartedEnv
     ? {
-      wrkIpcs,
-      wrksReportServiceApi
-    }
+        wrkIpcs,
+        wrksReportServiceApi
+      }
     : new Promise((resolve, reject) => {
       const [grape1] = grapes
 
