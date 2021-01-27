@@ -405,10 +405,10 @@ const prepareResponse = (
     symbols.length > 0
   )
     ? filterResponse(
-      apiRes,
-      { $in: { [symbPropName]: symbols } },
-      true
-    )
+        apiRes,
+        { $in: { [symbPropName]: symbols } },
+        true
+      )
     : apiRes
   const res = filterResponse(
     filteredResBySymb,
