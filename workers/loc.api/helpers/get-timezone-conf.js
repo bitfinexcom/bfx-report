@@ -8,13 +8,13 @@ const _getTimezoneName = (name) => {
     ['Kiev', ['Kyiv']]
   ]
 
-  for (const item of aliases) {
+  aliases.some(item => {
     if (item[1].some(alias => alias === name)) {
       _name = item[0]
 
-      break
+      return true
     }
-  }
+  })
 
   const arr = _name.split(/[_-\s,./\\|]/g)
   const regExp = new RegExp(`${arr.join('.*')}`, 'gi')
@@ -43,11 +43,11 @@ module.exports = (name) => {
   const timezoneOffset = _getTimezoneOffset(timezoneName)
   return timezoneName
     ? {
-        timezoneName,
-        timezoneOffset
-      }
+      timezoneName,
+      timezoneOffset
+    }
     : {
-        timezoneName: 'UTC',
-        timezoneOffset: 0
-      }
+      timezoneName: 'UTC',
+      timezoneOffset: 0
+    }
 }
