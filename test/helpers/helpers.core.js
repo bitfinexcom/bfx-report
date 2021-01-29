@@ -19,8 +19,6 @@ const rmDB = async (
       if (exclude.every(exFile => exFile !== file)) {
         return unlink(path.join(dir, file))
       }
-
-      return null
     })
 
     const res = await Promise.all(promisesArr)
