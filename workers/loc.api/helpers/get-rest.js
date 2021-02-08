@@ -42,6 +42,49 @@ const _bfxFactory = (conf) => {
   })
 }
 
+const _asyncApplyHook = async (incomingRes, ...args) => {
+  let attemptsCount = 0
+  let caughtErr = null
+
+  while (attemptsCount < 10) {
+    try {
+      if (
+        attemptsCount === 0 &&
+        incomingRes
+      ) {
+        const res = await incomingRes
+
+        return res
+      }
+
+      const res = await Reflect.apply(...args)
+
+      return res
+    } catch (err) {
+      if (isNonceSmallError(err)) {
+        attemptsCount += 1
+        caughtErr = err
+
+        continue
+      }
+
+      throw err
+    }
+  }
+
+  if (caughtErr) throw caughtErr
+}
+
+const _isNotPromiseOrBluebird = (instance) => (
+  !(instance instanceof Promise) &&
+  (
+    !instance ||
+    typeof instance !== 'object' ||
+    typeof instance.constructor !== 'function' ||
+    instance.constructor.name !== 'Promise'
+  )
+)
+
 const _getRestProxy = (rest) => {
   return new Proxy(rest, {
     get (target, propKey) {
@@ -54,15 +97,19 @@ const _getRestProxy = (rest) => {
       }
 
       return new Proxy(target[propKey], {
-        async apply () {
+        apply () {
           let attemptsCount = 0
           let caughtErr = null
 
           while (attemptsCount < 10) {
             try {
-              const res = await Reflect.apply(...arguments)
+              const res = Reflect.apply(...arguments)
 
-              return res
+              if (_isNotPromiseOrBluebird(res)) {
+                return res
+              }
+
+              return _asyncApplyHook(res, ...arguments)
             } catch (err) {
               if (isNonceSmallError(err)) {
                 attemptsCount += 1
