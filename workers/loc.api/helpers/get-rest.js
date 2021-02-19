@@ -17,8 +17,7 @@ const _checkConf = (conf) => {
   if (
     conf &&
     typeof conf === 'object' &&
-    typeof conf.restUrl === 'string' &&
-    typeof conf.company === 'string'
+    typeof conf.restUrl === 'string'
   ) {
     return
   }
@@ -29,11 +28,10 @@ const _checkConf = (conf) => {
 const _bfxFactory = (conf) => {
   _checkConf(conf)
 
-  const { restUrl, company } = conf
+  const { restUrl } = conf
 
   return new BFX({
     transform: true,
-    company,
     rest: {
       url: isTestEnv
         ? 'http://localhost:9999'
