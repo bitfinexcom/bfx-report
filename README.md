@@ -35,7 +35,6 @@ vim config/common.json
 ```console
 vim config/service.report.json
 ## set restUrl value
-## set company value, example: ( bitfinex / ethfinex / eosfinex ) or leave it blank for general information
 ```
 
 ## Other Requirements
