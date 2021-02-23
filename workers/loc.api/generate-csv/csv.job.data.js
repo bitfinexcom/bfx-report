@@ -376,20 +376,20 @@ class CsvJobData {
     const csvArgs = getCsvArgs(args, 'publicTrades', { isTradingPair })
     const columnsCsv = (isTradingPair)
       ? {
-        id: '#',
-        mts: 'TIME',
-        price: 'PRICE',
-        amount: 'AMOUNT',
-        symbol: 'PAIR'
-      }
+          id: '#',
+          mts: 'TIME',
+          price: 'PRICE',
+          amount: 'AMOUNT',
+          symbol: 'PAIR'
+        }
       : {
-        id: '#',
-        mts: 'TIME',
-        rate: 'RATE',
-        amount: 'AMOUNT',
-        period: 'PERIOD',
-        symbol: 'CURRENCY'
-      }
+          id: '#',
+          mts: 'TIME',
+          rate: 'RATE',
+          amount: 'AMOUNT',
+          period: 'PERIOD',
+          symbol: 'CURRENCY'
+        }
 
     const jobData = {
       userInfo,

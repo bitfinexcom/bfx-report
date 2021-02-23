@@ -60,8 +60,11 @@ const _formatters = {
       return symbol.slice(1)
     }
 
-    return `${symbol.slice(1, 4)}${symbol[4]
-      ? '/' : ''}${symbol.slice(4, 7)}`
+    const firstPart = symbol.slice(1, 4)
+    const secondPart = symbol.slice(4, 7)
+    const separator = symbol[4] ? '/' : ''
+
+    return `${firstPart}${separator}${secondPart}`
   },
   side: side => {
     let msg
