@@ -1388,7 +1388,8 @@ describe('API', () => {
       'amount',
       'fees',
       'destinationAddress',
-      'transactionId'
+      'transactionId',
+      'note'
     ])
   })
 
@@ -1425,7 +1426,8 @@ describe('API', () => {
       'amount',
       'fees',
       'destinationAddress',
-      'transactionId'
+      'transactionId',
+      'note'
     ])
   })
 
@@ -1656,7 +1658,8 @@ describe('API', () => {
       'amount',
       'fees',
       'destinationAddress',
-      'transactionId'
+      'transactionId',
+      'note'
     ])
   })
 })

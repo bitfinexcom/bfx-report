@@ -698,7 +698,8 @@ class CsvJobData {
         amount: 'AMOUNT',
         fees: 'FEES',
         destinationAddress: 'DESCRIPTION',
-        transactionId: 'TRANSACTION ID'
+        transactionId: 'TRANSACTION ID',
+        note: 'NOTE'
       },
       formatSettings: {
         mtsUpdated: 'date'
