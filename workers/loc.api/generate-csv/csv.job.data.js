@@ -1,12 +1,6 @@
 'use strict'
 
-const {
-  decorate,
-  injectable,
-  inject
-} = require('inversify')
-
-const TYPES = require('../di/types')
+const { decorateInjectable } = require('../di/utils')
 
 const {
   checkParams,
@@ -20,6 +14,9 @@ const {
   SymbolsTypeError
 } = require('../errors')
 
+const depsTypes = (TYPES) => [
+  TYPES.RService
+]
 class CsvJobData {
   constructor (rService) {
     this.rService = rService
@@ -698,7 +695,8 @@ class CsvJobData {
         amount: 'AMOUNT',
         fees: 'FEES',
         destinationAddress: 'DESCRIPTION',
-        transactionId: 'TRANSACTION ID'
+        transactionId: 'TRANSACTION ID',
+        note: 'NOTE'
       },
       formatSettings: {
         mtsUpdated: 'date'
@@ -981,7 +979,6 @@ class CsvJobData {
   }
 }
 
-decorate(injectable(), CsvJobData)
-decorate(inject(TYPES.RService), CsvJobData, 0)
+decorateInjectable(CsvJobData, depsTypes)
 
 module.exports = CsvJobData

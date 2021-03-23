@@ -124,7 +124,8 @@ module.exports = new Map([
       amountUsd: { type: 'number' },
       fees: { type: 'number' },
       destinationAddress: { type: 'string' },
-      transactionId: { type: 'string' }
+      transactionId: { type: 'string' },
+      note: { type: 'string' }
     }
   ],
   [
