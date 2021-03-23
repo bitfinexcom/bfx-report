@@ -1,12 +1,14 @@
 'use strict'
 
 const { promisify } = require('util')
+const {
+  decorate,
+  injectable,
+  inject
+} = require('inversify')
 
-const { decorateInjectable } = require('../di/utils')
+const TYPES = require('../di/types')
 
-const depsTypes = (TYPES) => [
-  TYPES.Link
-]
 class HasGrcService {
   constructor (link) {
     this.link = link
@@ -47,6 +49,7 @@ class HasGrcService {
   }
 }
 
-decorateInjectable(HasGrcService, depsTypes)
+decorate(injectable(), HasGrcService)
+decorate(inject(TYPES.Link), HasGrcService, 0)
 
 module.exports = HasGrcService
