@@ -363,7 +363,7 @@ module.exports = new Map([
       null,
       null,
       '0x754687b3cbee7cdc4b29107e325455c682dfc320ca0c4233c313263a27282760',
-      null
+      'look at this note'
     ]]
   ],
   [
@@ -525,54 +525,46 @@ module.exports = new Map([
   ],
   [
     'account_summary',
-    [{
-      _id: '2a2a2a22222a2aa22a22aa2a',
-      user_id: 12345,
-      summary: {
-        time: '2020-02-10T06:49:30.270Z',
-        status: {
-          resid_hint: null
-        },
-        is_locked: false,
-        trade_vol_30d: [
-          {
-            curr: 'BTC',
-            vol: 0.12345
-          },
-          {
-            curr: 'ETH',
-            vol: 1.12345
-          },
-          {
-            curr: 'BTCF0',
-            vol: 0.12345
-          },
+    [
+      null,
+      null,
+      null,
+      null,
+      [
+        [0.001, 0.001, 0.001, null, null, -0.0002],
+        [0.002, 0.002, 0.002, null, null, 0.00075]
+      ],
+      [
+        [
+          { curr: 'BTC', vol: 12.34858 },
+          { curr: 'ETH', vol: 2 },
           {
             curr: 'Total (USD)',
-            vol: 12345.12345,
-            vol_maker: 12345.12345,
-            vol_BFX: 12345.12345,
-            vol_BFX_maker: 12345.12345
+            vol: 495973.5354,
+            vol_safe: 495973.5354,
+            vol_maker: 1115.8412,
+            vol_BFX: 495973.5354,
+            vol_BFX_safe: 495973.5354,
+            vol_BFX_maker: 1115.8412
           }
         ],
-        fees_funding_30d: {
-          USD: 123.12345
+        { BTC: 0.00005, ETH: 0.00001, USD: 2.9 },
+        2.97
+      ],
+      [
+        null,
+        {
+          XAUT: 0.0057617,
+          IOT: 6.73137494,
+          BTC: 210.94145628,
+          USD: 767.84999046
         },
-        fees_funding_total_30d: 123.12345,
-        fees_trading_30d: {
-          USTF0: 0.987654321,
-          ETH: 0.0012345,
-          USD: 1.987654321,
-          BTC: 0.000098765
-        },
-        fees_trading_total_30d: 1.12345,
-        maker_fee: 0.001,
-        taker_fee: 0.002,
-        deriv_maker_rebate: -0.0002,
-        deriv_taker_fee: 0.00098
-      },
-      t: 1581317371000
-    }]
+        116791.04974429001
+      ],
+      null,
+      null,
+      { leo_lev: 0, leo_amount_avg: 0.00123321 }
+    ]
   ],
   [
     'logins_hist',
