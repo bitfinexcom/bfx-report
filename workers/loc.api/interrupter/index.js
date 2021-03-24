@@ -1,10 +1,8 @@
 'use strict'
 
 const EventEmitter = require('events')
-const {
-  decorate,
-  injectable
-} = require('inversify')
+
+const { decorateInjectable } = require('../di/utils')
 
 class Interrupter extends EventEmitter {
   constructor () {
@@ -76,6 +74,6 @@ class Interrupter extends EventEmitter {
   }
 }
 
-decorate(injectable(), Interrupter)
+decorateInjectable(Interrupter)
 
 module.exports = Interrupter
