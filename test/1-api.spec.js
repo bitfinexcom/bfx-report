@@ -1388,8 +1388,7 @@ describe('API', () => {
       'amount',
       'fees',
       'destinationAddress',
-      'transactionId',
-      'note'
+      'transactionId'
     ])
   })
 
@@ -1426,8 +1425,7 @@ describe('API', () => {
       'amount',
       'fees',
       'destinationAddress',
-      'transactionId',
-      'note'
+      'transactionId'
     ])
   })
 
@@ -1475,19 +1473,18 @@ describe('API', () => {
     res.body.result.forEach((res) => {
       assert.isObject(res)
       assert.containsAllKeys(res, [
+        'time',
+        'status',
+        'is_locked',
         'trade_vol_30d',
-        'fees_trading_30d',
-        'fees_trading_total_30d',
         'fees_funding_30d',
         'fees_funding_total_30d',
-        'makerFee',
-        'derivMakerRebate',
-        'takerFeeToCrypto',
-        'takerFeeToStable',
-        'takerFeeToFiat',
-        'derivTakerFee',
-        'leoLev',
-        'leoAmountAvg'
+        'fees_trading_30d',
+        'fees_trading_total_30d',
+        'maker_fee',
+        'taker_fee',
+        'deriv_maker_rebate',
+        'deriv_taker_fee'
       ])
     })
   })
@@ -1658,8 +1655,7 @@ describe('API', () => {
       'amount',
       'fees',
       'destinationAddress',
-      'transactionId',
-      'note'
+      'transactionId'
     ])
   })
 })
