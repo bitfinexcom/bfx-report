@@ -394,7 +394,8 @@ describe('API filter', () => {
               'amount',
               'fees',
               'destinationAddress',
-              'transactionId'
+              'transactionId',
+              'note'
             ])
             assert(Number.isInteger(item.id))
             assert.include([12345, 12346, 12347], item.id)
