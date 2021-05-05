@@ -6,10 +6,14 @@ const {
   writableToPromise,
   createUniqueFileName
 } = require('./utils')
+const getLocalCsvFolderPaths = require(
+  './get-local-csv-folder-paths'
+)
 
 module.exports = {
   moveFileToLocalStorage,
   writableToPromise,
   createUniqueFileName,
-  getCompleteFileName
+  getCompleteFileName,
+  getLocalCsvFolderPaths
 }
