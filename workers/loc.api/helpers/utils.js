@@ -54,8 +54,8 @@ const parsePositionsAuditId = (args) => {
   const { id } = { ...params }
   const parsedId = Array.isArray(id)
     ? id.map(_id => (
-      typeof _id === 'string' ? Number.parseInt(_id) : _id)
-    )
+        typeof _id === 'string' ? Number.parseInt(_id) : _id)
+      )
     : id
 
   return {

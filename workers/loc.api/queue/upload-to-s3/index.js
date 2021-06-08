@@ -124,10 +124,10 @@ module.exports = (
 
       const signature = isSignReq
         ? await grcBfxReq({
-          service: 'rest:ext:gpg',
-          action: 'getDigitalSignature',
-          args: [hexStrBuff, userInfo]
-        })
+            service: 'rest:ext:gpg',
+            action: 'getDigitalSignature',
+            args: [hexStrBuff, userInfo]
+          })
         : null
       const reportS3 = await grcBfxReq({
         service: 'rest:ext:s3',
