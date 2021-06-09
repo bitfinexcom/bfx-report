@@ -15,10 +15,12 @@ const rmDB = async (
 ) => {
   try {
     const files = await readdir(dir)
-    const promisesArr = files.map(file => {
+    const promisesArr = files.map((file) => {
       if (exclude.every(exFile => exFile !== file)) {
         return unlink(path.join(dir, file))
       }
+
+      return null
     })
 
     const res = await Promise.all(promisesArr)
