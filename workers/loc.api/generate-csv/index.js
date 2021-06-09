@@ -9,10 +9,14 @@ const {
 const {
   EmailSendingError
 } = require('../errors')
+const getLocalCsvFolderPaths = require(
+  '../queue/helpers/get-local-csv-folder-paths'
+)
 
 const _getCsvStoreStatus = async (
   hasGrcService,
-  args
+  args,
+  rootPath
 ) => {
   const { email } = { ...args.params }
 
@@ -20,7 +24,14 @@ const _getCsvStoreStatus = async (
     !email ||
     typeof email !== 'string'
   ) {
-    return { isSaveLocaly: true }
+    const {
+      localCsvFolderPath
+    } = getLocalCsvFolderPaths(rootPath)
+
+    return {
+      isSaveLocaly: true,
+      localCsvFolderPath
+    }
   }
 
   if (!await hasGrcService.hasS3AndSendgrid()) {
@@ -75,7 +86,8 @@ module.exports = (
   processorQueue,
   hasGrcService,
   csvJobData,
-  rService
+  rService,
+  rootPath
 ) => async (
   name,
   args
@@ -84,7 +96,8 @@ module.exports = (
 
   const status = await _getCsvStoreStatus(
     hasGrcService,
-    args
+    args,
+    rootPath
   )
   const checkingDataArr = _getFilterModelNamesAndArgs(
     name,

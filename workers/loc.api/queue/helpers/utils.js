@@ -14,6 +14,9 @@ const chmod = promisify(fs.chmod)
 const isElectronjsEnv = argv.isElectronjsEnv
 
 const getCompleteFileName = require('./get-complete-file-name')
+const getLocalCsvFolderPaths = require(
+  './get-local-csv-folder-paths'
+)
 
 const _checkAndCreateDir = async (dirPath) => {
   try {
@@ -82,15 +85,13 @@ const moveFileToLocalStorage = async (
   isAddedUniqueEndingToCsvName,
   chunkCommonFolder
 ) => {
-  const localStorageDirPath = path.isAbsolute(argv.csvFolder)
-    ? argv.csvFolder
-    : path.join(rootPath, argv.csvFolder)
+  const { localCsvFolderPath } = getLocalCsvFolderPaths(rootPath)
   const fullCsvDirPath = (
     chunkCommonFolder &&
     typeof chunkCommonFolder === 'string'
   )
-    ? path.join(localStorageDirPath, chunkCommonFolder)
-    : localStorageDirPath
+    ? path.join(localCsvFolderPath, chunkCommonFolder)
+    : localCsvFolderPath
 
   await _checkAndCreateDir(fullCsvDirPath)
 
@@ -142,21 +143,19 @@ const createUniqueFileName = async (rootPath, count = 0) => {
     throw new Error('ERR_CREATE_UNIQUE_FILE_NAME')
   }
 
-  const tempDirPath = path.isAbsolute(argv.tempFolder)
-    ? argv.tempFolder
-    : path.join(rootPath, argv.tempFolder)
+  const { tempCsvFolderPath } = getLocalCsvFolderPaths(rootPath)
 
-  await _checkAndCreateDir(tempDirPath)
+  await _checkAndCreateDir(tempCsvFolderPath)
 
   const uniqueFileName = `${uuidv4()}.csv`
 
-  const files = await readdir(tempDirPath)
+  const files = await readdir(tempCsvFolderPath)
 
   if (files.some(file => file === uniqueFileName)) {
     return createUniqueFileName(rootPath, count)
   }
 
-  return path.join(tempDirPath, uniqueFileName)
+  return path.join(tempCsvFolderPath, uniqueFileName)
 }
 
 const writableToPromise = stream => {
