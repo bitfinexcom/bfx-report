@@ -45,7 +45,14 @@ const timezone = {
 }
 const dateFormat = {
   type: 'string',
-  enum: ['DD-MM-YY', 'MM-DD-YY', 'YY-MM-DD']
+  enum: [
+    'DD-MM-YY',
+    'DD-MM-YYYY',
+    'MM-DD-YY',
+    'MM-DD-YYYY',
+    'YY-MM-DD',
+    'YYYY-MM-DD'
+  ]
 }
 const language = {
   type: 'string',
