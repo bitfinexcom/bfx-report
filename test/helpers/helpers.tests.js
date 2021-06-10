@@ -41,7 +41,12 @@ const testProcQueue = (procRes, opts) => {
   assert.isBoolean(procRes.isUnauth)
 }
 
-const testMethodOfGettingCsv = async (procPromise, aggrPromise, res) => {
+const testMethodOfGettingCsv = async (
+  procPromise,
+  aggrPromise,
+  res,
+  extraTestCase = () => {}
+) => {
   assert.isObject(res.body)
   assert.propertyVal(res.body, 'id', 5)
   assert.isObject(res.body.result)
@@ -69,6 +74,12 @@ const testMethodOfGettingCsv = async (procPromise, aggrPromise, res) => {
       assert.isOk(fs.existsSync(newFilePath))
     })
   }
+
+  extraTestCase({
+    procRes,
+    aggrRes,
+    result: res.body.result
+  })
 }
 
 module.exports = {

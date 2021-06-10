@@ -20,7 +20,7 @@ module.exports = (
   return async (job) => {
     try {
       const {
-        chunkCommonFolder,
+        chunkCommonFolders,
         userInfo,
         name,
         filePaths,
@@ -85,7 +85,7 @@ module.exports = (
           { ...subParamsArr[count] },
           userInfo.username,
           isAddedUniqueEndingToCsvName,
-          chunkCommonFolder
+          chunkCommonFolders[count]
         )
 
         newFilePaths.push(newFilePath)

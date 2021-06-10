@@ -49,6 +49,7 @@ module.exports = (
 
   return async (job) => {
     const filePaths = []
+    const chunkCommonFolders = []
     const subParamsArr = []
     const isUnauth = job.data.isUnauth || false
     const jobsData = Array.isArray(job.data.jobsData)
@@ -59,7 +60,6 @@ module.exports = (
       job.data.args.params = { ...job.data.args.params }
 
       const {
-        chunkCommonFolder,
         userInfo,
         userId,
         name,
@@ -81,6 +81,7 @@ module.exports = (
         filePaths.push(filePath)
 
         const {
+          chunkCommonFolder,
           args: { params },
           name,
           fileNamesMap,
@@ -92,6 +93,7 @@ module.exports = (
           name,
           fileNamesMap
         })
+        chunkCommonFolders.push(chunkCommonFolder)
 
         const write = isUnauth
           ? 'Your file could not be completed, please try again'
@@ -126,7 +128,7 @@ module.exports = (
 
       job.done()
       processorQueue.emit('completed', {
-        chunkCommonFolder,
+        chunkCommonFolders,
         userInfo,
         userId,
         name,
