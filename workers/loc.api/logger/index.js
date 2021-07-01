@@ -57,19 +57,32 @@ class TransportSlack extends TransportStream {
   }
 
   log (info, callback) {
-    const { grcSlackFac } = getLoggerDeps()
+    (async () => {
+      try {
+        const {
+          grcSlackFac,
+          hasGrcService
+        } = getLoggerDeps()
 
-    // Grab the raw string and append the expected EOL.
-    const output = `${info[MESSAGE]}${this.eol}`
+        // Grab the raw string and append the expected EOL
+        const output = `${info[MESSAGE]}${this.eol}`
+        const hasSlackService = await hasGrcService
+          .hasSlackService()
 
-    grcSlackFac
-      .logError(null, output, '[bfx-report]')
-      .then(() => {
+        if (!hasSlackService) {
+          this.emit('logged', output)
+
+          return
+        }
+
+        await grcSlackFac
+          .logError(null, output, '[bfx-report]')
+
         this.emit('logged', output)
-      })
-      .catch((err) => {
+      } catch (err) {
         this.emit('warn', err)
-      })
+      }
+    })()
 
     // Remark: Fire and forget here so requests dont cause buffering
     // and block more requests from happening
