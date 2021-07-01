@@ -1,10 +1,14 @@
 'use strict'
 
+const {
+  GrcSlackAvailabilityError
+} = require('../errors')
+
 let _loggerDeps = {
   grcSlackFac: {
     logError () {
       return Promise
-        .reject(new Error('ERR_GRC_SLACK_IS_NOT_AVAILABLE'))
+        .reject(new GrcSlackAvailabilityError())
     }
   },
   hasGrcService: {
