@@ -5,11 +5,13 @@ const { promisify } = require('util')
 const { decorateInjectable } = require('../di/utils')
 
 const depsTypes = (TYPES) => [
-  TYPES.Link
+  TYPES.Link,
+  TYPES.GrcSlackFac
 ]
 class HasGrcService {
-  constructor (link) {
+  constructor (link, grcSlackFac) {
     this.link = link
+    this.grcSlackFac = grcSlackFac
   }
 
   async lookUpFunction (service) {
@@ -44,6 +46,22 @@ class HasGrcService {
     )
 
     return !!countPGPServices
+  }
+
+  async hasSlackService () {
+    const workerName = (
+      this.grcSlackFac.conf &&
+      typeof this.grcSlackFac.conf === 'object' &&
+      this.grcSlackFac.conf.worker
+    )
+      ? this.grcSlackFac.conf.worker
+      : 'rest:ext:slack'
+
+    const countSlackService = await this.lookUpFunction(
+      workerName
+    )
+
+    return !!countSlackService
   }
 }
 
