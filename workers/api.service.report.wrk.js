@@ -171,7 +171,6 @@ class WrkReportServiceApi extends WrkApi {
       rService.ctx = rService.caller.getCtx()
     }
 
-    setLoggerDeps({ grcSlackFac })
     this.loadAppDeps({
       rService,
       processorQueue,
@@ -181,6 +180,12 @@ class WrkReportServiceApi extends WrkApi {
       grcSlackFac,
       ...deps
     })
+
+    setLoggerDeps({
+      grcSlackFac,
+      hasGrcService: this.container.get(TYPES.HasGrcService)
+    })
+
     await rService._initialize()
 
     const processor = this.container.get(TYPES.Processor)

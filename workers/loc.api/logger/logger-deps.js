@@ -2,7 +2,13 @@
 
 let _loggerDeps = {
   grcSlackFac: {
-    logError () {}
+    logError () {
+      return Promise
+        .reject(new Error('ERR_GRC_SLACK_IS_NOT_AVAILABLE'))
+    }
+  },
+  hasGrcService: {
+    hasSlackService () {}
   }
 }
 
