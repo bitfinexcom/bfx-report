@@ -39,6 +39,9 @@ const diConfig = require('./loc.api/di/di.config')
 const appDeps = require('./loc.api/di/app.deps')
 const coreDeps = require('./loc.api/di/core.deps')
 const TYPES = require('./loc.api/di/types')
+const {
+  setLoggerDeps
+} = require('./loc.api/logger/logger-deps')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -145,6 +148,13 @@ class WrkReportServiceApi extends WrkApi {
         'gzip',
         'gzip',
         { level: 9 }
+      ],
+      [
+        'fac',
+        'bfx-facs-grc-slack',
+        's0',
+        's0',
+        {}
       ]
     ]
 
@@ -155,6 +165,7 @@ class WrkReportServiceApi extends WrkApi {
     const processorQueue = this.lokue_processor.q
     const aggregatorQueue = this.lokue_aggregator.q
     const rService = this.grc_bfx.api
+    const grcSlackFac = this.grcSlack_s0
 
     if (!rService.ctx) {
       rService.ctx = rService.caller.getCtx()
@@ -164,10 +175,17 @@ class WrkReportServiceApi extends WrkApi {
       rService,
       processorQueue,
       aggregatorQueue,
-      deflateFac: this.deflate_gzip,
       link: this.grc_bfx.link,
+      deflateFac: this.deflate_gzip,
+      grcSlackFac,
       ...deps
     })
+
+    setLoggerDeps({
+      grcSlackFac,
+      hasGrcService: this.container.get(TYPES.HasGrcService)
+    })
+
     await rService._initialize()
 
     const processor = this.container.get(TYPES.Processor)

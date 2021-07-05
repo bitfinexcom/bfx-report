@@ -99,6 +99,12 @@ class LedgerPaymentFilteringParamsError extends ArgsParamsError {
   }
 }
 
+class GrcSlackAvailabilityError extends ArgsParamsError {
+  constructor (message = 'ERR_GRC_SLACK_IS_NOT_AVAILABLE') {
+    super(message)
+  }
+}
+
 module.exports = {
   BaseError,
   FindMethodError,
@@ -114,5 +120,6 @@ module.exports = {
   ParamsValidSchemaFindingError,
   FilterParamsValidSchemaFindingError,
   ArgsParamsFilterError,
-  LedgerPaymentFilteringParamsError
+  LedgerPaymentFilteringParamsError,
+  GrcSlackAvailabilityError
 }

@@ -1,6 +1,7 @@
 'use strict'
 
 require('colors')
+const os = require('os')
 const path = require('path')
 const argv = require('yargs').argv
 const {
@@ -8,6 +9,11 @@ const {
   format,
   transports
 } = require('winston')
+const TransportStream = require('winston-transport')
+const { MESSAGE } = require('triple-beam')
+
+const { getLoggerDeps } = require('./logger-deps')
+
 const {
   combine,
   timestamp,
@@ -42,8 +48,96 @@ const pathExcLogger = path.join(
 const logLabel = 'WORKER'
 const maxSize = 1024000
 
-const baseTransports = []
-const exceptionHandlers = []
+class TransportSlack extends TransportStream {
+  constructor (options = {}) {
+    super(options)
+
+    this.grcSlackFac = options.grcSlackFac
+    this.eol = options.eol || os.EOL
+  }
+
+  log (info, callback) {
+    (async () => {
+      try {
+        const {
+          grcSlackFac,
+          hasGrcService
+        } = getLoggerDeps()
+
+        // Grab the raw string and append the expected EOL
+        const output = `${info[MESSAGE]}${this.eol}`
+        const hasSlackService = await hasGrcService
+          .hasSlackService()
+
+        if (!hasSlackService) {
+          this.emit('logged', output)
+
+          return
+        }
+
+        await grcSlackFac
+          .logError(null, output, '[bfx-report]')
+
+        this.emit('logged', output)
+      } catch (err) {
+        this.emit('warn', err)
+      }
+    })()
+
+    // Remark: Fire and forget here so requests dont cause buffering
+    // and block more requests from happening
+    if (callback) {
+      setImmediate(callback)
+    }
+  }
+}
+
+const _getTransports = () => {
+  if (!isProdEnv) {
+    return {
+      baseTransports: [
+        new transports.Console({
+          level: 'debug',
+          colorize: false,
+          handleExceptions: true
+        }),
+        new TransportSlack({
+          level: 'error',
+          colorize: false
+        })
+      ],
+      exceptionHandlers: []
+    }
+  }
+
+  return {
+    baseTransports: [
+      new transports.File({
+        filename: pathError,
+        level: 'error',
+        maxsize: maxSize,
+        colorize: false
+      }),
+      new TransportSlack({
+        level: 'error',
+        colorize: false
+      })
+    ],
+    exceptionHandlers: [
+      new transports.File({
+        filename: pathExcLogger,
+        maxsize: maxSize,
+        colorize: false
+      }),
+      new transports.Console({
+        colorize: false
+      }),
+      new TransportSlack({
+        colorize: false
+      })
+    ]
+  }
+}
 
 const _combineFormat = (colorize = !isProdEnv) => {
   return combine(
@@ -71,36 +165,12 @@ const _combineFormat = (colorize = !isProdEnv) => {
   )
 }
 
-if (isProdEnv) {
-  baseTransports.push(
-    new transports.File({
-      filename: pathError,
-      level: 'error',
-      maxsize: maxSize,
-      colorize: false
-    })
-  )
-  exceptionHandlers.push(
-    new transports.File({
-      filename: pathExcLogger,
-      maxsize: maxSize,
-      colorize: false
-    }),
-    new transports.Console({
-      colorize: false
-    })
-  )
-} else {
-  baseTransports.push(
-    new transports.Console({
-      level: 'debug',
-      colorize: false,
-      handleExceptions: true
-    })
-  )
-}
-
 module.exports = ({ isLoggerDisabled }) => {
+  const {
+    baseTransports,
+    exceptionHandlers
+  } = _getTransports()
+
   return createLogger({
     format: _combineFormat(),
     transports: baseTransports,
