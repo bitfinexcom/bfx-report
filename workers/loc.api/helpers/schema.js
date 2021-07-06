@@ -56,7 +56,7 @@ const dateFormat = {
 }
 const language = {
   type: 'string',
-  enum: ['en', 'ru', 'zh-CN', 'zh-TW']
+  enum: ['en', 'ru', 'zh-CN', 'zh-TW', 'es-EM']
 }
 
 const paramsSchemaForCandlesApi = {
