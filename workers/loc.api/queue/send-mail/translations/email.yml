@@ -47,3 +47,17 @@ zh-TW:
     ifDidNotInitAction: 如果您未進行此操作並且懷疑您的帳戶已遭盜用，請
     freezeAccount: 凍結您的帳戶
     contactSupport: 以及聯絡客服人員
+
+es-EM:
+  template:
+    subject: Tu reporte esta listo
+    btnText: Descargar el CSV
+    fileName: Nombre del archivo
+    unauth: Tu archivo no se pudo completar, intente de nuevo por favor.
+    readyForDownload: Tu reporte esta listo para ser descargado
+    ifDidNotInitAction: Si no realizaste esta acción y sospechas que tu cuenta puede estar comprometida, por favor
+    freezeAccount: congela tu cuenta
+    contactSupport: y contacta soporte
+    YouCan: Podes
+    download: descargar
+    pgpSignature: un archivo con firma digital PGP
