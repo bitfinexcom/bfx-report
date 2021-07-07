@@ -8,6 +8,7 @@ module.exports = {
   Logger: Symbol.for('Logger'),
   RService: Symbol.for('RService'),
   DeflateFac: Symbol.for('DeflateFac'),
+  GrcSlackFac: Symbol.for('GrcSlackFac'),
   Responder: Symbol.for('Responder'),
   GetREST: Symbol.for('GetREST'),
   InjectDepsToRService: Symbol.for('InjectDepsToRService'),
