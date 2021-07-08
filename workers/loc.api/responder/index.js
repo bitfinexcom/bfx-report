@@ -6,6 +6,16 @@ const {
   isNonceSmallError
 } = require('../helpers')
 
+const {
+  ArgsParamsError,
+  ArgsParamsFilterError,
+  MinLimitParamError,
+  QueueJobAddingError,
+  SymbolsTypeError,
+  TimeframeError,
+  LedgerPaymentFilteringParamsError
+} = require('../errors')
+
 const _prepareErrorData = (err, name) => {
   const _name = name
     ? `\n  - METHOD_NAME: ${name}`
@@ -25,7 +35,14 @@ const logError = (logger, err, name) => {
   if (
     isAuthError(err) ||
     isRateLimitError(err) ||
-    isNonceSmallError(err)
+    isNonceSmallError(err) ||
+    err instanceof ArgsParamsError ||
+    err instanceof ArgsParamsFilterError ||
+    err instanceof MinLimitParamError ||
+    err instanceof QueueJobAddingError ||
+    err instanceof SymbolsTypeError ||
+    err instanceof TimeframeError ||
+    err instanceof LedgerPaymentFilteringParamsError
   ) {
     logger.debug(_prepareErrorData(err, name))
 
