@@ -48,4 +48,20 @@ module.exports = (
   ) {
     throw new ArgsParamsError(ajv.errors)
   }
+  if (
+    args.params &&
+    typeof args.params === 'object' &&
+    Number.isFinite(args.params.start) &&
+    Number.isFinite(args.params.end) &&
+    args.params.start >= args.params.end
+  ) {
+    // Use same error format like Ajv for consistency
+    throw new ArgsParamsError([{
+      instancePath: '/end',
+      schemaPath: '#/properties/end/type',
+      keyword: 'type',
+      params: { type: 'integer' },
+      message: 'must be start < end'
+    }])
+  }
 }
