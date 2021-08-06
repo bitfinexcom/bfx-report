@@ -16,6 +16,8 @@ const {
   LedgerPaymentFilteringParamsError
 } = require('../errors')
 
+const JSON_RPC_VERSION = '2.0'
+
 const _prepareErrorData = (err, name) => {
   const _name = name
     ? `\n  - METHOD_NAME: ${name}`
@@ -52,20 +54,54 @@ const logError = (logger, err, name) => {
   logger.error(_prepareErrorData(err, name))
 }
 
+/*
+ * JSON-RPC specification:
+ * https://www.jsonrpc.org/specification
+ */
+const _makeJsonRpcResponse = (args, result) => {
+  const jsonrpc = JSON_RPC_VERSION
+  const _args = (
+    args &&
+    typeof args === 'object'
+  )
+    ? args
+    : {}
+  const { id = null } = _args
+
+  if (result instanceof Error) {
+    const {
+      statusCode: code = 500,
+      statusMessage: message = 'Internal Server Error'
+    } = result
+
+    return {
+      jsonrpc,
+      error: { code, message },
+      id
+    }
+  }
+
+  return { jsonrpc, result, id }
+}
+
+/*
+ * If callback is passed it means that
+ * uses grenache network with JSON-RPC response
+ *
+ * If cb isn't passed returns a typical response
+ * to be able to use with the internal logic
+ */
 module.exports = (
   container,
   logger
 ) => (
   handler,
   name,
-  done
+  args,
+  cb
 ) => {
-  const cb = typeof name === 'function'
-    ? name
-    : done
-
   try {
-    const resFn = handler(container)
+    const resFn = handler(container, args)
 
     if (resFn instanceof Promise) {
       if (!cb) {
@@ -78,22 +114,22 @@ module.exports = (
       }
 
       resFn
-        .then((res) => cb(null, res))
+        .then((res) => cb(null, _makeJsonRpcResponse(res)))
         .catch((err) => {
           logError(logger, err, name)
 
-          cb(err)
+          cb(_makeJsonRpcResponse(err))
         })
 
       return
     }
 
     if (!cb) return resFn
-    cb(null, resFn)
+    cb(null, _makeJsonRpcResponse(resFn))
   } catch (err) {
     logError(logger, err, name)
 
-    if (cb) cb(err)
-    else throw err
+    if (!cb) throw err
+    cb(_makeJsonRpcResponse(err))
   }
 }
