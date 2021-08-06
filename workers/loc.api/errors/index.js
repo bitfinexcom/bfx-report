@@ -6,6 +6,8 @@ class BaseError extends Error {
 
     this.name = this.constructor.name
     this.message = message
+    this.statusCode = 500
+    this.statusMessage = 'Internal Server Error'
 
     Error.captureStackTrace(this, this.constructor)
   }
