@@ -7,51 +7,103 @@ const {
 } = require('../helpers')
 
 const {
-  ArgsParamsError,
-  ArgsParamsFilterError,
-  MinLimitParamError,
-  QueueJobAddingError,
-  SymbolsTypeError,
-  TimeframeError,
-  LedgerPaymentFilteringParamsError
+  BaseError
 } = require('../errors')
 
 const JSON_RPC_VERSION = '2.0'
 
 const _prepareErrorData = (err, name) => {
+  const { message = 'ERR_ERROR_HAS_OCCURRED' } = err
   const _name = name
     ? `\n  - METHOD_NAME: ${name}`
     : ''
   const _statusCode = err.statusCode
     ? `\n  - STATUS_CODE: ${err.statusCode}`
     : ''
-  const _options = err.options
-    ? `\n  - OPTION: ${JSON.stringify(err.options)}`
+  const _statusMessage = err.statusMessage
+    ? `\n  - STATUS_MESSAGE: ${err.statusMessage}`
     : ''
-  const _err = `\n  - ${err.stack || err}`
+  const _data = err.data
+    ? `\n  - DATA: ${JSON.stringify(err.data)}`
+    : ''
+  const stackTrace = (err.stack || err)
+    ? `\n  - STACK_TRACE ${err.stack || err}`
+    : ''
 
-  return `${_name}${_statusCode}${_options}${_err}`
+  return `\
+    ${message}\
+    ${_name}\
+    ${_statusCode}\
+    ${_statusMessage}\
+    ${_data}\
+    ${stackTrace}`
 }
 
-const logError = (logger, err, name) => {
+const _getErrorWithMetadataForNonBaseError = (err) => {
   if (
-    isAuthError(err) ||
-    isRateLimitError(err) ||
-    isNonceSmallError(err) ||
-    err instanceof ArgsParamsError ||
-    err instanceof ArgsParamsFilterError ||
-    err instanceof MinLimitParamError ||
-    err instanceof QueueJobAddingError ||
-    err instanceof SymbolsTypeError ||
-    err instanceof TimeframeError ||
-    err instanceof LedgerPaymentFilteringParamsError
+    !err ||
+    typeof err !== 'object'
   ) {
-    logger.debug(_prepareErrorData(err, name))
+    return new BaseError()
+  }
+  if (err instanceof BaseError) {
+    return err
+  }
+  if (isAuthError(err)) {
+    err.statusCode = 401
+    err.statusMessage = 'Unauthorized'
+
+    return err
+  }
+  if (isRateLimitError(err)) {
+    err.statusCode = 409
+    err.statusMessage = 'Rate limit error'
+
+    return err
+  }
+  if (isNonceSmallError(err)) {
+    err.statusCode = 409
+    err.statusMessage = 'Nonces error, key are updated, please get new keys to operate'
+
+    return err
+  }
+
+  return err
+}
+
+const _getErrorMetadata = (err) => {
+  const errWithMetadata = _getErrorWithMetadataForNonBaseError(err)
+  const {
+    statusCode: code = 500,
+    statusMessage: message = 'Internal Server Error',
+    data = null
+  } = errWithMetadata
+
+  const error = Object.assign(
+    errWithMetadata,
+    {
+      statusCode: code,
+      statusMessage: message,
+      data
+    }
+  )
+
+  return { code, message, data, error }
+}
+
+const _logError = (logger, err, name) => {
+  const {
+    code,
+    error
+  } = _getErrorMetadata(err)
+
+  if (code !== 500) {
+    logger.debug(_prepareErrorData(error, name))
 
     return
   }
 
-  logger.error(_prepareErrorData(err, name))
+  logger.error(_prepareErrorData(error, name))
 }
 
 /*
@@ -70,13 +122,14 @@ const _makeJsonRpcResponse = (args, result) => {
 
   if (result instanceof Error) {
     const {
-      statusCode: code = 500,
-      statusMessage: message = 'Internal Server Error'
-    } = result
+      code,
+      message,
+      data
+    } = _getErrorMetadata(result)
 
     return {
       jsonrpc,
-      error: { code, message },
+      error: { code, message, data },
       id
     }
   }
@@ -107,7 +160,7 @@ module.exports = (
       if (!cb) {
         return resFn
           .catch((err) => {
-            logError(logger, err, name)
+            _logError(logger, err, name)
 
             return Promise.reject(err)
           })
@@ -116,7 +169,7 @@ module.exports = (
       resFn
         .then((res) => cb(null, _makeJsonRpcResponse(res)))
         .catch((err) => {
-          logError(logger, err, name)
+          _logError(logger, err, name)
 
           cb(_makeJsonRpcResponse(err))
         })
@@ -127,7 +180,7 @@ module.exports = (
     if (!cb) return resFn
     cb(null, _makeJsonRpcResponse(resFn))
   } catch (err) {
-    logError(logger, err, name)
+    _logError(logger, err, name)
 
     if (!cb) throw err
     cb(_makeJsonRpcResponse(err))
