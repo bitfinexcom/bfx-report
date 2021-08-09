@@ -47,7 +47,7 @@ module.exports = (
     (checkParamsField || args.params) &&
     !ajv.validate(_schema, args.params)
   ) {
-    throw new ArgsParamsError(ajv.errors)
+    throw new ArgsParamsError({ data: ajv.errors })
   }
   if (
     args.params &&

@@ -1,14 +1,11 @@
 'use strict'
 
+const { getErrorArgs } = require('./helpers')
+
 class BaseError extends Error {
-  constructor (param) {
-    const obj = typeof param === 'string'
-      ? { message: param }
-      : { ...param }
-    const {
-      message = 'ERR_ERROR_HAS_OCCURRED',
-      data = null
-    } = obj
+  constructor (args) {
+    const { message, data } = getErrorArgs(args)
+
     super(message)
 
     this.name = this.constructor.name
@@ -70,17 +67,20 @@ class FindMethodToGetCsvFileError extends FindMethodError {
 }
 
 class ArgsParamsError extends BadRequestError {
-  constructor (data, message = 'ERR_ARGS_NO_PARAMS') {
-    super(message)
+  constructor (args) {
+    const _args = getErrorArgs(args, 'ERR_ARGS_NO_PARAMS')
+
+    super(_args)
 
     this.statusMessage = 'Args params is not valid'
-    this.data = data
   }
 }
 
 class ArgsParamsFilterError extends ArgsParamsError {
-  constructor (data) {
-    super(data, 'ERR_ARGS_PARAMS_FILTER_IS_NOT_VALID')
+  constructor (args) {
+    const _args = getErrorArgs(args, 'ERR_ARGS_PARAMS_FILTER_IS_NOT_VALID')
+
+    super(_args)
   }
 }
 
