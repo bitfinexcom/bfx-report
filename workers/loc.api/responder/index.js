@@ -44,7 +44,9 @@ const _getErrorWithMetadataForNonBaseError = (err) => {
     !err ||
     typeof err !== 'object'
   ) {
-    return new BaseError()
+    return typeof err === 'string'
+      ? new BaseError(err)
+      : new BaseError()
   }
   if (err instanceof BaseError) {
     return err
