@@ -1,15 +1,59 @@
 'use strict'
 
 class BaseError extends Error {
-  constructor (message) {
+  constructor (param) {
+    const obj = typeof param === 'string'
+      ? { message: param }
+      : { ...param }
+    const {
+      message = 'ERR_ERROR_HAS_OCCURRED',
+      data = null
+    } = obj
     super(message)
 
     this.name = this.constructor.name
     this.message = message
     this.statusCode = 500
     this.statusMessage = 'Internal Server Error'
+    this.data = data
 
     Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class BadRequestError extends BaseError {
+  constructor (message = 'ERR_BED_REQUEST') {
+    super(message)
+
+    this.statusCode = 400
+    this.statusMessage = 'Bed request'
+  }
+}
+
+class AuthError extends BaseError {
+  constructor (message = 'ERR_AUTH_UNAUTHORIZED') {
+    super(message)
+
+    this.statusCode = 401
+    this.statusMessage = 'Unauthorized'
+  }
+}
+
+class ConflictError extends BaseError {
+  constructor (message = 'ERR_CONFLICT') {
+    super(message)
+
+    this.statusCode = 409
+    this.statusMessage = 'Conflict'
+  }
+}
+
+class UnprocessableEntityError extends BaseError {
+  constructor (message = 'ERR_UNPROCESSABLE_ENTITY') {
+    super(message)
+
+    this.statusCode = 422
+    this.statusMessage = 'Unprocessable Entity'
   }
 }
 
@@ -25,25 +69,18 @@ class FindMethodToGetCsvFileError extends FindMethodError {
   }
 }
 
-class AuthError extends BaseError {
-  constructor (message = 'ERR_AUTH_UNAUTHORIZED') {
+class ArgsParamsError extends BadRequestError {
+  constructor (data, message = 'ERR_ARGS_NO_PARAMS') {
     super(message)
-  }
-}
 
-class ArgsParamsError extends BaseError {
-  constructor (obj, message = 'ERR_ARGS_NO_PARAMS') {
-    const str = obj && typeof obj === 'object'
-      ? ` ${JSON.stringify(obj)}`
-      : ''
-
-    super(`${message}${str}`)
+    this.statusMessage = 'Args params is not valid'
+    this.data = data
   }
 }
 
 class ArgsParamsFilterError extends ArgsParamsError {
-  constructor (obj) {
-    super(obj, 'ERR_ARGS_PARAMS_FILTER_IS_NOT_VALID')
+  constructor (data) {
+    super(data, 'ERR_ARGS_PARAMS_FILTER_IS_NOT_VALID')
   }
 }
 
@@ -59,27 +96,35 @@ class EmailSendingError extends BaseError {
   }
 }
 
-class MinLimitParamError extends BaseError {
+class MinLimitParamError extends UnprocessableEntityError {
   constructor (message = 'ERR_GREATER_LIMIT_IS_NEEDED') {
     super(message)
+
+    this.statusMessage = 'A greater limit is needed as to show the data correctly'
   }
 }
 
-class QueueJobAddingError extends BaseError {
+class QueueJobAddingError extends ConflictError {
   constructor (message = 'ERR_HAS_JOB_IN_QUEUE') {
     super(message)
+
+    this.statusMessage = 'Spam restriction mode, user already has an export on queue'
   }
 }
 
-class SymbolsTypeError extends BaseError {
+class SymbolsTypeError extends UnprocessableEntityError {
   constructor (message = 'ERR_SYMBOLS_ARE_NOT_OF_SAME_TYPE') {
     super(message)
+
+    this.statusMessage = 'Symbols are not of same type'
   }
 }
 
-class TimeframeError extends BaseError {
+class TimeframeError extends UnprocessableEntityError {
   constructor (message = 'ERR_TIME_FRAME_MORE_THAN_MONTH') {
     super(message)
+
+    this.statusMessage = 'For public trades export please select a time frame smaller than a month'
   }
 }
 
@@ -98,10 +143,12 @@ class FilterParamsValidSchemaFindingError extends ParamsValidSchemaFindingError 
 class LedgerPaymentFilteringParamsError extends ArgsParamsError {
   constructor (message = 'ERR_FILTER_BY_MARGIN_AND_AFFILIATE_PARAMS_MAY_NOT_APPLY_TOGETHER') {
     super(message)
+
+    this.statusMessage = 'Filter by margin and affiliate params may not apply together'
   }
 }
 
-class GrcSlackAvailabilityError extends ArgsParamsError {
+class GrcSlackAvailabilityError extends BaseError {
   constructor (message = 'ERR_GRC_SLACK_IS_NOT_AVAILABLE') {
     super(message)
   }
@@ -109,9 +156,13 @@ class GrcSlackAvailabilityError extends ArgsParamsError {
 
 module.exports = {
   BaseError,
+  BadRequestError,
+  AuthError,
+  ConflictError,
+  UnprocessableEntityError,
+
   FindMethodError,
   FindMethodToGetCsvFileError,
-  AuthError,
   ArgsParamsError,
   GrenacheServiceConfigArgsError,
   EmailSendingError,
