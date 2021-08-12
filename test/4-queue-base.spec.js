@@ -135,12 +135,12 @@ describe('Queue', () => {
         id: 5
       })
       .expect('Content-Type', /json/)
-      .expect(500)
+      .expect(400)
 
     assert.isObject(res.body)
     assert.isObject(res.body.error)
-    assert.propertyVal(res.body.error, 'code', 500)
-    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+    assert.propertyVal(res.body.error, 'code', 400)
+    assert.propertyVal(res.body.error, 'message', 'Args params is not valid')
     assert.propertyVal(res.body, 'id', 5)
   })
 
@@ -540,11 +540,11 @@ describe('Queue', () => {
         id: 5
       })
       .expect('Content-Type', /json/)
-      .expect(400)
+      .expect(422)
 
     assert.isObject(res.body)
     assert.isObject(res.body.error)
-    assert.propertyVal(res.body.error, 'code', 400)
+    assert.propertyVal(res.body.error, 'code', 422)
     assert.propertyVal(res.body.error, 'message', 'For public trades export please select a time frame smaller than a month')
     assert.propertyVal(res.body, 'id', 5)
   })
@@ -569,12 +569,12 @@ describe('Queue', () => {
         id: 5
       })
       .expect('Content-Type', /json/)
-      .expect(500)
+      .expect(400)
 
     assert.isObject(res.body)
     assert.isObject(res.body.error)
-    assert.propertyVal(res.body.error, 'code', 500)
-    assert.propertyVal(res.body.error, 'message', 'Internal Server Error')
+    assert.propertyVal(res.body.error, 'code', 400)
+    assert.propertyVal(res.body.error, 'message', 'Args params is not valid')
     assert.propertyVal(res.body, 'id', 5)
   })
 
