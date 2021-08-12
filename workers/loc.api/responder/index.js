@@ -169,22 +169,22 @@ module.exports = (
       }
 
       resFn
-        .then((res) => cb(null, _makeJsonRpcResponse(res)))
+        .then((res) => cb(null, _makeJsonRpcResponse(args, res)))
         .catch((err) => {
           _logError(logger, err, name)
 
-          cb(_makeJsonRpcResponse(err))
+          cb(null, _makeJsonRpcResponse(args, err))
         })
 
       return
     }
 
     if (!cb) return resFn
-    cb(null, _makeJsonRpcResponse(resFn))
+    cb(null, _makeJsonRpcResponse(args, resFn))
   } catch (err) {
     _logError(logger, err, name)
 
     if (!cb) throw err
-    cb(_makeJsonRpcResponse(err))
+    cb(null, _makeJsonRpcResponse(args, err))
   }
 }
