@@ -60,9 +60,11 @@ class FindMethodError extends BaseError {
   }
 }
 
-class FindMethodToGetCsvFileError extends FindMethodError {
+class FindMethodToGetCsvFileError extends BadRequestError {
   constructor (message = 'ERR_METHOD_TO_GET_CSV_FILE_NOT_FOUND') {
     super(message)
+
+    this.statusMessage = 'Method to get csv file not found'
   }
 }
 
