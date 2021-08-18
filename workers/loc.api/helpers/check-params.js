@@ -5,6 +5,7 @@ const Ajv = require('ajv')
 
 const schema = require('./schema')
 const {
+  UnprocessableEntityError,
   ArgsParamsError,
   ParamsValidSchemaFindingError
 } = require('../errors')
@@ -46,7 +47,7 @@ module.exports = (
     (checkParamsField || args.params) &&
     !ajv.validate(_schema, args.params)
   ) {
-    throw new ArgsParamsError(ajv.errors)
+    throw new ArgsParamsError({ data: ajv.errors })
   }
   if (
     args.params &&
@@ -56,12 +57,14 @@ module.exports = (
     args.params.start >= args.params.end
   ) {
     // Use same error format like Ajv for consistency
-    throw new ArgsParamsError([{
-      instancePath: '/end',
-      schemaPath: '#/properties/end/type',
-      keyword: 'type',
-      params: { type: 'integer' },
-      message: 'must be start < end'
-    }])
+    throw new UnprocessableEntityError({
+      data: [{
+        instancePath: '/end',
+        schemaPath: '#/properties/end/type',
+        keyword: 'type',
+        params: { type: 'integer' },
+        message: 'must be start < end'
+      }]
+    })
   }
 }

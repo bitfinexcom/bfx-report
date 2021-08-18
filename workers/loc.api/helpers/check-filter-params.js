@@ -140,5 +140,5 @@ module.exports = (
     return
   }
 
-  throw new ArgsParamsFilterError(ajv.errors)
+  throw new ArgsParamsFilterError({ data: ajv.errors })
 }

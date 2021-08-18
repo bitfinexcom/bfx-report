@@ -168,7 +168,8 @@ describe('Signature', () => {
     assert.isOk(res)
   })
 
-  it('it should be successfully performed by the /verify-digital-signature route', async function () {
+  // TODO: The feature is pending
+  it.skip('it should be successfully performed by the /verify-digital-signature route', async function () {
     this.timeout(5000)
 
     const res = await agent

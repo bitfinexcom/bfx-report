@@ -87,7 +87,7 @@ class ReportService extends Api {
           symbPropName: 'symbol'
         }
       )
-    }, 'getPositionsSnapshot', cb)
+    }, 'getPositionsSnapshot', args, cb)
   }
 
   getFilterModels (space, args, cb) {
@@ -101,7 +101,7 @@ class ReportService extends Api {
         }, {})
 
       return models
-    }, 'getFilterModels', cb)
+    }, 'getFilterModels', args, cb)
   }
 
   verifyDigitalSignature (space, args, cb) {
@@ -111,13 +111,13 @@ class ReportService extends Api {
         action: 'verifyDigitalSignature',
         args: [null, args]
       })
-    }, 'verifyDigitalSignature', cb)
+    }, 'verifyDigitalSignature', args, cb)
   }
 
   isSyncModeConfig (space, args, cb) {
     return this._responder(() => {
       return this.container.get(TYPES.CONF).syncMode
-    }, 'isSyncModeConfig', cb)
+    }, 'isSyncModeConfig', args, cb)
   }
 
   verifyUser (space, args, cb) {
@@ -140,7 +140,7 @@ class ReportService extends Api {
         id,
         isSubAccount: false
       }
-    }, 'verifyUser', cb)
+    }, 'verifyUser', args, cb)
   }
 
   generateToken (space, args, cb) {
@@ -154,7 +154,7 @@ class ReportService extends Api {
         writePermission: false,
         _cust_ip: '0'
       })
-    }, 'verifyUser', cb)
+    }, 'verifyUser', args, cb)
   }
 
   getUsersTimeConf (space, args, cb) {
@@ -162,7 +162,7 @@ class ReportService extends Api {
       const { timezone } = await this._getUserInfo(args)
 
       return getTimezoneConf(timezone)
-    }, 'getUsersTimeConf', cb)
+    }, 'getUsersTimeConf', args, cb)
   }
 
   getSymbols (space, args, cb) {
@@ -199,7 +199,7 @@ class ReportService extends Api {
       accountCache.set('symbols', res)
 
       return res
-    }, 'getSymbols', cb)
+    }, 'getSymbols', args, cb)
   }
 
   getSettings (space, args, cb) {
@@ -210,7 +210,7 @@ class ReportService extends Api {
       const rest = this._getREST(auth)
 
       return rest.getSettings(keys)
-    }, 'getSettings', cb)
+    }, 'getSettings', args, cb)
   }
 
   updateSettings (space, args, cb) {
@@ -221,7 +221,7 @@ class ReportService extends Api {
       const rest = this._getREST(auth)
 
       return rest.updateSettings(settings)
-    }, 'updateSettings', cb)
+    }, 'updateSettings', args, cb)
   }
 
   getTickersHistory (space, args, cb) {
@@ -247,7 +247,7 @@ class ReportService extends Api {
           requireFields: ['symbol']
         }
       )
-    }, 'getTickersHistory', cb)
+    }, 'getTickersHistory', args, cb)
   }
 
   getPositionsHistory (space, args, cb) {
@@ -260,7 +260,7 @@ class ReportService extends Api {
           symbPropName: 'symbol'
         }
       )
-    }, 'getPositionsHistory', cb)
+    }, 'getPositionsHistory', args, cb)
   }
 
   getActivePositions (space, args, cb) {
@@ -271,7 +271,7 @@ class ReportService extends Api {
       return Array.isArray(positions)
         ? positions.filter(({ status }) => status === 'ACTIVE')
         : []
-    }, 'getActivePositions', cb)
+    }, 'getActivePositions', args, cb)
   }
 
   getPositionsAudit (space, args, cb) {
@@ -286,7 +286,7 @@ class ReportService extends Api {
           symbPropName: 'symbol'
         }
       )
-    }, 'getPositionsAudit', cb)
+    }, 'getPositionsAudit', args, cb)
   }
 
   getWallets (space, args, cb) {
@@ -296,7 +296,7 @@ class ReportService extends Api {
       const rest = this._getREST(args.auth)
 
       return rest.wallets()
-    }, 'getWallets', cb)
+    }, 'getWallets', args, cb)
   }
 
   getLedgers (space, args, cb) {
@@ -309,7 +309,7 @@ class ReportService extends Api {
           symbPropName: 'currency'
         }
       )
-    }, 'getLedgers', cb)
+    }, 'getLedgers', args, cb)
   }
 
   getTrades (space, args, cb) {
@@ -322,7 +322,7 @@ class ReportService extends Api {
           symbPropName: 'symbol'
         }
       )
-    }, 'getTrades', cb)
+    }, 'getTrades', args, cb)
   }
 
   getFundingTrades (space, args, cb) {
@@ -335,7 +335,7 @@ class ReportService extends Api {
           symbPropName: 'symbol'
         }
       )
-    }, 'getFundingTrades', cb)
+    }, 'getFundingTrades', args, cb)
   }
 
   getPublicTrades (space, args, cb) {
@@ -352,7 +352,7 @@ class ReportService extends Api {
           datePropName: 'mts'
         }
       )
-    }, 'getPublicTrades', cb)
+    }, 'getPublicTrades', args, cb)
   }
 
   getStatusMessages (space, args, cb) {
@@ -381,7 +381,7 @@ class ReportService extends Api {
           symbPropName: 'key'
         }
       )
-    }, 'getStatusMessages', cb)
+    }, 'getStatusMessages', args, cb)
   }
 
   getCandles (space, args, cb) {
@@ -408,7 +408,7 @@ class ReportService extends Api {
           datePropName: 'mts'
         }
       )
-    }, 'getCandles', cb)
+    }, 'getCandles', args, cb)
   }
 
   getOrderTrades (space, args, cb) {
@@ -421,7 +421,7 @@ class ReportService extends Api {
           symbPropName: 'symbol'
         }
       )
-    }, 'getOrderTrades', cb)
+    }, 'getOrderTrades', args, cb)
   }
 
   getOrders (space, args, cb) {
@@ -438,7 +438,7 @@ class ReportService extends Api {
           )
         }
       )
-    }, 'getOrders', cb)
+    }, 'getOrders', args, cb)
   }
 
   getActiveOrders (space, args, cb) {
@@ -448,7 +448,7 @@ class ReportService extends Api {
       const _res = await rest.activeOrders()
 
       return parseFields(_res, { executed: true })
-    }, 'getActiveOrders', cb)
+    }, 'getActiveOrders', args, cb)
   }
 
   getMovements (space, args, cb) {
@@ -461,7 +461,7 @@ class ReportService extends Api {
           symbPropName: 'currency'
         }
       )
-    }, 'getMovements', cb)
+    }, 'getMovements', args, cb)
   }
 
   getFundingOfferHistory (space, args, cb) {
@@ -478,7 +478,7 @@ class ReportService extends Api {
           )
         }
       )
-    }, 'getFundingOfferHistory', cb)
+    }, 'getFundingOfferHistory', args, cb)
   }
 
   getFundingLoanHistory (space, args, cb) {
@@ -495,7 +495,7 @@ class ReportService extends Api {
           )
         }
       )
-    }, 'getFundingLoanHistory', cb)
+    }, 'getFundingLoanHistory', args, cb)
   }
 
   getFundingCreditHistory (space, args, cb) {
@@ -512,7 +512,7 @@ class ReportService extends Api {
           )
         }
       )
-    }, 'getFundingCreditHistory', cb)
+    }, 'getFundingCreditHistory', args, cb)
   }
 
   getAccountSummary (space, args, cb) {
@@ -523,7 +523,7 @@ class ReportService extends Api {
       const res = await rest.accountSummary()
 
       return Array.isArray(res) ? res : [res]
-    }, 'getAccountSummary', cb)
+    }, 'getAccountSummary', args, cb)
   }
 
   getLogins (space, args, cb) {
@@ -536,7 +536,7 @@ class ReportService extends Api {
           parseFieldsFn: parseLoginsExtraDataFields
         }
       )
-    }, 'getLogins', cb)
+    }, 'getLogins', args, cb)
   }
 
   getChangeLogs (space, args, cb) {
@@ -548,7 +548,7 @@ class ReportService extends Api {
           datePropName: 'mtsCreate'
         }
       )
-    }, 'getChangeLogs', cb)
+    }, 'getChangeLogs', args, cb)
   }
 
   getMultipleCsv (space, args, cb) {
@@ -557,7 +557,7 @@ class ReportService extends Api {
         'getMultipleCsvJobData',
         args
       )
-    }, 'getMultipleCsv', cb)
+    }, 'getMultipleCsv', args, cb)
   }
 
   getTradesCsv (space, args, cb) {
@@ -566,7 +566,7 @@ class ReportService extends Api {
         'getTradesCsvJobData',
         args
       )
-    }, 'getTradesCsv', cb)
+    }, 'getTradesCsv', args, cb)
   }
 
   getFundingTradesCsv (space, args, cb) {
@@ -575,7 +575,7 @@ class ReportService extends Api {
         'getFundingTradesCsvJobData',
         args
       )
-    }, 'getFundingTradesCsv', cb)
+    }, 'getFundingTradesCsv', args, cb)
   }
 
   getTickersHistoryCsv (space, args, cb) {
@@ -584,7 +584,7 @@ class ReportService extends Api {
         'getTickersHistoryCsvJobData',
         args
       )
-    }, 'getTickersHistoryCsv', cb)
+    }, 'getTickersHistoryCsv', args, cb)
   }
 
   getWalletsCsv (space, args, cb) {
@@ -593,7 +593,7 @@ class ReportService extends Api {
         'getWalletsCsvJobData',
         args
       )
-    }, 'getWalletsCsv', cb)
+    }, 'getWalletsCsv', args, cb)
   }
 
   getPositionsHistoryCsv (space, args, cb) {
@@ -602,7 +602,7 @@ class ReportService extends Api {
         'getPositionsHistoryCsvJobData',
         args
       )
-    }, 'getPositionsHistoryCsv', cb)
+    }, 'getPositionsHistoryCsv', args, cb)
   }
 
   getActivePositionsCsv (space, args, cb) {
@@ -611,7 +611,7 @@ class ReportService extends Api {
         'getActivePositionsCsvJobData',
         args
       )
-    }, 'getActivePositionsCsv', cb)
+    }, 'getActivePositionsCsv', args, cb)
   }
 
   getPositionsAuditCsv (space, args, cb) {
@@ -620,7 +620,7 @@ class ReportService extends Api {
         'getPositionsAuditCsvJobData',
         args
       )
-    }, 'getPositionsAuditCsv', cb)
+    }, 'getPositionsAuditCsv', args, cb)
   }
 
   getPublicTradesCsv (space, args, cb) {
@@ -629,7 +629,7 @@ class ReportService extends Api {
         'getPublicTradesCsvJobData',
         args
       )
-    }, 'getPublicTradesCsv', cb)
+    }, 'getPublicTradesCsv', args, cb)
   }
 
   getStatusMessagesCsv (space, args, cb) {
@@ -638,7 +638,7 @@ class ReportService extends Api {
         'getStatusMessagesCsvJobData',
         args
       )
-    }, 'getStatusMessagesCsv', cb)
+    }, 'getStatusMessagesCsv', args, cb)
   }
 
   getCandlesCsv (space, args, cb) {
@@ -647,7 +647,7 @@ class ReportService extends Api {
         'getCandlesCsvJobData',
         args
       )
-    }, 'getCandlesCsv', cb)
+    }, 'getCandlesCsv', args, cb)
   }
 
   getLedgersCsv (space, args, cb) {
@@ -656,7 +656,7 @@ class ReportService extends Api {
         'getLedgersCsvJobData',
         args
       )
-    }, 'getLedgersCsv', cb)
+    }, 'getLedgersCsv', args, cb)
   }
 
   getOrderTradesCsv (space, args, cb) {
@@ -665,7 +665,7 @@ class ReportService extends Api {
         'getOrderTradesCsvJobData',
         args
       )
-    }, 'getOrderTradesCsv', cb)
+    }, 'getOrderTradesCsv', args, cb)
   }
 
   getOrdersCsv (space, args, cb) {
@@ -674,7 +674,7 @@ class ReportService extends Api {
         'getOrdersCsvJobData',
         args
       )
-    }, 'getOrdersCsv', cb)
+    }, 'getOrdersCsv', args, cb)
   }
 
   getActiveOrdersCsv (space, args, cb) {
@@ -683,7 +683,7 @@ class ReportService extends Api {
         'getActiveOrdersCsvJobData',
         args
       )
-    }, 'getActiveOrdersCsv', cb)
+    }, 'getActiveOrdersCsv', args, cb)
   }
 
   getMovementsCsv (space, args, cb) {
@@ -692,7 +692,7 @@ class ReportService extends Api {
         'getMovementsCsvJobData',
         args
       )
-    }, 'getMovementsCsv', cb)
+    }, 'getMovementsCsv', args, cb)
   }
 
   getFundingOfferHistoryCsv (space, args, cb) {
@@ -701,7 +701,7 @@ class ReportService extends Api {
         'getFundingOfferHistoryCsvJobData',
         args
       )
-    }, 'getFundingOfferHistoryCsv', cb)
+    }, 'getFundingOfferHistoryCsv', args, cb)
   }
 
   getFundingLoanHistoryCsv (space, args, cb) {
@@ -710,7 +710,7 @@ class ReportService extends Api {
         'getFundingLoanHistoryCsvJobData',
         args
       )
-    }, 'getFundingLoanHistoryCsv', cb)
+    }, 'getFundingLoanHistoryCsv', args, cb)
   }
 
   getFundingCreditHistoryCsv (space, args, cb) {
@@ -719,7 +719,7 @@ class ReportService extends Api {
         'getFundingCreditHistoryCsvJobData',
         args
       )
-    }, 'getFundingCreditHistoryCsv', cb)
+    }, 'getFundingCreditHistoryCsv', args, cb)
   }
 
   getLoginsCsv (space, args, cb) {
@@ -728,7 +728,7 @@ class ReportService extends Api {
         'getLoginsCsvJobData',
         args
       )
-    }, 'getLoginsCsv', cb)
+    }, 'getLoginsCsv', args, cb)
   }
 
   getChangeLogsCsv (space, args, cb) {
@@ -737,7 +737,7 @@ class ReportService extends Api {
         'getChangeLogsCsvJobData',
         args
       )
-    }, 'getChangeLogsCsv', cb)
+    }, 'getChangeLogsCsv', args, cb)
   }
 }
 

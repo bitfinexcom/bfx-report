@@ -36,6 +36,9 @@ zh-CN:
     ifDidNotInitAction: 如果您未进行此操作并且怀疑您的帐户已遭盗用，请
     freezeAccount: 冻结您的帐户
     contactSupport: 以及联络客服人员
+    youCan: 您可以
+    download: 下载
+    pgpSignature: PGP数位签名档
 
 zh-TW:
   template:
@@ -47,6 +50,9 @@ zh-TW:
     ifDidNotInitAction: 如果您未進行此操作並且懷疑您的帳戶已遭盜用，請
     freezeAccount: 凍結您的帳戶
     contactSupport: 以及聯絡客服人員
+    youCan: 您可以
+    download: 下載
+    pgpSignature: PGP數位簽名檔案
 
 es-EM:
   template:
@@ -58,6 +64,20 @@ es-EM:
     ifDidNotInitAction: Si no realizaste esta acción y sospechas que tu cuenta puede estar comprometida, por favor
     freezeAccount: congela tu cuenta
     contactSupport: y contacta soporte
-    YouCan: Podes
+    youCan: Puedes
     download: descargar
     pgpSignature: un archivo con firma digital PGP
+
+tr:
+  template:
+    subject: Raporunuz hazır
+    btnText: CSV İndir
+    fileName: Dosya adı
+    unauth: Dosyanız tamamlanamadı, lütfen tekrar deneyin
+    readyForDownload: İstediğiniz rapor indirilmeye hazır
+    ifDidNotInitAction: Bu işlemi siz başlatmadıysanız ve hesabınızın güvenliğinin ihlal edilmiş olabileceğinden şüpheleniyorsanız, lütfen
+    freezeAccount: hesabınızı dondurun
+    contactSupport: ve destek ekibiyle iletişime geçin
+    youCan: Yapabilirsiniz
+    download: indir
+    pgpSignature: bir PGP dijital imza dosyası
