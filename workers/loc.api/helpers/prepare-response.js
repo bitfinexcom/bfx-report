@@ -122,7 +122,8 @@ const _getSymbols = (
 
   if (
     methodApi === 'positionsHistory' ||
-    methodApi === 'positionsAudit'
+    methodApi === 'positionsAudit' ||
+    methodApi === 'payInvoiceList'
   ) {
     return Array.isArray(symbol)
       ? [...symbol]
@@ -150,6 +151,9 @@ const _getSymbolParam = (
     category
   } = { ...params }
 
+  if (methodApi === 'payInvoiceList') {
+    return null
+  }
   if (
     methodApi === 'candles' ||
     methodApi === 'publicTrades'
