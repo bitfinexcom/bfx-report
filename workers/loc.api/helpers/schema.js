@@ -59,6 +59,16 @@ const language = {
   enum: ['en', 'ru', 'zh-CN', 'zh-TW', 'es-EM', 'tr']
 }
 
+const paramsSchemaForPayInvoiceList = {
+  ...paramsSchemaForApi,
+  properties: {
+    ...paramsSchemaForApi.properties,
+    id: {
+      type: 'string'
+    }
+  }
+}
+
 const paramsSchemaForCandlesApi = {
   type: 'object',
   required: ['symbol'],
@@ -291,6 +301,7 @@ const paramsSchemaForOrderTradesCsv = {
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
+  paramsSchemaForPayInvoiceList,
   paramsSchemaForPublicTradesCsv,
   paramsSchemaForPublicTrades,
   paramsSchemaForPositionsAudit,
