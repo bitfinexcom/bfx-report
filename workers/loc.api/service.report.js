@@ -312,6 +312,19 @@ class ReportService extends Api {
     }, 'getLedgers', args, cb)
   }
 
+  getPayInvoiceList (space, args, cb) {
+    return this._responder(() => {
+      return this._prepareApiResponse(
+        args,
+        'payInvoiceList',
+        {
+          datePropName: 't',
+          symbPropName: 'currency'
+        }
+      )
+    }, 'getInvoiceList', args, cb)
+  }
+
   getTrades (space, args, cb) {
     return this._responder(() => {
       return this._prepareApiResponse(
