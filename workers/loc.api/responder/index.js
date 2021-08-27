@@ -3,7 +3,8 @@
 const {
   isAuthError,
   isRateLimitError,
-  isNonceSmallError
+  isNonceSmallError,
+  isUserIsNotMerchantError
 } = require('../helpers')
 
 const {
@@ -66,6 +67,12 @@ const _getErrorWithMetadataForNonBaseError = (err) => {
   if (isNonceSmallError(err)) {
     err.statusCode = 409
     err.statusMessage = 'Nonces error, key are updated, please get new keys to operate'
+
+    return err
+  }
+  if (isUserIsNotMerchantError(err)) {
+    err.statusCode = 409
+    err.statusMessage = 'Pay invoice list error, the user is not a merchant'
 
     return err
   }

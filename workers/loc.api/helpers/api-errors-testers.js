@@ -12,8 +12,13 @@ const isNonceSmallError = (err) => {
   return /nonce: small/.test(err.toString())
 }
 
+const isUserIsNotMerchantError = (err) => {
+  return /ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT/.test(err.toString())
+}
+
 module.exports = {
   isAuthError,
   isRateLimitError,
-  isNonceSmallError
+  isNonceSmallError,
+  isUserIsNotMerchantError
 }

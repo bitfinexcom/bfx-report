@@ -22,7 +22,8 @@ const hasJobInQueueWithStatusBy = require(
 const {
   isAuthError,
   isRateLimitError,
-  isNonceSmallError
+  isNonceSmallError,
+  isUserIsNotMerchantError
 } = require('./api-errors-testers')
 const {
   accountCache,
@@ -52,6 +53,7 @@ module.exports = {
   isAuthError,
   isRateLimitError,
   isNonceSmallError,
+  isUserIsNotMerchantError,
   accountCache,
   parseFields,
   parseLoginsExtraDataFields,
