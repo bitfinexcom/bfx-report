@@ -65,6 +65,7 @@ const _paramsOrderMap = {
 }
 
 const _paramsSchemasMap = {
+  payInvoiceList: 'paramsSchemaForPayInvoiceList',
   statusMessages: 'paramsSchemaForStatusMessagesApi',
   publicTrades: 'paramsSchemaForPublicTrades',
   positionsAudit: 'paramsSchemaForPositionsAudit',
@@ -231,13 +232,16 @@ const _getParams = (
   symbPropName,
   opts = {}
 ) => {
+  const isRequiredParamsObj = methodApi === 'payInvoiceList'
+
   if (
     !args.params ||
     typeof args.params !== 'object'
   ) {
     return {
       paramsArr: [],
-      paramsObj: {}
+      paramsObj: {},
+      isRequiredParamsObj
     }
   }
 
@@ -269,7 +273,8 @@ const _getParams = (
 
     return {
       paramsArr,
-      paramsObj
+      paramsObj,
+      isRequiredParamsObj
     }
   }
 
@@ -278,7 +283,8 @@ const _getParams = (
 
   return {
     paramsArr,
-    paramsObj
+    paramsObj,
+    isRequiredParamsObj
   }
 }
 
@@ -295,12 +301,17 @@ const _parseMethodApi = name => {
 const _requestToApi = (
   getREST,
   method,
-  paramsArr,
+  params,
   auth
 ) => {
   const rest = getREST(auth)
+  const fn = rest[_parseMethodApi(method)].bind(rest)
 
-  return rest[_parseMethodApi(method)].bind(rest)(...paramsArr)
+  if (Array.isArray(params)) {
+    return fn(...params)
+  }
+
+  return fn(params)
 }
 
 const _isNotContainedSameMts = (
@@ -343,13 +354,17 @@ const _getResAndParams = async (
 ) => {
   const {
     paramsArr,
-    paramsObj
+    paramsObj,
+    isRequiredParamsObj
   } = _getParams(args, methodApi, symbPropName, opts)
+  const params = isRequiredParamsObj
+    ? paramsObj
+    : paramsArr
 
   const apiRes = await _requestToApi(
     getREST,
     methodApi,
-    paramsArr,
+    params,
     args.auth
   )
 
