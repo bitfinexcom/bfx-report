@@ -39,6 +39,10 @@ const setDataTo = (
   const _date = Math.round(date)
 
   switch (key) {
+    case 'invoice_list':
+      dataItem.t = _date
+      break
+
     case 'candles':
       dataItem[0] = _date
       break
@@ -177,6 +181,7 @@ const getMockDataOpts = () => ({
   logins_hist: { limit: 250 },
   change_log: { limit: 500 },
   candles: { limit: 500 },
+  invoice_list: { limit: 100 },
   user_info: null,
   symbols: null,
   map_symbols: null,
