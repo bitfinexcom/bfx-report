@@ -69,6 +69,16 @@ const paramsSchemaForPayInvoiceList = {
   }
 }
 
+const paramsSchemaForPayInvoiceListCsv = {
+  type: 'object',
+  properties: {
+    ...paramsSchemaForPayInvoiceList.properties,
+    timezone,
+    dateFormat,
+    language
+  }
+}
+
 const paramsSchemaForCandlesApi = {
   type: 'object',
   required: ['symbol'],
@@ -302,6 +312,7 @@ module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
   paramsSchemaForPayInvoiceList,
+  paramsSchemaForPayInvoiceListCsv,
   paramsSchemaForPublicTradesCsv,
   paramsSchemaForPublicTrades,
   paramsSchemaForPositionsAudit,
