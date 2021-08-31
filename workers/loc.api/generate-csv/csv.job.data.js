@@ -526,6 +526,49 @@ class CsvJobData {
     return jobData
   }
 
+  async getPayInvoiceListCsvJobData (
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args)
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      this.rService,
+      uId,
+      uInfo
+    )
+
+    const csvArgs = getCsvArgs(args, 'payInvoiceList')
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getPayInvoiceList',
+      args: csvArgs,
+      propNameForPagination: 't',
+      columnsCsv: {
+        id: '#',
+        t: 'DATE',
+        duration: 'DURATION',
+        amount: 'AMOUNT',
+        currency: 'CURRENCY',
+        orderId: 'ORDER ID',
+        payCurrencies: 'PAY CURRENCIES',
+        status: 'STATUS',
+        merchantName: 'MERCHANT NAME'
+      },
+      formatSettings: {
+        t: 'date'
+      }
+    }
+
+    return jobData
+  }
+
   async getOrderTradesCsvJobData (
     args,
     uId,
