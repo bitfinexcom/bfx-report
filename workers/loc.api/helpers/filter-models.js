@@ -244,7 +244,7 @@ module.exports = new Map([
       duration: { type: 'number' },
       amount: { type: 'number' },
       currency: { type: 'string' },
-      orderId: { type: 'integer' },
+      orderId: { type: 'string' },
       webhook: { type: 'string' },
       redirectUrl: { type: 'string' },
       status: { type: 'string' },
