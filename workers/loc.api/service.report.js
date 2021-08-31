@@ -672,6 +672,15 @@ class ReportService extends Api {
     }, 'getLedgersCsv', args, cb)
   }
 
+  getPayInvoiceListCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getPayInvoiceListCsvJobData',
+        args
+      )
+    }, 'getPayInvoiceListCsv', args, cb)
+  }
+
   getOrderTradesCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(
