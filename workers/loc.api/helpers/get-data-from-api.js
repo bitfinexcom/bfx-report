@@ -5,7 +5,8 @@ const { cloneDeep } = require('lodash')
 const Interrupter = require('../interrupter')
 const {
   isRateLimitError,
-  isNonceSmallError
+  isNonceSmallError,
+  isUserIsNotMerchantError
 } = require('./api-errors-testers')
 
 const _delay = (mc = 80000, interrupter) => {
@@ -38,6 +39,10 @@ const _isInterrupted = (interrupter) => {
     interrupter instanceof Interrupter &&
     interrupter.hasInterrupted()
   )
+}
+
+const _getEmptyArrRes = () => {
+  return { jsonrpc: '2.0', result: [], id: null }
 }
 
 module.exports = async (
@@ -78,6 +83,9 @@ module.exports = async (
 
       break
     } catch (err) {
+      if (isUserIsNotMerchantError(err)) {
+        return _getEmptyArrRes()
+      }
       if (isRateLimitError(err)) {
         countRateLimitError += 1
 
