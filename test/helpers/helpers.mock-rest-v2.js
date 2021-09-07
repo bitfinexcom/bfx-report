@@ -1,5 +1,6 @@
 'use strict'
 
+const { v4: uuidv4 } = require('uuid')
 const { MockRESTv2Server } = require('bfx-api-mock-srv')
 
 const _mockData = require('./mock-data')
@@ -30,16 +31,20 @@ const createMockRESTv2SrvWithAllData = () => {
 const setDataTo = (
   key,
   dataItem,
-  {
+  params = {}
+) => {
+  const {
     date = Date.now(),
     id = 12345,
-    fee = -0.0001
-  } = {}
-) => {
+    fee = -0.0001,
+    strId = uuidv4()
+  } = { ...params }
+
   const _date = Math.round(date)
 
   switch (key) {
     case 'invoice_list':
+      dataItem.id = strId
       dataItem.t = _date
       break
 
@@ -228,6 +233,7 @@ const createMockRESTv2SrvWithDate = (
     let date = start
     let id = 12345
     let fee = 0.1
+    let strId = uuidv4()
 
     const data = Array(_limit).fill(null).map((item, i) => {
       if (_limit === (i + mockData.length)) {
@@ -241,6 +247,7 @@ const createMockRESTv2SrvWithDate = (
       if (i > 0) {
         id += 1
         fee -= 0.0001
+        strId = uuidv4()
       }
 
       const mockDataItem = mockData[i % mockData.length]
@@ -254,7 +261,8 @@ const createMockRESTv2SrvWithDate = (
         {
           date,
           id,
-          fee
+          fee,
+          strId
         }
       )
 
