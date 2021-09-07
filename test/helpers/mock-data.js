@@ -638,5 +638,71 @@ module.exports = new Map([
     [
       'pub:api:12ab12ab-12ab-12ab-12ab-12ab12ab12ab-read'
     ]
+  ],
+  [
+    'invoice_list',
+    [
+      {
+        id: '12345678-1234-1234-1234-12345678',
+        t: _ms,
+        duration: 900,
+        amount: 0.1,
+        currency: 'USD',
+        orderId: '12',
+        payCurrencies: [
+          'BTC',
+          'ETH',
+          'UST-ETH',
+          'LNX'
+        ],
+        webhook: 'https://bfx-pay-123.321.com',
+        redirectUrl: 'https://bfx-pay-123.321.com?page_id123',
+        status: 'EXPIRED',
+        customerInfo: {
+          nationality: 'UA',
+          residCountry: 'UA',
+          residState: null,
+          residCity: 'Kharkiv',
+          residZipCode: '12345',
+          residStreet: 'street',
+          residBuildingNo: null,
+          fullName: 'name user',
+          email: 'user@mail.com',
+          tosAccepted: true
+        },
+        invoices: [
+          {
+            amount: 0.00000123,
+            payCurrency: 'BTC',
+            poolCurrency: 'BTC',
+            address: '1234567890qwerty'
+          },
+          {
+            amount: 0.0000124,
+            payCurrency: 'ETH',
+            poolCurrency: 'ETH',
+            address: '1234567890qwerty'
+          },
+          {
+            amount: 0.125,
+            payCurrency: 'UST',
+            poolCurrency: 'ETH',
+            address: '1234567890qwerty'
+          },
+          {
+            amount: 0.00000125,
+            payCurrency: 'BTC',
+            poolCurrency: 'LNX',
+            address: '1234567890qwerty',
+            ext: {
+              hash: '1234567890qwerty',
+              payment_request: '1234567890qwerty',
+              node_pub: '1234567890qwerty'
+            }
+          }
+        ],
+        merchantName: 'Testing'
+      }
+    ]
   ]
 ])

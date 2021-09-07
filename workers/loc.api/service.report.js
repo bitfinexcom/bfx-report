@@ -312,6 +312,19 @@ class ReportService extends Api {
     }, 'getLedgers', args, cb)
   }
 
+  getPayInvoiceList (space, args, cb) {
+    return this._responder(() => {
+      return this._prepareApiResponse(
+        args,
+        'payInvoiceList',
+        {
+          datePropName: 't',
+          symbPropName: 'currency'
+        }
+      )
+    }, 'getInvoiceList', args, cb)
+  }
+
   getTrades (space, args, cb) {
     return this._responder(() => {
       return this._prepareApiResponse(
@@ -657,6 +670,15 @@ class ReportService extends Api {
         args
       )
     }, 'getLedgersCsv', args, cb)
+  }
+
+  getPayInvoiceListCsv (space, args, cb) {
+    return this._responder(() => {
+      return this._generateCsv(
+        'getPayInvoiceListCsvJobData',
+        args
+      )
+    }, 'getPayInvoiceListCsv', args, cb)
   }
 
   getOrderTradesCsv (space, args, cb) {

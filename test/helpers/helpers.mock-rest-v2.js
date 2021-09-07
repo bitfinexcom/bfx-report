@@ -39,6 +39,10 @@ const setDataTo = (
   const _date = Math.round(date)
 
   switch (key) {
+    case 'invoice_list':
+      dataItem.t = _date
+      break
+
     case 'candles':
       dataItem[0] = _date
       break
@@ -177,6 +181,7 @@ const getMockDataOpts = () => ({
   logins_hist: { limit: 250 },
   change_log: { limit: 500 },
   candles: { limit: 500 },
+  invoice_list: { limit: 100 },
   user_info: null,
   symbols: null,
   map_symbols: null,
@@ -206,8 +211,12 @@ const createMockRESTv2SrvWithDate = (
     const mockData = _getMockData(key)
 
     if (
-      !Array.isArray(mockData[0]) ||
-      val === null
+      val === null ||
+      !mockData[0] ||
+      (
+        !Array.isArray(mockData[0]) &&
+        typeof mockData[0] !== 'object'
+      )
     ) {
       srv.setResponse(key, [...mockData])
 
@@ -234,7 +243,11 @@ const createMockRESTv2SrvWithDate = (
         fee -= 0.0001
       }
 
-      const dataItem = [...mockData[i % mockData.length]]
+      const mockDataItem = mockData[i % mockData.length]
+      const dataItem = Array.isArray(mockDataItem)
+        ? [...mockDataItem]
+        : { ...mockDataItem }
+
       _setDataTo(
         key,
         dataItem,
