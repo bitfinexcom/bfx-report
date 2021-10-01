@@ -1,24 +1,21 @@
 'use strict'
 
 module.exports = {
-  TICKERS_HISTORY: 'tickersHistory',
+  /**
+   * It's an alias to POSITIONS_HISTORY model
+   */
   POSITIONS_HISTORY: 'positionsHistory',
-
-  /**
-   * It's an alias to POSITIONS_HISTORY model
-   */
   POSITIONS_SNAPSHOT: 'positionsSnapshot',
-  /**
-   * It's an alias to POSITIONS_HISTORY model
-   */
   POSITIONS_AUDIT: 'positionsAudit',
-  LEDGERS: 'ledgers',
-  TRADES: 'trades',
 
   /**
    * It's an alias to TRADES model
    */
+  TRADES: 'trades',
   ORDER_TRADES: 'orderTrades',
+
+  LEDGERS: 'ledgers',
+  TICKERS_HISTORY: 'tickersHistory',
   FUNDING_TRADES: 'fundingTrades',
   PUBLIC_TRADES: 'publicTrades',
   ORDERS: 'orders',
@@ -29,5 +26,6 @@ module.exports = {
   STATUS_MESSAGES: 'statusMessages',
   LOGINS: 'logins',
   CHANGE_LOGS: 'changeLogs',
-  CANDLES: 'candles'
+  CANDLES: 'candles',
+  PAY_INVOICE_LIST: 'payInvoiceList'
 }

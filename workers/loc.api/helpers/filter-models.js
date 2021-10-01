@@ -235,5 +235,20 @@ module.exports = new Map([
       low: { type: 'number' },
       volume: { type: 'number' }
     }
+  ],
+  [
+    FILTER_MODELS_NAMES.PAY_INVOICE_LIST,
+    {
+      id: { type: 'string' },
+      t: { type: 'integer' },
+      duration: { type: 'number' },
+      amount: { type: 'number' },
+      currency: { type: 'string' },
+      orderId: { type: 'string' },
+      webhook: { type: 'string' },
+      redirectUrl: { type: 'string' },
+      status: { type: 'string' },
+      merchantName: { type: 'string' }
+    }
   ]
 ])
