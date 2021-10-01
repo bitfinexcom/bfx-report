@@ -701,6 +701,17 @@ module.exports = new Map([
             }
           }
         ],
+        payment: {
+          txid: '1234567890qwerty',
+          amount: 0.123123,
+          currency: 'UST',
+          method: 'TETHERUSE',
+          status: 'COMPLETED',
+          confirmations: 5,
+          created_at: '2021-09-12 03:03:03',
+          updated_at: '2021-09-12 03:03:03',
+          depositId: 1234321
+        },
         merchantName: 'Testing'
       }
     ]

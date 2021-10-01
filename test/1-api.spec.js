@@ -831,6 +831,7 @@ describe('API', () => {
       'status',
       'customerInfo',
       'invoices',
+      'payment',
       'merchantName'
     ])
   })
