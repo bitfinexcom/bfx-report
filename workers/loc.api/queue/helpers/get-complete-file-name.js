@@ -97,7 +97,6 @@ module.exports = (
   const {
     start,
     end,
-    isOnMomentInName,
     isBaseNameInName
   } = params
   const baseName = _getBaseName(
@@ -123,15 +122,11 @@ module.exports = (
     ? _getUniqEnding(uniqEnding)
     : ''
 
-  if (isBaseNameInName) {
-    return `${_userInfo}${baseName}_${formattedDateNow}${_uniqEnding}${_ext}`
-  }
   if (
-    queueName === 'getWallets' ||
-    isMultiExport ||
-    isOnMomentInName
+    isBaseNameInName ||
+    isMultiExport
   ) {
-    return `${_userInfo}${baseName}_MOMENT_${formattedDateNow}${_uniqEnding}${_ext}`
+    return `${_userInfo}${baseName}_${formattedDateNow}${_uniqEnding}${_ext}`
   }
 
   return `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_uniqEnding}${_ext}`
