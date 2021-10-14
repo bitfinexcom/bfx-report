@@ -5,6 +5,7 @@ const {
   cloneDeep
 } = require('lodash')
 const { promisify } = require('util')
+const { pipeline } = require('stream')
 const fs = require('fs')
 const { stringify } = require('csv')
 
@@ -113,7 +114,7 @@ module.exports = (
             columns: columnsCsv
           })
 
-          stringifier.pipe(writable)
+          pipeline(stringifier, writable, () => {})
 
           await writeDataToStream(
             stringifier,

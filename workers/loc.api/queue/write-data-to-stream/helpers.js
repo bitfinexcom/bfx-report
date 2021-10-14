@@ -129,7 +129,7 @@ const writeMessageToStream = (
 ) => {
   processorQueue.emit('progress', 0)
 
-  write([message], stream)
+  write([{ message }], stream)
 
   processorQueue.emit('progress', 100)
 }

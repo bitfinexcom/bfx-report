@@ -190,7 +190,13 @@ class CsvJobData {
       userInfo,
       userId,
       name: 'getWallets',
-      args,
+      args: {
+        ...args,
+        params: {
+          ...args?.params,
+          isBaseNameInName: true
+        }
+      },
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         type: 'TYPE',
