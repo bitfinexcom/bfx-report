@@ -22,7 +22,7 @@
     "bfx-wrk-api": "git+https://github.com/bitfinexcom/bfx-wrk-api.git",
     "bitfinex-api-node": "5.0.2",
     "colors": "1.4.0",
-    "csv": "^5.1.1",
+    "csv": "5.5.3",
     "inversify": "^5.0.1",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.10",
