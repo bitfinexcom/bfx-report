@@ -83,6 +83,7 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
       ? _symbol.toString()
       : _symbol
 
+    err.message = err.message.replace(']', `,"${symbol}"]`)
     err.statusCode = 500
     err.statusMessage = `Invalid symbol error, '${symbol}' is not supported`
     err.data = [{ symbol }]
