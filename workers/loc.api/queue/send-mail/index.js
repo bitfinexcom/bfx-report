@@ -10,7 +10,7 @@ const pathToTrans = path.join(
   __dirname,
   'translations/email.yml'
 )
-const translations = yaml.safeLoad(
+const translations = yaml.load(
   fs.readFileSync(pathToTrans, 'utf8')
 )
 
