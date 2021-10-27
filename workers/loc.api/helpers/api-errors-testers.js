@@ -16,9 +16,14 @@ const isUserIsNotMerchantError = (err) => {
   return /ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT/.test(err.toString())
 }
 
+const isSymbolInvalidError = (err) => {
+  return /(symbol: invalid)|(currency: invalid)/.test(err.toString())
+}
+
 module.exports = {
   isAuthError,
   isRateLimitError,
   isNonceSmallError,
-  isUserIsNotMerchantError
+  isUserIsNotMerchantError,
+  isSymbolInvalidError
 }

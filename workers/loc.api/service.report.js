@@ -154,7 +154,7 @@ class ReportService extends Api {
         writePermission: false,
         _cust_ip: '0'
       })
-    }, 'verifyUser', args, cb)
+    }, 'generateToken', args, cb)
   }
 
   getUsersTimeConf (space, args, cb) {
