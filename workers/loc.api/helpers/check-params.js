@@ -17,7 +17,7 @@ module.exports = (
   checkParamsField = false,
   additionalSchema = {}
 ) => {
-  const ajv = new Ajv()
+  const ajv = new Ajv({ allowUnionTypes: true })
   const extendedSchema = { ...schema, ...additionalSchema }
 
   if (!extendedSchema[schemaName]) {
