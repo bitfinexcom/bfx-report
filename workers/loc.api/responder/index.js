@@ -4,7 +4,8 @@ const {
   isAuthError,
   isRateLimitError,
   isNonceSmallError,
-  isUserIsNotMerchantError
+  isUserIsNotMerchantError,
+  isSymbolInvalidError
 } = require('../helpers')
 
 const {
@@ -40,7 +41,7 @@ const _prepareErrorData = (err, name) => {
     ${stackTrace}`
 }
 
-const _getErrorWithMetadataForNonBaseError = (err) => {
+const _getErrorWithMetadataForNonBaseError = (args, err) => {
   if (
     !err ||
     typeof err !== 'object'
@@ -76,12 +77,25 @@ const _getErrorWithMetadataForNonBaseError = (err) => {
 
     return err
   }
+  if (isSymbolInvalidError(err)) {
+    const _symbol = args?.params?.symbol ?? 'selected currency'
+    const symbol = Array.isArray(_symbol)
+      ? _symbol.toString()
+      : _symbol
+
+    err.message = err.message.replace(']', `,"${symbol}"]`)
+    err.statusCode = 500
+    err.statusMessage = `Invalid symbol error, '${symbol}' is not supported`
+    err.data = [{ symbol }]
+
+    return err
+  }
 
   return err
 }
 
-const _getErrorMetadata = (err) => {
-  const errWithMetadata = _getErrorWithMetadataForNonBaseError(err)
+const _getErrorMetadata = (args, err) => {
+  const errWithMetadata = _getErrorWithMetadataForNonBaseError(args, err)
   const {
     statusCode: code = 500,
     statusMessage: message = 'Internal Server Error',
@@ -100,11 +114,11 @@ const _getErrorMetadata = (err) => {
   return { code, message, data, error }
 }
 
-const _logError = (logger, err, name) => {
+const _logError = (logger, args, err, name) => {
   const {
     code,
     error
-  } = _getErrorMetadata(err)
+  } = _getErrorMetadata(args, err)
 
   if (code !== 500) {
     logger.debug(_prepareErrorData(error, name))
@@ -134,7 +148,7 @@ const _makeJsonRpcResponse = (args, result) => {
       code,
       message,
       data
-    } = _getErrorMetadata(result)
+    } = _getErrorMetadata(args, result)
 
     return {
       jsonrpc,
@@ -169,7 +183,7 @@ module.exports = (
       if (!cb) {
         return resFn
           .catch((err) => {
-            _logError(logger, err, name)
+            _logError(logger, args, err, name)
 
             return Promise.reject(err)
           })
@@ -178,7 +192,7 @@ module.exports = (
       resFn
         .then((res) => cb(null, _makeJsonRpcResponse(args, res)))
         .catch((err) => {
-          _logError(logger, err, name)
+          _logError(logger, args, err, name)
 
           cb(null, _makeJsonRpcResponse(args, err))
         })
@@ -189,7 +203,7 @@ module.exports = (
     if (!cb) return resFn
     cb(null, _makeJsonRpcResponse(args, resFn))
   } catch (err) {
-    _logError(logger, err, name)
+    _logError(logger, args, err, name)
 
     if (!cb) throw err
     cb(null, _makeJsonRpcResponse(args, err))

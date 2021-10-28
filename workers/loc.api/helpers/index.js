@@ -23,7 +23,8 @@ const {
   isAuthError,
   isRateLimitError,
   isNonceSmallError,
-  isUserIsNotMerchantError
+  isUserIsNotMerchantError,
+  isSymbolInvalidError
 } = require('./api-errors-testers')
 const {
   accountCache,
@@ -54,6 +55,7 @@ module.exports = {
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
+  isSymbolInvalidError,
   accountCache,
   parseFields,
   parseLoginsExtraDataFields,
