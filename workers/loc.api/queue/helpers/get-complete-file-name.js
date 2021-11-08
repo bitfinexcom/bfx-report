@@ -1,7 +1,7 @@
 'use strict'
 
 const { snakeCase } = require('lodash')
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 
 const _fileNamesMap = new Map([
   ['getTrades', 'trades'],

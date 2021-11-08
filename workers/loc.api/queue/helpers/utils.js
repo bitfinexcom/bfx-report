@@ -3,7 +3,7 @@
 const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 const argv = require('yargs').argv
 
 const mkdir = promisify(fs.mkdir)
