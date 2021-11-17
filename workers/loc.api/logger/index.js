@@ -144,23 +144,28 @@ const _combineFormat = (colorize = !isProdEnv) => {
     label({ label: logLabel }),
     timestamp(),
     align(),
-    printf(obj => {
+    printf((obj) => {
       const str = `${obj.label}:${obj.level.toUpperCase()}`
       const ts = `[${obj.timestamp}]`
+      const stackTrace = obj?.stack
+        ? `\n${obj.stack}`
+        : ''
+      const message = `${obj?.message}${stackTrace}`
+      const isErrLevel = obj.level === 'error'
 
       if (colorize) {
-        const colorStr = obj.level === 'error'
+        const colorStr = isErrLevel
           ? str.red
           : str.blue
         const colorTs = ts.rainbow
-        const colorMessage = obj.level === 'error'
-          ? `${obj.message}`.red
-          : `${obj.message}`.blue
+        const colorMessage = isErrLevel
+          ? message.red
+          : message.blue
 
         return `${colorStr} ${colorTs} ${colorMessage}`
       }
 
-      return `${str} ${ts} ${obj.message}`
+      return `${str} ${ts} ${message}`
     })
   )
 }
