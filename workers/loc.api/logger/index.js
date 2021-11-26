@@ -2,6 +2,7 @@
 
 require('colors')
 const os = require('os')
+const util = require('util')
 const path = require('path')
 const argv = require('yargs').argv
 const {
@@ -195,7 +196,10 @@ const _getRestMess = (args = []) => {
 
   try {
     for (const item of args) {
-      restMess = `${restMess} ${item.toString()}`
+      const str = item && typeof item === 'object'
+        ? util.format('%o', item)
+        : item.toString()
+      restMess = `${restMess} ${str}`
     }
   } catch (err) {}
 
