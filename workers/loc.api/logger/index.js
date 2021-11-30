@@ -2,6 +2,7 @@
 
 require('colors')
 const os = require('os')
+const util = require('util')
 const path = require('path')
 const argv = require('yargs').argv
 const {
@@ -18,8 +19,7 @@ const {
   combine,
   timestamp,
   label,
-  printf,
-  align
+  printf
 } = format
 
 const isProdEnv = (
@@ -92,6 +92,43 @@ class TransportSlack extends TransportStream {
   }
 }
 
+class TransportIPC extends TransportStream {
+  constructor (options = {}) {
+    super(options)
+
+    this.eol = options.eol || os.EOL
+  }
+
+  log (info, callback) {
+    try {
+      // Grab the raw string and append the expected EOL
+      const output = `${info[MESSAGE]}${this.eol}`
+
+      // If the process is not child don't log
+      if (typeof process.send !== 'function') {
+        this.emit('logged', output)
+
+        return
+      }
+
+      process.send({
+        state: 'error:worker',
+        data: { err: output }
+      })
+
+      this.emit('logged', output)
+    } catch (err) {
+      this.emit('warn', err)
+    }
+
+    // Remark: Fire and forget here so requests dont cause buffering
+    // and block more requests from happening
+    if (callback) {
+      setImmediate(callback)
+    }
+  }
+}
+
 const _getTransports = () => {
   if (!isProdEnv) {
     return {
@@ -102,6 +139,10 @@ const _getTransports = () => {
           handleExceptions: true
         }),
         new TransportSlack({
+          level: 'error',
+          colorize: false
+        }),
+        new TransportIPC({
           level: 'error',
           colorize: false
         })
@@ -119,6 +160,10 @@ const _getTransports = () => {
         colorize: false
       }),
       new TransportSlack({
+        level: 'error',
+        colorize: false
+      }),
+      new TransportIPC({
         level: 'error',
         colorize: false
       })
@@ -139,18 +184,42 @@ const _getTransports = () => {
   }
 }
 
+const _getRestMess = (args = []) => {
+  let restMess = ''
+
+  if (
+    !Array.isArray(args) ||
+    args.length === 0
+  ) {
+    return restMess
+  }
+
+  try {
+    for (const item of args) {
+      const str = item && typeof item === 'object'
+        ? util.format('%o', item)
+        : item.toString()
+      restMess = `${restMess} ${str}`
+    }
+  } catch (err) {}
+
+  return restMess
+}
+
 const _combineFormat = (colorize = !isProdEnv) => {
   return combine(
     label({ label: logLabel }),
     timestamp(),
-    align(),
     printf((obj) => {
       const str = `${obj.label}:${obj.level.toUpperCase()}`
       const ts = `[${obj.timestamp}]`
       const stackTrace = obj?.stack
         ? `\n${obj.stack}`
         : ''
-      const message = `${obj?.message}${stackTrace}`
+      const restArgs = obj?.[Symbol.for('splat')]
+      const restMess = _getRestMess(restArgs)
+
+      const message = `${obj?.message}${stackTrace}${restMess}`
       const isErrLevel = obj.level === 'error'
 
       if (colorize) {
