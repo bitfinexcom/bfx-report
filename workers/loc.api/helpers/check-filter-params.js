@@ -131,7 +131,7 @@ module.exports = (
     return
   }
 
-  const ajv = new Ajv()
+  const ajv = new Ajv({ allowUnionTypes: true })
   const methodName = _getMethodApiName(methodApi)
   const model = _getModel(methodName, filterModels)
   const filterSchema = _getFilterSchema(model)
