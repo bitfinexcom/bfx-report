@@ -13,12 +13,14 @@ const getLocalCsvFolderPaths = require(
   '../queue/helpers/get-local-csv-folder-paths'
 )
 
-const _getCsvStoreStatus = async (
+const _getCsvStoreStatus = async ({
   hasGrcService,
   args,
-  rootPath
-) => {
-  const { email } = { ...args.params }
+  rootPath,
+  conf
+} = {}) => {
+  const email = args?.params?.email
+  const token = args?.auth?.token
 
   if (
     !email ||
@@ -27,10 +29,19 @@ const _getCsvStoreStatus = async (
     const {
       localCsvFolderPath
     } = getLocalCsvFolderPaths(rootPath)
+    const remoteCsvUrn = (
+      token &&
+      typeof token === 'string' &&
+      conf?.remoteCsvUrn &&
+      typeof conf?.remoteCsvUrn === 'string'
+    )
+      ? `${conf?.remoteCsvUrn}?token=${token}`
+      : null
 
     return {
       isSaveLocaly: true,
-      localCsvFolderPath
+      localCsvFolderPath,
+      remoteCsvUrn
     }
   }
 
@@ -87,18 +98,20 @@ module.exports = (
   hasGrcService,
   csvJobData,
   rService,
-  rootPath
+  rootPath,
+  conf
 ) => async (
   name,
   args
 ) => {
   const user = await rService.verifyUser(null, args)
 
-  const status = await _getCsvStoreStatus(
+  const status = await _getCsvStoreStatus({
     hasGrcService,
     args,
-    rootPath
-  )
+    rootPath,
+    conf
+  })
   const checkingDataArr = _getFilterModelNamesAndArgs(
     name,
     args
