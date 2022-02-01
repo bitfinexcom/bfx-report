@@ -32,6 +32,10 @@ const isETimedOutError = (err) => {
   return /ETIMEDOUT/.test(err.toString())
 }
 
+const isEAiAgainError = (err) => {
+  return /EAI_AGAIN/.test(err.toString())
+}
+
 module.exports = {
   isAuthError,
   isRateLimitError,
@@ -40,5 +44,6 @@ module.exports = {
   isSymbolInvalidError,
   isENetUnreachError,
   isEConnResetError,
-  isETimedOutError
+  isETimedOutError,
+  isEAiAgainError
 }
