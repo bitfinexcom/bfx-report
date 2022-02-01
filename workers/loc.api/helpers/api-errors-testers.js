@@ -36,6 +36,10 @@ const isEAiAgainError = (err) => {
   return /EAI_AGAIN/.test(err.toString())
 }
 
+const isEConnRefusedError = (err) => {
+  return /ECONNREFUSED/.test(err.toString())
+}
+
 module.exports = {
   isAuthError,
   isRateLimitError,
@@ -45,5 +49,6 @@ module.exports = {
   isENetUnreachError,
   isEConnResetError,
   isETimedOutError,
-  isEAiAgainError
+  isEAiAgainError,
+  isEConnRefusedError
 }
