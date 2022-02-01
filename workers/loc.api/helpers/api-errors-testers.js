@@ -44,6 +44,15 @@ const isENotFoundError = (err) => {
   return /ENOTFOUND/.test(err.toString())
 }
 
+const isENetError = (err) => (
+  isENetUnreachError(err) ||
+  isEConnResetError(err) ||
+  isETimedOutError(err) ||
+  isEAiAgainError(err) ||
+  isEConnRefusedError(err) ||
+  isENotFoundError(err)
+)
+
 module.exports = {
   isAuthError,
   isRateLimitError,
@@ -55,5 +64,6 @@ module.exports = {
   isETimedOutError,
   isEAiAgainError,
   isEConnRefusedError,
-  isENotFoundError
+  isENotFoundError,
+  isENetError
 }

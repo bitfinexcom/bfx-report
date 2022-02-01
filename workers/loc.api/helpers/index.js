@@ -24,7 +24,14 @@ const {
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
-  isSymbolInvalidError
+  isSymbolInvalidError,
+  isENetUnreachError,
+  isEConnResetError,
+  isETimedOutError,
+  isEAiAgainError,
+  isEConnRefusedError,
+  isENotFoundError,
+  isENetError
 } = require('./api-errors-testers')
 const {
   accountCache,
@@ -56,6 +63,13 @@ module.exports = {
   isNonceSmallError,
   isUserIsNotMerchantError,
   isSymbolInvalidError,
+  isENetUnreachError,
+  isEConnResetError,
+  isETimedOutError,
+  isEAiAgainError,
+  isEConnRefusedError,
+  isENotFoundError,
+  isENetError,
   accountCache,
   parseFields,
   parseLoginsExtraDataFields,
