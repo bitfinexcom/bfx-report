@@ -24,11 +24,16 @@ const isENetUnreachError = (err) => {
   return /ENETUNREACH/.test(err.toString())
 }
 
+const isEConnResetError = (err) => {
+  return /ECONNRESET/.test(err.toString())
+}
+
 module.exports = {
   isAuthError,
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
   isSymbolInvalidError,
-  isENetUnreachError
+  isENetUnreachError,
+  isEConnResetError
 }
