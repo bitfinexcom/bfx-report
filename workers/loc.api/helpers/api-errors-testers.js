@@ -20,10 +20,15 @@ const isSymbolInvalidError = (err) => {
   return /(symbol: invalid)|(currency: invalid)/.test(err.toString())
 }
 
+const isENetUnreachError = (err) => {
+  return /ENETUNREACH/.test(err.toString())
+}
+
 module.exports = {
   isAuthError,
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
-  isSymbolInvalidError
+  isSymbolInvalidError,
+  isENetUnreachError
 }
