@@ -7,9 +7,7 @@ const {
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
-  isENetUnreachError,
-  isEConnResetError,
-  isETimedOutError
+  isENetError
 } = require('./api-errors-testers')
 
 const _delay = (mc = 80000, interrupter) => {
@@ -118,11 +116,7 @@ module.exports = async (
 
         continue
       }
-      if (
-        isENetUnreachError(err) ||
-        isEConnResetError(err) ||
-        isETimedOutError(err)
-      ) {
+      if (isENetError(err)) {
         countNetError += 1
 
         const timeframe = 10 // min
