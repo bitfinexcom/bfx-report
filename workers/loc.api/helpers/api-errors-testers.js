@@ -28,6 +28,10 @@ const isEConnResetError = (err) => {
   return /ECONNRESET/.test(err.toString())
 }
 
+const isETimedOutError = (err) => {
+  return /ETIMEDOUT/.test(err.toString())
+}
+
 module.exports = {
   isAuthError,
   isRateLimitError,
@@ -35,5 +39,6 @@ module.exports = {
   isUserIsNotMerchantError,
   isSymbolInvalidError,
   isENetUnreachError,
-  isEConnResetError
+  isEConnResetError,
+  isETimedOutError
 }
