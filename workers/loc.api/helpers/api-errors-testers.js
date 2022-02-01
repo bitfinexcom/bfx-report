@@ -40,6 +40,10 @@ const isEConnRefusedError = (err) => {
   return /ECONNREFUSED/.test(err.toString())
 }
 
+const isENotFoundError = (err) => {
+  return /ENOTFOUND/.test(err.toString())
+}
+
 module.exports = {
   isAuthError,
   isRateLimitError,
@@ -50,5 +54,6 @@ module.exports = {
   isEConnResetError,
   isETimedOutError,
   isEAiAgainError,
-  isEConnRefusedError
+  isEConnRefusedError,
+  isENotFoundError
 }
