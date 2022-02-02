@@ -44,13 +44,18 @@ const isENotFoundError = (err) => {
   return /ENOTFOUND/.test(err.toString())
 }
 
+const isESocketTimeoutError = (err) => {
+  return /ESOCKETTIMEDOUT/.test(err.toString())
+}
+
 const isENetError = (err) => (
   isENetUnreachError(err) ||
   isEConnResetError(err) ||
   isETimedOutError(err) ||
   isEAiAgainError(err) ||
   isEConnRefusedError(err) ||
-  isENotFoundError(err)
+  isENotFoundError(err) ||
+  isESocketTimeoutError(err)
 )
 
 module.exports = {
@@ -65,5 +70,6 @@ module.exports = {
   isEAiAgainError,
   isEConnRefusedError,
   isENotFoundError,
+  isESocketTimeoutError,
   isENetError
 }

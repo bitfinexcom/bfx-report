@@ -31,6 +31,7 @@ const {
   isEAiAgainError,
   isEConnRefusedError,
   isENotFoundError,
+  isESocketTimeoutError,
   isENetError
 } = require('./api-errors-testers')
 const {
@@ -69,6 +70,7 @@ module.exports = {
   isEAiAgainError,
   isEConnRefusedError,
   isENotFoundError,
+  isESocketTimeoutError,
   isENetError,
   accountCache,
   parseFields,
