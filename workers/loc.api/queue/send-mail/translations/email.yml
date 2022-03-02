@@ -81,3 +81,17 @@ tr:
     youCan: Yapabilirsiniz
     download: indir
     pgpSignature: bir PGP dijital imza dosyası
+
+pt-PT:
+  template:
+    subject: Seu relatório está pronto
+    btnText: Baixar CSV
+    fileName: Nome do arquivo
+    unauth: Não foi possível concluir seu arquivo, tente novamente
+    readyForDownload: O relatório solicitado está pronto para download
+    ifDidNotInitAction: Se você não iniciou esta ação e suspeita que sua conta pode estar comprometida
+    freezeAccount: por favor, congele sua conta
+    contactSupport: e entre em contato com o suporte
+    youCan: Você pode
+    download: baixar
+    pgpSignature: um arquivo de assinatura digital PGP

@@ -31,6 +31,10 @@ const argv = require('yargs')
     type: 'boolean',
     default: false
   })
+  .option('remoteCsvUrn', {
+    type: 'string',
+    default: ''
+  })
   .help('help')
   .argv
 
@@ -96,7 +100,8 @@ class WrkReportServiceApi extends WrkApi {
     args = argv,
     names = [
       'isSpamRestrictionMode',
-      'isLoggerDisabled'
+      'isLoggerDisabled',
+      'remoteCsvUrn'
     ]
   ) {
     const conf = this.conf[this.group]

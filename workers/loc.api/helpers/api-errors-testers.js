@@ -20,10 +20,56 @@ const isSymbolInvalidError = (err) => {
   return /(symbol: invalid)|(currency: invalid)/.test(err.toString())
 }
 
+const isENetUnreachError = (err) => {
+  return /ENETUNREACH/.test(err.toString())
+}
+
+const isEConnResetError = (err) => {
+  return /ECONNRESET/.test(err.toString())
+}
+
+const isETimedOutError = (err) => {
+  return /ETIMEDOUT/.test(err.toString())
+}
+
+const isEAiAgainError = (err) => {
+  return /EAI_AGAIN/.test(err.toString())
+}
+
+const isEConnRefusedError = (err) => {
+  return /ECONNREFUSED/.test(err.toString())
+}
+
+const isENotFoundError = (err) => {
+  return /ENOTFOUND/.test(err.toString())
+}
+
+const isESocketTimeoutError = (err) => {
+  return /ESOCKETTIMEDOUT/.test(err.toString())
+}
+
+const isENetError = (err) => (
+  isENetUnreachError(err) ||
+  isEConnResetError(err) ||
+  isETimedOutError(err) ||
+  isEAiAgainError(err) ||
+  isEConnRefusedError(err) ||
+  isENotFoundError(err) ||
+  isESocketTimeoutError(err)
+)
+
 module.exports = {
   isAuthError,
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
-  isSymbolInvalidError
+  isSymbolInvalidError,
+  isENetUnreachError,
+  isEConnResetError,
+  isETimedOutError,
+  isEAiAgainError,
+  isEConnRefusedError,
+  isENotFoundError,
+  isESocketTimeoutError,
+  isENetError
 }
