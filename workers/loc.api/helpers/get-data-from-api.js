@@ -6,7 +6,8 @@ const Interrupter = require('../interrupter')
 const {
   isRateLimitError,
   isNonceSmallError,
-  isUserIsNotMerchantError
+  isUserIsNotMerchantError,
+  isENetError
 } = require('./api-errors-testers')
 
 const _delay = (mc = 80000, interrupter) => {
@@ -54,6 +55,7 @@ module.exports = async (
 ) => {
   const ms = 80000
 
+  let countNetError = 0
   let countRateLimitError = 0
   let countNonceSmallError = 0
   let res = null
@@ -111,6 +113,24 @@ module.exports = async (
         }
 
         await _delay(1000, interrupter)
+
+        continue
+      }
+      if (isENetError(err)) {
+        countNetError += 1
+
+        const timeframe = 10 // min
+        const timeout = 10000 // ms
+        const attemptsNum = (timeframe * 60) / (timeout / 1000)
+
+        if (countNetError > attemptsNum) {
+          throw err
+        }
+        if (_isInterrupted(interrupter)) {
+          return { isInterrupted: true }
+        }
+
+        await _delay(timeout, interrupter)
 
         continue
       }
