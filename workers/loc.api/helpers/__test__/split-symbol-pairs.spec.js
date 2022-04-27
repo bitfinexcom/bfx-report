@@ -125,6 +125,17 @@ describe('splitSymbolPairs helper', () => {
     assert.strictEqual(res[0], 'MATIC')
   })
 
+  it('tMATIC:USD pair, without separator', function () {
+    this.timeout(1000)
+
+    const res = splitSymbolPairs('tMATIC:USD')
+
+    assert.isArray(res)
+    assert.lengthOf(res, 2)
+    assert.strictEqual(res[0], 'MATIC')
+    assert.strictEqual(res[1], 'USD')
+  })
+
   it('MATICM coin, without separator', function () {
     this.timeout(1000)
 
