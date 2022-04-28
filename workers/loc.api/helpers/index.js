@@ -52,6 +52,7 @@ const FILTER_MODELS_NAMES = require('./filter.models.names')
 const FILTER_CONDITIONS = require('./filter.conditions')
 const getDataFromApi = require('./get-data-from-api')
 const splitSymbolPairs = require('./split-symbol-pairs')
+const FOREX_SYMBS = require('./forex.symbs')
 
 module.exports = {
   getREST,
@@ -91,5 +92,6 @@ module.exports = {
   FILTER_CONDITIONS,
   getDataFromApi,
   parsePositionsAuditId,
-  splitSymbolPairs
+  splitSymbolPairs,
+  FOREX_SYMBS
 }

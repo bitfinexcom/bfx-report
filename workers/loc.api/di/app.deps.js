@@ -13,7 +13,8 @@ const {
   getREST,
   grcBfxReq,
   prepareResponse,
-  prepareApiResponse
+  prepareApiResponse,
+  FOREX_SYMBS
 } = require('../helpers')
 const HasGrcService = require('../has.grc.service')
 const processor = require('../queue/processor')
@@ -86,6 +87,7 @@ module.exports = ({
         [TYPES.GetREST]
       )
     )
+    bind(TYPES.FOREX_SYMBS).toConstantValue(FOREX_SYMBS)
     bind(TYPES.Link).toConstantValue(link)
     bind(TYPES.HasGrcService)
       .to(HasGrcService)
