@@ -38,6 +38,17 @@ describe('splitSymbolPairs helper', () => {
     assert.strictEqual(res[1], 'USD')
   })
 
+  it('BTCEOS pair', function () {
+    this.timeout(1000)
+
+    const res = splitSymbolPairs('BTCEOS')
+
+    assert.isArray(res)
+    assert.lengthOf(res, 2)
+    assert.strictEqual(res[0], 'BTC')
+    assert.strictEqual(res[1], 'EOS')
+  })
+
   it('tXAUT:USD pair', function () {
     this.timeout(1000)
 
@@ -102,5 +113,46 @@ describe('splitSymbolPairs helper', () => {
     assert.lengthOf(res, 2)
     assert.strictEqual(res[0], 'EUR')
     assert.strictEqual(res[1], 'USD')
+  })
+
+  it('MATIC coin, without separator', function () {
+    this.timeout(1000)
+
+    const res = splitSymbolPairs('MATIC')
+
+    assert.isArray(res)
+    assert.lengthOf(res, 1)
+    assert.strictEqual(res[0], 'MATIC')
+  })
+
+  it('tMATIC:USD pair, without separator', function () {
+    this.timeout(1000)
+
+    const res = splitSymbolPairs('tMATIC:USD')
+
+    assert.isArray(res)
+    assert.lengthOf(res, 2)
+    assert.strictEqual(res[0], 'MATIC')
+    assert.strictEqual(res[1], 'USD')
+  })
+
+  it('MATICM coin, without separator', function () {
+    this.timeout(1000)
+
+    const res = splitSymbolPairs('MATICM')
+
+    assert.isArray(res)
+    assert.lengthOf(res, 1)
+    assert.strictEqual(res[0], 'MATICM')
+  })
+
+  it('MATICMF0 coin, without separator', function () {
+    this.timeout(1000)
+
+    const res = splitSymbolPairs('MATICMF0')
+
+    assert.isArray(res)
+    assert.lengthOf(res, 1)
+    assert.strictEqual(res[0], 'MATICMF0')
   })
 })
