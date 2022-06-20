@@ -36,8 +36,16 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
   } = selectedMethod
   const {
     isMax,
-    isInnerMax
+    isInnerMax,
+    isNotMoreThanInnerMax
   } = { ...sendLimit }
+
+  const limit = Number.isInteger(sendLimit?.limit)
+    ? sendLimit?.limit
+    : sendLimit
+  const base = Number.isInteger(limit)
+    ? limit
+    : defVal
 
   if (isInnerMax) {
     return innerMax
@@ -45,10 +53,9 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
   if (isMax) {
     return max
   }
-
-  const base = Number.isInteger(sendLimit)
-    ? sendLimit
-    : defVal
+  if (isNotMoreThanInnerMax) {
+    return getLimitNotMoreThan(base, innerMax)
+  }
 
   return getLimitNotMoreThan(base, max)
 }
