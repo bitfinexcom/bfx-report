@@ -82,7 +82,7 @@ tr:
     download: indir
     pgpSignature: bir PGP dijital imza dosyası
 
-pt-PT:
+pt-BR:
   template:
     subject: Seu relatório está pronto
     btnText: Baixar CSV
