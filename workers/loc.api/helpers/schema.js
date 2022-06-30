@@ -56,7 +56,20 @@ const dateFormat = {
 }
 const language = {
   type: 'string',
-  enum: ['en', 'ru', 'zh-CN', 'zh-TW', 'es-EM', 'tr', 'pt-PT']
+  enum: [
+    'en',
+    'en-US',
+    'ru',
+    'zh-CN',
+    'zh-TW',
+    'tr',
+    'tr-TR',
+    'es',
+    'es-EM',
+    'pt',
+    'pt-PT',
+    'pt-BR'
+  ]
 }
 
 const paramsSchemaForPayInvoiceList = {
