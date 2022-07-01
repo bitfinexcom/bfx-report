@@ -654,7 +654,8 @@ class CsvJobData {
         priceTrailing: 'TRAILING PRICE',
         mtsCreate: 'CREATED',
         mtsUpdate: 'UPDATED',
-        status: 'STATUS'
+        status: 'STATUS',
+        meta: 'METADATA'
       },
       formatSettings: {
         mtsUpdate: 'date',

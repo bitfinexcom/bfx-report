@@ -305,7 +305,13 @@ module.exports = new Map([
       null,
       false,
       null,
-      null
+      null,
+      null,
+      null,
+      'BFX',
+      null,
+      null,
+      { _$F7: 1 }
     ]]
   ],
   [
