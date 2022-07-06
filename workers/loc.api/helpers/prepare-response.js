@@ -250,10 +250,10 @@ const _getParams = (
   }
 
   const { params } = { ...args }
-  const { isInnerMax } = { ...opts }
+  const { isInnerMax, isNotMoreThanInnerMax } = { ...opts }
   const limit = isInnerMax
     ? { isInnerMax }
-    : params.limit
+    : { limit: params.limit, isNotMoreThanInnerMax }
   const paramsObj = {
     ...cloneDeep(params),
     end: getDateNotMoreNow(params.end),
@@ -329,11 +329,15 @@ const _isNotContainedSameMts = (
     return false
   }
 
-  const { isMax = true, isInnerMax } = { ...opts }
+  const {
+    isMax = true,
+    isInnerMax,
+    isNotMoreThanInnerMax
+  } = { ...opts }
   const firstElem = { ...apiRes[0] }
   const mts = firstElem[datePropName]
   const methodLimit = getMethodLimit(
-    { isMax, isInnerMax },
+    { isMax, isInnerMax, isNotMoreThanInnerMax },
     methodApi
   )
 
@@ -484,7 +488,8 @@ const prepareApiResponse = (
     datePropName,
     symbPropName,
     requireFields,
-    parseFieldsFn
+    parseFieldsFn,
+    isNotMoreThanInnerMax
   } = { ...params }
   const schemaName = _getSchemaNameByMethodName(methodApi)
 
@@ -498,17 +503,19 @@ const prepareApiResponse = (
     getREST,
     args,
     methodApi,
-    symbPropName
+    symbPropName,
+    { isNotMoreThanInnerMax }
   )
   const isNotContainedSameMts = _isNotContainedSameMts(
     resData.apiRes,
     methodApi,
     datePropName,
-    resData.paramsObj.limit
+    resData.paramsObj.limit,
+    { isNotMoreThanInnerMax }
   )
   const opts = isNotContainedSameMts
-    ? { isMax: true }
-    : { isInnerMax: true }
+    ? { isMax: true, isNotMoreThanInnerMax }
+    : { isInnerMax: true, isNotMoreThanInnerMax }
   const {
     apiRes,
     paramsObj

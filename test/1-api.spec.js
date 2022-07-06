@@ -1356,7 +1356,9 @@ describe('API', () => {
       'priceAuxLimit',
       'notify',
       'placedId',
-      'amountExecuted'
+      'amountExecuted',
+      'routing',
+      'meta'
     ])
   })
 

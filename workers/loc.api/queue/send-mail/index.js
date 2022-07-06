@@ -5,6 +5,8 @@ const fs = require('fs')
 const pug = require('pug')
 const yaml = require('js-yaml')
 
+const LANGUAGES = require('./languages')
+
 const basePathToViews = path.join(__dirname, 'views')
 const pathToTrans = path.join(
   __dirname,
@@ -79,7 +81,8 @@ module.exports = (grcBfxReq) => {
         presigned_url: url,
         language = 'en'
       } = { ...data }
-      const translate = _getTranslator(language)
+      const normLang = LANGUAGES?.[language] ?? 'en'
+      const translate = _getTranslator(normLang)
       const subject = translate(
         configs.subject,
         'template.subject'
@@ -104,7 +107,7 @@ module.exports = (grcBfxReq) => {
         text,
         subject,
         button,
-        language
+        language: normLang
       }
 
       return grcBfxReq({

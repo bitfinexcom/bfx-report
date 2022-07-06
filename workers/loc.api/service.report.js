@@ -226,7 +226,11 @@ class ReportService extends Api {
 
   getTickersHistory (space, args, cb) {
     return this._responder(() => {
-      const { symbol: s } = { ...args.params }
+      const {
+        params,
+        isNotMoreThanInnerMax
+      } = args ?? {}
+      const { symbol: s } = params ?? {}
       const symbol = s && typeof s === 'string'
         ? [s]
         : s
@@ -244,7 +248,8 @@ class ReportService extends Api {
         'tickersHistory',
         {
           datePropName: 'mtsUpdate',
-          requireFields: ['symbol']
+          requireFields: ['symbol'],
+          isNotMoreThanInnerMax
         }
       )
     }, 'getTickersHistory', args, cb)
@@ -353,6 +358,7 @@ class ReportService extends Api {
 
   getPublicTrades (space, args, cb) {
     return this._responder(() => {
+      const { isNotMoreThanInnerMax } = args ?? {}
       const _args = {
         ...args,
         auth: {}
@@ -362,7 +368,8 @@ class ReportService extends Api {
         _args,
         'publicTrades',
         {
-          datePropName: 'mts'
+          datePropName: 'mts',
+          isNotMoreThanInnerMax
         }
       )
     }, 'getPublicTrades', args, cb)
@@ -399,11 +406,14 @@ class ReportService extends Api {
 
   getCandles (space, args, cb) {
     return this._responder(() => {
-      const { params } = { ...args }
+      const {
+        params,
+        isNotMoreThanInnerMax
+      } = args ?? {}
       const {
         section = 'hist',
         timeframe = '1D'
-      } = { ...params }
+      } = params ?? {}
       const _args = {
         ...args,
         auth: {},
@@ -418,7 +428,8 @@ class ReportService extends Api {
         _args,
         'candles',
         {
-          datePropName: 'mts'
+          datePropName: 'mts',
+          isNotMoreThanInnerMax
         }
       )
     }, 'getCandles', args, cb)
