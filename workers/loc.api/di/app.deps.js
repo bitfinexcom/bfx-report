@@ -25,6 +25,7 @@ const sendMail = require('../queue/send-mail')
 const generateCsv = require('../generate-csv')
 const CsvJobData = require('../generate-csv/csv.job.data')
 const Interrupter = require('../interrupter')
+const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 
 module.exports = ({
   rService,
@@ -172,5 +173,7 @@ module.exports = ({
     )
     bind(TYPES.Interrupter)
       .to(Interrupter)
+    bind(TYPES.AbstractWSEventEmitter)
+      .to(AbstractWSEventEmitter)
   })
 }
