@@ -47,14 +47,14 @@ const _getEmptyArrRes = () => {
   return { jsonrpc: '2.0', result: [], id: null }
 }
 
-module.exports = async (
+module.exports = async ({
   getData,
   args,
   middleware,
-  params,
+  middlewareParams,
   interrupter,
   wsEventEmitter
-) => {
+}) => {
   const ms = 80000
 
   let countNetError = 0
@@ -77,7 +77,7 @@ module.exports = async (
         res = await middleware(
           getData,
           _args,
-          params
+          middlewareParams
         )
 
         break

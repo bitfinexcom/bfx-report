@@ -46,10 +46,10 @@ module.exports = (
   while (true) {
     processorQueue.emit('progress', 0)
 
-    const _res = await getDataFromApi(
+    const _res = await getDataFromApi({
       getData,
-      currIterationArgs
-    )
+      args: currIterationArgs
+    })
 
     const isGetWalletsMethod = method === 'getWallets'
     const isGetActivePositionsMethod = (
