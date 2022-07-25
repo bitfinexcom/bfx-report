@@ -3,6 +3,7 @@
 const { cloneDeep } = require('lodash')
 
 const Interrupter = require('../interrupter')
+const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 const {
   isRateLimitError,
   isNonceSmallError,
@@ -51,7 +52,8 @@ module.exports = async (
   args,
   middleware,
   params,
-  interrupter
+  interrupter,
+  wsEventEmitter
 ) => {
   const ms = 80000
 
@@ -128,6 +130,9 @@ module.exports = async (
         }
         if (_isInterrupted(interrupter)) {
           return { isInterrupted: true }
+        }
+        if (wsEventEmitter instanceof AbstractWSEventEmitter) {
+          await wsEventEmitter.emitENetError()
         }
 
         await _delay(timeout, interrupter)
