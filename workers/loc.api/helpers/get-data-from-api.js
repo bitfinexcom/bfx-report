@@ -54,7 +54,8 @@ module.exports = (
   getData,
   args,
   middleware,
-  middlewareParams
+  middlewareParams,
+  callerName
 }) => {
   const ms = 80000
 
@@ -133,7 +134,7 @@ module.exports = (
           return { isInterrupted: true }
         }
         if (wsEventEmitter instanceof AbstractWSEventEmitter) {
-          await wsEventEmitter.emitENetError()
+          await wsEventEmitter.emitENetError(callerName)
         }
 
         await _delay(timeout, interrupter)
