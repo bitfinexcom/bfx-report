@@ -47,13 +47,14 @@ const _getEmptyArrRes = () => {
   return { jsonrpc: '2.0', result: [], id: null }
 }
 
-module.exports = async ({
+module.exports = (
+  interrupter,
+  wsEventEmitter
+) => async ({
   getData,
   args,
   middleware,
-  middlewareParams,
-  interrupter,
-  wsEventEmitter
+  middlewareParams
 }) => {
   const ms = 80000
 

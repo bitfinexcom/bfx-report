@@ -2,7 +2,6 @@
 
 const { cloneDeep } = require('lodash')
 
-const { getDataFromApi } = require('../../helpers')
 const {
   writeMessageToStream,
   setDefaultPrams,
@@ -13,7 +12,8 @@ const {
 
 module.exports = (
   rService,
-  processorQueue
+  processorQueue,
+  getDataFromApi
 ) => async (
   stream,
   jobData

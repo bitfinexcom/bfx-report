@@ -14,7 +14,8 @@ const {
   grcBfxReq,
   prepareResponse,
   prepareApiResponse,
-  FOREX_SYMBS
+  FOREX_SYMBS,
+  getDataFromApi
 } = require('../helpers')
 const HasGrcService = require('../has.grc.service')
 const processor = require('../queue/processor')
@@ -125,7 +126,8 @@ module.exports = ({
         writeDataToStream,
         [
           TYPES.RService,
-          TYPES.ProcessorQueue
+          TYPES.ProcessorQueue,
+          TYPES.GetDataFromApi
         ]
       )
     )
@@ -175,5 +177,8 @@ module.exports = ({
       .to(Interrupter)
     bind(TYPES.AbstractWSEventEmitter)
       .to(AbstractWSEventEmitter)
+    bind(TYPES.GetDataFromApi).toConstantValue(
+      bindDepsToFn(getDataFromApi)
+    )
   })
 }

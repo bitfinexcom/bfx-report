@@ -30,5 +30,6 @@ module.exports = {
   SendMail: Symbol.for('SendMail'),
   CsvJobData: Symbol.for('CsvJobData'),
   Interrupter: Symbol.for('Interrupter'),
-  AbstractWSEventEmitter: Symbol.for('AbstractWSEventEmitter')
+  AbstractWSEventEmitter: Symbol.for('AbstractWSEventEmitter'),
+  GetDataFromApi: Symbol.for('GetDataFromApi')
 }
