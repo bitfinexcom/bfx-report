@@ -18,6 +18,16 @@ class AbstractWSEventEmitter {
       action
     )
   }
+
+  emitENetResumed (
+    handler = () => {},
+    action = 'emitENetResumed'
+  ) {
+    return this.emit(
+      handler,
+      action
+    )
+  }
 }
 
 decorateInjectable(AbstractWSEventEmitter)
