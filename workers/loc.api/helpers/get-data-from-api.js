@@ -133,7 +133,10 @@ module.exports = (
         if (_isInterrupted(interrupter)) {
           return { isInterrupted: true }
         }
-        if (wsEventEmitter instanceof AbstractWSEventEmitter) {
+        if (
+          countNetError === 1 &&
+          wsEventEmitter instanceof AbstractWSEventEmitter
+        ) {
           await wsEventEmitter.emitENetError(callerName)
         }
 
