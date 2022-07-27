@@ -149,5 +149,12 @@ module.exports = (
     }
   }
 
+  if (
+    countNetError > 0 &&
+    wsEventEmitter instanceof AbstractWSEventEmitter
+  ) {
+    await wsEventEmitter.emitENetResumed(callerName)
+  }
+
   return res
 }
