@@ -59,6 +59,9 @@ module.exports = ({
         )
       })
       .inSingletonScope()
+    bind(TYPES.GetDataFromApi).toConstantValue(
+      bindDepsToFn(getDataFromApi)
+    )
     bind(TYPES.Responder).toConstantValue(
       bindDepsToFn(
         responder,
@@ -177,8 +180,5 @@ module.exports = ({
       .to(Interrupter)
     bind(TYPES.AbstractWSEventEmitter)
       .to(AbstractWSEventEmitter)
-    bind(TYPES.GetDataFromApi).toConstantValue(
-      bindDepsToFn(getDataFromApi)
-    )
   })
 }
