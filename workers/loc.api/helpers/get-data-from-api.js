@@ -3,6 +3,7 @@
 const { cloneDeep } = require('lodash')
 
 const Interrupter = require('../interrupter')
+const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 const {
   isRateLimitError,
   isNonceSmallError,
@@ -46,13 +47,16 @@ const _getEmptyArrRes = () => {
   return { jsonrpc: '2.0', result: [], id: null }
 }
 
-module.exports = async (
+module.exports = (
+  interrupter,
+  wsEventEmitter
+) => async ({
   getData,
   args,
   middleware,
-  params,
-  interrupter
-) => {
+  middlewareParams,
+  callerName
+}) => {
   const ms = 80000
 
   let countNetError = 0
@@ -75,7 +79,7 @@ module.exports = async (
         res = await middleware(
           getData,
           _args,
-          params
+          middlewareParams
         )
 
         break
@@ -129,6 +133,12 @@ module.exports = async (
         if (_isInterrupted(interrupter)) {
           return { isInterrupted: true }
         }
+        if (
+          countNetError === 1 &&
+          wsEventEmitter instanceof AbstractWSEventEmitter
+        ) {
+          await wsEventEmitter.emitENetError(callerName)
+        }
 
         await _delay(timeout, interrupter)
 
@@ -137,6 +147,13 @@ module.exports = async (
 
       throw err
     }
+  }
+
+  if (
+    countNetError > 0 &&
+    wsEventEmitter instanceof AbstractWSEventEmitter
+  ) {
+    await wsEventEmitter.emitENetResumed(callerName)
   }
 
   return res

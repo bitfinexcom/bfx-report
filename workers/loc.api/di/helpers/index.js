@@ -3,7 +3,10 @@
 const container = require('../index')
 
 const bindDepsToFn = (fn, deps, isNotInvoked) => {
-  const injections = deps.map((dep) => {
+  const _deps = Array.isArray(deps)
+    ? deps
+    : []
+  const injections = _deps.map((dep) => {
     return container.get(dep)
   })
   const boundFn = fn.bind(fn, ...injections)
@@ -14,8 +17,11 @@ const bindDepsToFn = (fn, deps, isNotInvoked) => {
 }
 
 const bindDepsToInstance = (instance, deps, isInvoked) => {
+  const _deps = Array.isArray(deps)
+    ? deps
+    : []
   const bind = () => {
-    deps.forEach(([name, type]) => {
+    _deps.forEach(([name, type]) => {
       instance[name] = container.get(type)
     })
 
