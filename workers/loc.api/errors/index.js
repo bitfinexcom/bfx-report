@@ -18,6 +18,12 @@ class BaseError extends Error {
   }
 }
 
+class ImplementationError extends BaseError {
+  constructor (message = 'ERR_NOT_IMPLEMENTED') {
+    super(message)
+  }
+}
+
 class BadRequestError extends BaseError {
   constructor (message = 'ERR_BED_REQUEST') {
     super(message)
@@ -176,5 +182,6 @@ module.exports = {
   FilterParamsValidSchemaFindingError,
   ArgsParamsFilterError,
   LedgerPaymentFilteringParamsError,
-  GrcSlackAvailabilityError
+  GrcSlackAvailabilityError,
+  ImplementationError
 }

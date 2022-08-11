@@ -14,7 +14,8 @@ const {
   grcBfxReq,
   prepareResponse,
   prepareApiResponse,
-  FOREX_SYMBS
+  FOREX_SYMBS,
+  getDataFromApi
 } = require('../helpers')
 const HasGrcService = require('../has.grc.service')
 const processor = require('../queue/processor')
@@ -25,6 +26,7 @@ const sendMail = require('../queue/send-mail')
 const generateCsv = require('../generate-csv')
 const CsvJobData = require('../generate-csv/csv.job.data')
 const Interrupter = require('../interrupter')
+const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 
 module.exports = ({
   rService,
@@ -57,6 +59,9 @@ module.exports = ({
         )
       })
       .inSingletonScope()
+    bind(TYPES.GetDataFromApi).toConstantValue(
+      bindDepsToFn(getDataFromApi)
+    )
     bind(TYPES.Responder).toConstantValue(
       bindDepsToFn(
         responder,
@@ -124,7 +129,8 @@ module.exports = ({
         writeDataToStream,
         [
           TYPES.RService,
-          TYPES.ProcessorQueue
+          TYPES.ProcessorQueue,
+          TYPES.GetDataFromApi
         ]
       )
     )
@@ -172,5 +178,7 @@ module.exports = ({
     )
     bind(TYPES.Interrupter)
       .to(Interrupter)
+    bind(TYPES.AbstractWSEventEmitter)
+      .to(AbstractWSEventEmitter)
   })
 }

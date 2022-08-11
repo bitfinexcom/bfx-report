@@ -2,7 +2,6 @@
 
 const { cloneDeep } = require('lodash')
 
-const { getDataFromApi } = require('../../helpers')
 const {
   writeMessageToStream,
   setDefaultPrams,
@@ -13,7 +12,8 @@ const {
 
 module.exports = (
   rService,
-  processorQueue
+  processorQueue,
+  getDataFromApi
 ) => async (
   stream,
   jobData
@@ -46,10 +46,11 @@ module.exports = (
   while (true) {
     processorQueue.emit('progress', 0)
 
-    const _res = await getDataFromApi(
+    const _res = await getDataFromApi({
       getData,
-      currIterationArgs
-    )
+      args: currIterationArgs,
+      callerName: 'CSV_WRITER'
+    })
 
     const isGetWalletsMethod = method === 'getWallets'
     const isGetActivePositionsMethod = (
