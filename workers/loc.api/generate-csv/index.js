@@ -66,6 +66,10 @@ const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
   }, new Map())
 
 const _truncateCsvNameEnding = (name) => {
+  if (!name) {
+    return name
+  }
+
   const cleanedName = name
     .replace(/^get/i, '')
     .replace(/csv$/i, '')
