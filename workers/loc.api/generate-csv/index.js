@@ -1,10 +1,14 @@
 'use strict'
 
-const { upperFirst } = require('lodash')
+const {
+  upperFirst,
+  lowerFirst
+} = require('lodash')
 
 const {
   checkFilterParams,
-  FILTER_MODELS_NAMES
+  FILTER_MODELS_NAMES,
+  normalizeFilterParams
 } = require('../helpers')
 const {
   EmailSendingError
@@ -61,12 +65,26 @@ const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
     return map
   }, new Map())
 
+const _truncateCsvNameEnding = (name) => {
+  if (!name) {
+    return name
+  }
+
+  const cleanedName = name
+    .replace(/^get/i, '')
+    .replace(/csv$/i, '')
+
+  return lowerFirst(cleanedName)
+}
+
 const _getFilterModelNamesAndArgs = (
   name,
-  args
+  reqArgs
 ) => {
   if (name !== 'getMultipleCsvJobData') {
     const filterModelName = _filterModelNameMap.get(name)
+    const truncatedName = _truncateCsvNameEnding(name)
+    const args = normalizeFilterParams(truncatedName, reqArgs)
 
     return [{
       filterModelName,
@@ -74,7 +92,7 @@ const _getFilterModelNamesAndArgs = (
     }]
   }
 
-  const { params } = { ...args }
+  const { params } = { ...reqArgs }
   const { multiExport } = { ...params }
   const _multiExport = Array.isArray(multiExport)
     ? multiExport
@@ -83,7 +101,8 @@ const _getFilterModelNamesAndArgs = (
   return _multiExport.map((params) => {
     const { method } = { ...params }
     const name = `${method}JobData`
-    const args = { params }
+    const truncatedName = _truncateCsvNameEnding(method)
+    const args = normalizeFilterParams(truncatedName, { params })
     const filterModelName = _filterModelNameMap.get(name)
 
     return {
