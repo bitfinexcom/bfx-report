@@ -55,8 +55,15 @@ module.exports = (
   args,
   middleware,
   middlewareParams,
-  callerName
+  callerName,
+  eNetErrorAttemptsTimeframeMin = 10, // min
+  eNetErrorAttemptsTimeoutMs = 10000, // ms
+  shouldNotInterrupt
 }) => {
+  const _interrupter = shouldNotInterrupt
+    ? null
+    : interrupter
+
   const ms = 80000
 
   let countNetError = 0
@@ -65,7 +72,7 @@ module.exports = (
   let res = null
 
   while (true) {
-    if (_isInterrupted(interrupter)) {
+    if (_isInterrupted(_interrupter)) {
       return { isInterrupted: true }
     }
 
@@ -98,11 +105,11 @@ module.exports = (
         if (countRateLimitError > 2) {
           throw err
         }
-        if (_isInterrupted(interrupter)) {
+        if (_isInterrupted(_interrupter)) {
           return { isInterrupted: true }
         }
 
-        await _delay(ms, interrupter)
+        await _delay(ms, _interrupter)
 
         continue
       }
@@ -112,25 +119,23 @@ module.exports = (
         if (countNonceSmallError > 20) {
           throw err
         }
-        if (_isInterrupted(interrupter)) {
+        if (_isInterrupted(_interrupter)) {
           return { isInterrupted: true }
         }
 
-        await _delay(1000, interrupter)
+        await _delay(1000, _interrupter)
 
         continue
       }
       if (isENetError(err)) {
         countNetError += 1
 
-        const timeframe = 10 // min
-        const timeout = 10000 // ms
-        const attemptsNum = (timeframe * 60) / (timeout / 1000)
+        const attemptsNum = (eNetErrorAttemptsTimeframeMin * 60) / (eNetErrorAttemptsTimeoutMs / 1000)
 
         if (countNetError > attemptsNum) {
           throw err
         }
-        if (_isInterrupted(interrupter)) {
+        if (_isInterrupted(_interrupter)) {
           return { isInterrupted: true }
         }
         if (
@@ -140,7 +145,7 @@ module.exports = (
           await wsEventEmitter.emitENetError(callerName)
         }
 
-        await _delay(timeout, interrupter)
+        await _delay(eNetErrorAttemptsTimeoutMs, _interrupter)
 
         continue
       }
