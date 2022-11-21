@@ -48,6 +48,14 @@ const isESocketTimeoutError = (err) => {
   return /ESOCKETTIMEDOUT/.test(err.toString())
 }
 
+const isEHostUnreachError = (err) => {
+  return /EHOSTUNREACH/.test(err.toString())
+}
+
+const isEProtoError = (err) => {
+  return /EPROTO/.test(err.toString())
+}
+
 const isENetError = (err) => (
   isENetUnreachError(err) ||
   isEConnResetError(err) ||
@@ -55,7 +63,9 @@ const isENetError = (err) => (
   isEAiAgainError(err) ||
   isEConnRefusedError(err) ||
   isENotFoundError(err) ||
-  isESocketTimeoutError(err)
+  isESocketTimeoutError(err) ||
+  isEHostUnreachError(err) ||
+  isEProtoError(err)
 )
 
 module.exports = {
@@ -71,5 +81,7 @@ module.exports = {
   isEConnRefusedError,
   isENotFoundError,
   isESocketTimeoutError,
+  isEHostUnreachError,
+  isEProtoError,
   isENetError
 }
