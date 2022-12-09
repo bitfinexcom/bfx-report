@@ -428,10 +428,10 @@ const prepareResponse = (
     symbols.length > 0
   )
     ? filterResponse(
-        apiRes,
-        { $in: { [symbPropName]: symbols } },
-        true
-      )
+      apiRes,
+      { $in: { [symbPropName]: symbols } },
+      true
+    )
     : apiRes
   const res = filterResponse(
     filteredResBySymb,
@@ -489,7 +489,7 @@ const prepareApiResponse = (
     symbPropName,
     requireFields,
     parseFieldsFn,
-    isNotMoreThanInnerMax
+    isNotMoreThanInnerMax: _isNotMoreThanInnerMax
   } = { ...params }
   const schemaName = _getSchemaNameByMethodName(methodApi)
 
@@ -498,6 +498,8 @@ const prepareApiResponse = (
   checkFilterParams(methodApi, args)
 
   const symbols = _getSymbols(methodApi, symbPropName, args)
+  const isSyncRequest = args?.params?.isSyncRequest
+  const isNotMoreThanInnerMax = isSyncRequest || _isNotMoreThanInnerMax
 
   const resData = await _getResAndParams(
     getREST,
