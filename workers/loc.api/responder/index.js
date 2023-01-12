@@ -114,13 +114,26 @@ const _getErrorMetadata = (args, err) => {
   return { code, message, data, error }
 }
 
-const _logError = (logger, args, err, name) => {
+const _logError = (loggerArgs, err) => {
+  const {
+    logger,
+    args,
+    name,
+    isInternalRequest
+  } = loggerArgs ?? {}
+  const shouldNotBeLoggedToStdErrorStream = (
+    isInternalRequest &&
+    !!args?.shouldNotBeLoggedToStdErrorStream
+  )
   const {
     code,
     error
   } = _getErrorMetadata(args, err)
 
-  if (code !== 500) {
+  if (
+    code !== 500 ||
+    shouldNotBeLoggedToStdErrorStream
+  ) {
     logger.debug(_prepareErrorData(error, name))
 
     return
@@ -176,14 +189,22 @@ module.exports = (
   args,
   cb
 ) => {
+  const isInternalRequest = !cb
+  const loggerArgs = {
+    logger,
+    args,
+    name,
+    isInternalRequest
+  }
+
   try {
     const resFn = handler(container, args)
 
     if (resFn instanceof Promise) {
-      if (!cb) {
+      if (isInternalRequest) {
         return resFn
           .catch((err) => {
-            _logError(logger, args, err, name)
+            _logError(loggerArgs, err)
 
             return Promise.reject(err)
           })
@@ -192,7 +213,7 @@ module.exports = (
       resFn
         .then((res) => cb(null, _makeJsonRpcResponse(args, res)))
         .catch((err) => {
-          _logError(logger, args, err, name)
+          _logError(loggerArgs, err)
 
           cb(null, _makeJsonRpcResponse(args, err))
         })
@@ -200,12 +221,12 @@ module.exports = (
       return
     }
 
-    if (!cb) return resFn
+    if (isInternalRequest) return resFn
     cb(null, _makeJsonRpcResponse(args, resFn))
   } catch (err) {
-    _logError(logger, args, err, name)
+    _logError(loggerArgs, err)
 
-    if (!cb) throw err
+    if (isInternalRequest) throw err
     cb(null, _makeJsonRpcResponse(args, err))
   }
 }
