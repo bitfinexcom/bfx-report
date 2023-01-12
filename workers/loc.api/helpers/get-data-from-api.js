@@ -79,6 +79,13 @@ module.exports = (
     try {
       const _args = cloneDeep(args)
 
+      /*
+       * API request should not be logged to std error stream
+       * when making an internal call and can have some attempts
+       * due to an internet connection issue
+       */
+      _args.shouldNotBeLoggedToStdErrorStream = true
+
       if (
         typeof getData === 'string' &&
         typeof middleware === 'function'
