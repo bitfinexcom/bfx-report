@@ -141,11 +141,10 @@ module.exports = (conf) => {
     const {
       apiKey = '',
       apiSecret = '',
-      authToken = '',
-      ip = ''
+      authToken = ''
     } = auth
     const _auth = authToken
-      ? { authToken, ip }
+      ? { authToken }
       : { apiKey, apiSecret }
 
     const rest = bfxInstance.rest(2, _auth)
