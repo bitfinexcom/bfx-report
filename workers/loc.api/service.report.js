@@ -21,6 +21,18 @@ class ReportService extends Api {
     this.container.get(TYPES.InjectDepsToRService)()
   }
 
+  _generateToken (args, opts) {
+    const rest = this._getREST(args?.auth)
+
+    return rest.generateToken({
+      ttl: opts?.ttl ?? 3600,
+      scope: opts?.scope ?? 'api',
+      writePermission: opts?.writePermission ?? false,
+      _cust_ip: opts?._cust_ip ?? '0',
+      ...opts
+    })
+  }
+
   _getUserInfo (args) {
     const rest = this._getREST(args.auth)
 
@@ -145,15 +157,7 @@ class ReportService extends Api {
 
   generateToken (space, args, cb) {
     return this._responder(async () => {
-      const { auth } = { ...args }
-      const rest = this._getREST(auth)
-
-      return rest.generateToken({
-        ttl: 3600,
-        scope: 'api',
-        writePermission: false,
-        _cust_ip: '0'
-      })
+      return this._generateToken(args)
     }, 'generateToken', args, cb)
   }
 
