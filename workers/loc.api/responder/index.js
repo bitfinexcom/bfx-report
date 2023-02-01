@@ -1,5 +1,7 @@
 'use strict'
 
+const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
+
 const {
   isAuthError,
   isRateLimitError,
@@ -9,7 +11,8 @@ const {
 } = require('../helpers')
 
 const {
-  BaseError
+  BaseError,
+  AuthError
 } = require('../errors')
 
 const JSON_RPC_VERSION = '2.0'
@@ -117,6 +120,7 @@ const _getErrorMetadata = (args, err) => {
 const _logError = (loggerArgs, err) => {
   const {
     logger,
+    wsEventEmitter,
     args,
     name,
     isInternalRequest
@@ -129,6 +133,26 @@ const _logError = (loggerArgs, err) => {
     code,
     error
   } = _getErrorMetadata(args, err)
+
+  if (
+    wsEventEmitter instanceof AbstractWSEventEmitter &&
+    args?.auth?.authToken &&
+    (
+      error instanceof AuthError ||
+      isAuthError(error)
+    )
+  ) {
+    /*
+     * If сsv is being made and the token TTL is expired in the framework mode,
+     * then try to request a user re-login
+     */
+    wsEventEmitter.emitBfxUnamePwdAuthRequiredToOne(
+      { isAuthTokenGenError: true },
+      args?.auth
+    ).then(() => {}, (err) => {
+      logger.error(_prepareErrorData(err, name))
+    })
+  }
 
   if (
     code !== 500 ||
@@ -182,7 +206,8 @@ const _makeJsonRpcResponse = (args, result) => {
  */
 module.exports = (
   container,
-  logger
+  logger,
+  wsEventEmitter
 ) => (
   handler,
   name,
@@ -192,6 +217,7 @@ module.exports = (
   const isInternalRequest = !cb
   const loggerArgs = {
     logger,
+    wsEventEmitter,
     args,
     name,
     isInternalRequest
