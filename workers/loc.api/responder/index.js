@@ -207,7 +207,7 @@ const _makeJsonRpcResponse = (args, result) => {
 module.exports = (
   container,
   logger,
-  wsEventEmitter
+  wsEventEmitterFactory
 ) => (
   handler,
   name,
@@ -215,6 +215,9 @@ module.exports = (
   cb
 ) => {
   const isInternalRequest = !cb
+  const wsEventEmitter = typeof wsEventEmitterFactory === 'function'
+    ? wsEventEmitterFactory()
+    : wsEventEmitterFactory
   const loggerArgs = {
     logger,
     wsEventEmitter,
