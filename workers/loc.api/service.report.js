@@ -33,6 +33,13 @@ class ReportService extends Api {
     })
   }
 
+  _invalidateAuthToken (args) {
+    const rest = this._getREST(args?.auth)
+    const { authToken } = args?.params ?? {}
+
+    return rest.invalidateAuthToken(authToken)
+  }
+
   _getUserInfo (args) {
     const rest = this._getREST(args.auth)
 
@@ -159,6 +166,12 @@ class ReportService extends Api {
     return this._responder(async () => {
       return this._generateToken(args)
     }, 'generateToken', args, cb)
+  }
+
+  invalidateAuthToken (space, args, cb) {
+    return this._responder(async () => {
+      return this._invalidateAuthToken(args)
+    }, 'invalidateAuthToken', args, cb)
   }
 
   getUsersTimeConf (space, args, cb) {
