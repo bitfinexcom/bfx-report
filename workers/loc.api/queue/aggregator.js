@@ -38,6 +38,9 @@ module.exports = (
         await hasGrcService.hasS3AndSendgrid()
       )
 
+      const newFilePaths = []
+      const csvFilesMetadata = []
+
       if (isEnableToSendEmail) {
         const s3Data = await uploadToS3(
           s3Conf,
@@ -62,38 +65,55 @@ module.exports = (
           }))
         )
 
-        for (const filePath of filePaths) {
+        for (const [i, filePath] of filePaths.entries()) {
+          const _name = subParamsArr[i]?.name ?? name
+
           await unlink(filePath)
+
+          csvFilesMetadata.push({
+            name: _name,
+            filePath: null
+          })
         }
 
         job.done()
-        aggregatorQueue.emit('completed')
+        aggregatorQueue.emit('completed', {
+          newFilePaths,
+          csvFilesMetadata,
+          userInfo
+        })
 
         return
       }
 
-      const newFilePaths = []
-      let count = 0
+      for (const [i, filePath] of filePaths.entries()) {
+        const _name = subParamsArr[i]?.name ?? name
 
-      for (const filePath of filePaths) {
         const {
           newFilePath
         } = await moveFileToLocalStorage(
           rootPath,
           filePath,
-          subParamsArr[count].name || name,
-          { ...subParamsArr[count] },
+          _name,
+          { ...subParamsArr[i] },
           userInfo.username,
           isAddedUniqueEndingToCsvName,
-          chunkCommonFolders[count]
+          chunkCommonFolders[i]
         )
 
         newFilePaths.push(newFilePath)
-        count += 1
+        csvFilesMetadata.push({
+          name: _name,
+          filePath: newFilePath
+        })
       }
 
       job.done()
-      aggregatorQueue.emit('completed', { newFilePaths, userInfo })
+      aggregatorQueue.emit('completed', {
+        newFilePaths,
+        csvFilesMetadata,
+        userInfo
+      })
     } catch (err) {
       if (err.syscall === 'unlink') {
         aggregatorQueue.emit('error:unlink', job)
