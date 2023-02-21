@@ -93,7 +93,7 @@ module.exports = (
       }
 
       job.done()
-      aggregatorQueue.emit('completed', { newFilePaths })
+      aggregatorQueue.emit('completed', { newFilePaths, userInfo })
     } catch (err) {
       if (err.syscall === 'unlink') {
         aggregatorQueue.emit('error:unlink', job)
