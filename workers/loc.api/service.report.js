@@ -157,7 +157,8 @@ class ReportService extends Api {
         timezone,
         email,
         id,
-        isSubAccount: false
+        isSubAccount: false,
+        _id: null // to have the same data structure as in framework mode
       }
     }, 'verifyUser', args, cb)
   }
