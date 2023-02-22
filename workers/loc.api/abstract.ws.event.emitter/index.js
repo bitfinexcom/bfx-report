@@ -9,6 +9,13 @@ class AbstractWSEventEmitter {
    */
   async emit (handler, action) { throw new ImplementationError() }
 
+  /**
+   * @abstract
+   */
+  async emitBfxUnamePwdAuthRequiredToOne (handler, auth) {
+    throw new ImplementationError()
+  }
+
   emitENetError (
     handler = () => {},
     action = 'emitENetError'
