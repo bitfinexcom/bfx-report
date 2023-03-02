@@ -21,6 +21,25 @@ class ReportService extends Api {
     this.container.get(TYPES.InjectDepsToRService)()
   }
 
+  _generateToken (args, opts) {
+    const rest = this._getREST(args?.auth)
+
+    return rest.generateToken({
+      ttl: opts?.ttl ?? 3600,
+      scope: opts?.scope ?? 'api',
+      writePermission: opts?.writePermission ?? false,
+      _cust_ip: opts?._cust_ip ?? '0',
+      ...opts
+    })
+  }
+
+  _invalidateAuthToken (args) {
+    const rest = this._getREST(args?.auth)
+    const { authToken } = args?.params ?? {}
+
+    return rest.invalidateAuthToken(authToken)
+  }
+
   _getUserInfo (args) {
     const rest = this._getREST(args.auth)
 
@@ -138,23 +157,22 @@ class ReportService extends Api {
         timezone,
         email,
         id,
-        isSubAccount: false
+        isSubAccount: false,
+        _id: null // to have the same data structure as in framework mode
       }
     }, 'verifyUser', args, cb)
   }
 
   generateToken (space, args, cb) {
     return this._responder(async () => {
-      const { auth } = { ...args }
-      const rest = this._getREST(auth)
-
-      return rest.generateToken({
-        ttl: 3600,
-        scope: 'api',
-        writePermission: false,
-        _cust_ip: '0'
-      })
+      return this._generateToken(args)
     }, 'generateToken', args, cb)
+  }
+
+  invalidateAuthToken (space, args, cb) {
+    return this._responder(async () => {
+      return this._invalidateAuthToken(args)
+    }, 'invalidateAuthToken', args, cb)
   }
 
   getUsersTimeConf (space, args, cb) {

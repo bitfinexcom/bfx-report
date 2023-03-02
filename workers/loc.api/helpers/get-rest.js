@@ -141,11 +141,19 @@ module.exports = (conf) => {
     const {
       apiKey = '',
       apiSecret = '',
-      authToken = '',
-      ip = ''
+      authToken: _authToken = ''
     } = auth
+
+    /*
+     * It uses dynamic getter to fetch refreshed auth token
+     * from session in framework mode
+     */
+    const authToken = typeof auth?.authTokenFn === 'function'
+      ? auth.authTokenFn()
+      : _authToken
+
     const _auth = authToken
-      ? { authToken, ip }
+      ? { authToken }
       : { apiKey, apiSecret }
 
     const rest = bfxInstance.rest(2, _auth)
