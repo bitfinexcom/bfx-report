@@ -34,8 +34,10 @@ class BadRequestError extends BaseError {
 }
 
 class AuthError extends BaseError {
-  constructor (message = 'ERR_AUTH_UNAUTHORIZED') {
-    super(message)
+  constructor (args) {
+    const _args = getErrorArgs(args, 'ERR_AUTH_UNAUTHORIZED')
+
+    super(_args)
 
     this.statusCode = 401
     this.statusMessage = 'Unauthorized'
