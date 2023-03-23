@@ -5,6 +5,21 @@ const { MockRESTv2Server } = require('bfx-api-mock-srv')
 
 const _mockData = require('./mock-data')
 
+class ExtraMockRESTv2Server extends MockRESTv2Server {
+  constructor (args) {
+    super(args)
+    this._extraMockMethods = args?.extraMockMethods ?? new Map()
+
+    for (const [method, route] of this._extraMockMethods) {
+      for (const [key, val] of Object.entries(route)) {
+        this._generateRoute(method, key, val)
+      }
+    }
+
+    this.listen()
+  }
+}
+
 const getMockData = (methodName, mockData = _mockData) => {
   if (!mockData.has(methodName)) throw new Error('NO_MOCKING_DATA')
 
@@ -17,12 +32,12 @@ const _fillAllData = (mockRESTv2Srv) => {
   }
 }
 
-const _createMockRESTv2Srv = () => {
-  return new MockRESTv2Server({ listen: true })
+const _createMockRESTv2Srv = (args) => {
+  return new ExtraMockRESTv2Server(args)
 }
 
-const createMockRESTv2SrvWithAllData = () => {
-  const srv = _createMockRESTv2Srv()
+const createMockRESTv2SrvWithAllData = (args) => {
+  const srv = _createMockRESTv2Srv(args)
   _fillAllData(srv)
 
   return srv
@@ -207,10 +222,11 @@ const createMockRESTv2SrvWithDate = (
   opts = getMockDataOpts(),
   {
     _getMockData = getMockData,
-    _setDataTo = setDataTo
+    _setDataTo = setDataTo,
+    extraMockMethods
   } = {}
 ) => {
-  const srv = _createMockRESTv2Srv()
+  const srv = _createMockRESTv2Srv({ extraMockMethods })
 
   Object.entries(opts).forEach(([key, val]) => {
     const mockData = _getMockData(key)
