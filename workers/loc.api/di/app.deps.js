@@ -30,6 +30,7 @@ const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 const {
   weightedAveragesReportCsvWriter
 } = require('../generate-csv/csv-writer')
+const WeightedAveragesReport = require('../weighted.averages.report')
 
 module.exports = ({
   rService,
@@ -48,7 +49,8 @@ module.exports = ({
       ['_grcBfxReq', TYPES.GrcBfxReq],
       ['_prepareApiResponse', TYPES.PrepareApiResponse],
       ['_generateCsv', TYPES.GenerateCsv],
-      ['_hasGrcService', TYPES.HasGrcService]
+      ['_hasGrcService', TYPES.HasGrcService],
+      ['_weightedAveragesReport', TYPES.WeightedAveragesReport]
     ])
     bind(TYPES.RServiceDepsSchemaAliase)
       .toDynamicValue((ctx) => {
@@ -193,5 +195,7 @@ module.exports = ({
           ]
         )
       )
+    bind(TYPES.WeightedAveragesReport)
+      .to(WeightedAveragesReport)
   })
 }

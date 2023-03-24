@@ -32,5 +32,6 @@ module.exports = {
   Interrupter: Symbol.for('Interrupter'),
   AbstractWSEventEmitter: Symbol.for('AbstractWSEventEmitter'),
   GetDataFromApi: Symbol.for('GetDataFromApi'),
+  WeightedAveragesReport: Symbol.for('WeightedAveragesReport'),
   WeightedAveragesReportCsvWriter: Symbol.for('WeightedAveragesReportCsvWriter')
 }
