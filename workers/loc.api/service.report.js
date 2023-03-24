@@ -593,6 +593,15 @@ class ReportService extends Api {
     }, 'getChangeLogs', args, cb)
   }
 
+  getWeightedAveragesReport (space, args, cb) {
+    return this._responder(async () => {
+      checkParams(args, 'paramsSchemaForWeightedAveragesReportApi')
+
+      return this._weightedAveragesReport
+        .getWeightedAveragesReport(args)
+    }, 'getWeightedAveragesReport', args, cb)
+  }
+
   getMultipleCsv (space, args, cb) {
     return this._responder(() => {
       return this._generateCsv(
