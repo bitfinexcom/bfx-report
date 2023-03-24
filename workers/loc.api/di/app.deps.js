@@ -27,6 +27,9 @@ const generateCsv = require('../generate-csv')
 const CsvJobData = require('../generate-csv/csv.job.data')
 const Interrupter = require('../interrupter')
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
+const {
+  weightedAveragesReportCsvWriter
+} = require('../generate-csv/csv-writer')
 
 module.exports = ({
   rService,
@@ -180,5 +183,15 @@ module.exports = ({
       .to(Interrupter)
     bind(TYPES.AbstractWSEventEmitter)
       .to(AbstractWSEventEmitter)
+    bind(TYPES.WeightedAveragesReportCsvWriter)
+      .toConstantValue(
+        bindDepsToFn(
+          weightedAveragesReportCsvWriter,
+          [
+            TYPES.RService,
+            TYPES.GetDataFromApi
+          ]
+        )
+      )
   })
 }
