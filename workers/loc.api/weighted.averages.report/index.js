@@ -3,13 +3,16 @@
 const { decorateInjectable } = require('../di/utils')
 
 const depsTypes = (TYPES) => [
-  TYPES.RService
+  TYPES.RService,
+  TYPES.GetDataFromApi
 ]
 class WeightedAveragesReport {
   constructor (
-    rService
+    rService,
+    getDataFromApi
   ) {
     this.rService = rService
+    this.getDataFromApi = getDataFromApi
   }
 
   async getWeightedAveragesReport (args = {}) {
@@ -42,22 +45,95 @@ class WeightedAveragesReport {
   }
 
   async _getTrades (args) {
-    const {
-      auth = {},
-      start = 0,
-      end = Date.now(),
-      symbol = []
-    } = args ?? {}
-
-    const symbFilter = (
-      Array.isArray(symbol) &&
-      symbol.length !== 0
-    )
-      ? { $in: { symbol } }
+    const start = args?.start ?? 0
+    const symbol = args?.symbol?.length > 0
+      ? { symbol: args.symbol }
       : {}
 
-    // TODO:
-    return []
+    let end = args?.end ?? Date.now()
+    let prevEnd = end
+    let serialRequestsCount = 0
+
+    const trades = []
+
+    while (true) {
+      let {
+        res,
+        nextPage
+      } = await this.getDataFromApi({
+        getData: this.rService.getTrades.bind(this.rService),
+        args: {
+          auth: args?.auth ?? {},
+          params: { start, end, ...symbol },
+          notThrowError: true
+        },
+        callerName: 'WEIGHTED_AVERAGES',
+        eNetErrorAttemptsTimeframeMin: 10 / 60,
+        eNetErrorAttemptsTimeoutMs: 1000,
+        shouldNotInterrupt: true
+      })
+
+      prevEnd = end
+      end = nextPage
+
+      if (
+        Array.isArray(res) &&
+        res.length === 0 &&
+        nextPage &&
+        Number.isInteger(nextPage) &&
+        serialRequestsCount < 1
+      ) {
+        serialRequestsCount += 1
+
+        continue
+      }
+
+      serialRequestsCount = 0
+
+      if (
+        !Array.isArray(res) ||
+        res.length === 0
+      ) {
+        break
+      }
+
+      const lastItem = res[res.length - 1]
+      const lastMts = lastItem?.mtsCreate
+      let isAllData = false
+
+      if (
+        !lastItem ||
+        typeof lastItem !== 'object' ||
+        !lastMts ||
+        !Number.isInteger(lastMts)
+      ) {
+        break
+      }
+
+      if (start >= lastMts) {
+        res = res.filter((item) => start <= item?.mtsCreate)
+        isAllData = true
+      }
+      // TODO:
+      if (
+        process.env.NODE_ENV === 'test' &&
+        prevEnd === end
+      ) {
+        isAllData = true
+      }
+
+      trades.push(...res)
+
+      if (
+        isAllData ||
+        !end ||
+        !Number.isInteger(end)
+      ) {
+        break
+      }
+    }
+
+    return trades
   }
 
   _calcTrades (trades = []) {
