@@ -114,6 +114,14 @@ class MinLimitParamError extends UnprocessableEntityError {
   }
 }
 
+class MaxWeightedAveragesReportTradesNumError extends UnprocessableEntityError {
+  constructor (message = 'ERR_REDUCE_TRADES_NUMBER_IS_NEEDED_FOR_WEIGHTED_AVERAGES_REPORT') {
+    super(message)
+
+    this.statusMessage = 'To show the weighted averages report, it is required to reduce the number of trades so that it is no more than 2k'
+  }
+}
+
 class QueueJobAddingError extends ConflictError {
   constructor (message = 'ERR_HAS_JOB_IN_QUEUE') {
     super(message)
@@ -185,5 +193,6 @@ module.exports = {
   ArgsParamsFilterError,
   LedgerPaymentFilteringParamsError,
   GrcSlackAvailabilityError,
-  ImplementationError
+  ImplementationError,
+  MaxWeightedAveragesReportTradesNumError
 }

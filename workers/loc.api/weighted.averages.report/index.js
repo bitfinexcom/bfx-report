@@ -1,5 +1,9 @@
 'use strict'
 
+const {
+  MaxWeightedAveragesReportTradesNumError
+} = require('../errors')
+
 const { decorateInjectable } = require('../di/utils')
 
 const depsTypes = (TYPES) => [
@@ -45,6 +49,7 @@ class WeightedAveragesReport {
   }
 
   async _getTrades (args) {
+    const limit = 2000
     const start = args?.start ?? 0
     const symbol = args?.symbol?.length > 0
       ? { symbol: args.symbol }
@@ -53,6 +58,7 @@ class WeightedAveragesReport {
     let end = args?.end ?? Date.now()
     let prevEnd = end
     let serialRequestsCount = 0
+    let count = 0
 
     const trades = []
 
@@ -114,7 +120,10 @@ class WeightedAveragesReport {
         res = res.filter((item) => start <= item?.mtsCreate)
         isAllData = true
       }
-      // TODO:
+      // After reducing between start/end timeframe check trades count limitation
+      if (limit < (count + res.length)) {
+        throw new MaxWeightedAveragesReportTradesNumError()
+      }
       if (
         process.env.NODE_ENV === 'test' &&
         prevEnd === end
@@ -123,6 +132,7 @@ class WeightedAveragesReport {
       }
 
       trades.push(...res)
+      count += res.length
 
       if (
         isAllData ||
