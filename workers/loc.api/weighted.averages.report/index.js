@@ -1,9 +1,5 @@
 'use strict'
 
-const {
-  MaxWeightedAveragesReportTradesNumError
-} = require('../errors')
-
 const { decorateInjectable } = require('../di/utils')
 
 const depsTypes = (TYPES) => [
@@ -37,7 +33,10 @@ class WeightedAveragesReport {
       s && typeof s === 'string'
     ))
 
-    const trades = await this._getTrades({
+    const {
+      res: trades,
+      nextPage
+    } = await this._getTrades({
       auth,
       start,
       end,
@@ -45,7 +44,10 @@ class WeightedAveragesReport {
     })
     const calcedTrades = this._calcTrades(trades)
 
-    return calcedTrades
+    return {
+      nextPage,
+      res: calcedTrades
+    }
   }
 
   async _getTrades (args) {
@@ -61,6 +63,7 @@ class WeightedAveragesReport {
     let count = 0
 
     const trades = []
+    let nextPageRes = false
 
     while (true) {
       let {
@@ -122,7 +125,9 @@ class WeightedAveragesReport {
       }
       // After reducing between start/end timeframe check trades count limitation
       if (limit < (count + res.length)) {
-        throw new MaxWeightedAveragesReportTradesNumError()
+        res.splice(limit - count)
+        nextPageRes = res[res.length - 1]?.mtsCreate ?? false
+        isAllData = true
       }
       if (
         process.env.NODE_ENV === 'test' &&
@@ -143,7 +148,10 @@ class WeightedAveragesReport {
       }
     }
 
-    return trades
+    return {
+      nextPage: nextPageRes,
+      res: trades
+    }
   }
 
   _calcTrades (trades = []) {

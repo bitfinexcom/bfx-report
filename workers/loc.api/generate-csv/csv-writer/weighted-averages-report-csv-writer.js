@@ -53,7 +53,7 @@ module.exports = (
   pipeline(headerStringifier, wStream, nope)
   pipeline(resStringifier, wStream, nope)
 
-  const res = await getDataFromApi({
+  const { res } = await getDataFromApi({
     getData: rService[name].bind(rService),
     args,
     callerName: 'CSV_WRITER'
