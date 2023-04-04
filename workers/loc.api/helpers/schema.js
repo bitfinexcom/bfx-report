@@ -1,5 +1,7 @@
 'use strict'
 
+const { cloneDeep } = require('lodash')
+
 const _publicTradesSymbol = {
   type: ['string', 'array'],
   if: {
@@ -125,6 +127,21 @@ const paramsSchemaForCandlesApi = {
     },
     sort: {
       type: 'integer'
+    }
+  }
+}
+
+const paramsSchemaForWeightedAveragesReportApi = {
+  type: 'object',
+  properties: {
+    start: {
+      type: 'integer'
+    },
+    end: {
+      type: 'integer'
+    },
+    symbol: {
+      type: ['string', 'array']
     }
   }
 }
@@ -321,6 +338,16 @@ const paramsSchemaForOrderTradesCsv = {
   }
 }
 
+const paramsSchemaForWeightedAveragesReportApiCsv = {
+  type: 'object',
+  properties: {
+    ...cloneDeep(paramsSchemaForWeightedAveragesReportApi.properties),
+    timezone,
+    dateFormat,
+    language
+  }
+}
+
 module.exports = {
   paramsSchemaForApi,
   paramsSchemaForCsv,
@@ -339,5 +366,7 @@ module.exports = {
   paramsSchemaForStatusMessagesApi,
   paramsSchemaForStatusMessagesCsv,
   paramsSchemaForCandlesApi,
-  paramsSchemaForCandlesCsv
+  paramsSchemaForCandlesCsv,
+  paramsSchemaForWeightedAveragesReportApi,
+  paramsSchemaForWeightedAveragesReportApiCsv
 }
