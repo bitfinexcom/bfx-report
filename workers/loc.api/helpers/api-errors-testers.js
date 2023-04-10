@@ -56,6 +56,10 @@ const isEProtoError = (err) => {
   return /EPROTO/.test(err.toString())
 }
 
+const isTempUnavailableError = (err) => {
+  return /temporarily_unavailable/.test(err.toString())
+}
+
 const isENetError = (err) => (
   isENetUnreachError(err) ||
   isEConnResetError(err) ||
@@ -65,7 +69,8 @@ const isENetError = (err) => (
   isENotFoundError(err) ||
   isESocketTimeoutError(err) ||
   isEHostUnreachError(err) ||
-  isEProtoError(err)
+  isEProtoError(err) ||
+  isTempUnavailableError(err)
 )
 
 module.exports = {
@@ -83,5 +88,6 @@ module.exports = {
   isESocketTimeoutError,
   isEHostUnreachError,
   isEProtoError,
+  isTempUnavailableError,
   isENetError
 }
