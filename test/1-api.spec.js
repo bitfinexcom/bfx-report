@@ -1719,4 +1719,50 @@ describe('API', () => {
       'note'
     ])
   })
+
+  it('it should be successfully performed by the getWeightedAveragesReport method', async function () {
+    this.timeout(120000)
+
+    const paramsArr = [
+      { end, start },
+      {
+        end,
+        start: end - (10 * 60 * 60 * 1000),
+        symbol: ['tBTCUSD']
+      }
+    ]
+
+    for (const params of paramsArr) {
+      const res = await agent
+        .post(`${basePath}/json-rpc`)
+        .type('json')
+        .send({
+          auth,
+          method: 'getWeightedAveragesReport',
+          params,
+          id: 5
+        })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      assert.isObject(res.body)
+      assert.propertyVal(res.body, 'id', 5)
+      assert.isObject(res.body.result)
+      assert.isArray(res.body.result.res)
+      assert.isBoolean(res.body.result.nextPage)
+
+      const resItem = res.body.result.res[0]
+
+      assert.isObject(resItem)
+      assert.containsAllKeys(resItem, [
+        'symbol',
+        'buyingWeightedPrice',
+        'buyingAmount',
+        'sellingWeightedPrice',
+        'sellingAmount',
+        'cumulativeWeightedPrice',
+        'cumulativeAmount'
+      ])
+    }
+  })
 })

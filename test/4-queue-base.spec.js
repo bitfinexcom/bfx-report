@@ -42,12 +42,13 @@ const auth = {
   apiKey: 'fake',
   apiSecret: 'fake'
 }
+const mockDataAmount = 10000
 
 describe('Queue', () => {
   before(async function () {
     this.timeout(20000)
 
-    mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, 10000)
+    mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, mockDataAmount)
 
     await rmAllFiles(tempDirPath)
     await rmDB(dbDirPath)
@@ -809,6 +810,33 @@ describe('Queue', () => {
           end,
           start,
           limit: 1000,
+          email
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+  })
+
+  it('it should be successfully performed by the getWeightedAveragesReportCsv method', async function () {
+    this.timeout(60000)
+
+    const procPromise = queueToPromise(processorQueue)
+    const aggrPromise = queueToPromise(aggregatorQueue)
+
+    const _start = end - ((end - start) / (mockDataAmount / 2000))
+
+    const res = await agent
+      .post(`${basePath}/json-rpc`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getWeightedAveragesReportCsv',
+        params: {
+          end,
+          start: _start,
           email
         },
         id: 5

@@ -27,6 +27,10 @@ const generateCsv = require('../generate-csv')
 const CsvJobData = require('../generate-csv/csv.job.data')
 const Interrupter = require('../interrupter')
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
+const {
+  weightedAveragesReportCsvWriter
+} = require('../generate-csv/csv-writer')
+const WeightedAveragesReport = require('../weighted.averages.report')
 
 module.exports = ({
   rService,
@@ -45,7 +49,8 @@ module.exports = ({
       ['_grcBfxReq', TYPES.GrcBfxReq],
       ['_prepareApiResponse', TYPES.PrepareApiResponse],
       ['_generateCsv', TYPES.GenerateCsv],
-      ['_hasGrcService', TYPES.HasGrcService]
+      ['_hasGrcService', TYPES.HasGrcService],
+      ['_weightedAveragesReport', TYPES.WeightedAveragesReport]
     ])
     bind(TYPES.RServiceDepsSchemaAliase)
       .toDynamicValue((ctx) => {
@@ -180,5 +185,17 @@ module.exports = ({
       .to(Interrupter)
     bind(TYPES.AbstractWSEventEmitter)
       .to(AbstractWSEventEmitter)
+    bind(TYPES.WeightedAveragesReportCsvWriter)
+      .toConstantValue(
+        bindDepsToFn(
+          weightedAveragesReportCsvWriter,
+          [
+            TYPES.RService,
+            TYPES.GetDataFromApi
+          ]
+        )
+      )
+    bind(TYPES.WeightedAveragesReport)
+      .to(WeightedAveragesReport)
   })
 }

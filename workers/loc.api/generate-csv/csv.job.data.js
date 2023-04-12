@@ -15,11 +15,16 @@ const {
 } = require('../errors')
 
 const depsTypes = (TYPES) => [
-  TYPES.RService
+  TYPES.RService,
+  TYPES.WeightedAveragesReportCsvWriter
 ]
 class CsvJobData {
-  constructor (rService) {
+  constructor (
+    rService,
+    weightedAveragesReportCsvWriter
+  ) {
     this.rService = rService
+    this.weightedAveragesReportCsvWriter = weightedAveragesReportCsvWriter
   }
 
   async getTradesCsvJobData (
@@ -1026,6 +1031,48 @@ class CsvJobData {
       args,
       jobsData
     }
+  }
+
+  async getWeightedAveragesReportCsvJobData (
+    args,
+    uId,
+    uInfo
+  ) {
+    checkParams(args, 'paramsSchemaForWeightedAveragesReportApiCsv')
+
+    const {
+      userId,
+      userInfo
+    } = await checkJobAndGetUserData(
+      this.rService,
+      uId,
+      uInfo
+    )
+
+    const csvArgs = getCsvArgs(args)
+
+    const jobData = {
+      userInfo,
+      userId,
+      name: 'getWeightedAveragesReport',
+      fileNamesMap: [['getWeightedAveragesReport', 'weighted-averages-report']],
+      args: csvArgs,
+      columnsCsv: {
+        symbol: 'PAIR',
+        buyingWeightedPrice: 'WEIGHTED PRICE',
+        buyingAmount: 'AMOUNT',
+        sellingWeightedPrice: 'WEIGHTED PRICE',
+        sellingAmount: 'AMOUNT',
+        cumulativeWeightedPrice: 'WEIGHTED PRICE',
+        cumulativeAmount: 'AMOUNT'
+      },
+      formatSettings: {
+        symbol: 'symbol'
+      },
+      csvCustomWriter: this.weightedAveragesReportCsvWriter
+    }
+
+    return jobData
   }
 }
 
