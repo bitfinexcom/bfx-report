@@ -506,6 +506,17 @@ class ReportService extends Api {
     }, 'getMovements', args, cb)
   }
 
+  getMovementInfo (space, args, cb) {
+    return this._responder(async () => {
+      checkParams(args, 'paramsSchemaForMovementInfo', ['id'])
+
+      const { auth, params } = args ?? {}
+      const rest = this._getREST(auth)
+
+      return await rest.movementInfo({ id: params?.id })
+    }, 'getMovementInfo', args, cb)
+  }
+
   getFundingOfferHistory (space, args, cb) {
     return this._responder(() => {
       return this._prepareApiResponse(
