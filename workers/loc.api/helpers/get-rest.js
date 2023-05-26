@@ -130,7 +130,7 @@ const _getRestProxy = (rest) => {
 module.exports = (conf) => {
   bfxInstance = _bfxFactory(conf)
 
-  return (auth) => {
+  return (auth, opts) => {
     if (
       !auth ||
       typeof auth !== 'object'
@@ -143,6 +143,9 @@ module.exports = (conf) => {
       apiSecret = '',
       authToken: _authToken = ''
     } = auth
+    const {
+      timeout = 20000
+    } = opts ?? {}
 
     /*
      * It uses dynamic getter to fetch refreshed auth token
@@ -155,8 +158,12 @@ module.exports = (conf) => {
     const _auth = authToken
       ? { authToken }
       : { apiKey, apiSecret }
+    const restOpts = {
+      timeout,
+      ..._auth
+    }
 
-    const rest = bfxInstance.rest(2, _auth)
+    const rest = bfxInstance.rest(2, restOpts)
     const proxy = _getRestProxy(rest)
 
     return proxy
