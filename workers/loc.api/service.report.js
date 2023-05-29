@@ -560,7 +560,7 @@ class ReportService extends Api {
   getAccountSummary (space, args, cb) {
     return this._responder(async () => {
       const { auth } = { ...args }
-      const rest = this._getREST(auth)
+      const rest = this._getREST(auth, { timeout: 30000 })
 
       const res = await rest.accountSummary()
 
