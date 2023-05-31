@@ -3,8 +3,7 @@
 const {
   cloneDeep,
   isEmpty,
-  omit,
-  pick
+  omit
 } = require('lodash')
 
 const filterResponse = require('./filter-response')
@@ -18,51 +17,76 @@ const {
   LedgerPaymentFilteringParamsError
 } = require('../errors')
 
-const _paramsOrderMap = {
-  positionsSnapshot: [
-    'start',
-    'end',
-    'limit'
-  ],
-  statusMessages: [
-    'type',
-    'symbol'
-  ],
-  positionsHistory: [
-    'start',
-    'end',
-    'limit'
-  ],
-  positionsAudit: [
-    'id',
-    'start',
-    'end',
-    'limit'
-  ],
-  orderTrades: [
-    'symbol',
-    'start',
-    'end',
-    'limit',
-    'id'
-  ],
-  logins: [
-    'start',
-    'end',
-    'limit'
-  ],
-  changeLogs: [
-    'start',
-    'end',
-    'limit'
-  ],
-  default: [
-    'symbol',
-    'start',
-    'end',
-    'limit'
-  ]
+// TODO:
+const _paramsMap = {
+  default: {
+    symbol: 'symbol',
+    start: 'start',
+    end: 'end',
+    limit: 'limit'
+  },
+  candles: {
+    timeframe: 'timeframe',
+    symbol: 'symbol',
+    section: 'section',
+    sort: 'query.sort',
+    start: 'query.start',
+    end: 'query.end',
+    limit: 'query.limit'
+  },
+  ledgers: {
+    start: 'start',
+    end: 'end',
+    limit: 'limit',
+    symbol: 'filters.ccy',
+    category: 'filters.category'
+  }
 }
+// const _paramsOrderMap = {
+//   positionsSnapshot: [
+//     'start',
+//     'end',
+//     'limit'
+//   ],
+//   statusMessages: [
+//     'type',
+//     'symbol'
+//   ],
+//   positionsHistory: [
+//     'start',
+//     'end',
+//     'limit'
+//   ],
+//   positionsAudit: [
+//     'id',
+//     'start',
+//     'end',
+//     'limit'
+//   ],
+//   orderTrades: [
+//     'symbol',
+//     'start',
+//     'end',
+//     'limit',
+//     'id'
+//   ],
+//   logins: [
+//     'start',
+//     'end',
+//     'limit'
+//   ],
+//   changeLogs: [
+//     'start',
+//     'end',
+//     'limit'
+//   ],
+//   default: [
+//     'symbol',
+//     'start',
+//     'end',
+//     'limit'
+//   ]
+// }
 
 const _paramsSchemasMap = {
   payInvoiceList: 'paramsSchemaForPayInvoiceList',
@@ -74,18 +98,11 @@ const _paramsSchemasMap = {
   default: 'paramsSchemaForApi'
 }
 
-const _getParamsOrder = (
+const _getParamsMap = (
   method,
-  map = _paramsOrderMap
+  map = _paramsMap
 ) => {
-  return (
-    map &&
-    typeof map === 'object' &&
-    map[method] &&
-    Array.isArray(map[method])
-  )
-    ? map[method]
-    : map.default
+  return map?.[method] ?? map.default
 }
 
 const _getSchemaNameByMethodName = (
@@ -109,9 +126,7 @@ const _getSymbols = (
 ) => {
   if (
     typeof symbPropName !== 'string' ||
-    !args.params ||
-    typeof args.params !== 'object' ||
-    !args.params.symbol ||
+    !args?.params?.symbol ||
     methodApi === 'candles' ||
     methodApi === 'publicTrades'
   ) {
@@ -138,7 +153,7 @@ const _getSymbols = (
     : null
 }
 
-const _getSymbolParam = (
+const _getSymbolParams = (
   methodApi,
   params,
   symbPropName
@@ -149,27 +164,31 @@ const _getSymbolParam = (
     isStakingPayments,
     symbol,
     category
-  } = { ...params }
+  } = params ?? {}
 
   if (methodApi === 'payInvoiceList') {
-    return null
+    return { symbol: null }
   }
   if (
     methodApi === 'candles' ||
     methodApi === 'publicTrades'
   ) {
-    return Array.isArray(symbol)
-      ? symbol[0]
-      : symbol
+    return {
+      symbol: Array.isArray(symbol)
+        ? symbol[0]
+        : symbol
+    }
   }
   if (methodApi === 'statusMessages') {
     const _symbol = isEmpty(symbol)
       ? 'ALL'
       : symbol
 
-    return Array.isArray(_symbol)
-      ? _symbol
-      : [_symbol]
+    return {
+      symbol: Array.isArray(_symbol)
+        ? _symbol
+        : [_symbol]
+    }
   }
   if (
     methodApi === 'ledgers' &&
@@ -201,16 +220,16 @@ const _getSymbolParam = (
         ? Number.parseFloat(category)
         : category
 
-      return { ccy, category: normCategory }
+      return { symbol: ccy, category: normCategory }
     }
     if (isAffiliateRebate) {
-      return { ccy, category: 241 }
+      return { symbol: ccy, category: 241 }
     }
     if (isStakingPayments) {
-      return { ccy, category: 262 }
+      return { symbol: ccy, category: 262 }
     }
 
-    return { ccy, category: 28 }
+    return { symbol: ccy, category: 28 }
   }
   if (
     typeof symbPropName === 'string' &&
@@ -218,16 +237,20 @@ const _getSymbolParam = (
     methodApi !== 'positionsAudit' &&
     Array.isArray(symbol)
   ) {
-    return symbol.length > 1 ? null : symbol[0]
+    return {
+      symbol: symbol.length > 1
+        ? null
+        : symbol[0]
+    }
   }
   if (
     !symbol &&
     methodApi === 'fundingTrades'
   ) {
-    return null
+    return { symbol: null }
   }
 
-  return symbol
+  return { symbol }
 }
 
 const _getParams = (
@@ -236,59 +259,49 @@ const _getParams = (
   symbPropName,
   opts = {}
 ) => {
-  const isRequiredParamsObj = methodApi === 'payInvoiceList'
-
   if (
     !args.params ||
     typeof args.params !== 'object'
   ) {
     return {
-      paramsArr: [],
-      paramsObj: {},
-      isRequiredParamsObj
+      queryParams: {},
+      allParams: {}
     }
   }
 
-  const { params } = { ...args }
-  const { isInnerMax, isNotMoreThanInnerMax } = { ...opts }
+  const { params } = args ?? {}
+  const { isInnerMax, isNotMoreThanInnerMax } = opts ?? {}
   const limit = isInnerMax
     ? { isInnerMax }
     : { limit: params.limit, isNotMoreThanInnerMax }
-  const paramsObj = {
+  const allParams = {
     ...cloneDeep(params),
+    ..._getSymbolParams(methodApi, params, symbPropName),
     end: getDateNotMoreNow(params.end),
-    limit: getMethodLimit(limit, methodApi),
-    symbol: _getSymbolParam(methodApi, params, symbPropName)
+    limit: getMethodLimit(limit, methodApi)
   }
+  const paramsMap = _getParamsMap(methodApi)
+  const queryParams = Object.entries(paramsMap)
+    .reduce((accum, [inParamName, queryParamNamesStr]) => {
+      const queryParamNamesArr = queryParamNamesStr.split('.')
+      const value = allParams[inParamName]
 
-  if (methodApi === 'candles') {
-    const query = pick(paramsObj, [
-      'limit',
-      'start',
-      'end',
-      'sort'
-    ])
-    const _params = pick(paramsObj, [
-      'section',
-      'timeframe',
-      'symbol'
-    ])
-    const paramsArr = [{ ..._params, query }]
+      queryParamNamesArr.reduce((innerAccum, propName, i, arr) => {
+        const isLast = arr.length === (i + 1)
 
-    return {
-      paramsArr,
-      paramsObj,
-      isRequiredParamsObj
-    }
-  }
+        innerAccum[propName] = isLast
+          ? value
+          : innerAccum[propName] ?? {}
 
-  const paramsOrder = _getParamsOrder(methodApi)
-  const paramsArr = paramsOrder.map(key => paramsObj[key])
+        return innerAccum[propName]
+      }, accum)
+
+      return accum
+    }, {})
 
   return {
-    paramsArr,
-    paramsObj,
-    isRequiredParamsObj
+    queryParams,
+    allParams
   }
 }
 
@@ -333,9 +346,9 @@ const _isNotContainedSameMts = (
     isMax = true,
     isInnerMax,
     isNotMoreThanInnerMax
-  } = { ...opts }
-  const firstElem = { ...apiRes[0] }
-  const mts = firstElem[datePropName]
+  } = opts ?? {}
+  const firstElem = apiRes[0] ?? {}
+  const mts = firstElem?.[datePropName]
   const methodLimit = getMethodLimit(
     { isMax, isInnerMax, isNotMoreThanInnerMax },
     methodApi
@@ -344,12 +357,9 @@ const _isNotContainedSameMts = (
   return (
     apiRes.length === 0 ||
     methodLimit > limit ||
-    apiRes.some((item) => {
-      const _item = { ...item }
-      const _mts = _item[datePropName]
-
-      return _mts !== mts
-    })
+    apiRes.some((item) => (
+      item?.[datePropName] !== mts
+    ))
   )
 }
 
@@ -361,24 +371,20 @@ const _getResAndParams = async (
   opts = {}
 ) => {
   const {
-    paramsArr,
-    paramsObj,
-    isRequiredParamsObj
+    queryParams,
+    allParams
   } = _getParams(args, methodApi, symbPropName, opts)
-  const params = isRequiredParamsObj
-    ? paramsObj
-    : paramsArr
 
   const apiRes = await _requestToApi(
     getREST,
     methodApi,
-    params,
+    queryParams,
     args.auth
   )
 
   return {
     apiRes,
-    paramsObj
+    allParams
   }
 }
 
@@ -490,7 +496,7 @@ const prepareApiResponse = (
     requireFields,
     parseFieldsFn,
     isNotMoreThanInnerMax: _isNotMoreThanInnerMax
-  } = { ...params }
+  } = params ?? {}
   const schemaName = _getSchemaNameByMethodName(methodApi)
 
   checkParams(reqArgs, schemaName, requireFields)
@@ -512,7 +518,7 @@ const prepareApiResponse = (
     resData.apiRes,
     methodApi,
     datePropName,
-    resData.paramsObj.limit,
+    resData.allParams.limit,
     { isNotMoreThanInnerMax }
   )
   const opts = isNotContainedSameMts
@@ -520,7 +526,7 @@ const prepareApiResponse = (
     : { isInnerMax: true, isNotMoreThanInnerMax }
   const {
     apiRes,
-    paramsObj
+    allParams
   } = isNotContainedSameMts
     ? resData
     : await _getResAndParams(
@@ -535,7 +541,7 @@ const prepareApiResponse = (
     notThrowError,
     notCheckNextPage,
     filter
-  } = paramsObj
+  } = allParams
   const omittedRes = _omitPrivateModelFields(apiRes)
   const res = typeof parseFieldsFn === 'function'
     ? parseFieldsFn(omittedRes)
