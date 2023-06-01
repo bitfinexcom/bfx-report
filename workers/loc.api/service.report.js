@@ -37,7 +37,7 @@ class ReportService extends Api {
     const rest = this._getREST(args?.auth)
     const { authToken } = args?.params ?? {}
 
-    return rest.invalidateAuthToken(authToken)
+    return rest.invalidateAuthToken({ authToken })
   }
 
   _getUserInfo (args) {
