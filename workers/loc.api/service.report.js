@@ -71,11 +71,11 @@ class ReportService extends Api {
   }
 
   async _getConf (opts) {
-    const { keys } = { ...opts }
-    const _keys = Array.isArray(keys) ? keys : [keys]
+    const { keys: _keys } = opts ?? {}
+    const keys = Array.isArray(_keys) ? _keys : [_keys]
     const rest = this._getREST({})
 
-    const res = await rest.conf(_keys)
+    const res = await rest.conf({ keys })
 
     return Array.isArray(res) ? res : []
   }
