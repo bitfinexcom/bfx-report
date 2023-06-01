@@ -233,12 +233,12 @@ class ReportService extends Api {
 
   updateSettings (space, args, cb) {
     return this._responder(async () => {
-      const { auth, params } = { ...args }
-      const { settings = {} } = { ...params }
+      const { auth, params } = args ?? {}
+      const { settings = {} } = params ?? {}
 
       const rest = this._getREST(auth)
 
-      return rest.updateSettings(settings)
+      return rest.updateSettings({ settings })
     }, 'updateSettings', args, cb)
   }
 
