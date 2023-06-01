@@ -17,7 +17,6 @@ const {
   LedgerPaymentFilteringParamsError
 } = require('../errors')
 
-// TODO:
 const _paramsMap = {
   default: {
     symbol: 'symbol',
@@ -25,6 +24,7 @@ const _paramsMap = {
     end: 'end',
     limit: 'limit'
   },
+
   candles: {
     timeframe: 'timeframe',
     symbol: 'symbol',
@@ -40,53 +40,58 @@ const _paramsMap = {
     limit: 'limit',
     symbol: 'filters.ccy',
     category: 'filters.category'
+  },
+  statusMessages: {
+    type: 'type',
+    symbol: 'keys'
+  },
+  positionsAudit: {
+    start: 'start',
+    end: 'end',
+    limit: 'limit',
+    id: 'id'
+  },
+  orderTrades: {
+    start: 'start',
+    end: 'end',
+    limit: 'limit',
+    id: 'orderId'
+  },
+  tickersHistory: {
+    symbol: 'symbols',
+    start: 'start',
+    end: 'end',
+    limit: 'limit'
+  },
+  payInvoiceList: {
+    start: 'start',
+    end: 'end',
+    limit: 'limit',
+    id: 'id'
+  },
+  trades: {
+    symbol: 'symbol',
+    start: 'start',
+    end: 'end',
+    limit: 'limit',
+    sort: 'sort'
+  },
+  accountTrades: {
+    symbol: 'symbol',
+    start: 'start',
+    end: 'end',
+    limit: 'limit',
+    sort: 'sort'
+  },
+  movements: {
+    symbol: 'ccy',
+    start: 'start',
+    end: 'end',
+    limit: 'limit',
+    address: 'address',
+    id: 'id'
   }
 }
-// const _paramsOrderMap = {
-//   positionsSnapshot: [
-//     'start',
-//     'end',
-//     'limit'
-//   ],
-//   statusMessages: [
-//     'type',
-//     'symbol'
-//   ],
-//   positionsHistory: [
-//     'start',
-//     'end',
-//     'limit'
-//   ],
-//   positionsAudit: [
-//     'id',
-//     'start',
-//     'end',
-//     'limit'
-//   ],
-//   orderTrades: [
-//     'symbol',
-//     'start',
-//     'end',
-//     'limit',
-//     'id'
-//   ],
-//   logins: [
-//     'start',
-//     'end',
-//     'limit'
-//   ],
-//   changeLogs: [
-//     'start',
-//     'end',
-//     'limit'
-//   ],
-//   default: [
-//     'symbol',
-//     'start',
-//     'end',
-//     'limit'
-//   ]
-// }
 
 const _paramsSchemasMap = {
   payInvoiceList: 'paramsSchemaForPayInvoiceList',
