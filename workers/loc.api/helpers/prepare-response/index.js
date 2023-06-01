@@ -6,92 +6,19 @@ const {
   omit
 } = require('lodash')
 
-const filterResponse = require('./filter-response')
-const checkParams = require('./check-params')
-const checkFilterParams = require('./check-filter-params')
-const normalizeFilterParams = require('./normalize-filter-params')
-const { getMethodLimit } = require('./limit-param.helpers')
-const { getDateNotMoreNow } = require('./date-param.helpers')
+const filterResponse = require('../filter-response')
+const checkParams = require('../check-params')
+const checkFilterParams = require('../check-filter-params')
+const normalizeFilterParams = require('../normalize-filter-params')
+const { getMethodLimit } = require('../limit-param.helpers')
+const { getDateNotMoreNow } = require('../date-param.helpers')
 const {
   MinLimitParamError,
   LedgerPaymentFilteringParamsError
-} = require('../errors')
-
-const _paramsMap = {
-  default: {
-    symbol: 'symbol',
-    start: 'start',
-    end: 'end',
-    limit: 'limit'
-  },
-
-  candles: {
-    timeframe: 'timeframe',
-    symbol: 'symbol',
-    section: 'section',
-    sort: 'query.sort',
-    start: 'query.start',
-    end: 'query.end',
-    limit: 'query.limit'
-  },
-  ledgers: {
-    start: 'start',
-    end: 'end',
-    limit: 'limit',
-    symbol: 'filters.ccy',
-    category: 'filters.category'
-  },
-  statusMessages: {
-    type: 'type',
-    symbol: 'keys'
-  },
-  positionsAudit: {
-    start: 'start',
-    end: 'end',
-    limit: 'limit',
-    id: 'id'
-  },
-  orderTrades: {
-    start: 'start',
-    end: 'end',
-    limit: 'limit',
-    id: 'orderId'
-  },
-  tickersHistory: {
-    symbol: 'symbols',
-    start: 'start',
-    end: 'end',
-    limit: 'limit'
-  },
-  payInvoiceList: {
-    start: 'start',
-    end: 'end',
-    limit: 'limit',
-    id: 'id'
-  },
-  trades: {
-    symbol: 'symbol',
-    start: 'start',
-    end: 'end',
-    limit: 'limit',
-    sort: 'sort'
-  },
-  accountTrades: {
-    symbol: 'symbol',
-    start: 'start',
-    end: 'end',
-    limit: 'limit',
-    sort: 'sort'
-  },
-  movements: {
-    symbol: 'ccy',
-    start: 'start',
-    end: 'end',
-    limit: 'limit',
-    address: 'address',
-    id: 'id'
-  }
-}
+} = require('../../errors')
+const {
+  getParamsMap
+} = require('./helpers')
 
 const _paramsSchemasMap = {
   payInvoiceList: 'paramsSchemaForPayInvoiceList',
@@ -101,13 +28,6 @@ const _paramsSchemasMap = {
   orderTrades: 'paramsSchemaForOrderTradesApi',
   candles: 'paramsSchemaForCandlesApi',
   default: 'paramsSchemaForApi'
-}
-
-const _getParamsMap = (
-  method,
-  map = _paramsMap
-) => {
-  return map?.[method] ?? map.default
 }
 
 const _getSchemaNameByMethodName = (
@@ -285,7 +205,7 @@ const _getParams = (
     end: getDateNotMoreNow(params.end),
     limit: getMethodLimit(limit, methodApi)
   }
-  const paramsMap = _getParamsMap(methodApi)
+  const paramsMap = getParamsMap(methodApi)
   const queryParams = Object.entries(paramsMap)
     .reduce((accum, [inParamName, queryParamNamesStr]) => {
       const queryParamNamesArr = queryParamNamesStr.split('.')
