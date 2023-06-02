@@ -6,14 +6,14 @@ const filterResponse = require('../filter-response')
 const checkParams = require('../check-params')
 const checkFilterParams = require('../check-filter-params')
 const normalizeFilterParams = require('../normalize-filter-params')
-const { getMethodLimit } = require('../limit-param.helpers')
 
 const {
   getParamsSchemaName,
   omitPrivateModelFields,
   getBfxApiMethodName,
   getSymbolsForFiltering,
-  getParams
+  getParams,
+  isNotContainedSameMts
 } = require('./helpers')
 
 const _requestToApi = (
@@ -32,38 +32,6 @@ const _requestToApi = (
   }
 
   return fn(params)
-}
-
-const _isNotContainedSameMts = (
-  apiRes,
-  apiMethodName,
-  datePropName,
-  limit,
-  opts = {}
-) => {
-  if (!Array.isArray(apiRes)) {
-    return false
-  }
-
-  const {
-    isMax = true,
-    isInnerMax,
-    isNotMoreThanInnerMax
-  } = opts ?? {}
-  const firstElem = apiRes[0] ?? {}
-  const mts = firstElem?.[datePropName]
-  const methodLimit = getMethodLimit(
-    { isMax, isInnerMax, isNotMoreThanInnerMax },
-    apiMethodName
-  )
-
-  return (
-    apiRes.length === 0 ||
-    methodLimit > limit ||
-    apiRes.some((item) => (
-      item?.[datePropName] !== mts
-    ))
-  )
 }
 
 const _getResAndParams = async (
@@ -110,11 +78,13 @@ const prepareResponse = (
     !notCheckNextPage &&
     Array.isArray(apiRes) &&
     apiRes.length === limit &&
-    _isNotContainedSameMts(
-      apiRes,
-      apiMethodName,
-      datePropName,
-      limit,
+    isNotContainedSameMts(
+      {
+        apiRes,
+        apiMethodName,
+        datePropName,
+        limit
+      },
       opts
     )
   )
@@ -184,20 +154,22 @@ const prepareApiResponse = (
     symbPropName,
     { isNotMoreThanInnerMax }
   )
-  const isNotContainedSameMts = _isNotContainedSameMts(
-    resData.apiRes,
-    apiMethodName,
-    datePropName,
-    resData.allParams.limit,
+  const _isNotContainedSameMts = isNotContainedSameMts(
+    {
+      apiRes: resData.apiRes,
+      apiMethodName,
+      datePropName,
+      limit: resData.allParams.limit
+    },
     { isNotMoreThanInnerMax }
   )
-  const opts = isNotContainedSameMts
+  const opts = _isNotContainedSameMts
     ? { isMax: true, isNotMoreThanInnerMax }
     : { isInnerMax: true, isNotMoreThanInnerMax }
   const {
     apiRes,
     allParams
-  } = isNotContainedSameMts
+  } = _isNotContainedSameMts
     ? resData
     : await _getResAndParams(
       getREST,

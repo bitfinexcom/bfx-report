@@ -7,6 +7,7 @@ const getBfxApiMethodName = require('./get-bfx-api-method-name')
 const getSymbolsForFiltering = require('./get-symbols-for-filtering')
 const getSymbolParams = require('./get-symbol-params')
 const getParams = require('./get-params')
+const isNotContainedSameMts = require('./is-not-contained-same-mts')
 
 module.exports = {
   getParamsMap,
@@ -15,5 +16,6 @@ module.exports = {
   getBfxApiMethodName,
   getSymbolsForFiltering,
   getSymbolParams,
-  getParams
+  getParams,
+  isNotContainedSameMts
 }
