@@ -17,32 +17,9 @@ const {
   LedgerPaymentFilteringParamsError
 } = require('../../errors')
 const {
-  getParamsMap
+  getParamsMap,
+  getParamsSchemaName
 } = require('./helpers')
-
-const _paramsSchemasMap = {
-  payInvoiceList: 'paramsSchemaForPayInvoiceList',
-  statusMessages: 'paramsSchemaForStatusMessagesApi',
-  publicTrades: 'paramsSchemaForPublicTrades',
-  positionsAudit: 'paramsSchemaForPositionsAudit',
-  orderTrades: 'paramsSchemaForOrderTradesApi',
-  candles: 'paramsSchemaForCandlesApi',
-  default: 'paramsSchemaForApi'
-}
-
-const _getSchemaNameByMethodName = (
-  method,
-  map = _paramsSchemasMap
-) => {
-  return (
-    map &&
-    typeof map === 'object' &&
-    map[method] &&
-    typeof map[method] === 'string'
-  )
-    ? map[method]
-    : map.default
-}
 
 const _getSymbols = (
   methodApi,
@@ -422,7 +399,7 @@ const prepareApiResponse = (
     parseFieldsFn,
     isNotMoreThanInnerMax: _isNotMoreThanInnerMax
   } = params ?? {}
-  const schemaName = _getSchemaNameByMethodName(methodApi)
+  const schemaName = getParamsSchemaName(methodApi)
 
   checkParams(reqArgs, schemaName, requireFields)
   const args = normalizeFilterParams(methodApi, reqArgs)
