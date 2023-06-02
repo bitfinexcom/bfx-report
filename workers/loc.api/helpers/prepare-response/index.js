@@ -1,76 +1,20 @@
 'use strict'
 
-const { cloneDeep } = require('lodash')
+const { MinLimitParamError } = require('../../errors')
 
 const filterResponse = require('../filter-response')
 const checkParams = require('../check-params')
 const checkFilterParams = require('../check-filter-params')
 const normalizeFilterParams = require('../normalize-filter-params')
 const { getMethodLimit } = require('../limit-param.helpers')
-const { getDateNotMoreNow } = require('../date-param.helpers')
+
 const {
-  MinLimitParamError
-} = require('../../errors')
-const {
-  getParamsMap,
   getParamsSchemaName,
   omitPrivateModelFields,
   getBfxApiMethodName,
   getSymbolsForFiltering,
-  getSymbolParams
+  getParams
 } = require('./helpers')
-
-const _getParams = (
-  args,
-  apiMethodName,
-  symbPropName,
-  opts = {}
-) => {
-  if (
-    !args.params ||
-    typeof args.params !== 'object'
-  ) {
-    return {
-      queryParams: {},
-      allParams: {}
-    }
-  }
-
-  const { params } = args ?? {}
-  const { isInnerMax, isNotMoreThanInnerMax } = opts ?? {}
-  const limit = isInnerMax
-    ? { isInnerMax }
-    : { limit: params.limit, isNotMoreThanInnerMax }
-  const allParams = {
-    ...cloneDeep(params),
-    ...getSymbolParams({ apiMethodName, params, symbPropName }),
-    end: getDateNotMoreNow(params.end),
-    limit: getMethodLimit(limit, apiMethodName)
-  }
-  const paramsMap = getParamsMap(apiMethodName)
-  const queryParams = Object.entries(paramsMap)
-    .reduce((accum, [inParamName, queryParamNamesStr]) => {
-      const queryParamNamesArr = queryParamNamesStr.split('.')
-      const value = allParams[inParamName]
-
-      queryParamNamesArr.reduce((innerAccum, propName, i, arr) => {
-        const isLast = arr.length === (i + 1)
-
-        innerAccum[propName] = isLast
-          ? value
-          : innerAccum[propName] ?? {}
-
-        return innerAccum[propName]
-      }, accum)
-
-      return accum
-    }, {})
-
-  return {
-    queryParams,
-    allParams
-  }
-}
 
 const _requestToApi = (
   getREST,
@@ -132,7 +76,10 @@ const _getResAndParams = async (
   const {
     queryParams,
     allParams
-  } = _getParams(args, apiMethodName, symbPropName, opts)
+  } = getParams(
+    { args, apiMethodName, symbPropName },
+    opts
+  )
 
   const apiRes = await _requestToApi(
     getREST,
