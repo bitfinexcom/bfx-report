@@ -1,9 +1,6 @@
 'use strict'
 
-const {
-  cloneDeep,
-  isEmpty
-} = require('lodash')
+const { cloneDeep } = require('lodash')
 
 const filterResponse = require('../filter-response')
 const checkParams = require('../check-params')
@@ -12,116 +9,16 @@ const normalizeFilterParams = require('../normalize-filter-params')
 const { getMethodLimit } = require('../limit-param.helpers')
 const { getDateNotMoreNow } = require('../date-param.helpers')
 const {
-  MinLimitParamError,
-  LedgerPaymentFilteringParamsError
+  MinLimitParamError
 } = require('../../errors')
 const {
   getParamsMap,
   getParamsSchemaName,
   omitPrivateModelFields,
   getBfxApiMethodName,
-  getSymbolsForFiltering
+  getSymbolsForFiltering,
+  getSymbolParams
 } = require('./helpers')
-
-const _getSymbolParams = (
-  apiMethodName,
-  params,
-  symbPropName
-) => {
-  const {
-    isMarginFundingPayment,
-    isAffiliateRebate,
-    isStakingPayments,
-    symbol,
-    category
-  } = params ?? {}
-
-  if (apiMethodName === 'payInvoiceList') {
-    return { symbol: null }
-  }
-  if (
-    apiMethodName === 'candles' ||
-    apiMethodName === 'publicTrades'
-  ) {
-    return {
-      symbol: Array.isArray(symbol)
-        ? symbol[0]
-        : symbol
-    }
-  }
-  if (apiMethodName === 'statusMessages') {
-    const _symbol = isEmpty(symbol)
-      ? 'ALL'
-      : symbol
-
-    return {
-      symbol: Array.isArray(_symbol)
-        ? _symbol
-        : [_symbol]
-    }
-  }
-  if (
-    apiMethodName === 'ledgers' &&
-    (
-      isMarginFundingPayment ||
-      isAffiliateRebate ||
-      isStakingPayments ||
-      category
-    )
-  ) {
-    if ([
-      isMarginFundingPayment,
-      isAffiliateRebate,
-      isStakingPayments,
-      category
-    ].filter(f => f).length > 1) {
-      throw new LedgerPaymentFilteringParamsError()
-    }
-
-    const symbArr = Array.isArray(symbol)
-      ? symbol
-      : [symbol]
-    const ccy = symbArr.length > 1
-      ? null
-      : symbArr[0]
-
-    if (category) {
-      const normCategory = typeof category === 'string'
-        ? Number.parseFloat(category)
-        : category
-
-      return { symbol: ccy, category: normCategory }
-    }
-    if (isAffiliateRebate) {
-      return { symbol: ccy, category: 241 }
-    }
-    if (isStakingPayments) {
-      return { symbol: ccy, category: 262 }
-    }
-
-    return { symbol: ccy, category: 28 }
-  }
-  if (
-    typeof symbPropName === 'string' &&
-    apiMethodName !== 'positionsHistory' &&
-    apiMethodName !== 'positionsAudit' &&
-    Array.isArray(symbol)
-  ) {
-    return {
-      symbol: symbol.length > 1
-        ? null
-        : symbol[0]
-    }
-  }
-  if (
-    !symbol &&
-    apiMethodName === 'fundingTrades'
-  ) {
-    return { symbol: null }
-  }
-
-  return { symbol }
-}
 
 const _getParams = (
   args,
@@ -146,7 +43,7 @@ const _getParams = (
     : { limit: params.limit, isNotMoreThanInnerMax }
   const allParams = {
     ...cloneDeep(params),
-    ..._getSymbolParams(apiMethodName, params, symbPropName),
+    ...getSymbolParams({ apiMethodName, params, symbPropName }),
     end: getDateNotMoreNow(params.end),
     limit: getMethodLimit(limit, apiMethodName)
   }
