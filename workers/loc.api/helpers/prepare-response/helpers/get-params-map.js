@@ -66,10 +66,10 @@ const PARAMS_MAP = {
 }
 
 module.exports = (
-  methodName,
+  apiMethodName,
   map = PARAMS_MAP
 ) => {
-  const _methodName = getBfxApiMethodName(methodName)
+  const bfxApiMethodName = getBfxApiMethodName(apiMethodName)
 
-  return map?.[_methodName] ?? map.default
+  return map?.[bfxApiMethodName] ?? map.default
 }

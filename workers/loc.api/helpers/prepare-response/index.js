@@ -19,45 +19,12 @@ const {
   getParamsMap,
   getParamsSchemaName,
   omitPrivateModelFields,
-  getBfxApiMethodName
+  getBfxApiMethodName,
+  getSymbolsForFiltering
 } = require('./helpers')
 
-const _getSymbols = (
-  methodApi,
-  symbPropName,
-  args
-) => {
-  if (
-    typeof symbPropName !== 'string' ||
-    !args?.params?.symbol ||
-    methodApi === 'candles' ||
-    methodApi === 'publicTrades'
-  ) {
-    return null
-  }
-
-  const symbol = args.params.symbol
-
-  if (
-    methodApi === 'positionsHistory' ||
-    methodApi === 'positionsAudit' ||
-    methodApi === 'payInvoiceList'
-  ) {
-    return Array.isArray(symbol)
-      ? [...symbol]
-      : [symbol]
-  }
-
-  return (
-    Array.isArray(symbol) &&
-    symbol.length > 1
-  )
-    ? [...symbol]
-    : null
-}
-
 const _getSymbolParams = (
-  methodApi,
+  apiMethodName,
   params,
   symbPropName
 ) => {
@@ -69,12 +36,12 @@ const _getSymbolParams = (
     category
   } = params ?? {}
 
-  if (methodApi === 'payInvoiceList') {
+  if (apiMethodName === 'payInvoiceList') {
     return { symbol: null }
   }
   if (
-    methodApi === 'candles' ||
-    methodApi === 'publicTrades'
+    apiMethodName === 'candles' ||
+    apiMethodName === 'publicTrades'
   ) {
     return {
       symbol: Array.isArray(symbol)
@@ -82,7 +49,7 @@ const _getSymbolParams = (
         : symbol
     }
   }
-  if (methodApi === 'statusMessages') {
+  if (apiMethodName === 'statusMessages') {
     const _symbol = isEmpty(symbol)
       ? 'ALL'
       : symbol
@@ -94,7 +61,7 @@ const _getSymbolParams = (
     }
   }
   if (
-    methodApi === 'ledgers' &&
+    apiMethodName === 'ledgers' &&
     (
       isMarginFundingPayment ||
       isAffiliateRebate ||
@@ -136,8 +103,8 @@ const _getSymbolParams = (
   }
   if (
     typeof symbPropName === 'string' &&
-    methodApi !== 'positionsHistory' &&
-    methodApi !== 'positionsAudit' &&
+    apiMethodName !== 'positionsHistory' &&
+    apiMethodName !== 'positionsAudit' &&
     Array.isArray(symbol)
   ) {
     return {
@@ -148,7 +115,7 @@ const _getSymbolParams = (
   }
   if (
     !symbol &&
-    methodApi === 'fundingTrades'
+    apiMethodName === 'fundingTrades'
   ) {
     return { symbol: null }
   }
@@ -158,7 +125,7 @@ const _getSymbolParams = (
 
 const _getParams = (
   args,
-  methodApi,
+  apiMethodName,
   symbPropName,
   opts = {}
 ) => {
@@ -179,11 +146,11 @@ const _getParams = (
     : { limit: params.limit, isNotMoreThanInnerMax }
   const allParams = {
     ...cloneDeep(params),
-    ..._getSymbolParams(methodApi, params, symbPropName),
+    ..._getSymbolParams(apiMethodName, params, symbPropName),
     end: getDateNotMoreNow(params.end),
-    limit: getMethodLimit(limit, methodApi)
+    limit: getMethodLimit(limit, apiMethodName)
   }
-  const paramsMap = getParamsMap(methodApi)
+  const paramsMap = getParamsMap(apiMethodName)
   const queryParams = Object.entries(paramsMap)
     .reduce((accum, [inParamName, queryParamNamesStr]) => {
       const queryParamNamesArr = queryParamNamesStr.split('.')
@@ -210,12 +177,14 @@ const _getParams = (
 
 const _requestToApi = (
   getREST,
-  method,
+  apiMethodName,
   params,
   auth
 ) => {
   const rest = getREST(auth)
-  const fn = rest[getBfxApiMethodName(method)].bind(rest)
+  const bfxApiMethodName = getBfxApiMethodName(apiMethodName)
+
+  const fn = rest[bfxApiMethodName].bind(rest)
 
   if (Array.isArray(params)) {
     return fn(...params)
@@ -226,7 +195,7 @@ const _requestToApi = (
 
 const _isNotContainedSameMts = (
   apiRes,
-  methodApi,
+  apiMethodName,
   datePropName,
   limit,
   opts = {}
@@ -244,7 +213,7 @@ const _isNotContainedSameMts = (
   const mts = firstElem?.[datePropName]
   const methodLimit = getMethodLimit(
     { isMax, isInnerMax, isNotMoreThanInnerMax },
-    methodApi
+    apiMethodName
   )
 
   return (
@@ -259,18 +228,18 @@ const _isNotContainedSameMts = (
 const _getResAndParams = async (
   getREST,
   args,
-  methodApi,
+  apiMethodName,
   symbPropName,
   opts = {}
 ) => {
   const {
     queryParams,
     allParams
-  } = _getParams(args, methodApi, symbPropName, opts)
+  } = _getParams(args, apiMethodName, symbPropName, opts)
 
   const apiRes = await _requestToApi(
     getREST,
-    methodApi,
+    apiMethodName,
     queryParams,
     args.auth
   )
@@ -289,7 +258,7 @@ const prepareResponse = (
   notCheckNextPage = false,
   symbols,
   symbPropName,
-  methodApi,
+  apiMethodName,
   filter,
   opts = {}
 ) => {
@@ -299,7 +268,7 @@ const prepareResponse = (
     apiRes.length === limit &&
     _isNotContainedSameMts(
       apiRes,
-      methodApi,
+      apiMethodName,
       datePropName,
       limit,
       opts
@@ -344,7 +313,7 @@ const prepareApiResponse = (
   getREST
 ) => async (
   reqArgs,
-  methodApi,
+  apiMethodName,
   params = {}
 ) => {
   const {
@@ -354,26 +323,26 @@ const prepareApiResponse = (
     parseFieldsFn,
     isNotMoreThanInnerMax: _isNotMoreThanInnerMax
   } = params ?? {}
-  const schemaName = getParamsSchemaName(methodApi)
+  const schemaName = getParamsSchemaName(apiMethodName)
 
   checkParams(reqArgs, schemaName, requireFields)
-  const args = normalizeFilterParams(methodApi, reqArgs)
-  checkFilterParams(methodApi, args)
+  const args = normalizeFilterParams(apiMethodName, reqArgs)
+  checkFilterParams(apiMethodName, args)
 
-  const symbols = _getSymbols(methodApi, symbPropName, args)
+  const symbols = getSymbolsForFiltering({ apiMethodName, symbPropName, args })
   const isSyncRequest = args?.params?.isSyncRequest
   const isNotMoreThanInnerMax = isSyncRequest || _isNotMoreThanInnerMax
 
   const resData = await _getResAndParams(
     getREST,
     args,
-    methodApi,
+    apiMethodName,
     symbPropName,
     { isNotMoreThanInnerMax }
   )
   const isNotContainedSameMts = _isNotContainedSameMts(
     resData.apiRes,
-    methodApi,
+    apiMethodName,
     datePropName,
     resData.allParams.limit,
     { isNotMoreThanInnerMax }
@@ -389,7 +358,7 @@ const prepareApiResponse = (
     : await _getResAndParams(
       getREST,
       args,
-      methodApi,
+      apiMethodName,
       symbPropName,
       opts
     )
@@ -412,7 +381,7 @@ const prepareApiResponse = (
     notCheckNextPage,
     symbols,
     symbPropName,
-    methodApi,
+    apiMethodName,
     filter,
     opts
   )
