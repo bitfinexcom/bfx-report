@@ -18,7 +18,8 @@ const {
 const {
   getParamsMap,
   getParamsSchemaName,
-  omitPrivateModelFields
+  omitPrivateModelFields,
+  getBfxApiMethodName
 } = require('./helpers')
 
 const _getSymbols = (
@@ -207,16 +208,6 @@ const _getParams = (
   }
 }
 
-const _parseMethodApi = name => {
-  const refactor = {
-    trades: 'accountTrades',
-    publicTrades: 'trades',
-    orders: 'orderHistory'
-  }
-
-  return refactor[name] || name
-}
-
 const _requestToApi = (
   getREST,
   method,
@@ -224,7 +215,7 @@ const _requestToApi = (
   auth
 ) => {
   const rest = getREST(auth)
-  const fn = rest[_parseMethodApi(method)].bind(rest)
+  const fn = rest[getBfxApiMethodName(method)].bind(rest)
 
   if (Array.isArray(params)) {
     return fn(...params)

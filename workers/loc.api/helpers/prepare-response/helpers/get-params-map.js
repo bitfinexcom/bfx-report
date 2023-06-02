@@ -1,5 +1,7 @@
 'use strict'
 
+const getBfxApiMethodName = require('./get-bfx-api-method-name')
+
 const MAIN_PARAMS_MAP = {
   start: 'start',
   end: 'end',
@@ -64,8 +66,10 @@ const PARAMS_MAP = {
 }
 
 module.exports = (
-  method,
+  methodName,
   map = PARAMS_MAP
 ) => {
-  return map?.[method] ?? map.default
+  const _methodName = getBfxApiMethodName(methodName)
+
+  return map?.[_methodName] ?? map.default
 }
