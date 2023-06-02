@@ -2,8 +2,7 @@
 
 const {
   cloneDeep,
-  isEmpty,
-  omit
+  isEmpty
 } = require('lodash')
 
 const filterResponse = require('../filter-response')
@@ -18,7 +17,8 @@ const {
 } = require('../../errors')
 const {
   getParamsMap,
-  getParamsSchemaName
+  getParamsSchemaName,
+  omitPrivateModelFields
 } = require('./helpers')
 
 const _getSymbols = (
@@ -349,42 +349,6 @@ const prepareResponse = (
   return { res, nextPage }
 }
 
-const _omitPrivateModelFields = (res) => {
-  const omittingFields = [
-    '_events',
-    '_eventsCount',
-    '_fields',
-    '_boolFields',
-    '_fieldKeys',
-    '_apiInterface'
-  ]
-
-  if (
-    Array.isArray(res) &&
-    res.length > 0 &&
-    res.every((item) => (item && typeof item === 'object'))
-  ) {
-    return res.map((item) => {
-      return {
-        _isDataFromApiV2: true,
-        ...omit(item, omittingFields)
-      }
-    })
-  }
-  if (
-    res &&
-    typeof res === 'object' &&
-    Object.keys(res).length > 0
-  ) {
-    return {
-      _isDataFromApiV2: true,
-      ...omit(res, omittingFields)
-    }
-  }
-
-  return res
-}
-
 const prepareApiResponse = (
   getREST
 ) => async (
@@ -444,7 +408,7 @@ const prepareApiResponse = (
     notCheckNextPage,
     filter
   } = allParams
-  const omittedRes = _omitPrivateModelFields(apiRes)
+  const omittedRes = omitPrivateModelFields(apiRes)
   const res = typeof parseFieldsFn === 'function'
     ? parseFieldsFn(omittedRes)
     : omittedRes
