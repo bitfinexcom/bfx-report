@@ -157,6 +157,12 @@ const setDataTo = (
       dataItem[6] = _date
       break
 
+    case 'movement_info':
+      dataItem[0] = id
+      dataItem[5] = _date
+      dataItem[6] = _date
+      break
+
     case 'f_offer_hist':
       dataItem[0] = id
       dataItem[2] = _date
@@ -212,7 +218,8 @@ const getMockDataOpts = () => ({
   account_summary: null,
   get_settings: null,
   set_settings: null,
-  generate_token: null
+  generate_token: null,
+  movement_info: null
 })
 
 const createMockRESTv2SrvWithDate = (
