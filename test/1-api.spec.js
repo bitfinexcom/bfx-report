@@ -1510,6 +1510,50 @@ describe('API', () => {
     assert.propertyVal(res.body, 'id', 5)
   })
 
+  it('it should be successfully performed by the getMovementInfo method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/json-rpc`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getMovementInfo',
+        params: {
+          id: 12345
+        },
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+
+    assert.containsAllKeys(res.body.result, [
+      'id',
+      'currency',
+      'currencyName',
+      'remark',
+      'mtsStarted',
+      'mtsUpdated',
+      'status',
+      'amount',
+      'fees',
+      'destinationAddress',
+      'memo',
+      'transactionId',
+      'note',
+      'bankFees',
+      'bankRouterId',
+      'externalBankMovId',
+      'externalBankMovStatus',
+      'externalBankMovDescription',
+      'externalBankAccInfo'
+    ])
+  })
+
   it('it should be successfully performed by the getAccountSummary method', async function () {
     this.timeout(5000)
 
