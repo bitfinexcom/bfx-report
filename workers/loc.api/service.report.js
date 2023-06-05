@@ -513,7 +513,11 @@ class ReportService extends Api {
       const { auth, params } = args ?? {}
       const rest = this._getREST(auth)
 
-      return await rest.movementInfo({ id: params?.id })
+      const res = await rest.movementInfo({ id: params?.id })
+
+      return Array.isArray(res)
+        ? res[0] ?? {}
+        : res
     }, 'getMovementInfo', args, cb)
   }
 
