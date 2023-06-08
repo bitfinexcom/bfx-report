@@ -8,7 +8,8 @@ const OMITTING_FIELDS = [
   '_fields',
   '_boolFields',
   '_fieldKeys',
-  '_apiInterface'
+  '_apiInterface',
+  'emptyFill'
 ]
 
 const _omitFields = (obj) => {
