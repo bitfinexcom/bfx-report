@@ -11,6 +11,9 @@ const {
   filterModels,
   parsePositionsAuditId
 } = require('./helpers')
+const {
+  omitPrivateModelFields
+} = require('./helpers/prepare-response/helpers')
 const { AuthError } = require('./errors')
 const TYPES = require('./di/types')
 
@@ -289,7 +292,9 @@ class ReportService extends Api {
   getActivePositions (space, args, cb) {
     return this._responder(async () => {
       const rest = this._getREST(args.auth)
-      const positions = await rest.positions()
+      const positions = omitPrivateModelFields(
+        await rest.positions()
+      )
 
       return Array.isArray(positions)
         ? positions.filter(({ status }) => status === 'ACTIVE')
@@ -318,7 +323,7 @@ class ReportService extends Api {
 
       const rest = this._getREST(args.auth)
 
-      return rest.wallets()
+      return omitPrivateModelFields(await rest.wallets())
     }, 'getWallets', args, cb)
   }
 
@@ -487,7 +492,9 @@ class ReportService extends Api {
     return this._responder(async () => {
       const rest = this._getREST(args.auth)
 
-      const _res = await rest.activeOrders()
+      const _res = omitPrivateModelFields(
+        await rest.activeOrders()
+      )
 
       return parseFields(_res, { executed: true })
     }, 'getActiveOrders', args, cb)
@@ -513,7 +520,9 @@ class ReportService extends Api {
       const { auth, params } = args ?? {}
       const rest = this._getREST(auth)
 
-      const res = await rest.movementInfo({ id: params?.id })
+      const res = omitPrivateModelFields(
+        await rest.movementInfo({ id: params?.id })
+      )
 
       return Array.isArray(res)
         ? res[0] ?? {}
@@ -577,7 +586,9 @@ class ReportService extends Api {
       const { auth } = { ...args }
       const rest = this._getREST(auth, { timeout: 30000 })
 
-      const res = await rest.accountSummary()
+      const res = omitPrivateModelFields(
+        await rest.accountSummary()
+      )
 
       return Array.isArray(res) ? res : [res]
     }, 'getAccountSummary', args, cb)
