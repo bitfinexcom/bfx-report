@@ -373,6 +373,43 @@ module.exports = new Map([
     ]]
   ],
   [
+    'movement_info',
+    [
+      12345,
+      'BTC',
+      'BITCOIN',
+      null,
+      'REMARK',
+      _ms,
+      _ms,
+      null,
+      null,
+      'PENDING REVIEW',
+      null,
+      null,
+      -0.009999,
+      -0.000001,
+      null,
+      null,
+      '0x047633e8e976dc13a81ac3e45564f6b83d10aeb9',
+      'MEMO',
+      null,
+      null,
+      '0x754687b3cbee7cdc4b29107e325455c682dfc320ca0c4233c313263a27282760',
+      'look at this note',
+      null,
+      null,
+      -0.123,
+      12345,
+      null,
+      null,
+      'externalBankMovId',
+      'externalBankMovStatus',
+      'externalBankMovDescription',
+      'externalBankAccInfo'
+    ]
+  ],
+  [
     'f_offer_hist',
     [[
       12345,
