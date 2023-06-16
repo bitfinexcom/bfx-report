@@ -105,11 +105,19 @@ const _getErrorMetadata = (args, err) => {
     data = null
   } = errWithMetadata
 
+  const _message = err?.status
+    ? `${message}
+  - BFX_API_STATUS: ${err.status}
+  - BFX_API_STATUS_TEXT: ${err.statustext ?? 'Status text is not abailable'}
+  - BFX_API_RAW_BODY_CODE: ${err.code ?? 'Code is not abailable'}
+  - BFX_API_RAW_BODY_RESPONSE: ${err.response ?? 'Response is not abailable'}`
+    : message
+
   const error = Object.assign(
     errWithMetadata,
     {
       statusCode: code,
-      statusMessage: message,
+      statusMessage: _message,
       data
     }
   )
