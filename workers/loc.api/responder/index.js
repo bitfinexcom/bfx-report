@@ -15,7 +15,35 @@ const {
   AuthError
 } = require('../errors')
 
+const _htmlRegExp = /<html.*>/i
+const _htmlTitleRegExp = /<title.*>(?<body>.*)<\/title.*>/i
+
 const JSON_RPC_VERSION = '2.0'
+
+const _isHtml = (res) => (_htmlRegExp.test(res))
+
+const _findHtmlTitle = (res) => (
+  res?.match(_htmlTitleRegExp).groups?.body ?? 'HTML title not found'
+)
+
+const _getBfxApiErrorMetadata = (err) => {
+  if (!err?.status) {
+    return null
+  }
+
+  const isHtml = _isHtml(err.response)
+  const body = isHtml
+    ? _findHtmlTitle(err.response)
+    : err.response ?? 'Response is not abailable'
+
+  return {
+    bfxApiStatus: err.status,
+    bfxApiStatusText: err.statustext ?? 'Status text is not abailable',
+    bfxApiRawBodyCode: err.code ?? 'Code is not abailable',
+    isBfxApiRawBodyResponseHtml: isHtml ? 'Yes' : 'No',
+    bfxApiRawBodyResponse: body
+  }
+}
 
 const _prepareErrorData = (err, name) => {
   const { message = 'ERR_ERROR_HAS_OCCURRED' } = err
@@ -29,7 +57,10 @@ const _prepareErrorData = (err, name) => {
     ? `\n  - STATUS_MESSAGE: ${err.statusMessage}`
     : ''
   const _data = err.data
-    ? `\n  - DATA: ${JSON.stringify(err.data)}`
+    ? `\n  - DATA: ${JSON.stringify(err.data, null, 2)
+      .split('\n')
+      .map((v, i) => (i === 0 ? v : `    ${v}`))
+      .join('\n')}`
     : ''
   const stackTrace = (err.stack || err)
     ? `\n  - STACK_TRACE ${err.stack || err}`
@@ -105,20 +136,20 @@ const _getErrorMetadata = (args, err) => {
     data = null
   } = errWithMetadata
 
-  const _message = err?.status
-    ? `${message}
-  - BFX_API_STATUS: ${err.status}
-  - BFX_API_STATUS_TEXT: ${err.statustext ?? 'Status text is not abailable'}
-  - BFX_API_RAW_BODY_CODE: ${err.code ?? 'Code is not abailable'}
-  - BFX_API_RAW_BODY_RESPONSE: ${err.response ?? 'Response is not abailable'}`
-    : message
+  const bfxApiErrorMessage = _getBfxApiErrorMetadata(err)
+  const extendedData = bfxApiErrorMessage
+    ? {
+        bfxApiErrorMessage,
+        ...data
+      }
+    : data
 
   const error = Object.assign(
     errWithMetadata,
     {
       statusCode: code,
-      statusMessage: _message,
-      data
+      statusMessage: message,
+      data: extendedData
     }
   )
 
