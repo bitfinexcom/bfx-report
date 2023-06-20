@@ -7,7 +7,8 @@ const {
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
-  isSymbolInvalidError
+  isSymbolInvalidError,
+  isForbiddenError
 } = require('../helpers')
 
 const {
@@ -121,6 +122,12 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
     err.statusCode = 500
     err.statusMessage = `Invalid symbol error, '${symbol}' is not supported`
     err.data = [{ symbol }]
+
+    return err
+  }
+  if (isForbiddenError(err)) {
+    err.statusCode = 403
+    err.statusMessage = 'Forbidden'
 
     return err
   }
