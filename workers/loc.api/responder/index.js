@@ -104,7 +104,7 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
   }
   if (isRateLimitError(err)) {
     err.statusCode = 409
-    err.statusMessage = 'Rate limit error'
+    err.statusMessage = 'Rate limit at max capacity please wait some minutes while system cools down'
 
     return err
   }
