@@ -67,6 +67,10 @@ const isTempUnavailableError = (err) => {
   return /temporarily_unavailable/.test(_getErrorString(err))
 }
 
+const isForbiddenError = (err) => {
+  return /forbidden/i.test(_getErrorString(err))
+}
+
 const isENetError = (err) => (
   isENetUnreachError(err) ||
   isEConnResetError(err) ||
@@ -96,5 +100,6 @@ module.exports = {
   isEHostUnreachError,
   isEProtoError,
   isTempUnavailableError,
-  isENetError
+  isENetError,
+  isForbiddenError
 }
