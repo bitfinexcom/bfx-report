@@ -39,6 +39,10 @@ const isETimedOutError = (err) => {
   return /ETIMEDOUT/i.test(_getErrorString(err))
 }
 
+const isNodeFetchTimeoutError = (err) => {
+  return /network timeout/i.test(_getErrorString(err))
+}
+
 const isEAiAgainError = (err) => {
   return /EAI_AGAIN/i.test(_getErrorString(err))
 }
@@ -75,6 +79,7 @@ const isENetError = (err) => (
   isENetUnreachError(err) ||
   isEConnResetError(err) ||
   isETimedOutError(err) ||
+  isNodeFetchTimeoutError(err) ||
   isEAiAgainError(err) ||
   isEConnRefusedError(err) ||
   isENotFoundError(err) ||
@@ -93,6 +98,7 @@ module.exports = {
   isENetUnreachError,
   isEConnResetError,
   isETimedOutError,
+  isNodeFetchTimeoutError,
   isEAiAgainError,
   isEConnRefusedError,
   isENotFoundError,
