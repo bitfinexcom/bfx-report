@@ -8,63 +8,63 @@ const _getErrorString = (err) => {
 }
 
 const isAuthError = (err) => {
-  return /(token: invalid)|(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(_getErrorString(err))
+  return /(token: invalid)|(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/i.test(_getErrorString(err))
 }
 
 const isRateLimitError = (err) => {
-  return /(ERR(_RATE)?_LIMIT)|(ratelimit)/.test(_getErrorString(err))
+  return /(ERR(_RATE)?_LIMIT)|(ratelimit)/i.test(_getErrorString(err))
 }
 
 const isNonceSmallError = (err) => {
-  return /nonce: small/.test(_getErrorString(err))
+  return /nonce: small/i.test(_getErrorString(err))
 }
 
 const isUserIsNotMerchantError = (err) => {
-  return /ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT/.test(_getErrorString(err))
+  return /ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT/i.test(_getErrorString(err))
 }
 
 const isSymbolInvalidError = (err) => {
-  return /(symbol: invalid)|(currency: invalid)/.test(_getErrorString(err))
+  return /(symbol: invalid)|(currency: invalid)/i.test(_getErrorString(err))
 }
 
 const isENetUnreachError = (err) => {
-  return /ENETUNREACH/.test(_getErrorString(err))
+  return /ENETUNREACH/i.test(_getErrorString(err))
 }
 
 const isEConnResetError = (err) => {
-  return /ECONNRESET/.test(_getErrorString(err))
+  return /ECONNRESET/i.test(_getErrorString(err))
 }
 
 const isETimedOutError = (err) => {
-  return /ETIMEDOUT/.test(_getErrorString(err))
+  return /ETIMEDOUT/i.test(_getErrorString(err))
 }
 
 const isEAiAgainError = (err) => {
-  return /EAI_AGAIN/.test(_getErrorString(err))
+  return /EAI_AGAIN/i.test(_getErrorString(err))
 }
 
 const isEConnRefusedError = (err) => {
-  return /ECONNREFUSED/.test(_getErrorString(err))
+  return /ECONNREFUSED/i.test(_getErrorString(err))
 }
 
 const isENotFoundError = (err) => {
-  return /ENOTFOUND/.test(_getErrorString(err))
+  return /ENOTFOUND/i.test(_getErrorString(err))
 }
 
 const isESocketTimeoutError = (err) => {
-  return /ESOCKETTIMEDOUT/.test(_getErrorString(err))
+  return /ESOCKETTIMEDOUT/i.test(_getErrorString(err))
 }
 
 const isEHostUnreachError = (err) => {
-  return /EHOSTUNREACH/.test(_getErrorString(err))
+  return /EHOSTUNREACH/i.test(_getErrorString(err))
 }
 
 const isEProtoError = (err) => {
-  return /EPROTO/.test(_getErrorString(err))
+  return /EPROTO/i.test(_getErrorString(err))
 }
 
 const isTempUnavailableError = (err) => {
-  return /temporarily_unavailable/.test(_getErrorString(err))
+  return /temporarily_unavailable/i.test(_getErrorString(err))
 }
 
 const isForbiddenError = (err) => {
