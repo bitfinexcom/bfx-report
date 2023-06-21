@@ -109,7 +109,7 @@ module.exports = (
       if (isRateLimitError(err)) {
         countRateLimitError += 1
 
-        if (countRateLimitError > 3) {
+        if (countRateLimitError > 100) {
           throw err
         }
         if (_isInterrupted(_interrupter)) {

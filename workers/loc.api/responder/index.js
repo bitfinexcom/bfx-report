@@ -46,6 +46,14 @@ const _getBfxApiErrorMetadata = (err) => {
   }
 }
 
+const _addStatusMessageToErrorMessage = (err) => {
+  if (!err?.statusMessage) {
+    return
+  }
+
+  err.message = `${err.statusMessage}: ${err.message}`
+}
+
 const _prepareErrorData = (err, name) => {
   const { message = 'ERR_ERROR_HAS_OCCURRED' } = err
   const _name = name
@@ -96,7 +104,7 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
   }
   if (isRateLimitError(err)) {
     err.statusCode = 409
-    err.statusMessage = 'Rate limit error'
+    err.statusMessage = 'Rate limit at max capacity please wait some minutes while system cools down'
 
     return err
   }
@@ -137,6 +145,7 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
 
 const _getErrorMetadata = (args, err) => {
   const errWithMetadata = _getErrorWithMetadataForNonBaseError(args, err)
+  _addStatusMessageToErrorMessage(errWithMetadata)
   const {
     statusCode: code = 500,
     statusMessage: message = 'Internal Server Error',
