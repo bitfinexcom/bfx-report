@@ -30,6 +30,27 @@ const _makeApiError = (resp, rawBody) => {
   return err
 }
 
+const _errorResponseTestCases = (opts) => (err, res) => {
+  assert.isNull(err)
+
+  assert.isObject(res)
+  assert.propertyVal(res, 'id', 5)
+  assert.propertyVal(res, 'jsonrpc', JSON_RPC_VERSION)
+  assert.isObject(res.error)
+  assert.propertyVal(res.error, 'code', opts.code)
+  assert.propertyVal(res.error, 'message', opts.message)
+  assert.isObject(res.error.data)
+  assert.isObject(res.error.data.bfxApiErrorMessage)
+
+  assert.containsAllKeys(res.error.data.bfxApiErrorMessage, [
+    'bfxApiStatus',
+    'bfxApiStatusText',
+    'bfxApiRawBodyCode',
+    'isBfxApiRawBodyResponseHtml',
+    'bfxApiRawBodyResponse'
+  ])
+}
+
 describe('Responder service', () => {
   let mockedResponder = null
 
@@ -59,29 +80,55 @@ describe('Responder service', () => {
 
   it('handle HTML error', async function () {
     await mockedResponder(async () => {
-      throw _makeApiError({
-        status: 403,
-        statustext: 'Forbidden'
-      }, mockedHtmlBody403)
-    }, name, args, (err, res) => {
-      assert.isNull(err)
+      throw _makeApiError(
+        {
+          status: 403,
+          statustext: 'Forbidden'
+        },
+        mockedHtmlBody403
+      )
+    }, name, args, _errorResponseTestCases({
+      code: 403,
+      message: 'Forbidden'
+    }))
+  })
 
-      assert.isObject(res)
-      assert.propertyVal(res, 'id', 5)
-      assert.propertyVal(res, 'jsonrpc', JSON_RPC_VERSION)
-      assert.isObject(res.error)
-      assert.propertyVal(res.error, 'code', 403)
-      assert.propertyVal(res.error, 'message', 'Forbidden')
-      assert.isObject(res.error.data)
-      assert.isObject(res.error.data.bfxApiErrorMessage)
+  it('handle plain error status text', async function () {
+    await mockedResponder(async () => {
+      throw _makeApiError(
+        {
+          status: 500,
+          statusText: 'ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT'
+        },
+        null
+      )
+    }, name, args, _errorResponseTestCases({
+      code: 409,
+      message: 'Pay invoice list error, the user is not a merchant'
+    }))
+  })
 
-      assert.containsAllKeys(res.error.data.bfxApiErrorMessage, [
-        'bfxApiStatus',
-        'bfxApiStatusText',
-        'bfxApiRawBodyCode',
-        'isBfxApiRawBodyResponseHtml',
-        'bfxApiRawBodyResponse'
-      ])
-    })
+  it('handle error in body', async function () {
+    await mockedResponder(async () => {
+      throw _makeApiError(
+        {},
+        JSON.stringify([500, 'ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT'])
+      )
+    }, name, args, _errorResponseTestCases({
+      code: 409,
+      message: 'Pay invoice list error, the user is not a merchant'
+    }))
+  })
+
+  it('handle plain error text in raw body', async function () {
+    await mockedResponder(async () => {
+      throw _makeApiError(
+        {},
+        'ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT'
+      )
+    }, name, args, _errorResponseTestCases({
+      code: 409,
+      message: 'Pay invoice list error, the user is not a merchant'
+    }))
   })
 })
