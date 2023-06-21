@@ -1,69 +1,85 @@
 'use strict'
 
+const _getErrorString = (err) => {
+  const response = err?.response
+    ? ` ${err.response}`
+    : ''
+  return `${err.toString()}${response}`
+}
+
 const isAuthError = (err) => {
-  return /(token: invalid)|(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/.test(err.toString())
+  return /(token: invalid)|(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)/i.test(_getErrorString(err))
 }
 
 const isRateLimitError = (err) => {
-  return /(ERR(_RATE)?_LIMIT)|(ratelimit)/.test(err.toString())
+  return /(ERR(_RATE)?_LIMIT)|(ratelimit)/i.test(_getErrorString(err))
 }
 
 const isNonceSmallError = (err) => {
-  return /nonce: small/.test(err.toString())
+  return /nonce: small/i.test(_getErrorString(err))
 }
 
 const isUserIsNotMerchantError = (err) => {
-  return /ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT/.test(err.toString())
+  return /ERR_INVOICE_LIST: ERR_PAY_USER_NOT_MERCHANT/i.test(_getErrorString(err))
 }
 
 const isSymbolInvalidError = (err) => {
-  return /(symbol: invalid)|(currency: invalid)/.test(err.toString())
+  return /(symbol: invalid)|(currency: invalid)/i.test(_getErrorString(err))
 }
 
 const isENetUnreachError = (err) => {
-  return /ENETUNREACH/.test(err.toString())
+  return /ENETUNREACH/i.test(_getErrorString(err))
 }
 
 const isEConnResetError = (err) => {
-  return /ECONNRESET/.test(err.toString())
+  return /ECONNRESET/i.test(_getErrorString(err))
 }
 
 const isETimedOutError = (err) => {
-  return /ETIMEDOUT/.test(err.toString())
+  return /ETIMEDOUT/i.test(_getErrorString(err))
+}
+
+const isNodeFetchTimeoutError = (err) => {
+  return /network timeout/i.test(_getErrorString(err))
 }
 
 const isEAiAgainError = (err) => {
-  return /EAI_AGAIN/.test(err.toString())
+  return /EAI_AGAIN/i.test(_getErrorString(err))
 }
 
 const isEConnRefusedError = (err) => {
-  return /ECONNREFUSED/.test(err.toString())
+  return /ECONNREFUSED/i.test(_getErrorString(err))
 }
 
 const isENotFoundError = (err) => {
-  return /ENOTFOUND/.test(err.toString())
+  return /ENOTFOUND/i.test(_getErrorString(err))
 }
 
 const isESocketTimeoutError = (err) => {
-  return /ESOCKETTIMEDOUT/.test(err.toString())
+  return /ESOCKETTIMEDOUT/i.test(_getErrorString(err))
 }
 
 const isEHostUnreachError = (err) => {
-  return /EHOSTUNREACH/.test(err.toString())
+  return /EHOSTUNREACH/i.test(_getErrorString(err))
 }
 
 const isEProtoError = (err) => {
-  return /EPROTO/.test(err.toString())
+  return /EPROTO/i.test(_getErrorString(err))
 }
 
 const isTempUnavailableError = (err) => {
-  return /temporarily_unavailable/.test(err.toString())
+  return /temporarily_unavailable/i.test(_getErrorString(err))
+}
+
+const isForbiddenError = (err) => {
+  return /forbidden/i.test(_getErrorString(err))
 }
 
 const isENetError = (err) => (
   isENetUnreachError(err) ||
   isEConnResetError(err) ||
   isETimedOutError(err) ||
+  isNodeFetchTimeoutError(err) ||
   isEAiAgainError(err) ||
   isEConnRefusedError(err) ||
   isENotFoundError(err) ||
@@ -82,6 +98,7 @@ module.exports = {
   isENetUnreachError,
   isEConnResetError,
   isETimedOutError,
+  isNodeFetchTimeoutError,
   isEAiAgainError,
   isEConnRefusedError,
   isENotFoundError,
@@ -89,5 +106,6 @@ module.exports = {
   isEHostUnreachError,
   isEProtoError,
   isTempUnavailableError,
-  isENetError
+  isENetError,
+  isForbiddenError
 }

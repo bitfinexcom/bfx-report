@@ -7,7 +7,8 @@ const {
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
-  isSymbolInvalidError
+  isSymbolInvalidError,
+  isForbiddenError
 } = require('../helpers')
 
 const {
@@ -15,7 +16,43 @@ const {
   AuthError
 } = require('../errors')
 
+const _htmlRegExp = /<html.*>/i
+const _htmlTitleRegExp = /<title.*>(?<body>.*)<\/title.*>/i
+
 const JSON_RPC_VERSION = '2.0'
+
+const _isHtml = (res) => (_htmlRegExp.test(res))
+
+const _findHtmlTitle = (res) => (
+  res?.match(_htmlTitleRegExp).groups?.body ?? 'HTML title not found'
+)
+
+const _getBfxApiErrorMetadata = (err) => {
+  if (!err?.status) {
+    return null
+  }
+
+  const isHtml = _isHtml(err.response)
+  const body = isHtml
+    ? _findHtmlTitle(err.response)
+    : err.response ?? 'Response is not abailable'
+
+  return {
+    bfxApiStatus: err.status,
+    bfxApiStatusText: err.statustext ?? 'Status text is not abailable',
+    bfxApiRawBodyCode: err.code ?? 'Code is not abailable',
+    isBfxApiRawBodyResponseHtml: isHtml ? 'Yes' : 'No',
+    bfxApiRawBodyResponse: body
+  }
+}
+
+const _addStatusMessageToErrorMessage = (err) => {
+  if (!err?.statusMessage) {
+    return
+  }
+
+  err.message = `${err.statusMessage}: ${err.message}`
+}
 
 const _prepareErrorData = (err, name) => {
   const { message = 'ERR_ERROR_HAS_OCCURRED' } = err
@@ -29,7 +66,10 @@ const _prepareErrorData = (err, name) => {
     ? `\n  - STATUS_MESSAGE: ${err.statusMessage}`
     : ''
   const _data = err.data
-    ? `\n  - DATA: ${JSON.stringify(err.data)}`
+    ? `\n  - DATA: ${JSON.stringify(err.data, null, 2)
+      .split('\n')
+      .map((v, i) => (i === 0 ? v : `    ${v}`))
+      .join('\n')}`
     : ''
   const stackTrace = (err.stack || err)
     ? `\n  - STACK_TRACE ${err.stack || err}`
@@ -64,7 +104,7 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
   }
   if (isRateLimitError(err)) {
     err.statusCode = 409
-    err.statusMessage = 'Rate limit error'
+    err.statusMessage = 'Rate limit at max capacity please wait some minutes while system cools down'
 
     return err
   }
@@ -93,24 +133,39 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
 
     return err
   }
+  if (isForbiddenError(err)) {
+    err.statusCode = 403
+    err.statusMessage = 'Forbidden'
+
+    return err
+  }
 
   return err
 }
 
 const _getErrorMetadata = (args, err) => {
   const errWithMetadata = _getErrorWithMetadataForNonBaseError(args, err)
+  _addStatusMessageToErrorMessage(errWithMetadata)
   const {
     statusCode: code = 500,
     statusMessage: message = 'Internal Server Error',
     data = null
   } = errWithMetadata
 
+  const bfxApiErrorMessage = _getBfxApiErrorMetadata(err)
+  const extendedData = bfxApiErrorMessage
+    ? {
+        bfxApiErrorMessage,
+        ...data
+      }
+    : data
+
   const error = Object.assign(
     errWithMetadata,
     {
       statusCode: code,
       statusMessage: message,
-      data
+      data: extendedData
     }
   )
 

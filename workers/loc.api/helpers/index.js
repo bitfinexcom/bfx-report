@@ -28,11 +28,13 @@ const {
   isENetUnreachError,
   isEConnResetError,
   isETimedOutError,
+  isNodeFetchTimeoutError,
   isEAiAgainError,
   isEConnRefusedError,
   isENotFoundError,
   isESocketTimeoutError,
-  isENetError
+  isENetError,
+  isForbiddenError
 } = require('./api-errors-testers')
 const {
   accountCache,
@@ -68,11 +70,13 @@ module.exports = {
   isENetUnreachError,
   isEConnResetError,
   isETimedOutError,
+  isNodeFetchTimeoutError,
   isEAiAgainError,
   isEConnRefusedError,
   isENotFoundError,
   isESocketTimeoutError,
   isENetError,
+  isForbiddenError,
   accountCache,
   parseFields,
   parseLoginsExtraDataFields,

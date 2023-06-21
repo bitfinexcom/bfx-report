@@ -146,6 +146,15 @@ const paramsSchemaForWeightedAveragesReportApi = {
   }
 }
 
+const paramsSchemaForMovementInfo = {
+  type: 'object',
+  properties: {
+    id: {
+      type: 'integer'
+    }
+  }
+}
+
 const paramsSchemaForCandlesCsv = {
   type: 'object',
   properties: {
@@ -368,5 +377,6 @@ module.exports = {
   paramsSchemaForCandlesApi,
   paramsSchemaForCandlesCsv,
   paramsSchemaForWeightedAveragesReportApi,
-  paramsSchemaForWeightedAveragesReportApiCsv
+  paramsSchemaForWeightedAveragesReportApiCsv,
+  paramsSchemaForMovementInfo
 }
