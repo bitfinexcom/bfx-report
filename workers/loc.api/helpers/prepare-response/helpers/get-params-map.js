@@ -38,7 +38,7 @@ const PARAMS_MAP = {
     id: 'id'
   },
   orderTrades: {
-    ...MAIN_PARAMS_MAP,
+    ...DEFAULT_PARAMS_MAP,
     id: 'orderId'
   },
   tickersHistory: {
