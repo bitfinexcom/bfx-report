@@ -14,14 +14,46 @@ const isTestEnv = process.env.NODE_ENV === 'test'
 let bfxInstance = null
 
 const rateLimitCheckerMaps = new Map()
-// TODO:
 const _rateLimitForMethodName = new Map([
-  ['trades', 45]
+  ['generateToken', null],
+  ['invalidateAuthToken', null],
+  ['userInfo', 90],
+  ['symbols', 90],
+  ['futures', 90],
+  ['currencies', 90],
+  ['inactiveSymbols', 90],
+  ['conf', 90],
+  ['positionsSnapshot', 90],
+  ['getSettings', 90],
+  ['updateSettings', 90],
+  ['tickersHistory', 30],
+  ['positionsHistory', 90],
+  ['positions', 90],
+  ['positionsAudit', 90],
+  ['wallets', 90],
+  ['ledgers', 90],
+  ['payInvoiceList', 90],
+  ['accountTrades', 90],
+  ['fundingTrades', 90],
+  ['trades', 90],
+  ['statusMessages', 90],
+  ['candles', 90],
+  ['orderTrades', 90],
+  ['orderHistory', 90],
+  ['activeOrders', 90],
+  ['movements', 90],
+  ['movementInfo', 90],
+  ['fundingOfferHistory', 90],
+  ['fundingLoanHistory', 90],
+  ['fundingCreditHistory', 90],
+  ['accountSummary', 90],
+  ['logins', 90],
+  ['changeLogs', 90]
 ])
 
 class RateLimitChecker {
   constructor (conf) {
-    this.rateLimit = conf?.rateLimit ?? 45
+    this.rateLimit = conf?.rateLimit ?? 10
     this.msPeriod = conf?.msPeriod ?? 60000
 
     this._calls = []
