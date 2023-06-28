@@ -13,19 +13,15 @@ const {
 const isTestEnv = process.env.NODE_ENV === 'test'
 let bfxInstance = null
 
-const expirableSetMaps = new Map()
+const rateLimitCheckerMaps = new Map()
 // TODO:
 const _rateLimitForMethodName = new Map([
   ['trades', 45]
 ])
 
-const _getRateLimitByMethodName = (methodName) => {
-  return _rateLimitForMethodName.get(methodName) ?? 45 // TODO:
-}
-
 class RateLimitChecker {
   constructor (conf) {
-    this.rateLimit = conf?.rateLimit ?? 10
+    this.rateLimit = conf?.rateLimit ?? 45
     this.msPeriod = conf?.msPeriod ?? 60000
 
     this._calls = []
@@ -76,37 +72,36 @@ const router = (methodName, auth, method) => {
 
   const apiAuthKeys = authToken ?? `${apiKey}-${apiSecret}`
 
-  if (!expirableSetMaps.has(apiAuthKeys)) {
-    expirableSetMaps.set(
+  if (!rateLimitCheckerMaps.has(apiAuthKeys)) {
+    rateLimitCheckerMaps.set(
       apiAuthKeys,
       { map: new Map(), tokenTimer: null }
     )
   }
 
-  const expirableSetMapByApiKeys = expirableSetMaps.get(apiAuthKeys)
+  const rateLimitCheckerMapByApiKeys = rateLimitCheckerMaps.get(apiAuthKeys)
 
   /*
    * It's important to prevent memory leaks as
    * we can have a lot of refreshable auth tokens for one user
    */
-  if (authToken) {
-    clearTimeout(expirableSetMapByApiKeys.tokenTimer)
+  _clearOldAuthToken(
+    methodName,
+    authToken,
+    apiAuthKeys,
+    rateLimitCheckerMapByApiKeys
+  )
 
-    expirableSetMapByApiKeys.tokenTimer = setTimeout(() => {
-      expirableSetMaps?.delete(apiAuthKeys)
-    }, 10 * 60 * 1000).unref()
-  }
+  const rateLimit = _rateLimitForMethodName.get(methodName)
 
-  const rateLimit = _getRateLimitByMethodName(methodName)
-
-  if (!expirableSetMapByApiKeys.map.has(methodName)) {
-    expirableSetMapByApiKeys.map.set(
+  if (!rateLimitCheckerMapByApiKeys.map.has(methodName)) {
+    rateLimitCheckerMapByApiKeys.map.set(
       methodName,
       new RateLimitChecker({ rateLimit })
     )
   }
 
-  const rateLimitChecker = expirableSetMapByApiKeys.map.get(methodName)
+  const rateLimitChecker = rateLimitCheckerMapByApiKeys.map.get(methodName)
 
   if (rateLimitChecker.check()) {
     // Cool down delay
@@ -121,6 +116,29 @@ const router = (methodName, auth, method) => {
   rateLimitChecker.add()
 
   return method()
+}
+
+const _clearOldAuthToken = (
+  methodName,
+  authToken,
+  apiAuthKeys,
+  rateLimitCheckerMapByApiKeys
+) => {
+  if (!authToken) {
+    return
+  }
+
+  clearTimeout(rateLimitCheckerMapByApiKeys.tokenTimer)
+
+  if (methodName === 'generateToken') {
+    rateLimitCheckerMaps.delete(apiAuthKeys)
+
+    return
+  }
+
+  rateLimitCheckerMapByApiKeys.tokenTimer = setTimeout(() => {
+    rateLimitCheckerMaps?.delete(apiAuthKeys)
+  }, 10 * 60 * 1000).unref()
 }
 
 const _checkConf = (conf) => {
