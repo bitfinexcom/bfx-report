@@ -263,7 +263,7 @@ module.exports = (conf) => {
       authToken: _authToken = ''
     } = auth
     const {
-      timeout = 20000
+      timeout = 90000
     } = opts ?? {}
 
     /*
