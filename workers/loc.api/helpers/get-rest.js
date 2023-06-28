@@ -23,12 +23,38 @@ const _getRateLimitByMethodName = (methodName) => {
   return _rateLimitForMethodName.get(methodName) ?? 45 // TODO:
 }
 
-const _addExpirableItemToSet = (set) => {
-  const item = setTimeout(() => {
-    set.delete(item)
-  }, 60000).unref()
+class RateLimitChecker {
+  constructor (conf) {
+    this.rateLimit = conf?.rateLimit ?? 10
+    this.msPeriod = conf?.msPeriod ?? 60000
 
-  set.add(item)
+    this._calls = []
+  }
+
+  clearOldCalls (mts = Date.now()) {
+    const min = mts - this.msPeriod
+
+    while (this._calls[0] && this._calls[0] < min) {
+      this._calls.shift()
+    }
+  }
+
+  add () {
+    const mts = Date.now()
+
+    this.clearOldCalls(mts)
+    this._calls.push(mts)
+  }
+
+  getLength () {
+    this.clearOldCalls()
+
+    return this._calls.length
+  }
+
+  check () {
+    return this.getLength() >= this.rateLimit
+  }
 }
 
 const router = (methodName, auth, method) => {
@@ -51,39 +77,48 @@ const router = (methodName, auth, method) => {
   const apiAuthKeys = authToken ?? `${apiKey}-${apiSecret}`
 
   if (!expirableSetMaps.has(apiAuthKeys)) {
-    expirableSetMaps.set(apiAuthKeys, new Map())
-
-    /*
-     * It's important to prevent memory leaks as
-     * we can have a lot of refreshable auth tokens for one user
-     */
-    if (authToken) {
-      setTimeout(() => {
-        expirableSetMaps.delete(apiAuthKeys)
-      }, 60 * 60 * 1000).unref() // TODO:
-    }
+    expirableSetMaps.set(
+      apiAuthKeys,
+      { map: new Map(), tokenTimer: null }
+    )
   }
 
   const expirableSetMapByApiKeys = expirableSetMaps.get(apiAuthKeys)
 
-  if (!expirableSetMapByApiKeys.has(methodName)) {
-    expirableSetMapByApiKeys.set(methodName, new Set())
+  /*
+   * It's important to prevent memory leaks as
+   * we can have a lot of refreshable auth tokens for one user
+   */
+  if (authToken) {
+    clearTimeout(expirableSetMapByApiKeys.tokenTimer)
+
+    expirableSetMapByApiKeys.tokenTimer = setTimeout(() => {
+      expirableSetMaps?.delete(apiAuthKeys)
+    }, 10 * 60 * 1000).unref()
   }
 
-  const expirableSet = expirableSetMapByApiKeys.get(methodName)
-  const amount = expirableSet.size
   const rateLimit = _getRateLimitByMethodName(methodName)
 
-  if (amount >= rateLimit) {
+  if (!expirableSetMapByApiKeys.map.has(methodName)) {
+    expirableSetMapByApiKeys.map.set(
+      methodName,
+      new RateLimitChecker({ rateLimit })
+    )
+  }
+
+  const rateLimitChecker = expirableSetMapByApiKeys.map.get(methodName)
+
+  if (rateLimitChecker.check()) {
+    // Cool down delay
     return new Promise((resolve) => setTimeout(resolve, 60000))
       .then(() => {
-        _addExpirableItemToSet(expirableSet)
+        rateLimitChecker.add()
 
         return method()
       })
   }
 
-  _addExpirableItemToSet(expirableSet)
+  rateLimitChecker.add()
 
   return method()
 }
