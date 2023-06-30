@@ -85,55 +85,24 @@ class RateLimitChecker {
   }
 }
 
-const router = (methodName, auth, method) => {
-  const { authToken, apiKey, apiSecret } = auth ?? {}
-
+const router = (methodName, method) => {
   if (
     !methodName ||
-    methodName.startsWith('_') ||
-    (
-      !authToken &&
-      (
-        !apiKey ||
-        !apiSecret
-      )
-    )
+    methodName.startsWith('_')
   ) {
     return method()
   }
 
-  const apiAuthKeys = authToken ?? `${apiKey}-${apiSecret}`
+  if (!rateLimitCheckerMaps.has(methodName)) {
+    const rateLimit = _rateLimitForMethodName.get(methodName)
 
-  if (!rateLimitCheckerMaps.has(apiAuthKeys)) {
     rateLimitCheckerMaps.set(
-      apiAuthKeys,
-      { map: new Map(), tokenTimer: null }
-    )
-  }
-
-  const rateLimitCheckerMapByApiKeys = rateLimitCheckerMaps.get(apiAuthKeys)
-
-  /*
-   * It's important to prevent memory leaks as
-   * we can have a lot of refreshable auth tokens for one user
-   */
-  _clearOldAuthToken(
-    methodName,
-    authToken,
-    apiAuthKeys,
-    rateLimitCheckerMapByApiKeys
-  )
-
-  const rateLimit = _rateLimitForMethodName.get(methodName)
-
-  if (!rateLimitCheckerMapByApiKeys.map.has(methodName)) {
-    rateLimitCheckerMapByApiKeys.map.set(
       methodName,
       new RateLimitChecker({ rateLimit })
     )
   }
 
-  const rateLimitChecker = rateLimitCheckerMapByApiKeys.map.get(methodName)
+  const rateLimitChecker = rateLimitCheckerMaps.get(methodName)
 
   if (rateLimitChecker.check()) {
     // Cool down delay
@@ -148,29 +117,6 @@ const router = (methodName, auth, method) => {
   rateLimitChecker.add()
 
   return method()
-}
-
-const _clearOldAuthToken = (
-  methodName,
-  authToken,
-  apiAuthKeys,
-  rateLimitCheckerMapByApiKeys
-) => {
-  if (!authToken) {
-    return
-  }
-
-  clearTimeout(rateLimitCheckerMapByApiKeys.tokenTimer)
-
-  if (methodName === 'generateToken') {
-    rateLimitCheckerMaps.delete(apiAuthKeys)
-
-    return
-  }
-
-  rateLimitCheckerMapByApiKeys.tokenTimer = setTimeout(() => {
-    rateLimitCheckerMaps?.delete(apiAuthKeys)
-  }, 10 * 60 * 1000).unref()
 }
 
 const _checkConf = (conf) => {
@@ -200,7 +146,7 @@ const _bfxFactory = (conf) => {
   })
 }
 
-const _asyncApplyHook = async (incomingRes, propKey, auth, ...args) => {
+const _asyncApplyHook = async (incomingRes, propKey, ...args) => {
   let attemptsCount = 0
   let caughtErr = null
 
@@ -217,7 +163,6 @@ const _asyncApplyHook = async (incomingRes, propKey, auth, ...args) => {
 
       const res = await router(
         propKey,
-        auth,
         () => Reflect.apply(...args)
       )
 
@@ -247,7 +192,7 @@ const _isNotPromiseOrBluebird = (instance) => (
   )
 )
 
-const _getRestProxy = (rest, auth) => {
+const _getRestProxy = (rest) => {
   return new Proxy(rest, {
     get (target, propKey) {
       if (typeof target[propKey] !== 'function') {
@@ -268,7 +213,6 @@ const _getRestProxy = (rest, auth) => {
             try {
               const res = router(
                 propKey,
-                auth,
                 () => Reflect.apply(...args)
               )
 
@@ -276,7 +220,7 @@ const _getRestProxy = (rest, auth) => {
                 return res
               }
 
-              return _asyncApplyHook(res, propKey, auth, ...args)
+              return _asyncApplyHook(res, propKey, ...args)
             } catch (err) {
               if (isNonceSmallError(err)) {
                 attemptsCount += 1
@@ -333,7 +277,7 @@ module.exports = (conf) => {
     }
 
     const rest = bfxInstance.rest(2, restOpts)
-    const proxy = _getRestProxy(rest, _auth)
+    const proxy = _getRestProxy(rest)
 
     return proxy
   }
