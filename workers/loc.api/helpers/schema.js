@@ -141,7 +141,16 @@ const paramsSchemaForWeightedAveragesReportApi = {
       type: 'integer'
     },
     symbol: {
-      type: ['string', 'array']
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        maxItems: 1,
+        items: {
+          type: 'string'
+        }
+      }
     }
   }
 }
