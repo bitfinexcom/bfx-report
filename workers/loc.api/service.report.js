@@ -99,6 +99,14 @@ class ReportService extends Api {
     return Array.isArray(res) ? res : []
   }
 
+  _getWeightedAveragesReportFromApi (args) {
+    const { auth, params } = args ?? {}
+
+    const rest = this._getREST(auth)
+
+    return rest.getWeightedAverages(params)
+  }
+
   getPositionsSnapshot (space, args, cb) {
     return this._responder(() => {
       return this._prepareApiResponse(
