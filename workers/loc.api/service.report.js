@@ -629,7 +629,7 @@ class ReportService extends Api {
 
   getWeightedAveragesReport (space, args, cb) {
     return this._responder(async () => {
-      checkParams(args, 'paramsSchemaForWeightedAveragesReportApi')
+      checkParams(args, 'paramsSchemaForWeightedAveragesReportApi', ['symbol'])
 
       return this._weightedAveragesReport
         .getWeightedAveragesReport(args)
