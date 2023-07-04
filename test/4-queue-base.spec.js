@@ -835,6 +835,7 @@ describe('Queue', () => {
         auth,
         method: 'getWeightedAveragesReportCsv',
         params: {
+          symbol: 'tBTCUSD',
           end,
           start: _start,
           email
