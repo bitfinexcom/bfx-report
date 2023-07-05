@@ -164,6 +164,14 @@ class GrcSlackAvailabilityError extends BaseError {
   }
 }
 
+class WeightedAveragesTimeframeError extends UnprocessableEntityError {
+  constructor (message = 'ERR_TIME_FRAME_MORE_THAN_TWO_YEARS') {
+    super(message)
+
+    this.statusMessage = 'For Weighted Averages please select a time frame smaller than a two years'
+  }
+}
+
 module.exports = {
   BaseError,
   BadRequestError,
@@ -185,5 +193,6 @@ module.exports = {
   ArgsParamsFilterError,
   LedgerPaymentFilteringParamsError,
   GrcSlackAvailabilityError,
-  ImplementationError
+  ImplementationError,
+  WeightedAveragesTimeframeError
 }
