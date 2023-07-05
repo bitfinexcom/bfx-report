@@ -1805,7 +1805,9 @@ describe('API', () => {
         'sellingWeightedPrice',
         'sellingAmount',
         'cumulativeWeightedPrice',
-        'cumulativeAmount'
+        'cumulativeAmount',
+        'firstTradeMts',
+        'lastTradeMts'
       ])
     }
   })
