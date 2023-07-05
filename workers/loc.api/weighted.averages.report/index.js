@@ -64,7 +64,7 @@ class WeightedAveragesReport {
   }
 
   async _getWeightedAveragesReportFromApi (args) {
-    const limit = 100_000
+    const limit = 50_000
     const symbols = args?.params?.symbol ?? []
 
     const weightedAverages = []
