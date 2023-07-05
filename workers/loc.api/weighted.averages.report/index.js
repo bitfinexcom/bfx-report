@@ -1,5 +1,11 @@
 'use strict'
 
+const moment = require('moment')
+
+const {
+  WeightedAveragesTimeframeError
+} = require('../errors')
+
 const { decorateInjectable } = require('../di/utils')
 
 const depsTypes = (TYPES) => [
@@ -65,7 +71,22 @@ class WeightedAveragesReport {
 
   async _getWeightedAveragesReportFromApi (args) {
     const limit = 100_000
-    const symbols = args?.params?.symbol ?? []
+
+    const {
+      start,
+      end,
+      symbol: symbols = []
+    } = args?.params ?? {}
+
+    const startDate = moment(start)
+    const endDate = moment(end)
+    const isTimeframeMoreThan2Y1h = endDate.isAfter(
+      startDate.add(2, 'year').add(1, 'hour')
+    )
+
+    if (isTimeframeMoreThan2Y1h) {
+      throw new WeightedAveragesTimeframeError()
+    }
 
     const weightedAverages = []
 
