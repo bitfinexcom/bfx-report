@@ -97,7 +97,9 @@ class WeightedAveragesReport {
         sumSellingSpent = 0,
         sumSellingAmount = 0,
         buyingWeightedPrice = 0,
-        sellingWeightedPrice = 0
+        sellingWeightedPrice = 0,
+        firstTradeMts,
+        lastTradeMts
       } = res ?? {}
 
       if (tradeCount >= limit) {
@@ -116,7 +118,9 @@ class WeightedAveragesReport {
         sellingWeightedPrice,
         sellingAmount: sumSellingAmount,
         cumulativeWeightedPrice,
-        cumulativeAmount
+        cumulativeAmount,
+        firstTradeMts,
+        lastTradeMts
       })
     }
 
