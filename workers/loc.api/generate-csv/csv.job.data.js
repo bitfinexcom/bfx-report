@@ -1064,10 +1064,14 @@ class CsvJobData {
         sellingWeightedPrice: 'WEIGHTED PRICE',
         sellingAmount: 'AMOUNT',
         cumulativeWeightedPrice: 'WEIGHTED PRICE',
-        cumulativeAmount: 'AMOUNT'
+        cumulativeAmount: 'AMOUNT',
+        firstTradeMts: 'First Trade',
+        lastTradeMts: 'Last Trade'
       },
       formatSettings: {
-        symbol: 'symbol'
+        symbol: 'symbol',
+        firstTradeMts: 'date',
+        lastTradeMts: 'date'
       },
       csvCustomWriter: this.weightedAveragesReportCsvWriter
     }
