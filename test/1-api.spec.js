@@ -1768,7 +1768,7 @@ describe('API', () => {
     this.timeout(120000)
 
     const paramsArr = [
-      { end, start },
+      { end, start, symbol: 'tBTCUSD' },
       {
         end,
         start: end - (10 * 60 * 60 * 1000),

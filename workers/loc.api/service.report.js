@@ -99,6 +99,14 @@ class ReportService extends Api {
     return Array.isArray(res) ? res : []
   }
 
+  _getWeightedAveragesReportFromApi (args) {
+    const { auth, params } = args ?? {}
+
+    const rest = this._getREST(auth)
+
+    return rest.getWeightedAverages(params)
+  }
+
   getPositionsSnapshot (space, args, cb) {
     return this._responder(() => {
       return this._prepareApiResponse(
@@ -621,7 +629,7 @@ class ReportService extends Api {
 
   getWeightedAveragesReport (space, args, cb) {
     return this._responder(async () => {
-      checkParams(args, 'paramsSchemaForWeightedAveragesReportApi')
+      checkParams(args, 'paramsSchemaForWeightedAveragesReportApi', ['symbol'])
 
       return this._weightedAveragesReport
         .getWeightedAveragesReport(args)

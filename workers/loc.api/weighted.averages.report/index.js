@@ -13,13 +13,19 @@ class WeightedAveragesReport {
   ) {
     this.rService = rService
     this.getDataFromApi = getDataFromApi
+
+    // Used to switch data fetching from DB for framework mode
+    this._isNotCalcTakenFromBfxApi = false
   }
 
-  async getWeightedAveragesReport (args = {}) {
+  async getWeightedAveragesReport (args = {}, opts = {}) {
     const {
       auth = {},
       params = {}
     } = args ?? {}
+    const {
+      isNotCalcTakenFromBfxApi = this._isNotCalcTakenFromBfxApi
+    } = opts ?? {}
 
     const {
       start = 0,
@@ -32,6 +38,13 @@ class WeightedAveragesReport {
     const symbol = symbolArr.filter((s) => (
       s && typeof s === 'string'
     ))
+
+    if (!isNotCalcTakenFromBfxApi) {
+      return await this._getWeightedAveragesReportFromApi({
+        auth,
+        params: { start, end, symbol }
+      })
+    }
 
     const {
       res: trades,
@@ -47,6 +60,69 @@ class WeightedAveragesReport {
     return {
       nextPage,
       res: calcedTrades
+    }
+  }
+
+  async _getWeightedAveragesReportFromApi (args) {
+    const limit = 50_000
+    const symbols = args?.params?.symbol ?? []
+
+    const weightedAverages = []
+
+    // If `nextPage === true` it means that data is not consistent and need to change timeframe
+    let nextPage = false
+
+    /*
+     * The loop here is to keep previous implementation,
+     * amount of symbols is limited in params schema
+     */
+    for (const symbol of symbols) {
+      const res = await this.getDataFromApi({
+        getData: (space, _args) => this.rService._getWeightedAveragesReportFromApi(_args),
+        args: {
+          auth: args?.auth ?? {},
+          params: { ...args?.params, limit, symbol },
+          notThrowError: true
+        },
+        callerName: 'WEIGHTED_AVERAGES',
+        eNetErrorAttemptsTimeframeMin: 10 / 60,
+        eNetErrorAttemptsTimeoutMs: 1000,
+        shouldNotInterrupt: true
+      })
+
+      const {
+        tradeCount,
+        sumBuyingSpent = 0,
+        sumBuyingAmount = 0,
+        sumSellingSpent = 0,
+        sumSellingAmount = 0,
+        buyingWeightedPrice = 0,
+        sellingWeightedPrice = 0
+      } = res ?? {}
+
+      if (tradeCount >= limit) {
+        nextPage = true
+      }
+
+      const cumulativeAmount = sumBuyingAmount + sumSellingAmount
+      const cumulativeWeightedPrice = cumulativeAmount === 0
+        ? 0
+        : (sumBuyingSpent + sumSellingSpent) / cumulativeAmount
+
+      weightedAverages.push({
+        symbol,
+        buyingWeightedPrice,
+        buyingAmount: sumBuyingAmount,
+        sellingWeightedPrice,
+        sellingAmount: sumSellingAmount,
+        cumulativeWeightedPrice,
+        cumulativeAmount
+      })
+    }
+
+    return {
+      nextPage,
+      res: weightedAverages
     }
   }
 

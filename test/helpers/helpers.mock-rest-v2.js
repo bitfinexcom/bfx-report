@@ -219,7 +219,8 @@ const getMockDataOpts = () => ({
   get_settings: null,
   set_settings: null,
   generate_token: null,
-  movement_info: null
+  movement_info: null,
+  weighted_averages: null
 })
 
 const createMockRESTv2SrvWithDate = (
