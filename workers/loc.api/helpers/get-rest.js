@@ -9,115 +9,10 @@ const {
   AuthError,
   GrenacheServiceConfigArgsError
 } = require('../errors')
+const BfxApiRouter = require('../bfx.api.router')
 
 const isTestEnv = process.env.NODE_ENV === 'test'
 let bfxInstance = null
-
-const rateLimitCheckerMaps = new Map()
-const _rateLimitForMethodName = new Map([
-  ['generateToken', null],
-  ['invalidateAuthToken', null],
-  ['userInfo', 90],
-  ['symbols', 90],
-  ['futures', 90],
-  ['currencies', 90],
-  ['inactiveSymbols', 90],
-  ['conf', 90],
-  ['positionsSnapshot', 90],
-  ['getSettings', 90],
-  ['updateSettings', 90],
-  ['tickersHistory', 30],
-  ['positionsHistory', 90],
-  ['positions', 90],
-  ['positionsAudit', 90],
-  ['wallets', 90],
-  ['ledgers', 90],
-  ['payInvoiceList', 90],
-  ['accountTrades', 90],
-  ['fundingTrades', 90],
-  ['trades', 90],
-  ['statusMessages', 90],
-  ['candles', 90],
-  ['orderTrades', 90],
-  ['orderHistory', 90],
-  ['activeOrders', 90],
-  ['movements', 90],
-  ['movementInfo', 90],
-  ['fundingOfferHistory', 90],
-  ['fundingLoanHistory', 90],
-  ['fundingCreditHistory', 90],
-  ['accountSummary', 90],
-  ['logins', 90],
-  ['changeLogs', 90]
-])
-
-class RateLimitChecker {
-  constructor (conf) {
-    this.rateLimit = conf?.rateLimit ?? 10
-    this.msPeriod = conf?.msPeriod ?? 60000
-
-    this._calls = []
-  }
-
-  clearOldCalls (mts = Date.now()) {
-    const min = mts - this.msPeriod
-
-    while (this._calls[0] && this._calls[0] < min) {
-      this._calls.shift()
-    }
-  }
-
-  add () {
-    const mts = Date.now()
-
-    this.clearOldCalls(mts)
-    this._calls.push(mts)
-  }
-
-  getLength () {
-    this.clearOldCalls()
-
-    return this._calls.length
-  }
-
-  check () {
-    return this.getLength() >= this.rateLimit
-  }
-}
-
-const router = (methodName, method) => {
-  if (
-    !methodName ||
-    methodName.startsWith('_')
-  ) {
-    return method()
-  }
-
-  if (!rateLimitCheckerMaps.has(methodName)) {
-    const rateLimit = _rateLimitForMethodName.get(methodName)
-
-    rateLimitCheckerMaps.set(
-      methodName,
-      new RateLimitChecker({ rateLimit })
-    )
-  }
-
-  const rateLimitChecker = rateLimitCheckerMaps.get(methodName)
-
-  if (rateLimitChecker.check()) {
-    // Cool down delay
-    return new Promise((resolve) => setTimeout(resolve, 60000))
-      .then(() => {
-        rateLimitChecker.add()
-
-        return method()
-      })
-  }
-
-  rateLimitChecker.add()
-
-  return method()
-}
 
 const _checkConf = (conf) => {
   if (
@@ -146,7 +41,18 @@ const _bfxFactory = (conf) => {
   })
 }
 
-const _asyncApplyHook = async (incomingRes, propKey, ...args) => {
+const _route = (bfxApiRouter, methodName, args) => {
+  if (!(bfxApiRouter instanceof BfxApiRouter)) {
+    return Reflect.apply(...args)
+  }
+
+  return bfxApiRouter.route(
+    methodName,
+    () => Reflect.apply(...args)
+  )
+}
+
+const _asyncApplyHook = async (bfxApiRouter, incomingRes, propKey, ...args) => {
   let attemptsCount = 0
   let caughtErr = null
 
@@ -161,9 +67,10 @@ const _asyncApplyHook = async (incomingRes, propKey, ...args) => {
         return res
       }
 
-      const res = await router(
+      const res = await _route(
+        bfxApiRouter,
         propKey,
-        () => Reflect.apply(...args)
+        args
       )
 
       return res
@@ -192,7 +99,7 @@ const _isNotPromiseOrBluebird = (instance) => (
   )
 )
 
-const _getRestProxy = (rest) => {
+const _getRestProxy = (rest, bfxApiRouter) => {
   return new Proxy(rest, {
     get (target, propKey) {
       if (typeof target[propKey] !== 'function') {
@@ -211,16 +118,17 @@ const _getRestProxy = (rest) => {
 
           while (attemptsCount < 10) {
             try {
-              const res = router(
+              const res = _route(
+                bfxApiRouter,
                 propKey,
-                () => Reflect.apply(...args)
+                args
               )
 
               if (_isNotPromiseOrBluebird(res)) {
                 return res
               }
 
-              return _asyncApplyHook(res, propKey, ...args)
+              return _asyncApplyHook(bfxApiRouter, res, propKey, ...args)
             } catch (err) {
               if (isNonceSmallError(err)) {
                 attemptsCount += 1
@@ -240,7 +148,7 @@ const _getRestProxy = (rest) => {
   })
 }
 
-module.exports = (conf) => {
+module.exports = (conf, bfxApiRouter) => {
   bfxInstance = _bfxFactory(conf)
 
   return (auth, opts) => {
@@ -277,7 +185,7 @@ module.exports = (conf) => {
     }
 
     const rest = bfxInstance.rest(2, restOpts)
-    const proxy = _getRestProxy(rest)
+    const proxy = _getRestProxy(rest, bfxApiRouter)
 
     return proxy
   }
