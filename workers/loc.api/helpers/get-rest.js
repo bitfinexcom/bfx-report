@@ -9,6 +9,7 @@ const {
   AuthError,
   GrenacheServiceConfigArgsError
 } = require('../errors')
+const BfxApiRouter = require('../bfx.api.router')
 
 const isTestEnv = process.env.NODE_ENV === 'test'
 let bfxInstance = null
@@ -40,7 +41,18 @@ const _bfxFactory = (conf) => {
   })
 }
 
-const _asyncApplyHook = async (incomingRes, ...args) => {
+const _route = (bfxApiRouter, methodName, args) => {
+  if (!(bfxApiRouter instanceof BfxApiRouter)) {
+    return Reflect.apply(...args)
+  }
+
+  return bfxApiRouter.route(
+    methodName,
+    () => Reflect.apply(...args)
+  )
+}
+
+const _asyncApplyHook = async (bfxApiRouter, incomingRes, propKey, ...args) => {
   let attemptsCount = 0
   let caughtErr = null
 
@@ -55,7 +67,11 @@ const _asyncApplyHook = async (incomingRes, ...args) => {
         return res
       }
 
-      const res = await Reflect.apply(...args)
+      const res = await _route(
+        bfxApiRouter,
+        propKey,
+        args
+      )
 
       return res
     } catch (err) {
@@ -83,7 +99,7 @@ const _isNotPromiseOrBluebird = (instance) => (
   )
 )
 
-const _getRestProxy = (rest) => {
+const _getRestProxy = (rest, bfxApiRouter) => {
   return new Proxy(rest, {
     get (target, propKey) {
       if (typeof target[propKey] !== 'function') {
@@ -96,18 +112,23 @@ const _getRestProxy = (rest) => {
 
       return new Proxy(target[propKey], {
         apply () {
+          const args = arguments
           let attemptsCount = 0
           let caughtErr = null
 
           while (attemptsCount < 10) {
             try {
-              const res = Reflect.apply(...arguments)
+              const res = _route(
+                bfxApiRouter,
+                propKey,
+                args
+              )
 
               if (_isNotPromiseOrBluebird(res)) {
                 return res
               }
 
-              return _asyncApplyHook(res, ...arguments)
+              return _asyncApplyHook(bfxApiRouter, res, propKey, ...args)
             } catch (err) {
               if (isNonceSmallError(err)) {
                 attemptsCount += 1
@@ -127,7 +148,7 @@ const _getRestProxy = (rest) => {
   })
 }
 
-module.exports = (conf) => {
+module.exports = (conf, bfxApiRouter) => {
   bfxInstance = _bfxFactory(conf)
 
   return (auth, opts) => {
@@ -144,7 +165,7 @@ module.exports = (conf) => {
       authToken: _authToken = ''
     } = auth
     const {
-      timeout = 20000
+      timeout = 90000
     } = opts ?? {}
 
     /*
@@ -164,7 +185,7 @@ module.exports = (conf) => {
     }
 
     const rest = bfxInstance.rest(2, restOpts)
-    const proxy = _getRestProxy(rest)
+    const proxy = _getRestProxy(rest, bfxApiRouter)
 
     return proxy
   }

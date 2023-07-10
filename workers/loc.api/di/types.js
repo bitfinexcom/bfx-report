@@ -33,5 +33,6 @@ module.exports = {
   AbstractWSEventEmitter: Symbol.for('AbstractWSEventEmitter'),
   GetDataFromApi: Symbol.for('GetDataFromApi'),
   WeightedAveragesReport: Symbol.for('WeightedAveragesReport'),
-  WeightedAveragesReportCsvWriter: Symbol.for('WeightedAveragesReportCsvWriter')
+  WeightedAveragesReportCsvWriter: Symbol.for('WeightedAveragesReportCsvWriter'),
+  BfxApiRouter: Symbol.for('BfxApiRouter')
 }
