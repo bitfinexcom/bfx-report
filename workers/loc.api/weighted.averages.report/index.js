@@ -345,6 +345,12 @@ class WeightedAveragesReport {
         cumulativeAmount = 0
       } = val ?? {}
 
+      const tradesBySymbol = trades.filter((t) => t.symbol === symbol)
+      const firstTradeMts = tradesBySymbol[tradesBySymbol.length - 1]
+        ?.mtsCreate ?? null
+      const lastTradeMts = tradesBySymbol[0]
+        ?.mtsCreate ?? null
+
       return {
         symbol,
         buyingWeightedPrice,
@@ -352,7 +358,9 @@ class WeightedAveragesReport {
         sellingWeightedPrice,
         sellingAmount,
         cumulativeWeightedPrice,
-        cumulativeAmount
+        cumulativeAmount,
+        firstTradeMts,
+        lastTradeMts
       }
     })
   }
