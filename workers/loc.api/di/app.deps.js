@@ -31,6 +31,7 @@ const {
   weightedAveragesReportCsvWriter
 } = require('../generate-csv/csv-writer')
 const WeightedAveragesReport = require('../weighted.averages.report')
+const BfxApiRouter = require('../bfx.api.router')
 
 module.exports = ({
   rService,
@@ -76,10 +77,16 @@ module.exports = ({
         ]
       )
     )
+    bind(TYPES.BfxApiRouter)
+      .to(BfxApiRouter)
+      .inSingletonScope()
     bind(TYPES.GetREST).toConstantValue(
       bindDepsToFn(
         getREST,
-        [TYPES.CONF]
+        [
+          TYPES.CONF,
+          TYPES.BfxApiRouter
+        ]
       )
     )
     bind(TYPES.GrcBfxReq).toConstantValue(
