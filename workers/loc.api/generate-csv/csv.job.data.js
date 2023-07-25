@@ -1064,6 +1064,8 @@ class CsvJobData {
         sellingWeightedPrice: 'WEIGHTED PRICE',
         sellingAmount: 'AMOUNT',
         cumulativeAmount: 'AMOUNT',
+        cost: 'COST',
+        sale: 'SALE',
         firstTradeMts: 'First Trade',
         lastTradeMts: 'Last Trade'
       },

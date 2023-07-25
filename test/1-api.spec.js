@@ -1805,6 +1805,8 @@ describe('API', () => {
         'sellingWeightedPrice',
         'sellingAmount',
         'cumulativeAmount',
+        'cost',
+        'sale',
         'firstTradeMts',
         'lastTradeMts'
       ])

@@ -126,6 +126,8 @@ class WeightedAveragesReport {
       }
 
       const cumulativeAmount = sumBuyingAmount + sumSellingAmount
+      const cost = buyingWeightedPrice * sumBuyingAmount
+      const sale = sellingWeightedPrice * sumSellingAmount
 
       weightedAverages.push({
         symbol,
@@ -134,6 +136,8 @@ class WeightedAveragesReport {
         sellingWeightedPrice,
         sellingAmount: sumSellingAmount,
         cumulativeAmount,
+        cost,
+        sale,
         firstTradeMts,
         lastTradeMts
       })
@@ -306,6 +310,13 @@ class WeightedAveragesReport {
         ? _sumSellingAmount + execAmount
         : _sumSellingAmount
 
+      const buyingWeightedPrice = sumBuyingAmount === 0
+        ? 0
+        : sumBuyingSpent / sumBuyingAmount
+      const sellingWeightedPrice = sumSellingAmount === 0
+        ? 0
+        : sumSellingSpent / sumSellingAmount
+
       symbResMap.set(symbol, {
         sumSpent,
         sumAmount,
@@ -314,15 +325,13 @@ class WeightedAveragesReport {
         sumSellingSpent,
         sumSellingAmount,
 
-        buyingWeightedPrice: sumBuyingAmount === 0
-          ? 0
-          : sumBuyingSpent / sumBuyingAmount,
+        buyingWeightedPrice,
         buyingAmount: sumBuyingAmount,
-        sellingWeightedPrice: sumSellingAmount === 0
-          ? 0
-          : sumSellingSpent / sumSellingAmount,
+        sellingWeightedPrice,
         sellingAmount: sumSellingAmount,
-        cumulativeAmount: sumAmount
+        cumulativeAmount: sumAmount,
+        cost: buyingWeightedPrice * sumBuyingAmount,
+        sale: sellingWeightedPrice * sumSellingAmount
       })
     }
 
@@ -332,7 +341,9 @@ class WeightedAveragesReport {
         buyingAmount = 0,
         sellingWeightedPrice = 0,
         sellingAmount = 0,
-        cumulativeAmount = 0
+        cumulativeAmount = 0,
+        cost = 0,
+        sale = 0
       } = val ?? {}
 
       const tradesBySymbol = trades.filter((t) => t.symbol === symbol)
@@ -348,6 +359,8 @@ class WeightedAveragesReport {
         sellingWeightedPrice,
         sellingAmount,
         cumulativeAmount,
+        cost,
+        sale,
         firstTradeMts,
         lastTradeMts
       }
