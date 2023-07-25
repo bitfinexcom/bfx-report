@@ -1061,9 +1061,10 @@ class CsvJobData {
         symbol: 'PAIR',
         buyingWeightedPrice: 'WEIGHTED PRICE',
         buyingAmount: 'AMOUNT',
+        cost: 'COST',
         sellingWeightedPrice: 'WEIGHTED PRICE',
         sellingAmount: 'AMOUNT',
-        cumulativeWeightedPrice: 'WEIGHTED PRICE',
+        sale: 'SALE',
         cumulativeAmount: 'AMOUNT',
         firstTradeMts: 'First Trade',
         lastTradeMts: 'Last Trade'
