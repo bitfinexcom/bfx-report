@@ -43,7 +43,7 @@ module.exports = (
   wStream.setMaxListeners(50)
 
   const headerStringifier = stringify(
-    { columns: ['empty', 'buy', 'empty', 'sell', 'empty', 'cumulative', 'empty'] }
+    { columns: ['empty', 'buy', 'empty', 'empty', 'sell', 'empty', 'empty', 'cumulative', 'empty'] }
   )
   const resStringifier = stringify({
     header: true,

@@ -133,11 +133,11 @@ class WeightedAveragesReport {
         symbol,
         buyingWeightedPrice,
         buyingAmount: sumBuyingAmount,
+        cost,
         sellingWeightedPrice,
         sellingAmount: sumSellingAmount,
-        cumulativeAmount,
-        cost,
         sale,
+        cumulativeAmount,
         firstTradeMts,
         lastTradeMts
       })
@@ -327,11 +327,11 @@ class WeightedAveragesReport {
 
         buyingWeightedPrice,
         buyingAmount: sumBuyingAmount,
+        cost: buyingWeightedPrice * sumBuyingAmount,
         sellingWeightedPrice,
         sellingAmount: sumSellingAmount,
-        cumulativeAmount: sumAmount,
-        cost: buyingWeightedPrice * sumBuyingAmount,
-        sale: sellingWeightedPrice * sumSellingAmount
+        sale: sellingWeightedPrice * sumSellingAmount,
+        cumulativeAmount: sumAmount
       })
     }
 
@@ -339,11 +339,11 @@ class WeightedAveragesReport {
       const {
         buyingWeightedPrice = 0,
         buyingAmount = 0,
+        cost = 0,
         sellingWeightedPrice = 0,
         sellingAmount = 0,
-        cumulativeAmount = 0,
-        cost = 0,
-        sale = 0
+        sale = 0,
+        cumulativeAmount = 0
       } = val ?? {}
 
       const tradesBySymbol = trades.filter((t) => t.symbol === symbol)
@@ -356,11 +356,11 @@ class WeightedAveragesReport {
         symbol,
         buyingWeightedPrice,
         buyingAmount,
+        cost,
         sellingWeightedPrice,
         sellingAmount,
-        cumulativeAmount,
-        cost,
         sale,
+        cumulativeAmount,
         firstTradeMts,
         lastTradeMts
       }
