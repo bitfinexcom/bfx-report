@@ -123,6 +123,14 @@ class ReportService extends Api {
     return Array.isArray(res) ? res : []
   }
 
+  async _getMarginCurrencyList () {
+    const [res] = await this._getConf({
+      keys: 'pub:list:currency:margin'
+    })
+
+    return Array.isArray(res) ? res : []
+  }
+
   _getWeightedAveragesReportFromApi (args) {
     const { auth, params } = args ?? {}
 
