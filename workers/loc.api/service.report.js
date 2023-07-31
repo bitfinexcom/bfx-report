@@ -294,6 +294,31 @@ class ReportService extends Api {
     }, 'getSymbolList', args, cb)
   }
 
+  getPublicFundingSymbolList (space, args, cb) {
+    return this._responder(async () => {
+      const cache = accountCache.get('publicFundingSymbolList')
+
+      if (cache) return cache
+
+      const [
+        marginCurrencyList,
+        inactiveCurrencyList
+      ] = await Promise.all([
+        this._getMarginCurrencyList(),
+        this._getInactiveCurrencies()
+      ])
+
+      const res = {
+        marginCurrencyList,
+        inactiveCurrencyList
+      }
+
+      accountCache.set('publicFundingSymbolList', res)
+
+      return res
+    }, 'getPublicFundingSymbolList', args, cb)
+  }
+
   getSettings (space, args, cb) {
     return this._responder(async () => {
       const { auth, params } = args ?? {}
