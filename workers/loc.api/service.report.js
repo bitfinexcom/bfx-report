@@ -263,6 +263,37 @@ class ReportService extends Api {
     }, 'getSymbols', args, cb)
   }
 
+  getSymbolList (space, args, cb) {
+    return this._responder(async () => {
+      const cache = accountCache.get('symbolList')
+
+      if (cache) return cache
+
+      const [
+        labelCurrencyMap,
+        futureCurrencyList,
+        securityCurrencyList,
+        inactiveCurrencyList
+      ] = await Promise.all([
+        this._getLabelCurrencyMap(),
+        this._getFutureCurrencyList(),
+        this._getSecurityCurrencyList(),
+        this._getInactiveCurrencies()
+      ])
+
+      const res = {
+        labelCurrencyMap,
+        futureCurrencyList,
+        securityCurrencyList,
+        inactiveCurrencyList
+      }
+
+      accountCache.set('symbolList', res)
+
+      return res
+    }, 'getSymbolList', args, cb)
+  }
+
   getSettings (space, args, cb) {
     return this._responder(async () => {
       const { auth, params } = args ?? {}
