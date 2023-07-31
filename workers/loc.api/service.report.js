@@ -99,6 +99,14 @@ class ReportService extends Api {
     return Array.isArray(res) ? res : []
   }
 
+  async _getLabelCurrencyMap () {
+    const [res] = await this._getConf({
+      keys: 'pub:map:currency:label'
+    })
+
+    return Array.isArray(res) ? res : []
+  }
+
   _getWeightedAveragesReportFromApi (args) {
     const { auth, params } = args ?? {}
 
