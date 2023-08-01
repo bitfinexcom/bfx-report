@@ -302,6 +302,36 @@ describe('API', () => {
     })
   })
 
+  it('it should be successfully performed by the getPublicFundingSymbolList method', async function () {
+    this.timeout(5000)
+
+    const res = await agent
+      .post(`${basePath}/json-rpc`)
+      .type('json')
+      .send({
+        auth,
+        method: 'getPublicFundingSymbolList',
+        id: 5
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    assert.isObject(res.body)
+    assert.propertyVal(res.body, 'id', 5)
+    assert.isObject(res.body.result)
+    assert.isArray(res.body.result.marginCurrencyList)
+    assert.isArray(res.body.result.inactiveCurrencyList)
+    assert.lengthOf(res.body.result.marginCurrencyList, 4)
+    assert.lengthOf(res.body.result.inactiveCurrencyList, 2)
+
+    res.body.result.marginCurrencyList.forEach((item) => {
+      assert.isString(item)
+    })
+    res.body.result.inactiveCurrencyList.forEach((item) => {
+      assert.isString(item)
+    })
+  })
+
   it('it should be successfully performed by the updateSettings method', async function () {
     this.timeout(5000)
 
