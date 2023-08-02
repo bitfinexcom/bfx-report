@@ -113,9 +113,7 @@ class WeightedAveragesReport {
 
       const {
         tradeCount,
-        sumBuyingSpent = 0,
         sumBuyingAmount = 0,
-        sumSellingSpent = 0,
         sumSellingAmount = 0,
         buyingWeightedPrice = 0,
         sellingWeightedPrice = 0,
@@ -128,17 +126,17 @@ class WeightedAveragesReport {
       }
 
       const cumulativeAmount = sumBuyingAmount + sumSellingAmount
-      const cumulativeWeightedPrice = cumulativeAmount === 0
-        ? 0
-        : (sumBuyingSpent + sumSellingSpent) / cumulativeAmount
+      const cost = buyingWeightedPrice * sumBuyingAmount
+      const sale = sellingWeightedPrice * sumSellingAmount
 
       weightedAverages.push({
         symbol,
         buyingWeightedPrice,
         buyingAmount: sumBuyingAmount,
+        cost,
         sellingWeightedPrice,
         sellingAmount: sumSellingAmount,
-        cumulativeWeightedPrice,
+        sale,
         cumulativeAmount,
         firstTradeMts,
         lastTradeMts
@@ -312,6 +310,13 @@ class WeightedAveragesReport {
         ? _sumSellingAmount + execAmount
         : _sumSellingAmount
 
+      const buyingWeightedPrice = sumBuyingAmount === 0
+        ? 0
+        : sumBuyingSpent / sumBuyingAmount
+      const sellingWeightedPrice = sumSellingAmount === 0
+        ? 0
+        : sumSellingSpent / sumSellingAmount
+
       symbResMap.set(symbol, {
         sumSpent,
         sumAmount,
@@ -320,17 +325,12 @@ class WeightedAveragesReport {
         sumSellingSpent,
         sumSellingAmount,
 
-        buyingWeightedPrice: sumBuyingAmount === 0
-          ? 0
-          : sumBuyingSpent / sumBuyingAmount,
+        buyingWeightedPrice,
         buyingAmount: sumBuyingAmount,
-        sellingWeightedPrice: sumSellingAmount === 0
-          ? 0
-          : sumSellingSpent / sumSellingAmount,
+        cost: buyingWeightedPrice * sumBuyingAmount,
+        sellingWeightedPrice,
         sellingAmount: sumSellingAmount,
-        cumulativeWeightedPrice: sumAmount === 0
-          ? 0
-          : sumSpent / sumAmount,
+        sale: sellingWeightedPrice * sumSellingAmount,
         cumulativeAmount: sumAmount
       })
     }
@@ -339,9 +339,10 @@ class WeightedAveragesReport {
       const {
         buyingWeightedPrice = 0,
         buyingAmount = 0,
+        cost = 0,
         sellingWeightedPrice = 0,
         sellingAmount = 0,
-        cumulativeWeightedPrice = 0,
+        sale = 0,
         cumulativeAmount = 0
       } = val ?? {}
 
@@ -355,9 +356,10 @@ class WeightedAveragesReport {
         symbol,
         buyingWeightedPrice,
         buyingAmount,
+        cost,
         sellingWeightedPrice,
         sellingAmount,
-        cumulativeWeightedPrice,
+        sale,
         cumulativeAmount,
         firstTradeMts,
         lastTradeMts

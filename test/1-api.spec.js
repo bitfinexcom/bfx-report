@@ -1802,9 +1802,10 @@ describe('API', () => {
         'symbol',
         'buyingWeightedPrice',
         'buyingAmount',
+        'cost',
         'sellingWeightedPrice',
         'sellingAmount',
-        'cumulativeWeightedPrice',
+        'sale',
         'cumulativeAmount',
         'firstTradeMts',
         'lastTradeMts'
