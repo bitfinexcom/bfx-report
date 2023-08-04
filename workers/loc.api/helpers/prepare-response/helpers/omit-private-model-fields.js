@@ -12,27 +12,30 @@ const OMITTING_FIELDS = [
   'emptyFill'
 ]
 
-const _omitFields = (obj) => {
+const _omitFields = (obj, opts) => {
   const newObj = omit(obj, OMITTING_FIELDS)
-  newObj._isDataFromApiV2 = true
+
+  if (!opts?.isNotDataFromApiV2) {
+    newObj._isDataFromApiV2 = true
+  }
 
   return newObj
 }
 
-module.exports = (res) => {
+module.exports = (res, opts) => {
   if (
     Array.isArray(res) &&
     res.length > 0 &&
     res.every((item) => (item && typeof item === 'object'))
   ) {
-    return res.map((item) => _omitFields(item))
+    return res.map((item) => _omitFields(item, opts))
   }
   if (
     res &&
     typeof res === 'object' &&
     Object.keys(res).length > 0
   ) {
-    return _omitFields(res)
+    return _omitFields(res, opts)
   }
 
   return res
