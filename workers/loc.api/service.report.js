@@ -100,30 +100,6 @@ class ReportService extends Api {
     return Array.isArray(res) ? res : []
   }
 
-  async _getLabelCurrencyMap () {
-    const [res] = await this._getConf({
-      keys: 'pub:map:currency:label'
-    })
-
-    return Array.isArray(res) ? res : []
-  }
-
-  async _getFutureCurrencyList () {
-    const [res] = await this._getConf({
-      keys: 'pub:list:currency:futures'
-    })
-
-    return Array.isArray(res) ? res : []
-  }
-
-  async _getSecurityCurrencyList () {
-    const [res] = await this._getConf({
-      keys: 'pub:list:currency:securities'
-    })
-
-    return Array.isArray(res) ? res : []
-  }
-
   async _getMarginCurrencyList () {
     const [res] = await this._getConf({
       keys: 'pub:list:currency:margin'
@@ -265,62 +241,6 @@ class ReportService extends Api {
 
       return res
     }, 'getSymbols', args, cb)
-  }
-
-  getSymbolList (space, args, cb) {
-    return this._responder(async () => {
-      const cache = accountCache.get('symbolList')
-
-      if (cache) return cache
-
-      const [
-        labelCurrencyMap,
-        futureCurrencyList,
-        securityCurrencyList,
-        inactiveCurrencyList
-      ] = await Promise.all([
-        this._getLabelCurrencyMap(),
-        this._getFutureCurrencyList(),
-        this._getSecurityCurrencyList(),
-        this._getInactiveCurrencies()
-      ])
-
-      const res = {
-        labelCurrencyMap,
-        futureCurrencyList,
-        securityCurrencyList,
-        inactiveCurrencyList
-      }
-
-      accountCache.set('symbolList', res)
-
-      return res
-    }, 'getSymbolList', args, cb)
-  }
-
-  getPublicFundingSymbolList (space, args, cb) {
-    return this._responder(async () => {
-      const cache = accountCache.get('publicFundingSymbolList')
-
-      if (cache) return cache
-
-      const [
-        marginCurrencyList,
-        inactiveCurrencyList
-      ] = await Promise.all([
-        this._getMarginCurrencyList(),
-        this._getInactiveCurrencies()
-      ])
-
-      const res = {
-        marginCurrencyList,
-        inactiveCurrencyList
-      }
-
-      accountCache.set('publicFundingSymbolList', res)
-
-      return res
-    }, 'getPublicFundingSymbolList', args, cb)
   }
 
   getSettings (space, args, cb) {

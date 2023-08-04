@@ -35,29 +35,6 @@ module.exports = new Map([
     ]]
   ],
   [
-    'map_ccy_label',
-    [[
-      ['BFX', 'BFX Token'],
-      ['BTC', 'Bitcoin'],
-      ['UST', 'Tether USDt']
-    ]]
-  ],
-  [
-    'futures_currencies',
-    [[
-      'BTCF0',
-      'EUTF0',
-      'TESTUSDTF0',
-      'USTF0'
-    ]]
-  ],
-  [
-    'securities_currencies',
-    [[
-      'BMN'
-    ]]
-  ],
-  [
     'margin_currencies',
     [[
       'BTC',
