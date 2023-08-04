@@ -3,7 +3,8 @@
 const getREST = require('./get-rest')
 const {
   prepareResponse,
-  prepareApiResponse
+  prepareApiResponse,
+  prepareSymbolResponse
 } = require('./prepare-response')
 const checkParams = require('./check-params')
 const {
@@ -88,6 +89,7 @@ module.exports = {
   checkTimeLimit,
   prepareResponse,
   prepareApiResponse,
+  prepareSymbolResponse,
   getCsvArgs,
   getMethodLimit,
   checkJobAndGetUserData,
