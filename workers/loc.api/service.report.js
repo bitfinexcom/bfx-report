@@ -9,7 +9,8 @@ const {
   accountCache,
   getTimezoneConf,
   filterModels,
-  parsePositionsAuditId
+  parsePositionsAuditId,
+  prepareSymbolResponse
 } = require('./helpers')
 const {
   omitPrivateModelFields
@@ -238,24 +239,27 @@ class ReportService extends Api {
         currencies,
         inactiveSymbols,
         mapSymbols,
-        inactiveCurrencies
+        inactiveCurrencies,
+        marginCurrencyList
       ] = await Promise.all([
         this._getSymbols(),
         this._getFutures(),
         this._getCurrencies(),
         this._getInactiveSymbols(),
         this._getMapSymbols(),
-        this._getInactiveCurrencies()
+        this._getInactiveCurrencies(),
+        this._getMarginCurrencyList()
       ])
 
-      const pairs = [...symbols, ...futures]
-      const res = {
-        pairs,
+      const res = prepareSymbolResponse({
+        symbols,
+        futures,
         currencies,
         inactiveSymbols,
         mapSymbols,
-        inactiveCurrencies
-      }
+        inactiveCurrencies,
+        marginCurrencyList
+      })
 
       accountCache.set('symbols', res)
 
