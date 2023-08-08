@@ -1,19 +1,23 @@
 'use strict'
 
+const { min, max } = require('lodash')
 const moment = require('moment-timezone')
 
-const { getLimitNotMoreThan } = require('./limit-param.helpers')
 const { TimeframeError } = require('../errors')
 
-const getDateNotMoreNow = (date, now = Date.now()) => {
-  return getLimitNotMoreThan(date, now)
+const MIN_START_MTS = Date.UTC(2013)
+
+const getDateNotMoreNow = (mts, now = Date.now()) => {
+  return min([mts, now])
+}
+
+const getDateNotLessMinStart = (mts, minStart = MIN_START_MTS) => {
+  return max([mts, minStart])
 }
 
 const _setDefaultTimeIfNotExist = (args) => {
   args.params.end = getDateNotMoreNow(args.params.end)
-  args.params.start = args.params.start
-    ? args.params.start
-    : 0
+  args.params.start = getDateNotLessMinStart(args.params.start)
 }
 
 const checkTimeLimit = (args) => {
@@ -29,6 +33,9 @@ const checkTimeLimit = (args) => {
 }
 
 module.exports = {
+  MIN_START_MTS,
+
   getDateNotMoreNow,
+  getDateNotLessMinStart,
   checkTimeLimit
 }
