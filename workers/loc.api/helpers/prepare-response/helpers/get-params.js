@@ -2,7 +2,10 @@
 
 const { cloneDeep } = require('lodash')
 
-const { getDateNotMoreNow } = require('../../date-param.helpers')
+const {
+  getDateNotMoreNow,
+  getDateNotLessMinStart
+} = require('../../date-param.helpers')
 const { getMethodLimit } = require('../../limit-param.helpers')
 
 const getParamsMap = require('./get-params-map')
@@ -30,6 +33,7 @@ module.exports = (
   const allParams = {
     ...cloneDeep(params),
     ...getSymbolParams({ apiMethodName, params, symbPropName }),
+    start: getDateNotLessMinStart(params.start),
     end: getDateNotMoreNow(params.end),
     limit: getMethodLimit(limit, apiMethodName)
   }
