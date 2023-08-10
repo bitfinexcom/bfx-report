@@ -7,6 +7,8 @@ const checkParams = require('../check-params')
 const checkFilterParams = require('../check-filter-params')
 const normalizeFilterParams = require('../normalize-filter-params')
 
+const prepareSymbolResponse = require('./prepare-symbol-response')
+
 const {
   getParamsSchemaName,
   omitPrivateModelFields,
@@ -205,5 +207,6 @@ const prepareApiResponse = (
 
 module.exports = {
   prepareResponse,
-  prepareApiResponse
+  prepareApiResponse,
+  prepareSymbolResponse
 }

@@ -9,7 +9,8 @@ const {
   accountCache,
   getTimezoneConf,
   filterModels,
-  parsePositionsAuditId
+  parsePositionsAuditId,
+  prepareSymbolResponse
 } = require('./helpers')
 const {
   omitPrivateModelFields
@@ -94,6 +95,14 @@ class ReportService extends Api {
   async _getInactiveCurrencies () {
     const [res] = await this._getConf({
       keys: 'pub:list:currency:inactive'
+    })
+
+    return Array.isArray(res) ? res : []
+  }
+
+  async _getMarginCurrencyList () {
+    const [res] = await this._getConf({
+      keys: 'pub:list:currency:margin'
     })
 
     return Array.isArray(res) ? res : []
@@ -206,24 +215,27 @@ class ReportService extends Api {
         currencies,
         inactiveSymbols,
         mapSymbols,
-        inactiveCurrencies
+        inactiveCurrencies,
+        marginCurrencyList
       ] = await Promise.all([
         this._getSymbols(),
         this._getFutures(),
         this._getCurrencies(),
         this._getInactiveSymbols(),
         this._getMapSymbols(),
-        this._getInactiveCurrencies()
+        this._getInactiveCurrencies(),
+        this._getMarginCurrencyList()
       ])
 
-      const pairs = [...symbols, ...futures]
-      const res = {
-        pairs,
+      const res = prepareSymbolResponse({
+        symbols,
+        futures,
         currencies,
         inactiveSymbols,
         mapSymbols,
-        inactiveCurrencies
-      }
+        inactiveCurrencies,
+        marginCurrencyList
+      })
 
       accountCache.set('symbols', res)
 
