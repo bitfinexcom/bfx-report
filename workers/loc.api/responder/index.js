@@ -24,7 +24,7 @@ const JSON_RPC_VERSION = '2.0'
 const _isHtml = (res) => (_htmlRegExp.test(res))
 
 const _findHtmlTitle = (res) => (
-  res?.match(_htmlTitleRegExp).groups?.body ?? 'HTML title not found'
+  res?.match(_htmlTitleRegExp).groups?.body ?? null
 )
 
 const _getBfxApiErrorMetadata = (err) => {
@@ -35,13 +35,13 @@ const _getBfxApiErrorMetadata = (err) => {
   const isHtml = _isHtml(err.response)
   const body = isHtml
     ? _findHtmlTitle(err.response)
-    : err.response ?? 'Response is not abailable'
+    : err.response ?? null
 
   return {
     bfxApiStatus: err.status,
-    bfxApiStatusText: err.statustext ?? 'Status text is not abailable',
-    bfxApiRawBodyCode: err.code ?? 'Code is not abailable',
-    isBfxApiRawBodyResponseHtml: isHtml ? 'Yes' : 'No',
+    bfxApiStatusText: err.statustext ?? null,
+    bfxApiRawBodyCode: err.code ?? null,
+    isBfxApiRawBodyResponseHtml: isHtml,
     bfxApiRawBodyResponse: body
   }
 }
@@ -148,11 +148,20 @@ const _getErrorMetadata = (args, err) => {
   _addStatusMessageToErrorMessage(errWithMetadata)
   const {
     statusCode: code = 500,
-    statusMessage: message = 'Internal Server Error',
+    statusMessage = 'Internal Server Error',
     data = null
   } = errWithMetadata
 
   const bfxApiErrorMessage = _getBfxApiErrorMetadata(err)
+  const bfxApiStatusText = bfxApiErrorMessage?.bfxApiStatusText
+    ? `: ${bfxApiErrorMessage?.bfxApiStatusText}`
+    : ''
+  const bfxApiRawBodyResponse = bfxApiErrorMessage?.bfxApiRawBodyResponse
+    ? `: ${bfxApiErrorMessage?.bfxApiRawBodyResponse}`
+    : ''
+  const message = bfxApiErrorMessage
+    ? `${statusMessage}: BFX API Error${bfxApiStatusText}${bfxApiRawBodyResponse}`
+    : statusMessage
   const extendedData = bfxApiErrorMessage
     ? {
         bfxApiErrorMessage,
@@ -164,7 +173,7 @@ const _getErrorMetadata = (args, err) => {
     errWithMetadata,
     {
       statusCode: code,
-      statusMessage: message,
+      statusMessage,
       data: extendedData
     }
   )
