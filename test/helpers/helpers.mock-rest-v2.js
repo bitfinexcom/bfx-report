@@ -212,6 +212,7 @@ const getMockDataOpts = () => ({
   symbols: null,
   map_symbols: null,
   inactive_currencies: null,
+  margin_currencies: null,
   inactive_symbols: null,
   futures: null,
   currencies: null,

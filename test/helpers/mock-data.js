@@ -35,6 +35,15 @@ module.exports = new Map([
     ]]
   ],
   [
+    'margin_currencies',
+    [[
+      'BTC',
+      'ETH',
+      'LEO',
+      'USD'
+    ]]
+  ],
+  [
     'inactive_symbols',
     [[
       'GRGETH',
