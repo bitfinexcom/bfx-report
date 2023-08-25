@@ -35,6 +35,16 @@ class AbstractWSEventEmitter {
       action
     )
   }
+
+  emitMaintenanceTurnedOn (
+    handler = () => {},
+    action = 'emitMaintenanceTurnedOn'
+  ) {
+    return this.emit(
+      handler,
+      action
+    )
+  }
 }
 
 decorateInjectable(AbstractWSEventEmitter)
