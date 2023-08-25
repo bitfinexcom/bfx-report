@@ -75,6 +75,11 @@ const isForbiddenError = (err) => {
   return /forbidden/i.test(_getErrorString(err))
 }
 
+// https://docs.bitfinex.com/docs/rest-general
+const isMaintenanceError = (err) => {
+  return /maintenance/i.test(_getErrorString(err))
+}
+
 const isENetError = (err) => (
   isENetUnreachError(err) ||
   isEConnResetError(err) ||
@@ -107,5 +112,6 @@ module.exports = {
   isEProtoError,
   isTempUnavailableError,
   isENetError,
-  isForbiddenError
+  isForbiddenError,
+  isMaintenanceError
 }
