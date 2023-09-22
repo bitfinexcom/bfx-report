@@ -8,7 +8,8 @@ const {
   isNonceSmallError,
   isUserIsNotMerchantError,
   isSymbolInvalidError,
-  isForbiddenError
+  isForbiddenError,
+  isMaintenanceError
 } = require('../helpers')
 
 const {
@@ -184,7 +185,6 @@ const _getErrorMetadata = (args, err) => {
 const _logError = (loggerArgs, err) => {
   const {
     logger,
-    wsEventEmitter,
     args,
     name,
     isInternalRequest
@@ -198,8 +198,33 @@ const _logError = (loggerArgs, err) => {
     error
   } = _getErrorMetadata(args, err)
 
+  _emitEventByWs(loggerArgs, error)
+
   if (
-    wsEventEmitter instanceof AbstractWSEventEmitter &&
+    code !== 500 ||
+    shouldNotBeLoggedToStdErrorStream
+  ) {
+    logger.debug(_prepareErrorData(error, name))
+
+    return
+  }
+
+  logger.error(_prepareErrorData(error, name))
+}
+
+const _emitEventByWs = (emitterArgs, error) => {
+  const {
+    logger,
+    wsEventEmitter,
+    args,
+    name
+  } = emitterArgs ?? {}
+
+  if (!(wsEventEmitter instanceof AbstractWSEventEmitter)) {
+    return
+  }
+
+  if (
     args?.auth?.authToken &&
     (
       error instanceof AuthError ||
@@ -217,17 +242,11 @@ const _logError = (loggerArgs, err) => {
       logger.error(_prepareErrorData(err, name))
     })
   }
-
-  if (
-    code !== 500 ||
-    shouldNotBeLoggedToStdErrorStream
-  ) {
-    logger.debug(_prepareErrorData(error, name))
-
-    return
+  if (isMaintenanceError(error)) {
+    wsEventEmitter.emitMaintenanceTurnedOn().then(() => {}, (err) => {
+      logger.error(_prepareErrorData(err, name))
+    })
   }
-
-  logger.error(_prepareErrorData(error, name))
 }
 
 /*

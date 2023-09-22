@@ -37,7 +37,8 @@ const {
   isENotFoundError,
   isESocketTimeoutError,
   isENetError,
-  isForbiddenError
+  isForbiddenError,
+  isMaintenanceError
 } = require('./api-errors-testers')
 const {
   accountCache,
@@ -82,6 +83,7 @@ module.exports = {
   isESocketTimeoutError,
   isENetError,
   isForbiddenError,
+  isMaintenanceError,
   accountCache,
   parseFields,
   parseLoginsExtraDataFields,
