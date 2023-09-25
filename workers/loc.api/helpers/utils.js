@@ -1,6 +1,5 @@
 'use strict'
 
-const { transform } = require('lodash')
 const LRU = require('lru')
 
 const accountCache = new LRU({ maxAge: 900000, max: 1 })
@@ -8,15 +7,33 @@ const accountCache = new LRU({ maxAge: 900000, max: 1 })
 const parseFields = (res, opts) => {
   const { executed, rate } = opts
 
-  return transform(res, (result, obj) => {
-    if (executed) {
-      obj.amountExecuted = obj.amountOrig - obj.amount
-    }
-    if (rate) {
-      obj.rate = obj.rate || 'Flash Return Rate'
+  if (
+    !Array.isArray(res) ||
+    res.length === 0
+  ) {
+    return res
+  }
+
+  return res.reduce((accum, curr) => {
+    if (
+      !curr ||
+      typeof curr !== 'object'
+    ) {
+      accum.push(curr)
+
+      return accum
     }
 
-    result.push(obj)
+    if (executed) {
+      curr.amountExecuted = curr.amountOrig - curr.amount
+    }
+    if (rate) {
+      curr.rate = curr.rate ?? 'Flash Return Rate'
+    }
+
+    accum.push(curr)
+
+    return accum
   }, [])
 }
 
