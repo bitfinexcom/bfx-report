@@ -1,13 +1,10 @@
 'use strict'
 
-const { pipeline } = require('stream')
-const { stringify } = require('csv')
-
 const {
   write
 } = require('../../queue/write-data-to-stream/helpers')
 
-const nope = () => {}
+const { streamWriter } = require('./helpers')
 
 module.exports = (
   rService,
@@ -28,30 +25,18 @@ module.exports = (
   queue.emit('progress', 0)
 
   if (typeof jobData === 'string') {
-    const stringifier = stringify(
-      { columns: ['mess'] }
+    await streamWriter(
+      wStream,
+      [{
+        columnParams: { columns: ['mess'] },
+        writeFn: (stream) => write([{ mess: jobData }], stream)
+      }]
     )
 
-    pipeline(stringifier, wStream, nope)
-    write([{ mess: jobData }], stringifier)
     queue.emit('progress', 100)
-    stringifier.end()
 
     return
   }
-
-  wStream.setMaxListeners(50)
-
-  const headerStringifier = stringify(
-    { columns: ['empty', 'buy', 'empty', 'empty', 'sell', 'empty', 'empty', 'cumulative', 'empty'] }
-  )
-  const resStringifier = stringify({
-    header: true,
-    columns: columnsCsv
-  })
-
-  pipeline(headerStringifier, wStream, nope)
-  pipeline(resStringifier, wStream, nope)
 
   const { res } = await getDataFromApi({
     getData: rService[name].bind(rService),
@@ -59,19 +44,34 @@ module.exports = (
     callerName: 'CSV_WRITER'
   })
 
-  write(
-    [{ empty: '', buy: 'Buy', sell: 'Sell', cumulative: 'Cumulative' }],
-    headerStringifier
-  )
-  write(
-    res,
-    resStringifier,
-    formatSettings,
-    params
+  wStream.setMaxListeners(50)
+
+  await streamWriter(
+    wStream,
+    [
+      {
+        columnParams: {
+          columns: ['empty', 'buy', 'empty', 'empty', 'sell', 'empty', 'empty', 'cumulative', 'empty']
+        },
+        writeFn: (stream) => write(
+          [{ empty: '', buy: 'Buy', sell: 'Sell', cumulative: 'Cumulative' }],
+          stream
+        )
+      },
+      {
+        columnParams: {
+          header: true,
+          columns: columnsCsv
+        },
+        writeFn: (stream) => write(
+          res,
+          stream,
+          formatSettings,
+          params
+        )
+      }
+    ]
   )
 
   queue.emit('progress', 100)
-
-  headerStringifier.end()
-  resStringifier.end()
 }
