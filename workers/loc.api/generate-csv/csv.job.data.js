@@ -1038,7 +1038,7 @@ class CsvJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWeightedAveragesReportApiCsv')
+    checkParams(args, 'paramsSchemaForWeightedAveragesReportApiCsv', ['symbol'])
 
     const {
       userId,
