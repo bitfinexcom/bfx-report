@@ -1,6 +1,5 @@
 'use strict'
 
-const { min, max } = require('lodash')
 const moment = require('moment-timezone')
 
 const { TimeframeError } = require('../errors')
@@ -8,11 +7,19 @@ const { TimeframeError } = require('../errors')
 const MIN_START_MTS = Date.UTC(2013)
 
 const getDateNotMoreNow = (mts, now = Date.now()) => {
-  return min([mts, now])
+  if (!Number.isFinite(mts)) {
+    return now
+  }
+
+  return Math.min(mts, now)
 }
 
 const getDateNotLessMinStart = (mts, minStart = MIN_START_MTS) => {
-  return max([mts, minStart])
+  if (!Number.isFinite(mts)) {
+    return minStart
+  }
+
+  return Math.max(mts, minStart)
 }
 
 const _setDefaultTimeIfNotExist = (args) => {
