@@ -1,9 +1,9 @@
 'use strict'
 
 const {
-  omit,
-  cloneDeep
-} = require('lodash')
+  omit
+} = require('lib-js-util-base')
+const { cloneDeep } = require('lodash')
 const { promisify } = require('util')
 const { pipeline } = require('stream')
 const fs = require('fs')
