@@ -1,6 +1,6 @@
 'use strict'
 
-const { cloneDeep } = require('lodash')
+const { cloneDeep } = require('lib-js-util-base')
 
 const Interrupter = require('../interrupter')
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
