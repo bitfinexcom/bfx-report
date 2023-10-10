@@ -1,4 +1,5 @@
 name: 'Test Report'
+run-name: 'Test Report: Commit ${{ github.sha }}'
 
 on:
   workflow_run:
@@ -12,12 +13,18 @@ permissions:
   checks: write
 
 jobs:
-  report:
+  web-page-report:
+    name: Web Page Report
     runs-on: ubuntu-22.04
     steps:
     - uses: dorny/test-reporter@v1
+      id: test-results
       with:
         artifact: test-results
-        name: Test Report
+        name: Mocha Tests
         path: test-report.json
         reporter: mocha-json
+    - name: Test Report Summary
+      run: |
+        echo "### Test Report page is ready! :rocket:" >> $GITHUB_STEP_SUMMARY
+        echo "And available at the following [Link](${{ steps.test-results.outputs.url_html }})" >> $GITHUB_STEP_SUMMARY
