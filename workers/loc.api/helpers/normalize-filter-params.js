@@ -1,6 +1,6 @@
 'use strict'
 
-const { cloneDeep } = require('lodash')
+const { cloneDeep } = require('lib-js-util-base')
 
 const FILTER_MODELS_NAMES = require('./filter.models.names')
 const FILTER_CONDITIONS = require('./filter.conditions')

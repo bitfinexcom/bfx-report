@@ -1,6 +1,6 @@
 'use strict'
 
-const { cloneDeep } = require('lodash')
+const { cloneDeep } = require('lib-js-util-base')
 const moment = require('moment-timezone')
 
 const dataNormalizer = require('./data-normalizer')

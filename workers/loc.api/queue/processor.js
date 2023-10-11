@@ -3,7 +3,7 @@
 const {
   omit,
   cloneDeep
-} = require('lodash')
+} = require('lib-js-util-base')
 const { promisify } = require('util')
 const { pipeline } = require('stream')
 const fs = require('fs')
