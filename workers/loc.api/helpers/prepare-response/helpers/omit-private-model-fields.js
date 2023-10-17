@@ -1,6 +1,6 @@
 'use strict'
 
-const { omit } = require('lodash')
+const { omit } = require('lib-js-util-base')
 
 const OMITTING_FIELDS = [
   '_events',
