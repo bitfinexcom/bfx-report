@@ -1,11 +1,6 @@
 'use strict'
 
 const {
-  upperFirst,
-  lowerFirst
-} = require('lodash')
-
-const {
   checkFilterParams,
   FILTER_MODELS_NAMES,
   normalizeFilterParams
@@ -58,7 +53,8 @@ const _getCsvStoreStatus = async ({
 
 const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
   .reduce((map, name) => {
-    const key = `get${upperFirst(name)}CsvJobData`
+    const baseName = `${name[0].toUpperCase()}${name.slice(1)}`
+    const key = `get${baseName}CsvJobData`
 
     map.set(key, name)
 
@@ -74,7 +70,7 @@ const _truncateCsvNameEnding = (name) => {
     .replace(/^get/i, '')
     .replace(/csv$/i, '')
 
-  return lowerFirst(cleanedName)
+  return `${cleanedName[0].toLowerCase()}${cleanedName.slice(1)}`
 }
 
 const _getFilterModelNamesAndArgs = (

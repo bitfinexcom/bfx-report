@@ -1,6 +1,5 @@
 'use strict'
 
-const { snakeCase } = require('lodash')
 const { v4: uuidv4 } = require('uuid')
 
 const _fileNamesMap = new Map([
@@ -67,10 +66,15 @@ const _getBaseName = (
   if (isMultiExport) {
     return 'multiple-exports'
   }
+  if (namesMap.has(queueName)) {
+    return namesMap.get(queueName)
+  }
 
-  return namesMap.has(queueName)
-    ? namesMap.get(queueName)
-    : snakeCase(queueName.replace(/^get/, ''))
+  return queueName
+    .replace(/^get/, '')
+    .replace(/[A-Z]/g, (match, offset) => (
+      `${offset > 0 ? '_' : ''}${match.toLowerCase()}`
+    ))
 }
 
 const _getDateString = mc => {
