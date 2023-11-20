@@ -27,7 +27,7 @@ module.exports = (args, opts) => {
   )
 
   return (
-    apiRes.length === 0 ||
+    apiRes.length <= 1 || // Check makes sense to prevent double requests to api
     methodLimit > limit ||
     apiRes.some((item) => (
       item?.[datePropName] !== mts
