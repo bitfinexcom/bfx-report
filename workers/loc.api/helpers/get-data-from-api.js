@@ -77,7 +77,7 @@ module.exports = (
     }
 
     try {
-      const _args = cloneDeep(args)
+      const _args = cloneDeep(args) ?? {}
 
       /*
        * API request should not be logged to std error stream
