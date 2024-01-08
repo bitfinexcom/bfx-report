@@ -6,13 +6,14 @@ const {
   normalizeFilterParams
 } = require('../helpers')
 const {
-  EmailSendingError
+  EmailSendingError,
+  GrcPDFAvailabilityError
 } = require('../errors')
-const getLocalCsvFolderPaths = require(
-  '../queue/helpers/get-local-csv-folder-paths'
+const getLocalReportFolderPaths = require(
+  '../queue/helpers/get-local-report-folder-paths'
 )
 
-const _getCsvStoreStatus = async ({
+const _getReportFileStoreStatus = async ({
   hasGrcService,
   args,
   rootPath,
@@ -26,26 +27,38 @@ const _getCsvStoreStatus = async ({
     typeof email !== 'string'
   ) {
     const {
-      localCsvFolderPath
-    } = getLocalCsvFolderPaths(rootPath)
-    const remoteCsvUrn = (
+      localReportFolderPath
+    } = getLocalReportFolderPaths(rootPath)
+    const remoteReportUrn = (
       token &&
       typeof token === 'string' &&
-      conf?.remoteCsvUrn &&
-      typeof conf?.remoteCsvUrn === 'string'
+      conf?.remoteReportUrn &&
+      typeof conf?.remoteReportUrn === 'string'
     )
-      ? `${conf?.remoteCsvUrn}?token=${token}`
+      ? `${conf?.remoteReportUrn}?token=${token}`
       : null
 
     return {
       isSaveLocaly: true,
-      localCsvFolderPath,
-      remoteCsvUrn
+      localReportFolderPath,
+      remoteReportUrn,
+
+      /**
+       * @deprecated fields
+       */
+      localCsvFolderPath: localReportFolderPath,
+      remoteCsvUrn: remoteReportUrn
     }
   }
 
   if (!await hasGrcService.hasS3AndSendgrid()) {
     throw new EmailSendingError()
+  }
+  if (
+    args?.params?.isPDFRequired &&
+    !await hasGrcService.hasPDFService()
+  ) {
+    throw new GrcPDFAvailabilityError()
   }
 
   return { isSendEmail: true }
@@ -54,21 +67,21 @@ const _getCsvStoreStatus = async ({
 const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
   .reduce((map, name) => {
     const baseName = `${name[0].toUpperCase()}${name.slice(1)}`
-    const key = `get${baseName}CsvJobData`
+    const key = `get${baseName}FileJobData`
 
     map.set(key, name)
 
     return map
   }, new Map())
 
-const _truncateCsvNameEnding = (name) => {
+const _truncateFileNameEnding = (name) => {
   if (!name) {
     return name
   }
 
   const cleanedName = name
     .replace(/^get/i, '')
-    .replace(/csv$/i, '')
+    .replace(/file$/i, '')
 
   return `${cleanedName[0].toLowerCase()}${cleanedName.slice(1)}`
 }
@@ -77,9 +90,9 @@ const _getFilterModelNamesAndArgs = (
   name,
   reqArgs
 ) => {
-  if (name !== 'getMultipleCsvJobData') {
+  if (name !== 'getMultipleFileJobData') {
     const filterModelName = _filterModelNameMap.get(name)
-    const truncatedName = _truncateCsvNameEnding(name)
+    const truncatedName = _truncateFileNameEnding(name)
     const args = normalizeFilterParams(truncatedName, reqArgs)
 
     return [{
@@ -97,7 +110,7 @@ const _getFilterModelNamesAndArgs = (
   return _multiExport.map((params) => {
     const { method } = { ...params }
     const name = `${method}JobData`
-    const truncatedName = _truncateCsvNameEnding(method)
+    const truncatedName = _truncateFileNameEnding(method)
     const args = normalizeFilterParams(truncatedName, { params })
     const filterModelName = _filterModelNameMap.get(name)
 
@@ -121,7 +134,7 @@ module.exports = (
 ) => {
   const user = await rService.verifyUser(null, args)
 
-  const status = await _getCsvStoreStatus({
+  const status = await _getReportFileStoreStatus({
     hasGrcService,
     args,
     rootPath,

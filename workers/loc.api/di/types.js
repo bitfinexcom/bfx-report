@@ -22,7 +22,7 @@ module.exports = {
   HasGrcService: Symbol.for('HasGrcService'),
   ProcessorQueue: Symbol.for('ProcessorQueue'),
   AggregatorQueue: Symbol.for('AggregatorQueue'),
-  GenerateCsv: Symbol.for('GenerateCsv'),
+  GenerateReportFile: Symbol.for('GenerateReportFile'),
   Processor: Symbol.for('Processor'),
   Aggregator: Symbol.for('Aggregator'),
   WriteDataToStream: Symbol.for('WriteDataToStream'),

@@ -23,13 +23,13 @@ const aggregator = require('../queue/aggregator')
 const writeDataToStream = require('../queue/write-data-to-stream')
 const uploadToS3 = require('../queue/upload-to-s3')
 const sendMail = require('../queue/send-mail')
-const generateCsv = require('../generate-csv')
-const CsvJobData = require('../generate-csv/csv.job.data')
+const generateReportFile = require('../generate-report-file')
+const CsvJobData = require('../generate-report-file/csv.job.data')
 const Interrupter = require('../interrupter')
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 const {
   weightedAveragesReportCsvWriter
-} = require('../generate-csv/csv-writer')
+} = require('../generate-report-file/csv-writer')
 const WeightedAveragesReport = require('../weighted.averages.report')
 const BfxApiRouter = require('../bfx.api.router')
 
@@ -49,7 +49,7 @@ module.exports = ({
       ['_getREST', TYPES.GetREST],
       ['_grcBfxReq', TYPES.GrcBfxReq],
       ['_prepareApiResponse', TYPES.PrepareApiResponse],
-      ['_generateCsv', TYPES.GenerateCsv],
+      ['_generateReportFile', TYPES.GenerateReportFile],
       ['_hasGrcService', TYPES.HasGrcService],
       ['_weightedAveragesReport', TYPES.WeightedAveragesReport]
     ])
@@ -124,9 +124,9 @@ module.exports = ({
     bind(TYPES.CsvJobData)
       .to(CsvJobData)
       .inSingletonScope()
-    bind(TYPES.GenerateCsv)
+    bind(TYPES.GenerateReportFile)
       .toDynamicValue(() => bindDepsToFn(
-        generateCsv,
+        generateReportFile,
         [
           TYPES.ProcessorQueue,
           TYPES.HasGrcService,
