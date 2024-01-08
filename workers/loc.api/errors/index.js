@@ -164,6 +164,12 @@ class GrcSlackAvailabilityError extends BaseError {
   }
 }
 
+class GrcPDFAvailabilityError extends BaseError {
+  constructor (message = 'ERR_GRC_PDF_IS_NOT_AVAILABLE') {
+    super(message)
+  }
+}
+
 class WeightedAveragesTimeframeError extends UnprocessableEntityError {
   constructor (message = 'ERR_TIME_FRAME_MORE_THAN_TWO_YEARS') {
     super(message)
@@ -193,6 +199,7 @@ module.exports = {
   ArgsParamsFilterError,
   LedgerPaymentFilteringParamsError,
   GrcSlackAvailabilityError,
+  GrcPDFAvailabilityError,
   ImplementationError,
   WeightedAveragesTimeframeError
 }
