@@ -8,9 +8,9 @@ const argv = require('yargs')
     type: 'number',
     default: 1
   })
-  .option('csvFolder', {
+  .option('reportFolder', {
     type: 'string',
-    default: 'csv'
+    default: 'report-files'
   })
   .option('tempFolder', {
     type: 'string',
@@ -31,7 +31,7 @@ const argv = require('yargs')
     type: 'boolean',
     default: false
   })
-  .option('remoteCsvUrn', {
+  .option('remoteReportUrn', {
     type: 'string',
     default: ''
   })
