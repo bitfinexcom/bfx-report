@@ -648,211 +648,326 @@ class ReportService extends Api {
     }, 'getWeightedAveragesReport', args, cb)
   }
 
-  getMultipleCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getMultipleCsv (...args) { return this.getMultipleFile(...args) }
+
+  getMultipleFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getMultipleCsvJobData',
+      return this._generateReportFile(
+        'getMultipleFileJobData',
         args
       )
-    }, 'getMultipleCsv', args, cb)
+    }, 'getMultipleFile', args, cb)
   }
 
-  getTradesCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getTradesCsv (...args) { return this.getTradesFile(...args) }
+
+  getTradesFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getTradesCsvJobData',
+      return this._generateReportFile(
+        'getTradesFileJobData',
         args
       )
-    }, 'getTradesCsv', args, cb)
+    }, 'getTradesFile', args, cb)
   }
 
-  getFundingTradesCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getFundingTradesCsv (...args) { return this.getFundingTradesFile(...args) }
+
+  getFundingTradesFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getFundingTradesCsvJobData',
+      return this._generateReportFile(
+        'getFundingTradesFileJobData',
         args
       )
-    }, 'getFundingTradesCsv', args, cb)
+    }, 'getFundingTradesFile', args, cb)
   }
 
-  getTickersHistoryCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getTickersHistoryCsv (...args) { return this.getTickersHistoryFile(...args) }
+
+  getTickersHistoryFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getTickersHistoryCsvJobData',
+      return this._generateReportFile(
+        'getTickersHistoryFileJobData',
         args
       )
-    }, 'getTickersHistoryCsv', args, cb)
+    }, 'getTickersHistoryFile', args, cb)
   }
 
-  getWalletsCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getWalletsCsv (...args) { return this.getWalletsFile(...args) }
+
+  getWalletsFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getWalletsCsvJobData',
+      return this._generateReportFile(
+        'getWalletsFileJobData',
         args
       )
-    }, 'getWalletsCsv', args, cb)
+    }, 'getWalletsFile', args, cb)
   }
 
-  getPositionsHistoryCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getPositionsHistoryCsv (...args) { return this.getPositionsHistoryFile(...args) }
+
+  getPositionsHistoryFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getPositionsHistoryCsvJobData',
+      return this._generateReportFile(
+        'getPositionsHistoryFileJobData',
         args
       )
-    }, 'getPositionsHistoryCsv', args, cb)
+    }, 'getPositionsHistoryFile', args, cb)
   }
 
-  getActivePositionsCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getActivePositionsCsv (...args) { return this.getActivePositionsFile(...args) }
+
+  getActivePositionsFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getActivePositionsCsvJobData',
+      return this._generateReportFile(
+        'getActivePositionsFileJobData',
         args
       )
-    }, 'getActivePositionsCsv', args, cb)
+    }, 'getActivePositionsFile', args, cb)
   }
 
-  getPositionsAuditCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getPositionsAuditCsv (...args) { return this.getPositionsAuditFile(...args) }
+
+  getPositionsAuditFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getPositionsAuditCsvJobData',
+      return this._generateReportFile(
+        'getPositionsAuditFileJobData',
         args
       )
-    }, 'getPositionsAuditCsv', args, cb)
+    }, 'getPositionsAuditFile', args, cb)
   }
 
-  getPublicTradesCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getPublicTradesCsv (...args) { return this.getPublicTradesFile(...args) }
+
+  getPublicTradesFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getPublicTradesCsvJobData',
+      return this._generateReportFile(
+        'getPublicTradesFileJobData',
         args
       )
-    }, 'getPublicTradesCsv', args, cb)
+    }, 'getPublicTradesFile', args, cb)
   }
 
-  getStatusMessagesCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getStatusMessagesCsv (...args) { return this.getStatusMessagesFile(...args) }
+
+  getStatusMessagesFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getStatusMessagesCsvJobData',
+      return this._generateReportFile(
+        'getStatusMessagesFileJobData',
         args
       )
-    }, 'getStatusMessagesCsv', args, cb)
+    }, 'getStatusMessagesFile', args, cb)
   }
 
-  getCandlesCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getCandlesCsv (...args) { return this.getCandlesFile(...args) }
+
+  getCandlesFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getCandlesCsvJobData',
+      return this._generateReportFile(
+        'getCandlesFileJobData',
         args
       )
-    }, 'getCandlesCsv', args, cb)
+    }, 'getCandlesFile', args, cb)
   }
 
-  getLedgersCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getLedgersCsv (...args) { return this.getLedgersFile(...args) }
+
+  getLedgersFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getLedgersCsvJobData',
+      return this._generateReportFile(
+        'getLedgersFileJobData',
         args
       )
-    }, 'getLedgersCsv', args, cb)
+    }, 'getLedgersFile', args, cb)
   }
 
-  getPayInvoiceListCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getPayInvoiceListCsv (...args) { return this.getPayInvoiceListFile(...args) }
+
+  getPayInvoiceListFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getPayInvoiceListCsvJobData',
+      return this._generateReportFile(
+        'getPayInvoiceListFileJobData',
         args
       )
-    }, 'getPayInvoiceListCsv', args, cb)
+    }, 'getPayInvoiceListFile', args, cb)
   }
 
-  getOrderTradesCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getOrderTradesCsv (...args) { return this.getOrderTradesFile(...args) }
+
+  getOrderTradesFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getOrderTradesCsvJobData',
+      return this._generateReportFile(
+        'getOrderTradesFileJobData',
         args
       )
-    }, 'getOrderTradesCsv', args, cb)
+    }, 'getOrderTradesFile', args, cb)
   }
 
-  getOrdersCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getOrdersCsv (...args) { return this.getOrdersFile(...args) }
+
+  getOrdersFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getOrdersCsvJobData',
+      return this._generateReportFile(
+        'getOrdersFileJobData',
         args
       )
-    }, 'getOrdersCsv', args, cb)
+    }, 'getOrdersFile', args, cb)
   }
 
-  getActiveOrdersCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getActiveOrdersCsv (...args) { return this.getActiveOrdersFile(...args) }
+
+  getActiveOrdersFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getActiveOrdersCsvJobData',
+      return this._generateReportFile(
+        'getActiveOrdersFileJobData',
         args
       )
-    }, 'getActiveOrdersCsv', args, cb)
+    }, 'getActiveOrdersFile', args, cb)
   }
 
-  getMovementsCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getMovementsCsv (...args) { return this.getMovementsFile(...args) }
+
+  getMovementsFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getMovementsCsvJobData',
+      return this._generateReportFile(
+        'getMovementsFileJobData',
         args
       )
-    }, 'getMovementsCsv', args, cb)
+    }, 'getMovementsFile', args, cb)
   }
 
-  getFundingOfferHistoryCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getFundingOfferHistoryCsv (...args) { return this.getFundingOfferHistoryFile(...args) }
+
+  getFundingOfferHistoryFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getFundingOfferHistoryCsvJobData',
+      return this._generateReportFile(
+        'getFundingOfferHistoryFileJobData',
         args
       )
-    }, 'getFundingOfferHistoryCsv', args, cb)
+    }, 'getFundingOfferHistoryFile', args, cb)
   }
 
-  getFundingLoanHistoryCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getFundingLoanHistoryCsv (...args) { return this.getFundingLoanHistoryFile(...args) }
+
+  getFundingLoanHistoryFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getFundingLoanHistoryCsvJobData',
+      return this._generateReportFile(
+        'getFundingLoanHistoryFileJobData',
         args
       )
-    }, 'getFundingLoanHistoryCsv', args, cb)
+    }, 'getFundingLoanHistoryFile', args, cb)
   }
 
-  getFundingCreditHistoryCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getFundingCreditHistoryCsv (...args) { return this.getFundingCreditHistoryFile(...args) }
+
+  getFundingCreditHistoryFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getFundingCreditHistoryCsvJobData',
+      return this._generateReportFile(
+        'getFundingCreditHistoryFileJobData',
         args
       )
-    }, 'getFundingCreditHistoryCsv', args, cb)
+    }, 'getFundingCreditHistoryFile', args, cb)
   }
 
-  getLoginsCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getLoginsCsv (...args) { return this.getLoginsFile(...args) }
+
+  getLoginsFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getLoginsCsvJobData',
+      return this._generateReportFile(
+        'getLoginsFileJobData',
         args
       )
-    }, 'getLoginsCsv', args, cb)
+    }, 'getLoginsFile', args, cb)
   }
 
-  getChangeLogsCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getChangeLogsCsv (...args) { return this.getChangeLogsFile(...args) }
+
+  getChangeLogsFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getChangeLogsCsvJobData',
+      return this._generateReportFile(
+        'getChangeLogsFileJobData',
         args
       )
-    }, 'getChangeLogsCsv', args, cb)
+    }, 'getChangeLogsFile', args, cb)
   }
 
-  getWeightedAveragesReportCsv (space, args, cb) {
+  /**
+   * @deprecated
+   */
+  getWeightedAveragesReportCsv (...args) { return this.getWeightedAveragesReportFile(...args) }
+
+  getWeightedAveragesReportFile (space, args, cb) {
     return this._responder(() => {
-      return this._generateCsv(
-        'getWeightedAveragesReportCsvJobData',
+      return this._generateReportFile(
+        'getWeightedAveragesReportFileJobData',
         args
       )
-    }, 'getWeightedAveragesReportCsv', args, cb)
+    }, 'getWeightedAveragesReportFile', args, cb)
   }
 }
 
