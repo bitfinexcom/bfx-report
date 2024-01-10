@@ -60,8 +60,8 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
   return getLimitNotMoreThan(base, max)
 }
 
-const getCsvArgs = (args, method, extraParams = {}) => {
-  const csvArgs = {
+const getReportFileArgs = (args, method, extraParams = {}) => {
+  const reportFileArgs = {
     ...args,
     params: {
       ...args.params,
@@ -70,7 +70,7 @@ const getCsvArgs = (args, method, extraParams = {}) => {
     }
   }
 
-  return csvArgs
+  return reportFileArgs
 }
 
 const getLimitNotMoreThan = (limit, maxLimit = 25) => {
@@ -80,6 +80,6 @@ const getLimitNotMoreThan = (limit, maxLimit = 25) => {
 
 module.exports = {
   getMethodLimit,
-  getCsvArgs,
+  getReportFileArgs,
   getLimitNotMoreThan
 }

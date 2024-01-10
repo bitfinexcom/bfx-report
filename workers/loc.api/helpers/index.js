@@ -9,7 +9,7 @@ const {
 const checkParams = require('./check-params')
 const {
   getMethodLimit,
-  getCsvArgs,
+  getReportFileArgs,
   getLimitNotMoreThan
 } = require('./limit-param.helpers')
 const {
@@ -92,7 +92,7 @@ module.exports = {
   prepareResponse,
   prepareApiResponse,
   prepareSymbolResponse,
-  getCsvArgs,
+  getReportFileArgs,
   getMethodLimit,
   checkJobAndGetUserData,
   grcBfxReq,
