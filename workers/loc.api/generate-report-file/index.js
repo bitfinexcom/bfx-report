@@ -124,7 +124,7 @@ const _getFilterModelNamesAndArgs = (
 module.exports = (
   processorQueue,
   hasGrcService,
-  csvJobData,
+  reportFileJobData,
   rService,
   rootPath,
   conf
@@ -149,7 +149,7 @@ module.exports = (
     checkFilterParams(filterModelName, args)
   }
 
-  const getter = csvJobData[name].bind(csvJobData)
+  const getter = reportFileJobData[name].bind(reportFileJobData)
   const jobData = await getter(args, null, user)
 
   processorQueue.addJob(jobData)

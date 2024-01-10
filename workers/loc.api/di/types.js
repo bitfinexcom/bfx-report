@@ -28,7 +28,7 @@ module.exports = {
   WriteDataToStream: Symbol.for('WriteDataToStream'),
   UploadToS3: Symbol.for('UploadToS3'),
   SendMail: Symbol.for('SendMail'),
-  CsvJobData: Symbol.for('CsvJobData'),
+  ReportFileJobData: Symbol.for('ReportFileJobData'),
   Interrupter: Symbol.for('Interrupter'),
   AbstractWSEventEmitter: Symbol.for('AbstractWSEventEmitter'),
   GetDataFromApi: Symbol.for('GetDataFromApi'),

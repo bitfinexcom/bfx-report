@@ -24,7 +24,7 @@ const writeDataToStream = require('../queue/write-data-to-stream')
 const uploadToS3 = require('../queue/upload-to-s3')
 const sendMail = require('../queue/send-mail')
 const generateReportFile = require('../generate-report-file')
-const CsvJobData = require('../generate-report-file/csv.job.data')
+const ReportFileJobData = require('../generate-report-file/report.file.job.data')
 const Interrupter = require('../interrupter')
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 const {
@@ -121,8 +121,8 @@ module.exports = ({
     bind(TYPES.GrcSlackFac).toConstantValue(
       grcSlackFac
     )
-    bind(TYPES.CsvJobData)
-      .to(CsvJobData)
+    bind(TYPES.ReportFileJobData)
+      .to(ReportFileJobData)
       .inSingletonScope()
     bind(TYPES.GenerateReportFile)
       .toDynamicValue(() => bindDepsToFn(
@@ -130,7 +130,7 @@ module.exports = ({
         [
           TYPES.ProcessorQueue,
           TYPES.HasGrcService,
-          TYPES.CsvJobData,
+          TYPES.ReportFileJobData,
           TYPES.RService,
           TYPES.RootPath,
           TYPES.CONF
