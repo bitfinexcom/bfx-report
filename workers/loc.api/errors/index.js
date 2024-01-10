@@ -68,11 +68,11 @@ class FindMethodError extends BaseError {
   }
 }
 
-class FindMethodToGetCsvFileError extends BadRequestError {
-  constructor (message = 'ERR_METHOD_TO_GET_CSV_FILE_NOT_FOUND') {
+class FindMethodToGetReportFileError extends BadRequestError {
+  constructor (message = 'ERR_METHOD_TO_GET_REPORT_FILE_NOT_FOUND') {
     super(message)
 
-    this.statusMessage = 'Method to get csv file not found'
+    this.statusMessage = 'Method to get report file not found'
   }
 }
 
@@ -186,7 +186,7 @@ module.exports = {
   UnprocessableEntityError,
 
   FindMethodError,
-  FindMethodToGetCsvFileError,
+  FindMethodToGetReportFileError,
   ArgsParamsError,
   GrenacheServiceConfigArgsError,
   EmailSendingError,
