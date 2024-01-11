@@ -49,7 +49,7 @@ module.exports = (
     const _res = await getDataFromApi({
       getData,
       args: currIterationArgs,
-      callerName: 'CSV_WRITER'
+      callerName: 'REPORT_FILE_WRITER'
     })
 
     const isGetWalletsMethod = method === 'getWallets'
