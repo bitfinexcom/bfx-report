@@ -86,14 +86,14 @@ const moveFileToLocalStorage = async (
   chunkCommonFolder
 ) => {
   const { localReportFolderPath } = getLocalReportFolderPaths(rootPath)
-  const fullCsvDirPath = (
+  const fullReportDirPath = (
     chunkCommonFolder &&
     typeof chunkCommonFolder === 'string'
   )
     ? path.join(localReportFolderPath, chunkCommonFolder)
     : localReportFolderPath
 
-  await _checkAndCreateDir(fullCsvDirPath)
+  await _checkAndCreateDir(fullReportDirPath)
 
   let fileName = getCompleteFileName(
     name,
@@ -109,7 +109,7 @@ const moveFileToLocalStorage = async (
     } else throw err
   }
 
-  const files = await readdir(fullCsvDirPath)
+  const files = await readdir(fullReportDirPath)
   let count = 0
 
   while (files.some(file => file === fileName)) {
@@ -126,7 +126,7 @@ const moveFileToLocalStorage = async (
     )
   }
 
-  const newFilePath = path.join(fullCsvDirPath, fileName)
+  const newFilePath = path.join(fullReportDirPath, fileName)
   await _moveFileAcrossDevice(filePath, newFilePath)
 
   if (isElectronjsEnv) {
