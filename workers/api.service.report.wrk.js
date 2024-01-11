@@ -110,7 +110,7 @@ class WrkReportServiceApi extends WrkApi {
     names = [
       'isSpamRestrictionMode',
       'isLoggerDisabled',
-      'remoteCsvUrn'
+      'remoteReportUrn'
     ]
   ) {
     const conf = this.conf[this.group]
