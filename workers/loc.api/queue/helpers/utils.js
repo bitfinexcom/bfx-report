@@ -82,7 +82,7 @@ const moveFileToLocalStorage = async (
   name,
   params,
   userInfo,
-  isAddedUniqueEndingToCsvName,
+  isAddedUniqueEndingToReportFileName,
   chunkCommonFolder
 ) => {
   const { localReportFolderPath } = getLocalReportFolderPaths(rootPath)
@@ -120,7 +120,7 @@ const moveFileToLocalStorage = async (
       params,
       {
         userInfo,
-        isAddedUniqueEndingToCsvName,
+        isAddedUniqueEndingToReportFileName,
         uniqEnding: `(${count})`
       }
     )

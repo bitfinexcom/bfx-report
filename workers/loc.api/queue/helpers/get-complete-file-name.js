@@ -94,7 +94,7 @@ module.exports = (
     userInfo,
     ext = 'csv',
     isMultiExport,
-    isAddedUniqueEndingToCsvName,
+    isAddedUniqueEndingToReportFileName,
     uniqEnding = ''
   } = {}
 ) => {
@@ -122,7 +122,7 @@ module.exports = (
     : formattedDateNow
   const _ext = ext ? `.${ext}` : ''
   const _userInfo = userInfo ? `${userInfo}_` : ''
-  const _uniqEnding = isAddedUniqueEndingToCsvName
+  const _uniqEnding = isAddedUniqueEndingToReportFileName
     ? _getUniqEnding(uniqEnding)
     : ''
 

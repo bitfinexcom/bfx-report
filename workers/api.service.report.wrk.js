@@ -70,6 +70,15 @@ class WrkReportServiceApi extends WrkApi {
   loadDIConfig (cont = container) {
     const conf = this.conf[this.group]
 
+    /**
+     * @deprecated isAddedUniqueEndingToCsvName
+     * Keep for back compatibility
+     */
+    conf.isAddedUniqueEndingToReportFileName = (
+      conf.isAddedUniqueEndingToReportFileName ??
+      conf.isAddedUniqueEndingToCsvName
+    )
+
     this.container = cont
 
     diConfig(conf)
