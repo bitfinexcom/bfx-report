@@ -84,7 +84,7 @@ const paramsSchemaForPayInvoiceList = {
   }
 }
 
-const paramsSchemaForPayInvoiceListCsv = {
+const paramsSchemaForPayInvoiceListFile = {
   type: 'object',
   properties: {
     ...paramsSchemaForPayInvoiceList.properties,
@@ -164,7 +164,7 @@ const paramsSchemaForMovementInfo = {
   }
 }
 
-const paramsSchemaForCandlesCsv = {
+const paramsSchemaForCandlesFile = {
   type: 'object',
   properties: {
     ...paramsSchemaForCandlesApi.properties,
@@ -195,7 +195,7 @@ const paramsSchemaForStatusMessagesApi = {
   }
 }
 
-const paramsSchemaForStatusMessagesCsv = {
+const paramsSchemaForStatusMessagesFile = {
   type: 'object',
   properties: {
     ...paramsSchemaForStatusMessagesApi.properties,
@@ -205,7 +205,7 @@ const paramsSchemaForStatusMessagesCsv = {
   }
 }
 
-const paramsSchemaForCsv = {
+const paramsSchemaForFile = {
   ...paramsSchemaForApi,
   properties: {
     ...paramsSchemaForApi.properties,
@@ -215,10 +215,10 @@ const paramsSchemaForCsv = {
   }
 }
 
-const paramsSchemaForPublicTradesCsv = {
-  ...paramsSchemaForCsv,
+const paramsSchemaForPublicTradesFile = {
+  ...paramsSchemaForFile,
   properties: {
-    ...paramsSchemaForCsv.properties,
+    ...paramsSchemaForFile.properties,
     symbol: _publicTradesSymbol
   }
 }
@@ -252,10 +252,10 @@ const paramsSchemaForPositionsAudit = {
   }
 }
 
-const paramsSchemaForPositionsAuditCsv = {
-  ...paramsSchemaForCsv,
+const paramsSchemaForPositionsAuditFile = {
+  ...paramsSchemaForFile,
   properties: {
-    ...paramsSchemaForCsv.properties,
+    ...paramsSchemaForFile.properties,
     ...paramsSchemaForPositionsAudit.properties
   }
 }
@@ -269,7 +269,7 @@ const paramsSchemaForWallets = {
   }
 }
 
-const paramsSchemaForWalletsCsv = {
+const paramsSchemaForWalletsFile = {
   type: 'object',
   properties: {
     end: {
@@ -281,7 +281,7 @@ const paramsSchemaForWalletsCsv = {
   }
 }
 
-const paramsSchemaForActivePositionsCsv = {
+const paramsSchemaForActivePositionsFile = {
   type: 'object',
   properties: {
     timezone,
@@ -290,7 +290,7 @@ const paramsSchemaForActivePositionsCsv = {
   }
 }
 
-const paramsSchemaForMultipleCsv = {
+const paramsSchemaForMultipleFile = {
   type: 'object',
   required: ['multiExport'],
   properties: {
@@ -346,7 +346,7 @@ const paramsSchemaForOrderTradesApi = {
   }
 }
 
-const paramsSchemaForOrderTradesCsv = {
+const paramsSchemaForOrderTradesFile = {
   ...paramsSchemaForOrderTradesApi,
   properties: {
     ...paramsSchemaForOrderTradesApi.properties,
@@ -356,7 +356,7 @@ const paramsSchemaForOrderTradesCsv = {
   }
 }
 
-const paramsSchemaForWeightedAveragesReportApiCsv = {
+const paramsSchemaForWeightedAveragesReportFile = {
   type: 'object',
   properties: {
     ...cloneDeep(paramsSchemaForWeightedAveragesReportApi.properties),
@@ -368,24 +368,24 @@ const paramsSchemaForWeightedAveragesReportApiCsv = {
 
 module.exports = {
   paramsSchemaForApi,
-  paramsSchemaForCsv,
+  paramsSchemaForFile,
   paramsSchemaForPayInvoiceList,
-  paramsSchemaForPayInvoiceListCsv,
-  paramsSchemaForPublicTradesCsv,
+  paramsSchemaForPayInvoiceListFile,
+  paramsSchemaForPublicTradesFile,
   paramsSchemaForPublicTrades,
   paramsSchemaForPositionsAudit,
-  paramsSchemaForPositionsAuditCsv,
+  paramsSchemaForPositionsAuditFile,
   paramsSchemaForWallets,
-  paramsSchemaForWalletsCsv,
-  paramsSchemaForMultipleCsv,
-  paramsSchemaForActivePositionsCsv,
+  paramsSchemaForWalletsFile,
+  paramsSchemaForMultipleFile,
+  paramsSchemaForActivePositionsFile,
   paramsSchemaForOrderTradesApi,
-  paramsSchemaForOrderTradesCsv,
+  paramsSchemaForOrderTradesFile,
   paramsSchemaForStatusMessagesApi,
-  paramsSchemaForStatusMessagesCsv,
+  paramsSchemaForStatusMessagesFile,
   paramsSchemaForCandlesApi,
-  paramsSchemaForCandlesCsv,
+  paramsSchemaForCandlesFile,
   paramsSchemaForWeightedAveragesReportApi,
-  paramsSchemaForWeightedAveragesReportApiCsv,
+  paramsSchemaForWeightedAveragesReportFile,
   paramsSchemaForMovementInfo
 }
