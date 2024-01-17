@@ -119,7 +119,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForCsv', ['symbol'])
+    checkParams(args, 'paramsSchemaForFile', ['symbol'])
 
     const {
       userId,
@@ -180,7 +180,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWalletsCsv')
+    checkParams(args, 'paramsSchemaForWalletsFile')
 
     const {
       userId,
@@ -265,7 +265,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForActivePositionsCsv')
+    checkParams(args, 'paramsSchemaForActivePositionsFile')
 
     const {
       userId,
@@ -316,7 +316,7 @@ class ReportFileJobData {
     uInfo
   ) {
     const _args = parsePositionsAuditId(args)
-    checkParams(_args, 'paramsSchemaForPositionsAuditCsv', ['id'])
+    checkParams(_args, 'paramsSchemaForPositionsAuditFile', ['id'])
 
     const {
       userId,
@@ -365,7 +365,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForPublicTradesCsv', ['symbol'])
+    checkParams(args, 'paramsSchemaForPublicTradesFile', ['symbol'])
     checkTimeLimit(args)
 
     const {
@@ -420,7 +420,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForStatusMessagesCsv')
+    checkParams(args, 'paramsSchemaForStatusMessagesFile')
 
     const {
       userId,
@@ -460,7 +460,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForCandlesCsv', ['symbol'])
+    checkParams(args, 'paramsSchemaForCandlesFile', ['symbol'])
     checkTimeLimit(args)
 
     const {
@@ -585,7 +585,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForOrderTradesCsv')
+    checkParams(args, 'paramsSchemaForOrderTradesFile')
 
     const {
       userId,
@@ -984,7 +984,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForMultipleCsv', false, true)
+    checkParams(args, 'paramsSchemaForMultipleFile', false, true)
 
     const {
       userId,
@@ -1038,7 +1038,7 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWeightedAveragesReportApiCsv', ['symbol'])
+    checkParams(args, 'paramsSchemaForWeightedAveragesReportFile', ['symbol'])
 
     const {
       userId,
