@@ -2,6 +2,8 @@
 
 const { v4: uuidv4 } = require('uuid')
 
+const getReportFileExtName = require('./get-report-file-ext-name')
+
 const _fileNamesMap = new Map([
   ['getTrades', 'trades'],
   ['getOrderTrades', 'order_trades'],
@@ -92,12 +94,12 @@ module.exports = (
   params,
   {
     userInfo,
-    ext = 'csv',
     isMultiExport,
     isAddedUniqueEndingToReportFileName,
     uniqEnding = ''
   } = {}
 ) => {
+  const ext = getReportFileExtName(params)
   const {
     start,
     end,
