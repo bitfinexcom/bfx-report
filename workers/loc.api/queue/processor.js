@@ -77,7 +77,8 @@ module.exports = (
         data.args.params = { ...data.args.params }
 
         const filePath = await createUniqueFileName(
-          rootPath
+          rootPath,
+          data.args.params
         )
         filePaths.push(filePath)
 

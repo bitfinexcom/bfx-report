@@ -136,7 +136,19 @@ const moveFileToLocalStorage = async (
   return { newFilePath }
 }
 
-const createUniqueFileName = async (rootPath, count = 0) => {
+const getReportFileExtName = (params) => {
+  const {
+    isPDFRequired
+  } = params ?? {}
+
+  if (isPDFRequired) {
+    return 'pdf'
+  }
+
+  return 'csv'
+}
+
+const createUniqueFileName = async (rootPath, params, count = 0) => {
   count += 1
 
   if (count > 20) {
@@ -147,12 +159,13 @@ const createUniqueFileName = async (rootPath, count = 0) => {
 
   await _checkAndCreateDir(tempReportFolderPath)
 
-  const uniqueFileName = `${uuidv4()}.csv`
+  const ext = getReportFileExtName(params)
+  const uniqueFileName = `${uuidv4()}.${ext}`
 
   const files = await readdir(tempReportFolderPath)
 
   if (files.some(file => file === uniqueFileName)) {
-    return createUniqueFileName(rootPath, count)
+    return createUniqueFileName(rootPath, params, count)
   }
 
   return path.join(tempReportFolderPath, uniqueFileName)
@@ -172,5 +185,6 @@ const writableToPromise = stream => {
 module.exports = {
   moveFileToLocalStorage,
   writableToPromise,
-  createUniqueFileName
+  createUniqueFileName,
+  getReportFileExtName
 }

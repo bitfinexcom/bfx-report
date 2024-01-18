@@ -4,7 +4,8 @@ const getCompleteFileName = require('./get-complete-file-name')
 const {
   moveFileToLocalStorage,
   writableToPromise,
-  createUniqueFileName
+  createUniqueFileName,
+  getReportFileExtName
 } = require('./utils')
 const getLocalReportFolderPaths = require(
   './get-local-report-folder-paths'
@@ -14,6 +15,7 @@ module.exports = {
   moveFileToLocalStorage,
   writableToPromise,
   createUniqueFileName,
+  getReportFileExtName,
   getCompleteFileName,
   getLocalReportFolderPaths
 }
