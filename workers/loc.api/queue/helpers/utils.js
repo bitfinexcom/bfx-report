@@ -17,6 +17,7 @@ const getCompleteFileName = require('./get-complete-file-name')
 const getLocalReportFolderPaths = require(
   './get-local-report-folder-paths'
 )
+const getReportFileExtName = require('./get-report-file-ext-name')
 
 const _checkAndCreateDir = async (dirPath) => {
   try {
@@ -136,18 +137,6 @@ const moveFileToLocalStorage = async (
   return { newFilePath }
 }
 
-const getReportFileExtName = (params) => {
-  const {
-    isPDFRequired
-  } = params ?? {}
-
-  if (isPDFRequired) {
-    return 'pdf'
-  }
-
-  return 'csv'
-}
-
 const createUniqueFileName = async (rootPath, params, count = 0) => {
   count += 1
 
@@ -185,6 +174,5 @@ const writableToPromise = stream => {
 module.exports = {
   moveFileToLocalStorage,
   writableToPromise,
-  createUniqueFileName,
-  getReportFileExtName
+  createUniqueFileName
 }
