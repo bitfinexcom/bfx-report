@@ -39,7 +39,7 @@ module.exports = (
       )
 
       const newFilePaths = []
-      const csvFilesMetadata = []
+      const reportFilesMetadata = []
 
       if (isEnableToSendEmail) {
         const s3Data = await uploadToS3(
@@ -70,7 +70,7 @@ module.exports = (
 
           await unlink(filePath)
 
-          csvFilesMetadata.push({
+          reportFilesMetadata.push({
             name: _name,
             filePath: null
           })
@@ -79,7 +79,7 @@ module.exports = (
         job.done()
         aggregatorQueue.emit('completed', {
           newFilePaths,
-          csvFilesMetadata,
+          reportFilesMetadata,
           userInfo
         })
 
@@ -102,7 +102,7 @@ module.exports = (
         )
 
         newFilePaths.push(newFilePath)
-        csvFilesMetadata.push({
+        reportFilesMetadata.push({
           name: _name,
           filePath: newFilePath
         })
@@ -111,7 +111,7 @@ module.exports = (
       job.done()
       aggregatorQueue.emit('completed', {
         newFilePaths,
-        csvFilesMetadata,
+        reportFilesMetadata,
         userInfo
       })
     } catch (err) {
