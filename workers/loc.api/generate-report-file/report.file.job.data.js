@@ -995,7 +995,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const { language } = { ...args.params }
+    const {
+      language,
+      isPDFRequired
+    } = args?.params ?? {}
     const jobsData = []
 
     for (const params of args.params.multiExport) {
@@ -1014,7 +1017,8 @@ class ReportFileJobData {
           ...args,
           params: {
             ...params,
-            language
+            language,
+            isPDFRequired
           }
         },
         userId,
