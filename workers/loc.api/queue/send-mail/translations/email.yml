@@ -1,7 +1,7 @@
 en:
   template:
     subject: Your report is ready
-    btnText: Download CSV
+    btnText: Download Report
     fileName: File name
     unauth: Your file could not be completed, please try again
     readyForDownload: The report you request is ready for download
@@ -15,7 +15,7 @@ en:
 ru:
   template:
     subject: Ваш отчет готов
-    btnText: Скачать CSV
+    btnText: Скачать Отчет
     fileName: Имя файла
     unauth: Ваш файл не может быть завершен, пожалуйста, попробуйте еще раз
     readyForDownload: Запрашиваемый вами отчет готов к загрузке
@@ -29,7 +29,7 @@ ru:
 zh-CN:
   template:
     subject: 您的报告已备妥
-    btnText: 下载CSV档案
+    btnText: 下载报告档案
     fileName: 档案名称
     unauth: 档案未下载成功，请重试一次
     readyForDownload: 您请求的报告已可下载
@@ -43,7 +43,7 @@ zh-CN:
 zh-TW:
   template:
     subject: 您的報告已備妥
-    btnText: 下載CSV檔案
+    btnText: 下載报告檔案
     fileName: 檔案名稱
     unauth: 檔案未下載成功，請重試一次
     readyForDownload: 您請求的報告已可下載
@@ -57,7 +57,7 @@ zh-TW:
 es-EM:
   template:
     subject: Tu reporte esta listo
-    btnText: Descargar el CSV
+    btnText: Descargar el Informe
     fileName: Nombre del archivo
     unauth: Tu archivo no se pudo completar, intente de nuevo por favor.
     readyForDownload: Tu reporte esta listo para ser descargado
@@ -71,7 +71,7 @@ es-EM:
 tr:
   template:
     subject: Raporunuz hazır
-    btnText: CSV İndir
+    btnText: Raporu İndir
     fileName: Dosya adı
     unauth: Dosyanız tamamlanamadı, lütfen tekrar deneyin
     readyForDownload: İstediğiniz rapor indirilmeye hazır
@@ -85,7 +85,7 @@ tr:
 pt-BR:
   template:
     subject: Seu relatório está pronto
-    btnText: Baixar CSV
+    btnText: Baixar Relatório
     fileName: Nome do arquivo
     unauth: Não foi possível concluir seu arquivo, tente novamente
     readyForDownload: O relatório solicitado está pronto para download

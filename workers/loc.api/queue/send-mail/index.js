@@ -97,7 +97,7 @@ module.exports = (grcBfxReq) => {
       const button = {
         url,
         text: translate(
-          'Download CSV',
+          'Download Report',
           'template.btnText'
         )
       }
