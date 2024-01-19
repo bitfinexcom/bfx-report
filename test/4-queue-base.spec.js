@@ -18,7 +18,7 @@ const {
   createMockRESTv2SrvWithDate
 } = require('./helpers/helpers.mock-rest-v2')
 const {
-  testMethodOfGettingCsv,
+  testMethodOfGettingReportFile,
   testProcQueue
 } = require('./helpers/helpers.tests')
 
@@ -109,7 +109,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should not be successfully performed by the getMultipleCsv method', async function () {
@@ -170,7 +170,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getPositionsHistoryCsv method', async function () {
@@ -197,7 +197,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getActivePositionsCsv method', async function () {
@@ -220,7 +220,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getPositionsAuditCsv method', async function () {
@@ -248,7 +248,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getWalletsCsv method', async function () {
@@ -271,7 +271,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getFundingOfferHistoryCsv method', async function () {
@@ -299,7 +299,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getFundingLoanHistoryCsv method', async function () {
@@ -326,7 +326,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getFundingCreditHistoryCsv method', async function () {
@@ -353,7 +353,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getLedgersCsv method', async function () {
@@ -381,7 +381,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getPayInvoiceListCsv method', async function () {
@@ -408,7 +408,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getTradesCsv method', async function () {
@@ -436,7 +436,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getFundingTradesCsv method', async function () {
@@ -464,7 +464,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getStatusMessagesCsv method', async function () {
@@ -489,7 +489,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getPublicTradesCsv method', async function () {
@@ -517,7 +517,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getCandlesCsv method', async function () {
@@ -545,7 +545,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should not be successfully performed by the getPublicTradesCsv method, time frame more then a month', async function () {
@@ -632,7 +632,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getOrdersCsv method', async function () {
@@ -659,7 +659,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getActiveOrdersCsv method', async function () {
@@ -682,7 +682,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getMovementsCsv method', async function () {
@@ -709,7 +709,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getMovementsCsv method, where amount > 0', async function () {
@@ -737,7 +737,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getMovementsCsv method, where amount < 0', async function () {
@@ -765,7 +765,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getLoginsCsv method', async function () {
@@ -791,7 +791,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getChangeLogsCsv method', async function () {
@@ -817,7 +817,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getWeightedAveragesReportCsv method', async function () {
@@ -845,7 +845,7 @@ describe('Queue', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should not be successfully auth by the getLedgersCsv method', async function () {

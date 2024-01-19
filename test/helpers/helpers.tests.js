@@ -41,7 +41,7 @@ const testProcQueue = (procRes, opts) => {
   assert.isBoolean(procRes.isUnauth)
 }
 
-const testMethodOfGettingCsv = async (
+const testMethodOfGettingReportFile = async (
   procPromise,
   aggrPromise,
   res,
@@ -83,6 +83,6 @@ const testMethodOfGettingCsv = async (
 }
 
 module.exports = {
-  testMethodOfGettingCsv,
+  testMethodOfGettingReportFile,
   testProcQueue
 }

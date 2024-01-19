@@ -17,7 +17,7 @@ const {
   createMockRESTv2SrvWithDate
 } = require('./helpers/helpers.mock-rest-v2')
 const {
-  testMethodOfGettingCsv
+  testMethodOfGettingReportFile
 } = require('./helpers/helpers.tests')
 
 process.env.NODE_CONFIG_DIR = path.join(__dirname, 'config')
@@ -673,7 +673,7 @@ describe('API filter', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getMultipleCsv method', async function () {
@@ -723,6 +723,6 @@ describe('API filter', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 })

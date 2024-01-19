@@ -17,7 +17,7 @@ const {
   createMockRESTv2SrvWithDate
 } = require('./helpers/helpers.mock-rest-v2')
 const {
-  testMethodOfGettingCsv
+  testMethodOfGettingReportFile
 } = require('./helpers/helpers.tests')
 
 const signature = `-----BEGIN PGP SIGNATURE-----
@@ -117,7 +117,7 @@ describe('Signature', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the getLedgersCsv method', async function () {
@@ -146,7 +146,7 @@ describe('Signature', () => {
       .expect('Content-Type', /json/)
       .expect(200)
 
-    await testMethodOfGettingCsv(procPromise, aggrPromise, res)
+    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
   it('it should be successfully performed by the verifyDigitalSignature method', async function () {
