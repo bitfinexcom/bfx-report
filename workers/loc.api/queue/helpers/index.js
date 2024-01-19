@@ -10,6 +10,7 @@ const getLocalReportFolderPaths = require(
   './get-local-report-folder-paths'
 )
 const getReportFileExtName = require('./get-report-file-ext-name')
+const getReportContentType = require('./get-report-content-type')
 
 module.exports = {
   moveFileToLocalStorage,
@@ -17,5 +18,6 @@ module.exports = {
   createUniqueFileName,
   getCompleteFileName,
   getLocalReportFolderPaths,
-  getReportFileExtName
+  getReportFileExtName,
+  getReportContentType
 }
