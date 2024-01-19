@@ -79,7 +79,7 @@ describe('Signature', () => {
     } catch (err) { }
   })
 
-  it('it should be successfully performed by the getMultipleCsv method', async function () {
+  it('it should be successfully performed by the getMultipleFile method', async function () {
     this.timeout(60000)
 
     const procPromise = queueToPromise(processorQueue)
@@ -90,13 +90,13 @@ describe('Signature', () => {
       .type('json')
       .send({
         auth,
-        method: 'getMultipleCsv',
+        method: 'getMultipleFile',
         params: {
           email,
           isSignatureRequired: true,
           multiExport: [
             {
-              method: 'getTradesCsv',
+              method: 'getTradesFile',
               symbol: ['tBTCUSD', 'tETHUSD'],
               end,
               start,
@@ -104,7 +104,7 @@ describe('Signature', () => {
               timezone: 'America/Los_Angeles'
             },
             {
-              method: 'getTickersHistoryCsv',
+              method: 'getTickersHistoryFile',
               symbol: 'BTC',
               end,
               start,
@@ -120,7 +120,7 @@ describe('Signature', () => {
     await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
-  it('it should be successfully performed by the getLedgersCsv method', async function () {
+  it('it should be successfully performed by the getLedgersFile method', async function () {
     this.timeout(60000)
 
     const procPromise = queueToPromise(processorQueue)
@@ -131,7 +131,7 @@ describe('Signature', () => {
       .type('json')
       .send({
         auth,
-        method: 'getLedgersCsv',
+        method: 'getLedgersFile',
         params: {
           symbol: ['BTC'],
           end,

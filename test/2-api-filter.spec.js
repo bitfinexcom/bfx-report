@@ -578,7 +578,7 @@ describe('API filter', () => {
       {
         args: {
           ...baseArgs,
-          method: 'getLedgersCsv',
+          method: 'getLedgersFile',
           params: {
             ...baseParams,
             symbol: ['BTC'],
@@ -591,7 +591,7 @@ describe('API filter', () => {
       {
         args: {
           ...baseArgs,
-          method: 'getLedgersCsv',
+          method: 'getLedgersFile',
           params: {
             ...baseParams,
             symbol: ['BTC'],
@@ -604,7 +604,7 @@ describe('API filter', () => {
       {
         args: {
           ...baseArgs,
-          method: 'getLedgersCsv',
+          method: 'getLedgersFile',
           params: {
             ...baseParams,
             symbol: ['BTC'],
@@ -617,7 +617,7 @@ describe('API filter', () => {
       {
         args: {
           ...baseArgs,
-          method: 'getTradesCsv',
+          method: 'getTradesFile',
           params: {
             ...baseParams,
             symbol: ['tBTCUSD', 'tETHUSD'],
@@ -645,7 +645,7 @@ describe('API filter', () => {
     }
   })
 
-  it('it should be successfully performed by the getLedgersCsv method', async function () {
+  it('it should be successfully performed by the getLedgersFile method', async function () {
     this.timeout(20000)
 
     const procPromise = queueToPromise(processorQueue)
@@ -656,7 +656,7 @@ describe('API filter', () => {
       .type('json')
       .send({
         auth,
-        method: 'getLedgersCsv',
+        method: 'getLedgersFile',
         params: {
           symbol: ['BTC'],
           end,
@@ -676,7 +676,7 @@ describe('API filter', () => {
     await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
-  it('it should be successfully performed by the getMultipleCsv method', async function () {
+  it('it should be successfully performed by the getMultipleFile method', async function () {
     this.timeout(20000)
 
     const procPromise = queueToPromise(processorQueue)
@@ -687,13 +687,13 @@ describe('API filter', () => {
       .type('json')
       .send({
         auth,
-        method: 'getMultipleCsv',
+        method: 'getMultipleFile',
         params: {
           email,
           language: 'ru',
           multiExport: [
             {
-              method: 'getTradesCsv',
+              method: 'getTradesFile',
               symbol: ['tBTCUSD', 'tETHUSD'],
               end,
               start,
@@ -707,7 +707,7 @@ describe('API filter', () => {
               }
             },
             {
-              method: 'getTickersHistoryCsv',
+              method: 'getTickersHistoryFile',
               symbol: 'BTC',
               end,
               start,
