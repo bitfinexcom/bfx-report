@@ -295,7 +295,7 @@ const paramsSchemaForMultipleFile = {
   required: ['multiExport'],
   properties: {
     isPDFRequired: {
-      typeof: 'boolean'
+      type: 'boolean'
     },
     email: {
       type: 'string'
