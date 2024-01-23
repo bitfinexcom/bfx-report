@@ -34,5 +34,6 @@ module.exports = {
   GetDataFromApi: Symbol.for('GetDataFromApi'),
   WeightedAveragesReport: Symbol.for('WeightedAveragesReport'),
   WeightedAveragesReportCsvWriter: Symbol.for('WeightedAveragesReportCsvWriter'),
-  BfxApiRouter: Symbol.for('BfxApiRouter')
+  BfxApiRouter: Symbol.for('BfxApiRouter'),
+  PdfWriter: Symbol.for('PdfWriter')
 }

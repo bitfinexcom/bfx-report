@@ -24,6 +24,7 @@ const writeDataToStream = require('../queue/write-data-to-stream')
 const uploadToS3 = require('../queue/upload-to-s3')
 const sendMail = require('../queue/send-mail')
 const generateReportFile = require('../generate-report-file')
+const PdfWriter = require('../generate-report-file/pdf-writer')
 const ReportFileJobData = require('../generate-report-file/report.file.job.data')
 const Interrupter = require('../interrupter')
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
@@ -121,6 +122,9 @@ module.exports = ({
     bind(TYPES.GrcSlackFac).toConstantValue(
       grcSlackFac
     )
+    bind(TYPES.PdfWriter)
+      .to(PdfWriter)
+      .inSingletonScope()
     bind(TYPES.ReportFileJobData)
       .to(ReportFileJobData)
       .inSingletonScope()
@@ -163,18 +167,18 @@ module.exports = ({
         [TYPES.GrcBfxReq]
       )
     )
-    bind(TYPES.Processor).toConstantValue(
-      bindDepsToFn(
+    bind(TYPES.Processor)
+      .toDynamicValue(() => bindDepsToFn(
         processor,
         [
           TYPES.CONF,
           TYPES.RootPath,
           TYPES.ProcessorQueue,
           TYPES.AggregatorQueue,
-          TYPES.WriteDataToStream
+          TYPES.WriteDataToStream,
+          TYPES.PdfWriter
         ]
-      )
-    )
+      ))
     bind(TYPES.Aggregator).toConstantValue(
       bindDepsToFn(
         aggregator,
