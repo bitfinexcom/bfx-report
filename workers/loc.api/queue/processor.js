@@ -33,7 +33,10 @@ const processReportFile = async (deps, args) => {
 
   if (data?.args?.params?.isPDFRequired) {
     const pdfStream = await deps.pdfWriter
-      .createPDFStream(data?.pdfCustomTemplateName)
+      .createPDFStream({
+        pdfCustomTemplateName: data?.pdfCustomTemplateName,
+        language: data?.args?.params.language
+      })
 
     pipeline(pdfStream, writable, () => {})
 

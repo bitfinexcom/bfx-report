@@ -1,10 +1,24 @@
 'use strict'
 
 const { Transform } = require('stream')
+const path = require('path')
+const fs = require('fs')
+const pug = require('pug')
+const yaml = require('js-yaml')
+const { merge } = require('lib-js-util-base')
 
+const getTranslator = require('../../helpers/get-translator')
 const {
   GrcPDFAvailabilityError
 } = require('../../errors')
+
+const pathToTrans = path.join(
+  __dirname,
+  'translations.yml'
+)
+const translations = yaml.load(
+  fs.readFileSync(pathToTrans, 'utf8')
+)
 
 const { decorateInjectable } = require('../../di/utils')
 
@@ -13,15 +27,19 @@ const depsTypes = (TYPES) => [
   TYPES.GrcBfxReq
 ]
 class PdfWriter {
+  #translationsArr = []
+
   constructor (
     hasGrcService,
     grcBfxReq
   ) {
     this.hasGrcService = hasGrcService
     this.grcBfxReq = grcBfxReq
+
+    this.#addTranslations(translations)
   }
 
-  async createPDFStream (pdfCustomTemplateName) {
+  async createPDFStream (opts) {
     const pdfWriter = this
 
     return new Transform({
@@ -45,7 +63,7 @@ class PdfWriter {
       flush (cb) {
         pdfWriter.processPdf(
           this.data,
-          pdfCustomTemplateName
+          opts
         ).then((buffer) => {
           this.push(buffer)
           this.push(null)
@@ -59,11 +77,11 @@ class PdfWriter {
 
   async processPdf (
     apiData,
-    pdfCustomTemplateName
+    opts
   ) {
     const template = await this.renderTemplate(
       apiData,
-      pdfCustomTemplateName
+      opts
     )
     const buffer = await this.createPDFBuffer({ template })
 
@@ -94,8 +112,15 @@ class PdfWriter {
   // TODO: Mocked template, need to implement using pug
   async renderTemplate (
     apiData,
-    pdfCustomTemplateName
+    opts
   ) {
+    const {
+      pdfCustomTemplateName,
+      language
+    } = opts ?? {}
+
+    const translate = this.#getTranslator(language)
+
     const html = `\
 <!DOCTYPE html>
 <html lang="en">
@@ -114,6 +139,24 @@ class PdfWriter {
 </html>`
 
     return html
+  }
+
+  #getTranslator (language) {
+    const translations = this.#getTranslations()
+
+    return getTranslator({ language, translations })
+  }
+
+  #addTranslations (translations) {
+    const translationsArr = Array.isArray(translations)
+      ? translations
+      : [translations]
+
+    this.#translationsArr.push(...translationsArr)
+  }
+
+  #getTranslations () {
+    return merge({}, ...this.#translationsArr)
   }
 }
 
