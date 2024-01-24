@@ -60,6 +60,7 @@ const getDataFromApi = require('./get-data-from-api')
 const splitSymbolPairs = require('./split-symbol-pairs')
 const FOREX_SYMBS = require('./forex.symbs')
 const getTranslator = require('./get-translator')
+const LANGUAGES = require('./languages')
 
 module.exports = {
   getREST,
@@ -107,5 +108,6 @@ module.exports = {
   parsePositionsAuditId,
   splitSymbolPairs,
   FOREX_SYMBS,
-  getTranslator
+  getTranslator,
+  LANGUAGES
 }

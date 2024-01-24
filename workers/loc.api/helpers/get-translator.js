@@ -1,5 +1,7 @@
 'use strict'
 
+const LANGUAGES = require('./languages')
+
 const getTranslator = (params) => {
   const {
     language = 'en',
@@ -7,6 +9,7 @@ const getTranslator = (params) => {
     isNotDefaultTranslatorUsed = false
   } = params ?? {}
 
+  const normLang = LANGUAGES?.[language] ?? 'en'
   const translatorByDefault = (
     !isNotDefaultTranslatorUsed &&
     getTranslator({
@@ -22,9 +25,9 @@ const getTranslator = (params) => {
       : opts?.prop
 
     if (
-      !translations?.[language] ||
-      typeof translations[language] !== 'object' ||
-      Object.keys(translations[language]) === 0 ||
+      !translations?.[normLang] ||
+      typeof translations[normLang] !== 'object' ||
+      Object.keys(translations[normLang]) === 0 ||
       typeof prop !== 'string' ||
       !prop
     ) {
@@ -43,7 +46,7 @@ const getTranslator = (params) => {
       }
 
       return accum
-    }, translations[language])
+    }, translations[normLang])
 
     if (typeof res === 'object') {
       return translatorByDefault
