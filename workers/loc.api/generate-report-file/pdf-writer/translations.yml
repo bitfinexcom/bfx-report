@@ -1,6 +1,10 @@
 en:
   template:
     title: Report
+    errorMessage: Your file could not be completed, please try again
+    reportGenAt: Report generated at
 ru:
   template:
     title: Отчет
+    errorMessage: Ваш файл не может быть завершен, пожалуйста, попробуйте еще раз
+    reportGenAt: Отчет сгенерирован в
