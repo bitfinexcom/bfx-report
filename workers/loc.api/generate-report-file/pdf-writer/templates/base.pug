@@ -1,0 +1,26 @@
+doctype html
+html(lang=language)
+  head
+    meta(charset='utf-8')
+    title
+      :translate(prop='template.title')
+        Report
+
+  body
+    block header
+      h1
+        :translate(prop='template.title')
+          Report
+
+    if isError
+      p
+        :translate(prop='template.errorMessage')
+          Your file could not be completed, please try again
+    else
+      block content
+
+    block footer
+      p
+        :translate(prop='template.reportGenAt')
+          Report generated at
+        | : #{new Date().toLocaleString(language, { timeZone: 'UTC' })}
