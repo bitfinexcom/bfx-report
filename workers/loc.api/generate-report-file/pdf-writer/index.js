@@ -11,6 +11,7 @@ const getTranslator = require('../../helpers/get-translator')
 const {
   GrcPDFAvailabilityError
 } = require('../../errors')
+const TEMPLATE_FILE_NAMES = require('./template-file-names')
 
 const pathToTrans = path.join(
   __dirname,
@@ -28,6 +29,10 @@ const depsTypes = (TYPES) => [
 ]
 class PdfWriter {
   #translationsArr = []
+  #translations = {}
+  #templateFolderPath = path.join(__dirname, 'templates')
+  #templatePaths = new Map()
+  #templates = new Map()
 
   constructor (
     hasGrcService,
@@ -36,7 +41,9 @@ class PdfWriter {
     this.hasGrcService = hasGrcService
     this.grcBfxReq = grcBfxReq
 
-    this.#addTranslations(translations)
+    this.#addTranslations()
+    this.#addTemplates()
+    this.#compileTemplate()
   }
 
   async createPDFStream (opts) {
@@ -109,54 +116,136 @@ class PdfWriter {
     return res
   }
 
-  // TODO: Mocked template, need to implement using pug
+  #getTemplate (pdfCustomTemplateName, language) {
+    const templateKey = this.#getTemplateKey(
+      pdfCustomTemplateName ?? TEMPLATE_FILE_NAMES.MAIN,
+      language
+    )
+
+    if (this.#templates.has(templateKey)) {
+      return this.#templates.get(templateKey)
+    }
+
+    return this.#templates.get(this.#getTemplateKey(
+      TEMPLATE_FILE_NAMES.MAIN,
+      language
+    ))
+  }
+
   async renderTemplate (
     apiData,
     opts
   ) {
     const {
       pdfCustomTemplateName,
-      language
+      language,
+      isError
     } = opts ?? {}
 
-    const translate = this.#getTranslator(language)
-
-    const html = `\
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <title>Bitfinex Reports</title>
-  </head>
-<body>
-  Test TEXT<br/>
-  ---------<br/>
-  <p>${JSON.stringify(apiData)}</p>
-  ---------<br/>
-  One more<br/>
-</body>
-</html>`
+    const template = this.#getTemplate(
+      pdfCustomTemplateName,
+      language
+    )
+    const html = template({
+      apiData,
+      language,
+      isError
+    })
 
     return html
   }
 
   #getTranslator (language) {
-    const translations = this.#getTranslations()
-
-    return getTranslator({ language, translations })
+    return getTranslator({
+      language,
+      translations: this.#translations
+    })
   }
 
-  #addTranslations (translations) {
-    const translationsArr = Array.isArray(translations)
-      ? translations
-      : [translations]
+  #addTranslations (trans = translations) {
+    const translationsArr = Array.isArray(trans)
+      ? trans
+      : [trans]
 
     this.#translationsArr.push(...translationsArr)
+    this.#translations = merge({}, ...this.#translationsArr)
   }
 
-  #getTranslations () {
-    return merge({}, ...this.#translationsArr)
+  #addTemplates (params) {
+    const {
+      fileNames = TEMPLATE_FILE_NAMES,
+      templateFolderPath = this.#templateFolderPath
+    } = params ?? {}
+
+    const _fileNames = this.#getFileNameArray(fileNames)
+
+    for (const fileName of _fileNames) {
+      if (
+        !fileName ||
+        typeof fileName !== 'string'
+      ) {
+        continue
+      }
+
+      this.#templatePaths.set(
+        fileName,
+        path.join(templateFolderPath, fileName)
+      )
+    }
+  }
+
+  #getFileNameArray (fileNames) {
+    if (Array.isArray(fileNames)) {
+      return fileNames
+    }
+    if (
+      fileNames &&
+      typeof fileNames === 'object'
+    ) {
+      return Object.values(fileNames)
+    }
+
+    return [fileNames]
+  }
+
+  #compileTemplate (opts) {
+    const _opts = {
+      pretty: true,
+      ...opts
+    }
+    const languages = this.#getAvailableLanguages()
+
+    for (const language of languages) {
+      const translate = this.#getTranslator(language)
+
+      for (const [templateFileName, templatePath] of this.#templatePaths) {
+        const fn = pug.compileFile(templatePath, {
+          ..._opts,
+          language,
+          filters: { translate }
+        })
+        const templateKey = this.#getTemplateKey(
+          templateFileName,
+          language
+        )
+
+        this.#templates.set(templateKey, fn)
+      }
+    }
+  }
+
+  #getAvailableLanguages () {
+    const languages = Object.keys(this.#translations)
+
+    if (languages.length === 0) {
+      return ['en']
+    }
+
+    return languages
+  }
+
+  #getTemplateKey (templateFileName, language) {
+    return `${templateFileName}:${language}`
   }
 }
 
