@@ -114,12 +114,16 @@ const write = (
   params,
   method
 ) => {
-  res.forEach((item) => {
+  const resArr = Array.isArray(res)
+    ? res
+    : [res]
+
+  for (const item of resArr) {
     const _item = dataNormalizer(item, method, params)
     const res = _dataFormatter(_item, formatSettings, params)
 
     stream.write(res)
-  })
+  }
 }
 
 const writeMessageToStream = (

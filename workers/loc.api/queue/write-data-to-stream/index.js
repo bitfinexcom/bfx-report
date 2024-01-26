@@ -85,6 +85,23 @@ module.exports = (
     serialRequestsCount = 0
 
     if (
+      res &&
+      typeof res === 'object' &&
+      !Array.isArray(res) &&
+      Object.keys(res).length > 0
+    ) {
+      write(
+        res,
+        stream,
+        formatSettings,
+        { ..._args.params },
+        method
+      )
+      processorQueue.emit('progress', 100)
+
+      break
+    }
+    if (
       !res ||
       !Array.isArray(res) ||
       res.length === 0
