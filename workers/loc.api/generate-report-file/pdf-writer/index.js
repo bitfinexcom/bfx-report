@@ -13,37 +13,31 @@ const {
 } = require('../../errors')
 const TEMPLATE_FILE_NAMES = require('./template-file-names')
 
-const pathToTrans = path.join(
-  __dirname,
-  'translations.yml'
-)
-const translations = yaml.load(
-  fs.readFileSync(pathToTrans, 'utf8')
-)
-
 const { decorateInjectable } = require('../../di/utils')
 
 const depsTypes = (TYPES) => [
+  TYPES.ROOT_FOLDER_PATH,
   TYPES.HasGrcService,
   TYPES.GrcBfxReq
 ]
 class PdfWriter {
   #translationsArr = []
   #translations = {}
-  #templateFolderPath = path.join(__dirname, 'templates')
   #templatePaths = new Map()
   #templates = new Map()
 
   constructor (
+    rootFolderPath,
     hasGrcService,
     grcBfxReq
   ) {
+    this.rootFolderPath = rootFolderPath
     this.hasGrcService = hasGrcService
     this.grcBfxReq = grcBfxReq
 
-    this.#addTranslations()
-    this.#addTemplates()
-    this.#compileTemplate()
+    this.addTranslations()
+    this.addTemplates()
+    this.compileTemplate()
   }
 
   async createPDFStream (opts) {
@@ -68,7 +62,7 @@ class PdfWriter {
         cb()
       },
       flush (cb) {
-        pdfWriter.processPdf(
+        pdfWriter.#processPdf(
           this.data,
           opts
         ).then((buffer) => {
@@ -82,11 +76,11 @@ class PdfWriter {
     })
   }
 
-  async processPdf (
+  async #processPdf (
     apiData,
     opts
   ) {
-    const template = await this.renderTemplate(
+    const template = await this.#renderTemplate(
       apiData,
       opts
     )
@@ -132,7 +126,7 @@ class PdfWriter {
     ))
   }
 
-  async renderTemplate (
+  async #renderTemplate (
     apiData,
     opts
   ) {
@@ -162,7 +156,7 @@ class PdfWriter {
     })
   }
 
-  #addTranslations (trans = translations) {
+  addTranslations (trans = this.loadTranslations()) {
     const translationsArr = Array.isArray(trans)
       ? trans
       : [trans]
@@ -171,10 +165,20 @@ class PdfWriter {
     this.#translations = merge({}, ...this.#translationsArr)
   }
 
-  #addTemplates (params) {
+  loadTranslations (
+    pathToTrans = path.join(__dirname, 'translations.yml')
+  ) {
+    const translations = yaml.load(
+      fs.readFileSync(pathToTrans, 'utf8')
+    )
+
+    return translations
+  }
+
+  addTemplates (params) {
     const {
       fileNames = TEMPLATE_FILE_NAMES,
-      templateFolderPath = this.#templateFolderPath
+      templateFolderPath = path.join(__dirname, 'templates')
     } = params ?? {}
 
     const _fileNames = this.#getFileNameArray(fileNames)
@@ -208,8 +212,9 @@ class PdfWriter {
     return [fileNames]
   }
 
-  #compileTemplate (opts) {
+  compileTemplate (opts) {
     const _opts = {
+      basedir: this.rootFolderPath,
       pretty: true,
       ...opts
     }
