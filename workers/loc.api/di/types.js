@@ -2,6 +2,7 @@
 
 module.exports = {
   CONF: Symbol.for('CONF'),
+  ROOT_FOLDER_PATH: Symbol.for('ROOT_FOLDER_PATH'),
   FOREX_SYMBS: Symbol.for('FOREX_SYMBS'),
   RootPath: Symbol.for('RootPath'),
   Container: Symbol.for('Container'),

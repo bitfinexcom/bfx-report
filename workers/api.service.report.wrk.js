@@ -81,7 +81,7 @@ class WrkReportServiceApi extends WrkApi {
 
     this.container = cont
 
-    diConfig(conf)
+    diConfig(conf, this.ctx.root)
   }
 
   loadCoreDeps (...args) {
