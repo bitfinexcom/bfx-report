@@ -142,15 +142,22 @@ class PdfWriter {
       pdfCustomTemplateName,
       language
     )
+    const {
+      date,
+      readableBaseName
+    } = getCompleteFileName(
+      jobData.name,
+      jobData.args.params
+    )
     const html = template({
       apiData,
       jobData,
       language,
       isError,
-      reportName: getCompleteFileName(
-        jobData.name,
-        jobData.args.params
-      ).readableBaseName ?? 'Report table'
+      reportName: readableBaseName ?? 'Report table',
+      date: date instanceof Date
+        ? date
+        : new Date()
     })
 
     return html

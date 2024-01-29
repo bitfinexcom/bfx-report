@@ -50,7 +50,7 @@ html(lang=language)
         span(class='footer-timestamp')
           :translate(prop='template.reportGenAt')
             Report generated at
-          | : #{new Date().toLocaleString(language, { timeZone: 'UTC' })}
+          | : #{date.toLocaleString(language, { timeZone: 'UTC' })}
 
         span(class='footer-page')
           | Page {{page}} from {{pages}}
