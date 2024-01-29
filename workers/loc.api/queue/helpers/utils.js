@@ -96,7 +96,7 @@ const moveFileToLocalStorage = async (
 
   await _checkAndCreateDir(fullReportDirPath)
 
-  let fileName = getCompleteFileName(
+  let { fileName } = getCompleteFileName(
     name,
     params,
     { userInfo }
@@ -124,7 +124,7 @@ const moveFileToLocalStorage = async (
         isAddedUniqueEndingToReportFileName,
         uniqEnding: `(${count})`
       }
-    )
+    ).fileName
   }
 
   const newFilePath = path.join(fullReportDirPath, fileName)

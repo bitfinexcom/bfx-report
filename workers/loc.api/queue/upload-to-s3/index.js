@@ -78,7 +78,7 @@ module.exports = (
         subParamsArr.length > 1
       )
     )
-    const fileNameWithoutExt = getCompleteFileName(
+    const { fileName: fileNameWithoutExt } = getCompleteFileName(
       subParamsArr[0].name,
       subParamsArr[0],
       {
@@ -102,7 +102,7 @@ module.exports = (
               userInfo: userInfo.username,
               isAddedUniqueEndingToReportFileName
             }
-          )
+          ).fileName
         }
       }
     })
