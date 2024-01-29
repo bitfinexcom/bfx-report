@@ -1,7 +1,23 @@
 extends base.pug
 
+block commonContentHeader
+  - const columns = jobData?.columnsCsv ?? Object.keys(apiData?.[0] ?? {})
+
+  div(class='common-content-header')
+    h2(class='content-title').
+      Report name
+    div(class='content')
+      ul.responsive-table
+        li.table-header
+          each columnVal, columnKey in columns
+            .col #{columnVal}
+
 block content
-  h2.
-    Test content
-  pre
-    | #{JSON.stringify(apiData, null, 2)}
+  - const data = Array.isArray(apiData) ? apiData : [apiData ?? {}]
+  - const columns = jobData?.columnsCsv ?? Object.keys(data?.[0] ?? {})
+
+  ul.responsive-table
+    each dataItem, dataIndex in data
+      li.table-row
+        each columnVal, columnKey in columns
+          .col #{dataItem[columnKey]}
