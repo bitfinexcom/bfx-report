@@ -132,7 +132,7 @@ module.exports = (
   const mainMetadata = {
     userInfo: _userInfo,
     baseName,
-    readableBaseName: capitalize(baseName.replace('_', ' ')),
+    readableBaseName: capitalize(baseName.replace(/_/g, ' ')),
     date,
     formattedDateNow,
     timestamp,
