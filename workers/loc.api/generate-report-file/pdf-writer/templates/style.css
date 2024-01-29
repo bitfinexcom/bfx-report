@@ -1,15 +1,48 @@
-html, body {
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
   margin: 0;
   padding: 0;
-  print-color-adjust: exact;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+html, body {
+  -moz-print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
   box-sizing: border-box;
 }
 
 
 html {
-  line-height: 1.15;
-  -webkit-text-size-adjust: 100%;
+  line-height: 1;
 }
 
 body {
@@ -19,7 +52,7 @@ body {
 html, body, .header, .footer {
   font-family: 'Sackers Gothic Std';
   font-weight: 500;
-  font-size: 10px;
+  font-size: 8px;
 }
 
 h1 {
@@ -38,14 +71,22 @@ h4 {
   font-size: 11px;
 }
 
+h5 {
+  font-size: 10px;
+}
+
+h6 {
+  font-size: 9px;
+}
+
 .header {
+  position: relative;
   line-height: 40px;
+  min-height: 43.5mm;
 }
 
 .logo {
   position: absolute;
-  top: 10px;
-  left: 10px;
   width: 200px;
   height: 40px;
 }
@@ -64,6 +105,7 @@ h4 {
 
 .title-text {
   margin: 0;
+  text-transform: uppercase;
 }
 
 .footer {
@@ -77,6 +119,75 @@ h4 {
   left: 0;
 }
 
+.footer-page {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.common-content-header {
+  line-height: 1;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
 .content {
   position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content-title {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.responsive-table li {
+  display: -moz-box;
+  display: -moz-flex;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  padding: 10px 10px;
+  justify-content: space-between;
+}
+
+@media print {
+  .responsive-table li {
+    page-break-inside: avoid;
+  }
+}
+
+.responsive-table .table-header {
+  background-color: #95A5A6;
+  text-transform: uppercase;
+}
+
+.responsive-table .table-row {
+  background-color: #f7f7f7;
+}
+
+.responsive-table .table-row:nth-of-type(even) {
+  background-color: #eeeeee;
+}
+
+.responsive-table .col {
+  -moz-box-basis: 25%;
+  -moz-flex-basis: 25%;
+  -webkit-box-basis: 25%;
+  -webkit-flex-basis: 25%;
+  flex-basis: 25%;
+  text-align: right;
+  word-break: break-all;
+  margin-left: 5px;
+}
+
+.responsive-table .col:nth-of-type(1) {
+  text-align: left;
+  margin-left: 0;
+}
+
+.responsive-table li:nth-of-type(1) {
+  margin-top: 10px;
 }
