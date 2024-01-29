@@ -131,6 +131,7 @@ class PdfWriter {
     opts
   ) {
     const {
+      jobData,
       pdfCustomTemplateName,
       language,
       isError
@@ -142,6 +143,7 @@ class PdfWriter {
     )
     const html = template({
       apiData,
+      jobData,
       language,
       isError
     })

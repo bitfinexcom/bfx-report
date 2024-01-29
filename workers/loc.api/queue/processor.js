@@ -34,6 +34,7 @@ const processReportFile = async (deps, args) => {
   if (data?.args?.params?.isPDFRequired) {
     const pdfStream = await deps.pdfWriter
       .createPDFStream({
+        jobData: data,
         pdfCustomTemplateName: data?.pdfCustomTemplateName,
         language: data?.args?.params.language,
         isError: data?.isUnauth
