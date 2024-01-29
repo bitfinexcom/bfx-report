@@ -7,6 +7,7 @@ const pug = require('pug')
 const yaml = require('js-yaml')
 const { merge } = require('lib-js-util-base')
 
+const getCompleteFileName = require('../../queue/helpers/get-complete-file-name')
 const getTranslator = require('../../helpers/get-translator')
 const {
   GrcPDFAvailabilityError
@@ -145,7 +146,11 @@ class PdfWriter {
       apiData,
       jobData,
       language,
-      isError
+      isError,
+      reportName: getCompleteFileName(
+        jobData.name,
+        jobData.args.params
+      ).readableBaseName ?? 'Report table'
     })
 
     return html

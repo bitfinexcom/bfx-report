@@ -33,6 +33,9 @@ html(lang=language)
             :translate(prop='template.title')
               Report
         block commonContentHeader
+          div(class='common-content-header')
+            h2(class='content-title').
+              #{reportName}
 
     div(class='content')
       if isError
