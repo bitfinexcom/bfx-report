@@ -144,6 +144,10 @@ h6 {
   color: #3e4444;
 }
 
+.responsive-table {
+  margin-bottom: 20px;
+}
+
 .responsive-table li {
   display: -moz-box;
   display: -moz-flex;
