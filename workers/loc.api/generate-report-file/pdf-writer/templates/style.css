@@ -201,3 +201,11 @@ h6 {
 .responsive-table li:nth-of-type(1) {
   margin-top: 10px;
 }
+
+.left-text {
+  text-align: left;
+}
+
+.right-text {
+  text-align: right;
+}
