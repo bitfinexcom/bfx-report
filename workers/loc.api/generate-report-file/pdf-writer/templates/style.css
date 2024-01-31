@@ -210,3 +210,15 @@ h6 {
 .right-text {
   text-align: right;
 }
+
+.responsive-table.width-by-content {
+  width: -moz-max-content;
+  width: -webkit-max-content;
+  width: max-content;
+}
+
+.responsive-table.width-by-content .col {
+  -moz-flex-basis: auto;
+  -webkit-flex-basis: auto;
+  flex-basis: auto;
+}
