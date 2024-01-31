@@ -153,13 +153,16 @@ h6 {
   margin-bottom: 20px;
 }
 
+.responsive-table:nth-last-child(1) {
+  margin-bottom: 0;
+}
+
 .responsive-table li {
-  display: -moz-box;
   display: -moz-flex;
-  display: -webkit-box;
   display: -webkit-flex;
   display: flex;
   padding: 10px 10px;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
 }
 
@@ -183,9 +186,7 @@ h6 {
 }
 
 .responsive-table .col {
-  -moz-box-basis: 25%;
   -moz-flex-basis: 25%;
-  -webkit-box-basis: 25%;
   -webkit-flex-basis: 25%;
   flex-basis: 25%;
   text-align: right;
