@@ -4,7 +4,7 @@ block commonContentHeader
   - const columns = jobData?.columnsCsv ?? Object.keys(apiData?.[0] ?? {})
 
   div(class='common-content-header')
-    h2(class='content-title').
+    h2(class='content-title uppercase-text').
       #{reportName}
     div(class='content')
       ul.responsive-table

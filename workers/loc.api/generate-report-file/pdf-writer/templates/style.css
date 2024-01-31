@@ -211,6 +211,10 @@ h6 {
   text-align: right;
 }
 
+.uppercase-text {
+  text-transform: uppercase;
+}
+
 .responsive-table.width-by-content {
   width: -moz-max-content;
   width: -webkit-max-content;
