@@ -1017,8 +1017,12 @@ class ReportFileJobData {
           ...args,
           params: {
             ...params,
-            language,
-            isPDFRequired
+            ...(language && typeof language === 'string'
+              ? { language }
+              : {}),
+            ...(typeof isPDFRequired === 'boolean'
+              ? { isPDFRequired }
+              : {})
           }
         },
         userId,
