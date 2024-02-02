@@ -14,6 +14,15 @@ const {
 } = require('../../errors')
 const TEMPLATE_FILE_NAMES = require('./template-file-names')
 
+const placeholderPattern = /\$\{[a-zA-Z0-9]+\}/g
+const pathToFonts = path.join(__dirname, 'templates/fonts')
+const fontsTemplate = fs
+  .readFileSync(path.join(pathToFonts, 'fonts.css'), 'utf8')
+const base64Fonts = {
+  interRegular: fs
+    .readFileSync(path.join(pathToFonts, 'Inter-Regular.ttf'), 'base64')
+}
+
 const { decorateInjectable } = require('../../di/utils')
 
 const depsTypes = (TYPES) => [
@@ -22,6 +31,7 @@ const depsTypes = (TYPES) => [
   TYPES.GrcBfxReq
 ]
 class PdfWriter {
+  #fonts = this.#renderFontsTemplate(fontsTemplate, base64Fonts)
   #translationsArr = []
   #translations = {}
   #templatePaths = new Map()
@@ -149,7 +159,9 @@ class PdfWriter {
       jobData.name,
       jobData.args.params
     )
+
     const html = template({
+      fonts: this.#fonts,
       apiData,
       jobData,
       language,
@@ -265,6 +277,26 @@ class PdfWriter {
 
   #getTemplateKey (templateFileName, language) {
     return `${templateFileName}:${language}`
+  }
+
+  #renderFontsTemplate (
+    template,
+    params = {}
+  ) {
+    const str = template.replace(placeholderPattern, (match) => {
+      const propName = match.replace('${', '').replace('}', '')
+
+      if (
+        !Number.isFinite(params?.[propName]) &&
+        typeof params?.[propName] !== 'string'
+      ) {
+        return ''
+      }
+
+      return params[propName]
+    })
+
+    return str
   }
 }
 
