@@ -140,6 +140,7 @@ h6 {
   position: relative;
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: 20px;
 }
 
 .content-title {
@@ -244,4 +245,13 @@ h6 {
 
 .table-title {
   padding-left: 10px;
+}
+
+.copyright {
+  font-style: italic;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
 }

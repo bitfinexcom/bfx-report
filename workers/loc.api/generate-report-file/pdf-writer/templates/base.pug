@@ -50,10 +50,13 @@ html(lang=language)
 
     block footer
       div(id='pageFooter' class='footer')
-        span(class='footer-timestamp')
+        span.footer-timestamp
           :translate(prop='template.reportGenAt')
             Report generated at
           | : #{date.toLocaleString(language, { timeZone: 'UTC' })}
 
-        span(class='footer-page')
+        div.copyright
+          | Copyright © 2013-2024 iFinex Inc. All rights reserved.
+
+        span.footer-page
           | Page {{page}} from {{pages}}
