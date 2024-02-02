@@ -50,13 +50,12 @@ body {
 }
 
 html, body, .header, .footer {
-  font-family: 'Sackers Gothic Std';
-  font-weight: 500;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
   font-size: 8px;
 }
 
 .sm {
-  font-weight: 300;
   font-size: 5px;
 }
 
