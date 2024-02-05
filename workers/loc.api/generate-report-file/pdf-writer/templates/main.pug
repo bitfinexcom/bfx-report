@@ -1,16 +1,13 @@
 extends base.pug
 
-block commonContentHeader
+block commonHeader
   - const columns = reportColumns ?? Object.keys(apiData?.[0] ?? {})
 
-  div(class='common-content-header')
-    h2(class='content-title uppercase-text').
-      #{reportName}
-    div(class='content')
-      ul.responsive-table
-        li.table-header
-          each columnVal, columnKey in columns
-            .col #{columnVal}
+  div(class='content')
+    ul.responsive-table
+      li.table-header
+        each columnVal, columnKey in columns
+          .col #{columnVal}
 
 block content
   - const data = Array.isArray(apiData) ? apiData : [apiData ?? {}]
