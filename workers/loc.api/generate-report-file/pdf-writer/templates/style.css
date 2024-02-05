@@ -167,10 +167,18 @@ h6 {
   justify-content: space-between;
 }
 
+.header:first-of-type + .header {
+  display: none;
+}
+
 @media print {
   .responsive-table .table-header,
   .responsive-table .table-row {
     page-break-inside: avoid;
+  }
+
+  .header:first-of-type + .header {
+    display: block;
   }
 }
 
@@ -254,4 +262,22 @@ h6 {
   left: 0;
   right: 0;
   text-align: center;
+}
+
+.statement-details-content {
+  position: absolute;
+  top: 11px;
+  right: 0;
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+.statement-details-content .responsive-table .table-header:nth-of-type(1),
+.statement-details-content .responsive-table .table-row:nth-of-type(1) {
+  margin-top: 0;
+}
+
+.statement-details-content .table-row,
+.statement-details-content .table-header {
+  padding: 5px 5px;
 }

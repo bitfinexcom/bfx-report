@@ -10,6 +10,9 @@ const { merge } = require('lib-js-util-base')
 const getCompleteFileName = require('../../queue/helpers/get-complete-file-name')
 const getTranslator = require('../../helpers/get-translator')
 const {
+  getDateNotLessMinStart
+} = require('../../helpers/date-param.helpers')
+const {
   GrcPDFAvailabilityError
 } = require('../../errors')
 const TEMPLATE_FILE_NAMES = require('./template-file-names')
@@ -169,6 +172,12 @@ class PdfWriter {
       language,
       isError,
       reportName: readableBaseName ?? 'Report table',
+      start: new Date(
+        getDateNotLessMinStart(jobData?.args?.params?.start)
+      ),
+      end: Number.isFinite(jobData?.args?.params?.end)
+        ? new Date(jobData.args.params.end)
+        : new Date(),
       date: date instanceof Date
         ? date
         : new Date()

@@ -38,8 +38,35 @@ html(lang=language)
             Report
 
     mixin statementDetails
-      if block
-        block
+      - const email = jobData.userInfo.email ?? jobData.userInfo.username ?? ''
+      - const username = jobData.userInfo.username ?? email.replace(/@.*/, '') ?? ''
+
+      .content.statement-details-content
+        ul.responsive-table.sm.width-by-content
+          li.table-header
+            .col
+              :translate(prop='template.statementDetails')
+                Statement Details
+          li.table-row
+            .col
+              | Statement date
+            .col
+              | #{date.toLocaleString(language, { timeZone: 'UTC' })}
+          li.table-row
+            .col
+              | Period
+            .col
+              | #{start.toLocaleString(language, { timeZone: 'UTC' })} - #{end.toLocaleString(language, { timeZone: 'UTC' })}
+          li.table-row
+            .col
+              | Username
+            .col
+              | #{username}
+          li.table-row
+            .col
+              | Email
+            .col
+              | #{email}
 
     mixin commonContentHeader
       if block
@@ -57,9 +84,9 @@ html(lang=language)
         div(id='pageHeader-first' class='header')
           +logo
           +title
+          +statementDetails
           +commonContentHeader
             +contentTitle
-            +statementDetails
             block commonHeader
 
       block pageHeader
