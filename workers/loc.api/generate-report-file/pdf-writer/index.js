@@ -159,11 +159,13 @@ class PdfWriter {
       jobData.name,
       jobData.args.params
     )
+    const reportColumns = jobData?.columnsPdf ?? jobData?.columnsCsv
 
     const html = template({
       fonts: this.#fonts,
       apiData,
       jobData,
+      reportColumns,
       language,
       isError,
       reportName: readableBaseName ?? 'Report table',

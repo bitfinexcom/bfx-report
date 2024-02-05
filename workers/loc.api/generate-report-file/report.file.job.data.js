@@ -520,6 +520,10 @@ class ReportFileJobData {
       name: 'getLedgers',
       args: reportFileArgs,
       propNameForPagination: 'mts',
+      /*
+       * Example how to overwrite column order for pdf
+       * columnsPdf: {},
+       */
       columnsCsv: {
         id: '#',
         description: 'DESCRIPTION',

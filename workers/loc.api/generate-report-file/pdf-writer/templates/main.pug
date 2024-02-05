@@ -1,7 +1,7 @@
 extends base.pug
 
 block commonContentHeader
-  - const columns = jobData?.columnsCsv ?? Object.keys(apiData?.[0] ?? {})
+  - const columns = reportColumns ?? Object.keys(apiData?.[0] ?? {})
 
   div(class='common-content-header')
     h2(class='content-title uppercase-text').
@@ -14,7 +14,7 @@ block commonContentHeader
 
 block content
   - const data = Array.isArray(apiData) ? apiData : [apiData ?? {}]
-  - const columns = jobData?.columnsCsv ?? Object.keys(data?.[0] ?? {})
+  - const columns = reportColumns ?? Object.keys(data?.[0] ?? {})
 
   ul.responsive-table
     each dataItem, dataIndex in data
