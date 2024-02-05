@@ -165,7 +165,6 @@ class PdfWriter {
     const reportColumns = jobData?.columnsPdf ?? jobData?.columnsCsv
 
     const html = template({
-      fonts: this.#fonts,
       apiData,
       jobData,
       reportColumns,
@@ -264,7 +263,10 @@ class PdfWriter {
         const fn = pug.compileFile(templatePath, {
           ..._opts,
           language,
-          filters: { translate }
+          filters: {
+            translate,
+            fonts: () => this.#fonts
+          }
         })
         const templateKey = this.#getTemplateKey(
           templateFileName,
