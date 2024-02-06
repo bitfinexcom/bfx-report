@@ -115,11 +115,12 @@ class PdfWriter {
       throw new GrcPDFAvailabilityError()
     }
 
-    const res = await this.grcBfxReq({
+    const bufferData = await this.grcBfxReq({
       service: 'rest:ext:pdf',
       action: 'createPDFBuffer',
       args: [_args]
     })
+    const res = Buffer.from(bufferData)
 
     return res
   }
