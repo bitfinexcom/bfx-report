@@ -2,6 +2,11 @@ en:
   template:
     title: Report
     statementDetails: Statement Details
+    statementDate: Statement date
+    snapshotAt: Snapshot at
+    period: Period
+    username: Username
+    email: Email
     errorMessage: Your file could not be completed, please try again
     reportGenAt: Report generated at
     copyright: Copyright © 2013-2024 iFinex Inc. All rights reserved.
@@ -12,6 +17,11 @@ ru:
   template:
     title: Отчет
     statementDetails: Детали ведомости
+    statementDate: Дата ведомости
+    snapshotAt: Снимок в
+    period: Период
+    username: Имя пользователя
+    email: Эл. почта
     errorMessage: Ваш файл не может быть завершен, пожалуйста, попробуйте еще раз
     reportGenAt: Отчет сгенерирован в
     copyright: Авторское право © 2013-2024 iFinex Inc. Все права защищены.

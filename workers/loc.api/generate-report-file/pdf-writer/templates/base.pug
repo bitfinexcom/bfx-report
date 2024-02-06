@@ -47,28 +47,33 @@ html(lang=language)
                 Statement Details
           li.table-row
             .col
-              | Statement date
+              :translate(prop='template.statementDate')
+                Statement date
             .col
               | #{date.toLocaleString(language, { timeZone: 'UTC' })}
           li.table-row
             if hasOnlyEndTimestamp
               .col
-                | Snapshot at
+                :translate(prop='template.snapshotAt')
+                  Snapshot at
               .col
                 | #{end.toLocaleString(language, { timeZone: 'UTC' })}
             else
               .col
-                | Period
+                :translate(prop='template.period')
+                  Period
               .col
                 | #{start.toLocaleString(language, { timeZone: 'UTC' })} - #{end.toLocaleString(language, { timeZone: 'UTC' })}
           li.table-row
             .col
-              | Username
+              :translate(prop='template.username')
+                Username
             .col
               | #{username}
           li.table-row
             .col
-              | Email
+              :translate(prop='template.email')
+                Email
             .col
               | #{email}
 
