@@ -51,10 +51,16 @@ html(lang=language)
             .col
               | #{date.toLocaleString(language, { timeZone: 'UTC' })}
           li.table-row
-            .col
-              | Period
-            .col
-              | #{start.toLocaleString(language, { timeZone: 'UTC' })} - #{end.toLocaleString(language, { timeZone: 'UTC' })}
+            if hasOnlyEndTimestamp
+              .col
+                | Snapshot at
+              .col
+                | #{end.toLocaleString(language, { timeZone: 'UTC' })}
+            else
+              .col
+                | Period
+              .col
+                | #{start.toLocaleString(language, { timeZone: 'UTC' })} - #{end.toLocaleString(language, { timeZone: 'UTC' })}
           li.table-row
             .col
               | Username
