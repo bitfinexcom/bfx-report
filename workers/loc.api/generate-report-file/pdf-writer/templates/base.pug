@@ -117,7 +117,13 @@ html(lang=language)
           | : #{date.toLocaleString(language, { timeZone: 'UTC' })}
 
         div.copyright
-          | Copyright © 2013-2024 iFinex Inc. All rights reserved.
+          :translate(prop='template.copyright')
+            Copyright © 2013-2024 iFinex Inc. All rights reserved.
 
         span.footer-page
-          | Page {{page}} from {{pages}}
+          :translate(prop='template.page')
+            Page
+          |  {{page}} 
+          :translate(prop='template.from')
+            from
+          |  {{pages}}
