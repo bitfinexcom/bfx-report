@@ -81,7 +81,7 @@ const _truncateFileNameEnding = (name) => {
 
   const cleanedName = name
     .replace(/^get/i, '')
-    .replace(/file$/i, '')
+    .replace(/(file)|(csv)$/i, '')
 
   return `${cleanedName[0].toLowerCase()}${cleanedName.slice(1)}`
 }

@@ -1006,12 +1006,14 @@ class ReportFileJobData {
     const jobsData = []
 
     for (const params of args.params.multiExport) {
-      const getJobDataMethodName = `${params.method}JobData`
+      // Handle `csv` string for back compatibility
+      const methodName = params?.method.replace(/csv$/i, 'File')
+      const getJobDataMethodName = `${methodName}JobData`
 
       if (
         getJobDataMethodName === 'getMultipleFileJobData' ||
         typeof this[getJobDataMethodName] !== 'function' ||
-        typeof this.rService[params.method] !== 'function'
+        typeof this.rService[methodName] !== 'function'
       ) {
         throw new FindMethodToGetReportFileError()
       }
