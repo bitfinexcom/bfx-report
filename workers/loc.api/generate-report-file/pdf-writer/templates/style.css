@@ -46,7 +46,7 @@ html {
 }
 
 body {
-  margin: 10px;
+  padding: 0 10px;
 }
 
 html, body, .header, .footer {
@@ -83,10 +83,27 @@ h6 {
   font-size: 9px;
 }
 
+.footer {
+  width: 100%;
+}
+
 .header {
   position: relative;
+  width: calc(100% - 20px);
   line-height: 40px;
-  min-height: 43.5mm;
+  z-index: 9;
+}
+
+.phantomjs .none-if-phantomjs {
+  display: none;
+}
+
+.no-phantomjs .none-if-no-phantomjs {
+  display: none;
+}
+
+.no-phantomjs .header {
+  position: absolute;
 }
 
 .logo {
@@ -114,7 +131,6 @@ h6 {
 
 .footer {
   position: relative;
-  height: 40px;
 }
 
 .footer-timestamp {
@@ -142,7 +158,8 @@ h6 {
   margin-right: auto;
 }
 
-.body > .content {
+.body > .content,
+.body > .report-container td > .content {
   margin-bottom: 20px;
 }
 
@@ -183,6 +200,17 @@ h6 {
   .header:first-of-type + .header {
     display: block;
   }
+
+  .header,
+  .no-phantomjs .header,
+  .footer {
+    position: fixed;
+  }
+
+  .footer {
+    bottom: 0;
+    width: calc(100% - 20px);
+  }
 }
 
 .responsive-table .table-header {
@@ -210,11 +238,6 @@ h6 {
 .responsive-table .col:nth-of-type(1) {
   text-align: left;
   margin-left: 0;
-}
-
-.responsive-table .table-header:nth-of-type(1),
-.responsive-table .table-row:nth-of-type(1) {
-  margin-top: 10px;
 }
 
 .left-text {
@@ -283,4 +306,47 @@ h6 {
 .statement-details-content .table-row,
 .statement-details-content .table-header {
   padding: 5px 5px;
+}
+
+.report-container {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Uses `mm` for height to support default settings of `html-pdf` lib */
+.header-space, .header {
+  height: 43.5mm;
+}
+
+.footer-space, .footer {
+  height: 28mm;
+}
+
+@media screen {
+  .footer-space {
+    height: 0;
+  }
+}
+
+.report-header {
+  display: -moz-table-header-group;
+  display: -webkit-table-header-group;
+  display: table-header-group;
+  font-size: 0;
+}
+
+.report-footer {
+  display: -moz-table-footer-group;
+  display: -webkit-table-footer-group;
+  display: table-footer-group;
+}
+
+.footer-container {
+  position: relative;
+  height: 100%;
+  border: 10px solid transparent;
+  border-right-width: 0;
+  border-left-width: 0;
+  box-sizing: border-box;
 }
