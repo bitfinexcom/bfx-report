@@ -13,7 +13,7 @@ html(lang=language)
     //- https://github.com/marcbachmann/node-html-pdf/issues/619
     //- https://github.com/marcbachmann/node-html-pdf/issues/525
     //- ratio for rendering: 72dpi (pdf) / 96dpi (browser), 72/96 = 0.75
-    if process.platform !== 'win32'
+    if process.platform !== 'win32' && !isElectronjsEnv
       style @media print { html { zoom: 0.75; } }
       style @media print { .header, .footer { zoom: 1; } }
     else
@@ -88,9 +88,10 @@ html(lang=language)
       if block
         block
 
+
     block header
-      block firstPageHeader
-        div(id='pageHeader-first' class='header')
+      block pageHeader
+        div(id='pageHeader' class='header')
           +logo
           +title
           +statementDetails
@@ -98,15 +99,29 @@ html(lang=language)
             +contentTitle
             block commonHeader
 
-      block pageHeader
-        div(id='pageHeader' class='header')
-          +logo
-          +title
-          +commonContentHeader
-            +contentTitle
-            block commonHeader
+    table.report-container.none-if-phantomjs
+      thead.report-header
+        tr
+          td
+            .header-space
+                | &nbsp;
+      tbody.report-content
+        tr
+          td
+            div.content
+              if isError
+                p
+                  :translate(prop='template.errorMessage')
+                    Your file could not be completed, please try again
+              else
+                block content
+      tfoot.report-footer
+        tr
+          td
+            .footer-space
+              | &nbsp;
 
-    div(class='content')
+    div.content.none-if-no-phantomjs
       if isError
         p
           :translate(prop='template.errorMessage')
@@ -116,19 +131,25 @@ html(lang=language)
 
     block footer
       div(id='pageFooter' class='footer')
-        span.footer-timestamp
-          :translate(prop='template.reportGenAt')
-            Report generated at
-          | : #{date.toLocaleString(language, { timeZone: 'UTC' })}
+        div.footer-container
+          span.footer-timestamp
+            :translate(prop='template.reportGenAt')
+              Report generated at
+            | : #{date.toLocaleString(language, { timeZone: 'UTC' })}
 
-        div.copyright
-          :translate(prop='template.copyright')
-            Copyright © 2013-2024 iFinex Inc. All rights reserved.
+          div.copyright
+            :translate(prop='template.copyright')
+              Copyright © 2013-2024 iFinex Inc. All rights reserved.
 
-        span.footer-page
-          :translate(prop='template.page')
-            Page
-          |  {{page}} 
-          :translate(prop='template.from')
-            from
-          |  {{pages}}
+          span.footer-page.none-if-no-phantomjs
+            :translate(prop='template.page')
+              Page
+            |  {{page}} 
+            :translate(prop='template.from')
+              from
+            |  {{pages}}
+
+  script
+    |const isPphantomJS = /phantomjs/gi.test(navigator.userAgent)
+    |if (isPphantomJS) document.body.classList.add('phantomjs')
+    |else document.body.classList.add('no-phantomjs')

@@ -49,6 +49,8 @@ class PdfWriter {
     this.hasGrcService = hasGrcService
     this.grcBfxReq = grcBfxReq
 
+    this.isElectronjsEnv = false
+
     this.addTranslations()
     this.addTemplates()
     this.compileTemplate()
@@ -166,6 +168,7 @@ class PdfWriter {
     const reportColumns = jobData?.columnsPdf ?? jobData?.columnsCsv
 
     const html = template({
+      isElectronjsEnv: this.isElectronjsEnv,
       apiData,
       jobData,
       reportColumns,
