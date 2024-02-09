@@ -2,11 +2,15 @@
 
 module.exports = (params) => {
   const {
-    isPDFRequired
+    isPDFRequired,
+    isHTMLRequired
   } = params ?? {}
 
   if (isPDFRequired) {
     return 'pdf'
+  }
+  if (isHTMLRequired) {
+    return 'html'
   }
 
   return 'csv'
