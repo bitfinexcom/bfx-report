@@ -150,7 +150,7 @@ class PdfWriter {
     const {
       jobData,
       pdfCustomTemplateName,
-      language,
+      language = 'en',
       isError
     } = opts ?? {}
 
