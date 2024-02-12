@@ -65,7 +65,7 @@ describe('Queue load', () => {
   })
 
   after(async function () {
-    this.timeout(10000)
+    this.timeout(20000)
 
     await stopEnvironment()
     await rmDB(dbDirPath)
