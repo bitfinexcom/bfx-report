@@ -139,7 +139,7 @@ class PdfWriter {
 
     return this.#templates.get(this.#getTemplateKey(
       TEMPLATE_FILE_NAMES.MAIN,
-      language
+      'en'
     ))
   }
 
@@ -285,8 +285,8 @@ class PdfWriter {
   #getAvailableLanguages () {
     const languages = Object.keys(this.#translations)
 
-    if (languages.length === 0) {
-      return ['en']
+    if (languages.every((lang) => lang !== 'en')) {
+      languages.push('en')
     }
 
     return languages
