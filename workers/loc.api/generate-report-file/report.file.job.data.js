@@ -4,13 +4,13 @@ const { decorateInjectable } = require('../di/utils')
 
 const {
   checkParams,
-  getCsvArgs,
+  getReportFileArgs,
   checkTimeLimit,
   checkJobAndGetUserData,
   parsePositionsAuditId
 } = require('../helpers')
 const {
-  FindMethodToGetCsvFileError,
+  FindMethodToGetReportFileError,
   SymbolsTypeError
 } = require('../errors')
 
@@ -18,7 +18,7 @@ const depsTypes = (TYPES) => [
   TYPES.RService,
   TYPES.WeightedAveragesReportCsvWriter
 ]
-class CsvJobData {
+class ReportFileJobData {
   constructor (
     rService,
     weightedAveragesReportCsvWriter
@@ -27,7 +27,7 @@ class CsvJobData {
     this.weightedAveragesReportCsvWriter = weightedAveragesReportCsvWriter
   }
 
-  async getTradesCsvJobData (
+  async getTradesFileJobData (
     args,
     uId,
     uInfo
@@ -43,13 +43,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'trades')
+    const reportFileArgs = getReportFileArgs(args, 'trades')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getTrades',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsCreate',
       columnsCsv: {
         id: '#',
@@ -71,7 +71,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getFundingTradesCsvJobData (
+  async getFundingTradesFileJobData (
     args,
     uId,
     uInfo
@@ -87,13 +87,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'fundingTrades')
+    const reportFileArgs = getReportFileArgs(args, 'fundingTrades')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getFundingTrades',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsCreate',
       columnsCsv: {
         id: '#',
@@ -114,12 +114,12 @@ class CsvJobData {
     return jobData
   }
 
-  async getTickersHistoryCsvJobData (
+  async getTickersHistoryFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForCsv', ['symbol'])
+    checkParams(args, 'paramsSchemaForFile', ['symbol'])
 
     const {
       userId,
@@ -130,7 +130,7 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'tickersHistory')
+    const reportFileArgs = getReportFileArgs(args, 'tickersHistory')
     const symb = Array.isArray(args.params.symbol)
       ? args.params.symbol
       : [args.params.symbol]
@@ -163,7 +163,7 @@ class CsvJobData {
       userInfo,
       userId,
       name: 'getTickersHistory',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsUpdate',
       columnsCsv: isTrading ? tTickerHistColumns : fTickerHistColumns,
       formatSettings: {
@@ -175,12 +175,12 @@ class CsvJobData {
     return jobData
   }
 
-  async getWalletsCsvJobData (
+  async getWalletsFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWalletsCsv')
+    checkParams(args, 'paramsSchemaForWalletsFile')
 
     const {
       userId,
@@ -213,7 +213,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getPositionsHistoryCsvJobData (
+  async getPositionsHistoryFileJobData (
     args,
     uId,
     uInfo
@@ -229,13 +229,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'positionsHistory')
+    const reportFileArgs = getReportFileArgs(args, 'positionsHistory')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getPositionsHistory',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         id: '#',
@@ -260,12 +260,12 @@ class CsvJobData {
     return jobData
   }
 
-  async getActivePositionsCsvJobData (
+  async getActivePositionsFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForActivePositionsCsv')
+    checkParams(args, 'paramsSchemaForActivePositionsFile')
 
     const {
       userId,
@@ -310,13 +310,13 @@ class CsvJobData {
     return jobData
   }
 
-  async getPositionsAuditCsvJobData (
+  async getPositionsAuditFileJobData (
     args,
     uId,
     uInfo
   ) {
     const _args = parsePositionsAuditId(args)
-    checkParams(_args, 'paramsSchemaForPositionsAuditCsv', ['id'])
+    checkParams(_args, 'paramsSchemaForPositionsAuditFile', ['id'])
 
     const {
       userId,
@@ -327,13 +327,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(_args, 'positionsAudit')
+    const reportFileArgs = getReportFileArgs(_args, 'positionsAudit')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getPositionsAudit',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         id: '#',
@@ -360,12 +360,12 @@ class CsvJobData {
     return jobData
   }
 
-  async getPublicTradesCsvJobData (
+  async getPublicTradesFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForPublicTradesCsv', ['symbol'])
+    checkParams(args, 'paramsSchemaForPublicTradesFile', ['symbol'])
     checkTimeLimit(args)
 
     const {
@@ -381,7 +381,7 @@ class CsvJobData {
     const isTradingPair = Array.isArray(params.symbol)
       ? params.symbol[0].startsWith('t')
       : params.symbol.startsWith('t')
-    const csvArgs = getCsvArgs(args, 'publicTrades', { isTradingPair })
+    const reportFileArgs = getReportFileArgs(args, 'publicTrades', { isTradingPair })
     const columnsCsv = (isTradingPair)
       ? {
           id: '#',
@@ -403,7 +403,7 @@ class CsvJobData {
       userInfo,
       userId,
       name: 'getPublicTrades',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mts',
       columnsCsv,
       formatSettings: {
@@ -415,12 +415,12 @@ class CsvJobData {
     return jobData
   }
 
-  async getStatusMessagesCsvJobData (
+  async getStatusMessagesFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForStatusMessagesCsv')
+    checkParams(args, 'paramsSchemaForStatusMessagesFile')
 
     const {
       userId,
@@ -455,12 +455,12 @@ class CsvJobData {
     return jobData
   }
 
-  async getCandlesCsvJobData (
+  async getCandlesFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForCandlesCsv', ['symbol'])
+    checkParams(args, 'paramsSchemaForCandlesFile', ['symbol'])
     checkTimeLimit(args)
 
     const {
@@ -496,7 +496,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getLedgersCsvJobData (
+  async getLedgersFileJobData (
     args,
     uId,
     uInfo
@@ -512,14 +512,18 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'ledgers')
+    const reportFileArgs = getReportFileArgs(args, 'ledgers')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getLedgers',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mts',
+      /*
+       * Example how to overwrite column order for pdf
+       * columnsPdf: {},
+       */
       columnsCsv: {
         id: '#',
         description: 'DESCRIPTION',
@@ -537,7 +541,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getPayInvoiceListCsvJobData (
+  async getPayInvoiceListFileJobData (
     args,
     uId,
     uInfo
@@ -553,13 +557,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'payInvoiceList')
+    const reportFileArgs = getReportFileArgs(args, 'payInvoiceList')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getPayInvoiceList',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 't',
       columnsCsv: {
         id: '#',
@@ -580,12 +584,12 @@ class CsvJobData {
     return jobData
   }
 
-  async getOrderTradesCsvJobData (
+  async getOrderTradesFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForOrderTradesCsv')
+    checkParams(args, 'paramsSchemaForOrderTradesFile')
 
     const {
       userId,
@@ -596,13 +600,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'orderTrades')
+    const reportFileArgs = getReportFileArgs(args, 'orderTrades')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getOrderTrades',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsCreate',
       columnsCsv: {
         id: '#',
@@ -623,7 +627,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getOrdersCsvJobData (
+  async getOrdersFileJobData (
     args,
     uId,
     uInfo
@@ -639,13 +643,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'orders')
+    const reportFileArgs = getReportFileArgs(args, 'orders')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getOrders',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         id: '#',
@@ -672,7 +676,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getActiveOrdersCsvJobData (
+  async getActiveOrdersFileJobData (
     args,
     uId,
     uInfo
@@ -718,7 +722,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getMovementsCsvJobData (
+  async getMovementsFileJobData (
     args,
     uId,
     uInfo
@@ -734,13 +738,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'movements')
+    const reportFileArgs = getReportFileArgs(args, 'movements')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getMovements',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsUpdated',
       columnsCsv: {
         id: '#',
@@ -761,7 +765,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getFundingOfferHistoryCsvJobData (
+  async getFundingOfferHistoryFileJobData (
     args,
     uId,
     uInfo
@@ -777,13 +781,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'fundingOfferHistory')
+    const reportFileArgs = getReportFileArgs(args, 'fundingOfferHistory')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getFundingOfferHistory',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         id: '#',
@@ -807,7 +811,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getFundingLoanHistoryCsvJobData (
+  async getFundingLoanHistoryFileJobData (
     args,
     uId,
     uInfo
@@ -823,13 +827,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'fundingLoanHistory')
+    const reportFileArgs = getReportFileArgs(args, 'fundingLoanHistory')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getFundingLoanHistory',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         id: '#',
@@ -855,7 +859,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getFundingCreditHistoryCsvJobData (
+  async getFundingCreditHistoryFileJobData (
     args,
     uId,
     uInfo
@@ -871,13 +875,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'fundingCreditHistory')
+    const reportFileArgs = getReportFileArgs(args, 'fundingCreditHistory')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getFundingCreditHistory',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         id: '#',
@@ -904,7 +908,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getLoginsCsvJobData (
+  async getLoginsFileJobData (
     args,
     uId,
     uInfo
@@ -920,13 +924,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'logins')
+    const reportFileArgs = getReportFileArgs(args, 'logins')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getLogins',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'time',
       columnsCsv: {
         id: '#',
@@ -941,7 +945,7 @@ class CsvJobData {
     return jobData
   }
 
-  async getChangeLogsCsvJobData (
+  async getChangeLogsFileJobData (
     args,
     uId,
     uInfo
@@ -957,13 +961,13 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args, 'changeLogs')
+    const reportFileArgs = getReportFileArgs(args, 'changeLogs')
 
     const jobData = {
       userInfo,
       userId,
       name: 'getChangeLogs',
-      args: csvArgs,
+      args: reportFileArgs,
       propNameForPagination: 'mtsCreate',
       columnsCsv: {
         mtsCreate: 'DATE',
@@ -979,12 +983,12 @@ class CsvJobData {
     return jobData
   }
 
-  async getMultipleCsvJobData (
+  async getMultipleFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForMultipleCsv', false, true)
+    checkParams(args, 'paramsSchemaForMultipleFile', false, true)
 
     const {
       userId,
@@ -995,18 +999,23 @@ class CsvJobData {
       uInfo
     )
 
-    const { language } = { ...args.params }
+    const {
+      language,
+      isPDFRequired
+    } = args?.params ?? {}
     const jobsData = []
 
     for (const params of args.params.multiExport) {
-      const getJobDataMethodName = `${params.method}JobData`
+      // Handle `csv` string for back compatibility
+      const methodName = params?.method.replace(/csv$/i, 'File')
+      const getJobDataMethodName = `${methodName}JobData`
 
       if (
-        getJobDataMethodName === 'getMultipleCsvJobData' ||
+        getJobDataMethodName === 'getMultipleFileJobData' ||
         typeof this[getJobDataMethodName] !== 'function' ||
-        typeof this.rService[params.method] !== 'function'
+        typeof this.rService[methodName] !== 'function'
       ) {
-        throw new FindMethodToGetCsvFileError()
+        throw new FindMethodToGetReportFileError()
       }
 
       const jobData = await this[getJobDataMethodName](
@@ -1014,7 +1023,12 @@ class CsvJobData {
           ...args,
           params: {
             ...params,
-            language
+            ...(language && typeof language === 'string'
+              ? { language }
+              : {}),
+            ...(typeof isPDFRequired === 'boolean'
+              ? { isPDFRequired }
+              : {})
           }
         },
         userId,
@@ -1033,12 +1047,12 @@ class CsvJobData {
     }
   }
 
-  async getWeightedAveragesReportCsvJobData (
+  async getWeightedAveragesReportFileJobData (
     args,
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWeightedAveragesReportApiCsv', ['symbol'])
+    checkParams(args, 'paramsSchemaForWeightedAveragesReportFile', ['symbol'])
 
     const {
       userId,
@@ -1049,14 +1063,14 @@ class CsvJobData {
       uInfo
     )
 
-    const csvArgs = getCsvArgs(args)
+    const reportFileArgs = getReportFileArgs(args)
 
     const jobData = {
       userInfo,
       userId,
       name: 'getWeightedAveragesReport',
       fileNamesMap: [['getWeightedAveragesReport', 'weighted-averages-report']],
-      args: csvArgs,
+      args: reportFileArgs,
       columnsCsv: {
         symbol: 'PAIR',
         buyingWeightedPrice: 'WEIGHTED PRICE',
@@ -1081,6 +1095,6 @@ class CsvJobData {
   }
 }
 
-decorateInjectable(CsvJobData, depsTypes)
+decorateInjectable(ReportFileJobData, depsTypes)
 
-module.exports = CsvJobData
+module.exports = ReportFileJobData

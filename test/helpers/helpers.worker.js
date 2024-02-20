@@ -22,6 +22,7 @@ const startHelpers = (
     { name: 's3', port: 13371 },
     { name: 'sendgrid', port: 1310 },
     { name: 'gpg', port: 1320 },
+    { name: 'pdf', port: 1330 },
     { name: 'testcalls', port: 1300 }
   ]
 ) => {

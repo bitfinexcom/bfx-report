@@ -23,13 +23,14 @@ const aggregator = require('../queue/aggregator')
 const writeDataToStream = require('../queue/write-data-to-stream')
 const uploadToS3 = require('../queue/upload-to-s3')
 const sendMail = require('../queue/send-mail')
-const generateCsv = require('../generate-csv')
-const CsvJobData = require('../generate-csv/csv.job.data')
+const generateReportFile = require('../generate-report-file')
+const PdfWriter = require('../generate-report-file/pdf-writer')
+const ReportFileJobData = require('../generate-report-file/report.file.job.data')
 const Interrupter = require('../interrupter')
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 const {
   weightedAveragesReportCsvWriter
-} = require('../generate-csv/csv-writer')
+} = require('../generate-report-file/csv-writer')
 const WeightedAveragesReport = require('../weighted.averages.report')
 const BfxApiRouter = require('../bfx.api.router')
 
@@ -49,7 +50,7 @@ module.exports = ({
       ['_getREST', TYPES.GetREST],
       ['_grcBfxReq', TYPES.GrcBfxReq],
       ['_prepareApiResponse', TYPES.PrepareApiResponse],
-      ['_generateCsv', TYPES.GenerateCsv],
+      ['_generateReportFile', TYPES.GenerateReportFile],
       ['_hasGrcService', TYPES.HasGrcService],
       ['_weightedAveragesReport', TYPES.WeightedAveragesReport]
     ])
@@ -121,16 +122,19 @@ module.exports = ({
     bind(TYPES.GrcSlackFac).toConstantValue(
       grcSlackFac
     )
-    bind(TYPES.CsvJobData)
-      .to(CsvJobData)
+    bind(TYPES.PdfWriter)
+      .to(PdfWriter)
       .inSingletonScope()
-    bind(TYPES.GenerateCsv)
+    bind(TYPES.ReportFileJobData)
+      .to(ReportFileJobData)
+      .inSingletonScope()
+    bind(TYPES.GenerateReportFile)
       .toDynamicValue(() => bindDepsToFn(
-        generateCsv,
+        generateReportFile,
         [
           TYPES.ProcessorQueue,
           TYPES.HasGrcService,
-          TYPES.CsvJobData,
+          TYPES.ReportFileJobData,
           TYPES.RService,
           TYPES.RootPath,
           TYPES.CONF
@@ -163,18 +167,18 @@ module.exports = ({
         [TYPES.GrcBfxReq]
       )
     )
-    bind(TYPES.Processor).toConstantValue(
-      bindDepsToFn(
+    bind(TYPES.Processor)
+      .toDynamicValue(() => bindDepsToFn(
         processor,
         [
           TYPES.CONF,
           TYPES.RootPath,
           TYPES.ProcessorQueue,
           TYPES.AggregatorQueue,
-          TYPES.WriteDataToStream
+          TYPES.WriteDataToStream,
+          TYPES.PdfWriter
         ]
-      )
-    )
+      ))
     bind(TYPES.Aggregator).toConstantValue(
       bindDepsToFn(
         aggregator,

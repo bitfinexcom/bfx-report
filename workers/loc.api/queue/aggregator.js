@@ -10,7 +10,7 @@ const {
 } = require('./helpers')
 
 module.exports = (
-  { isAddedUniqueEndingToCsvName },
+  { isAddedUniqueEndingToReportFileName },
   rootPath,
   aggregatorQueue,
   hasGrcService,
@@ -39,7 +39,7 @@ module.exports = (
       )
 
       const newFilePaths = []
-      const csvFilesMetadata = []
+      const reportFilesMetadata = []
 
       if (isEnableToSendEmail) {
         const s3Data = await uploadToS3(
@@ -70,7 +70,7 @@ module.exports = (
 
           await unlink(filePath)
 
-          csvFilesMetadata.push({
+          reportFilesMetadata.push({
             name: _name,
             filePath: null
           })
@@ -79,7 +79,7 @@ module.exports = (
         job.done()
         aggregatorQueue.emit('completed', {
           newFilePaths,
-          csvFilesMetadata,
+          reportFilesMetadata,
           userInfo
         })
 
@@ -97,12 +97,12 @@ module.exports = (
           _name,
           { ...subParamsArr[i] },
           userInfo.username,
-          isAddedUniqueEndingToCsvName,
+          isAddedUniqueEndingToReportFileName,
           chunkCommonFolders[i]
         )
 
         newFilePaths.push(newFilePath)
-        csvFilesMetadata.push({
+        reportFilesMetadata.push({
           name: _name,
           filePath: newFilePath
         })
@@ -111,7 +111,7 @@ module.exports = (
       job.done()
       aggregatorQueue.emit('completed', {
         newFilePaths,
-        csvFilesMetadata,
+        reportFilesMetadata,
         userInfo
       })
     } catch (err) {

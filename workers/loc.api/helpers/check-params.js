@@ -12,7 +12,7 @@ const {
 
 module.exports = (
   args,
-  schemaName = 'paramsSchemaForCsv',
+  schemaName = 'paramsSchemaForFile',
   requireFields = [],
   checkParamsField = false,
   additionalSchema = {}

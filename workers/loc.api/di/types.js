@@ -2,6 +2,7 @@
 
 module.exports = {
   CONF: Symbol.for('CONF'),
+  ROOT_FOLDER_PATH: Symbol.for('ROOT_FOLDER_PATH'),
   FOREX_SYMBS: Symbol.for('FOREX_SYMBS'),
   RootPath: Symbol.for('RootPath'),
   Container: Symbol.for('Container'),
@@ -22,17 +23,18 @@ module.exports = {
   HasGrcService: Symbol.for('HasGrcService'),
   ProcessorQueue: Symbol.for('ProcessorQueue'),
   AggregatorQueue: Symbol.for('AggregatorQueue'),
-  GenerateCsv: Symbol.for('GenerateCsv'),
+  GenerateReportFile: Symbol.for('GenerateReportFile'),
   Processor: Symbol.for('Processor'),
   Aggregator: Symbol.for('Aggregator'),
   WriteDataToStream: Symbol.for('WriteDataToStream'),
   UploadToS3: Symbol.for('UploadToS3'),
   SendMail: Symbol.for('SendMail'),
-  CsvJobData: Symbol.for('CsvJobData'),
+  ReportFileJobData: Symbol.for('ReportFileJobData'),
   Interrupter: Symbol.for('Interrupter'),
   AbstractWSEventEmitter: Symbol.for('AbstractWSEventEmitter'),
   GetDataFromApi: Symbol.for('GetDataFromApi'),
   WeightedAveragesReport: Symbol.for('WeightedAveragesReport'),
   WeightedAveragesReportCsvWriter: Symbol.for('WeightedAveragesReportCsvWriter'),
-  BfxApiRouter: Symbol.for('BfxApiRouter')
+  BfxApiRouter: Symbol.for('BfxApiRouter'),
+  PdfWriter: Symbol.for('PdfWriter')
 }

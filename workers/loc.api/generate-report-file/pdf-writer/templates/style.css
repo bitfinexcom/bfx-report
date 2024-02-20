@@ -1,0 +1,352 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+html, body {
+  -moz-print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  box-sizing: border-box;
+}
+
+
+html {
+  line-height: 1;
+}
+
+body {
+  padding: 0 10px;
+}
+
+html, body, .header, .footer {
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+}
+
+.sm {
+  font-size: 5px;
+}
+
+h1 {
+  font-size: 16px;
+}
+
+h2 {
+  font-size: 14px;
+}
+
+h3 {
+  font-size: 12px;
+}
+
+h4 {
+  font-size: 11px;
+}
+
+h5 {
+  font-size: 10px;
+}
+
+h6 {
+  font-size: 9px;
+}
+
+.footer {
+  width: 100%;
+}
+
+.header {
+  position: relative;
+  width: calc(100% - 20px);
+  line-height: 40px;
+  z-index: 9;
+}
+
+.phantomjs .none-if-phantomjs {
+  display: none;
+}
+
+.no-phantomjs .none-if-no-phantomjs {
+  display: none;
+}
+
+.no-phantomjs .header {
+  position: absolute;
+}
+
+.logo {
+  position: absolute;
+  width: 200px;
+  height: 40px;
+}
+
+.logo-svg {
+  vertical-align: middle;
+}
+
+.title {
+  vertical-align: middle;
+  margin: auto;
+  position: relative;
+  text-align: center;
+  height: 40px;
+}
+
+.title-text {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.footer {
+  position: relative;
+}
+
+.footer-timestamp {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.footer-page {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.common-content-header {
+  line-height: 1;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.content {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.body > .content,
+.body > .report-container td > .content {
+  margin-bottom: 20px;
+}
+
+.content-title {
+  margin-bottom: 10px;
+  text-align: center;
+  color: #3e4444;
+}
+
+.responsive-table {
+  margin-bottom: 20px;
+}
+
+.responsive-table:nth-last-child(1) {
+  margin-bottom: 0;
+}
+
+.responsive-table .table-header,
+.responsive-table .table-row {
+  display: -moz-flex;
+  display: -webkit-flex;
+  display: flex;
+  padding: 10px 10px;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+
+.header:first-of-type + .header {
+  display: none;
+}
+
+@media print {
+  .responsive-table .table-header,
+  .responsive-table .table-row {
+    page-break-inside: avoid;
+  }
+
+  .header:first-of-type + .header {
+    display: block;
+  }
+
+  .header,
+  .no-phantomjs .header,
+  .footer {
+    position: fixed;
+  }
+
+  .footer {
+    bottom: 0;
+    width: calc(100% - 20px);
+  }
+}
+
+.responsive-table .table-header {
+  background-color: #95A5A6;
+  text-transform: uppercase;
+}
+
+.responsive-table .table-row {
+  background-color: #f7f7f7;
+}
+
+.responsive-table .table-row:nth-of-type(even) {
+  background-color: #eeeeee;
+}
+
+.responsive-table .col {
+  -moz-flex-basis: 25%;
+  -webkit-flex-basis: 25%;
+  flex-basis: 25%;
+  text-align: right;
+  word-break: break-all;
+  margin-left: 5px;
+}
+
+.responsive-table .col:nth-of-type(1) {
+  text-align: left;
+  margin-left: 0;
+}
+
+.left-text {
+  text-align: left;
+}
+
+.right-text {
+  text-align: right;
+}
+
+.uppercase-text {
+  text-transform: uppercase;
+}
+
+.responsive-table.width-by-content {
+  width: -moz-max-content;
+  width: -webkit-max-content;
+  width: max-content;
+}
+
+.responsive-table.width-by-content .col {
+  -moz-flex-basis: auto;
+  -webkit-flex-basis: auto;
+  flex-basis: auto;
+}
+
+.no-margin-bottom,
+.responsive-table.no-margin-bottom,
+.responsive-table .no-margin-bottom {
+  margin-bottom: 0;
+}
+
+.no-margin-top,
+.responsive-table.no-margin-top,
+.responsive-table .no-margin-top:nth-of-type(1),
+.responsive-table .no-margin-top {
+  margin-top: 0;
+}
+
+.table-title {
+  padding-left: 10px;
+}
+
+.copyright {
+  font-style: italic;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.statement-details-content {
+  position: absolute;
+  top: 11px;
+  right: 0;
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+.statement-details-content .responsive-table .table-header:nth-of-type(1),
+.statement-details-content .responsive-table .table-row:nth-of-type(1) {
+  margin-top: 0;
+}
+
+.statement-details-content .table-row,
+.statement-details-content .table-header {
+  padding: 5px 5px;
+}
+
+.report-container {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Uses `mm` for height to support default settings of `html-pdf` lib */
+.header-space, .header {
+  height: 43.5mm;
+}
+
+.footer-space, .footer {
+  height: 28mm;
+}
+
+@media screen {
+  .footer-space {
+    height: 0;
+  }
+}
+
+.report-header {
+  display: -moz-table-header-group;
+  display: -webkit-table-header-group;
+  display: table-header-group;
+  font-size: 0;
+}
+
+.report-footer {
+  display: -moz-table-footer-group;
+  display: -webkit-table-footer-group;
+  display: table-footer-group;
+}
+
+.footer-container {
+  position: relative;
+  height: 100%;
+  border: 10px solid transparent;
+  border-right-width: 0;
+  border-left-width: 0;
+  box-sizing: border-box;
+}

@@ -1,0 +1,20 @@
+extends base.pug
+
+block commonHeader
+  - const columns = reportColumns ?? Object.keys(apiData?.[0] ?? {})
+
+  div(class='content')
+    ul.responsive-table
+      li.table-header
+        each columnVal, columnKey in columns
+          .col #{columnVal}
+
+block content
+  - const data = Array.isArray(apiData) ? apiData : [apiData ?? {}]
+  - const columns = reportColumns ?? Object.keys(data?.[0] ?? {})
+
+  ul.responsive-table
+    each dataItem, dataIndex in data
+      li.table-row
+        each columnVal, columnKey in columns
+          .col #{dataItem[columnKey]}

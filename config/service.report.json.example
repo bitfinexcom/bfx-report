@@ -13,7 +13,7 @@
     "signedUrlExpireTime": 28800
   },
   "isSpamRestrictionMode": true,
-  "isAddedUniqueEndingToCsvName": false,
+  "isAddedUniqueEndingToReportFileName": false,
   "isСompress": true,
   "isLoggerDisabled": false
 }

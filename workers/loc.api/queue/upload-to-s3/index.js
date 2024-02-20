@@ -3,7 +3,10 @@
 const fs = require('fs')
 const { Readable } = require('stream')
 
-const { getCompleteFileName } = require('../helpers')
+const {
+  getCompleteFileName,
+  getReportContentType
+} = require('../helpers')
 
 const _uploadSignToS3 = async (
   isСompress,
@@ -54,7 +57,7 @@ const _uploadSignToS3 = async (
 module.exports = (
   {
     isСompress,
-    isAddedUniqueEndingToCsvName
+    isAddedUniqueEndingToReportFileName
   },
   deflateFac,
   hasGrcService,
@@ -75,14 +78,14 @@ module.exports = (
         subParamsArr.length > 1
       )
     )
-    const fileNameWithoutExt = getCompleteFileName(
+    const { fileName: fileNameWithoutExt } = getCompleteFileName(
       subParamsArr[0].name,
       subParamsArr[0],
       {
         userInfo: userInfo.username,
         ext: false,
         isMultiExport,
-        isAddedUniqueEndingToCsvName
+        isAddedUniqueEndingToReportFileName
       }
     )
     const isUppedPGPService = await hasGrcService.hasGPGService()
@@ -97,9 +100,9 @@ module.exports = (
             subParamsArr[i],
             {
               userInfo: userInfo.username,
-              isAddedUniqueEndingToCsvName
+              isAddedUniqueEndingToReportFileName
             }
-          )
+          ).fileName
         }
       }
     })
@@ -112,13 +115,20 @@ module.exports = (
     ))
 
     const promises = buffers.map(async (buffer, i) => {
+      const ext = isСompress ? 'zip' : ''
+      const singleFileName = isСompress
+        ? streams[i].data.name.slice(0, -3)
+        : streams[i].data.name
       const fileName = isСompress && isMultiExport
         ? `${fileNameWithoutExt}.zip`
-        : `${streams[i].data.name.slice(0, -3)}${isСompress ? 'zip' : 'csv'}`
+        : `${singleFileName}${ext}`
       const opts = {
         ...configs,
         contentDisposition: `attachment; filename="${fileName}"`,
-        contentType: isСompress ? 'application/zip' : 'text/csv'
+        contentType: getReportContentType({
+          isСompress,
+          isPDFRequired: subParamsArr[i].isPDFRequired
+        })
       }
       const hexStrBuff = buffer.toString('hex')
 

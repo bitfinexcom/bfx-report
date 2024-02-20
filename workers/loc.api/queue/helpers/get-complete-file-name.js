@@ -1,6 +1,9 @@
 'use strict'
 
 const { v4: uuidv4 } = require('uuid')
+const { capitalize } = require('lib-js-util-base')
+
+const getReportFileExtName = require('./get-report-file-ext-name')
 
 const _fileNamesMap = new Map([
   ['getTrades', 'trades'],
@@ -92,12 +95,12 @@ module.exports = (
   params,
   {
     userInfo,
-    ext = 'csv',
     isMultiExport,
-    isAddedUniqueEndingToCsvName,
+    isAddedUniqueEndingToReportFileName,
     uniqEnding = ''
   } = {}
 ) => {
+  const ext = getReportFileExtName(params)
   const {
     start,
     end,
@@ -122,16 +125,35 @@ module.exports = (
     : formattedDateNow
   const _ext = ext ? `.${ext}` : ''
   const _userInfo = userInfo ? `${userInfo}_` : ''
-  const _uniqEnding = isAddedUniqueEndingToCsvName
+  const _uniqEnding = isAddedUniqueEndingToReportFileName
     ? _getUniqEnding(uniqEnding)
     : ''
+
+  const mainMetadata = {
+    userInfo: _userInfo,
+    baseName,
+    readableBaseName: capitalize(baseName.replace(/_/g, ' ')),
+    date,
+    formattedDateNow,
+    timestamp,
+    uniqEnding,
+    ext
+  }
 
   if (
     isBaseNameInName ||
     isMultiExport
   ) {
-    return `${_userInfo}${baseName}_${formattedDateNow}${_uniqEnding}${_ext}`
+    return {
+      ...mainMetadata,
+
+      fileName: `${_userInfo}${baseName}_${formattedDateNow}${_uniqEnding}${_ext}`
+    }
   }
 
-  return `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_uniqEnding}${_ext}`
+  return {
+    ...mainMetadata,
+
+    fileName: `${_userInfo}${baseName}_FROM_${startDate}_TO_${endDate}_ON_${timestamp}${_uniqEnding}${_ext}`
+  }
 }
