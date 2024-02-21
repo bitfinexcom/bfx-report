@@ -8,7 +8,7 @@ const _getErrorString = (err) => {
 }
 
 const isAuthError = (err) => {
-  return /(token: invalid)|(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(ERR_AUTH_API: ERR_INVALID_CREDENTIALS)/i.test(_getErrorString(err))
+  return /(token: invalid)|(missing api key or secret)|(apikey: digest invalid)|(apikey: invalid)|(ERR_AUTH_UNAUTHORIZED)|(ERR_AUTH_API)/i.test(_getErrorString(err))
 }
 
 const isRateLimitError = (err) => {
