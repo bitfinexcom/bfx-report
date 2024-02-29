@@ -40,7 +40,6 @@ html, body {
   box-sizing: border-box;
 }
 
-
 html {
   line-height: 1;
 }
@@ -52,11 +51,7 @@ body {
 html, body, .header, .footer {
   font-family: "Inter", sans-serif;
   font-weight: 400;
-  font-size: 8px;
-}
-
-.sm {
-  font-size: 5px;
+  font-size: 11px;
 }
 
 h1 {
@@ -292,8 +287,8 @@ h6 {
 
 .statement-details-content {
   position: absolute;
-  top: 11px;
-  right: 0;
+  top: 60px;
+  left: 0;
   line-height: 1;
   margin-bottom: 0;
 }
@@ -316,7 +311,7 @@ h6 {
 
 /* Uses `mm` for height to support default settings of `html-pdf` lib */
 .header-space, .header {
-  height: 43.5mm;
+  height: 70mm;
 }
 
 .footer-space, .footer {
