@@ -287,7 +287,7 @@ h6 {
 
 .statement-details-content {
   position: absolute;
-  top: 60px;
+  top: 40px;
   left: 0;
   line-height: 1;
   margin-bottom: 0;
@@ -311,7 +311,7 @@ h6 {
 
 /* Uses `mm` for height to support default settings of `html-pdf` lib */
 .header-space, .header {
-  height: 70mm;
+  height: 54mm;
 }
 
 .footer-space, .footer {
