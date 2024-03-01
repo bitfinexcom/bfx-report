@@ -164,6 +164,20 @@ h6 {
   color: #3e4444;
 }
 
+/*
+  The fix for Phantomjs rendering
+*/
+.common-content-header {
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0);
+  border-top-style: solid;
+  border-bottom-style: solid;
+}
+
+.no-phantomjs .common-content-header {
+  border: 0;
+}
+
 .responsive-table {
   margin-bottom: 20px;
 }
