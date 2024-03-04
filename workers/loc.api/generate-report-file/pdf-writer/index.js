@@ -110,6 +110,8 @@ class PdfWriter {
       template: 'No data',
       format: 'portrait',
       orientation: 'Letter',
+      headerHeight: '65mm',
+      footerHeight: '28mm',
       ...args
     }
 

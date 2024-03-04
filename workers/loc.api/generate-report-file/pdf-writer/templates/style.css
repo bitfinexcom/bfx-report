@@ -40,7 +40,6 @@ html, body {
   box-sizing: border-box;
 }
 
-
 html {
   line-height: 1;
 }
@@ -52,11 +51,7 @@ body {
 html, body, .header, .footer {
   font-family: "Inter", sans-serif;
   font-weight: 400;
-  font-size: 8px;
-}
-
-.sm {
-  font-size: 5px;
+  font-size: 11px;
 }
 
 h1 {
@@ -167,6 +162,20 @@ h6 {
   margin-bottom: 10px;
   text-align: center;
   color: #3e4444;
+}
+
+/*
+  The fix for Phantomjs rendering
+*/
+.common-content-header {
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0);
+  border-top-style: solid;
+  border-bottom-style: solid;
+}
+
+.no-phantomjs .common-content-header {
+  border: 0;
 }
 
 .responsive-table {
@@ -292,8 +301,8 @@ h6 {
 
 .statement-details-content {
   position: absolute;
-  top: 11px;
-  right: 0;
+  top: 50px;
+  left: 0;
   line-height: 1;
   margin-bottom: 0;
 }
@@ -316,7 +325,7 @@ h6 {
 
 /* Uses `mm` for height to support default settings of `html-pdf` lib */
 .header-space, .header {
-  height: 43.5mm;
+  height: 65mm;
 }
 
 .footer-space, .footer {
