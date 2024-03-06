@@ -9,7 +9,7 @@ const {
 } = require('../helpers')
 
 const _uploadSignToS3 = async (
-  isСompress,
+  isCompress,
   deflateFac,
   grcBfxReq,
   configs,
@@ -17,7 +17,7 @@ const _uploadSignToS3 = async (
   fileNameWithoutExt
 ) => {
   const fileName = `SIGNATURE_${fileNameWithoutExt}.sig`
-  const signFileName = isСompress
+  const signFileName = isCompress
     ? `SIGNATURE_${fileNameWithoutExt}.zip`
     : fileName
 
@@ -32,7 +32,7 @@ const _uploadSignToS3 = async (
 
   const signBuffers = await Promise.all(deflateFac.createBuffZip(
     [signStream],
-    isСompress,
+    isCompress,
     {
       comment: `SIGNATURE_${fileNameWithoutExt.replace(/_/g, ' ')}`
     }
@@ -42,7 +42,7 @@ const _uploadSignToS3 = async (
   const signOpts = {
     ...configs,
     contentDisposition: `attachment; filename="${signFileName}"`,
-    contentType: isСompress
+    contentType: isCompress
       ? 'application/zip'
       : 'application/pgp-signature'
   }
@@ -56,7 +56,7 @@ const _uploadSignToS3 = async (
 
 module.exports = (
   {
-    isСompress,
+    isCompress,
     isAddedUniqueEndingToReportFileName
   },
   deflateFac,
@@ -108,25 +108,25 @@ module.exports = (
     })
     const buffers = await Promise.all(deflateFac.createBuffZip(
       streams,
-      isСompress,
+      isCompress,
       {
         comment: fileNameWithoutExt.replace(/_/g, ' ')
       }
     ))
 
     const promises = buffers.map(async (buffer, i) => {
-      const ext = isСompress ? 'zip' : ''
-      const singleFileName = isСompress
+      const ext = isCompress ? 'zip' : ''
+      const singleFileName = isCompress
         ? streams[i].data.name.slice(0, -3)
         : streams[i].data.name
-      const fileName = isСompress && isMultiExport
+      const fileName = isCompress && isMultiExport
         ? `${fileNameWithoutExt}.zip`
         : `${singleFileName}${ext}`
       const opts = {
         ...configs,
         contentDisposition: `attachment; filename="${fileName}"`,
         contentType: getReportContentType({
-          isСompress,
+          isCompress,
           isPDFRequired: subParamsArr[i].isPDFRequired
         })
       }
@@ -147,7 +147,7 @@ module.exports = (
 
       if (isSignReq) {
         const signatureS3 = await _uploadSignToS3(
-          isСompress,
+          isCompress,
           deflateFac,
           grcBfxReq,
           configs,

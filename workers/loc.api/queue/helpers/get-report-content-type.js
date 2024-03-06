@@ -2,11 +2,11 @@
 
 module.exports = (params) => {
   const {
-    isСompress,
+    isCompress,
     isPDFRequired
   } = params ?? {}
 
-  if (isСompress) {
+  if (isCompress) {
     return 'application/zip'
   }
   if (isPDFRequired) {
