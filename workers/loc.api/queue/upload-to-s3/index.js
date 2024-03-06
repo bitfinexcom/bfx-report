@@ -3,10 +3,13 @@
 const fs = require('fs')
 const { Readable } = require('stream')
 
-const { getCompleteFileName } = require('../helpers')
+const {
+  getCompleteFileName,
+  getReportContentType
+} = require('../helpers')
 
 const _uploadSignToS3 = async (
-  isСompress,
+  isCompress,
   deflateFac,
   grcBfxReq,
   configs,
@@ -14,7 +17,7 @@ const _uploadSignToS3 = async (
   fileNameWithoutExt
 ) => {
   const fileName = `SIGNATURE_${fileNameWithoutExt}.sig`
-  const signFileName = isСompress
+  const signFileName = isCompress
     ? `SIGNATURE_${fileNameWithoutExt}.zip`
     : fileName
 
@@ -29,7 +32,7 @@ const _uploadSignToS3 = async (
 
   const signBuffers = await Promise.all(deflateFac.createBuffZip(
     [signStream],
-    isСompress,
+    isCompress,
     {
       comment: `SIGNATURE_${fileNameWithoutExt.replace(/_/g, ' ')}`
     }
@@ -39,7 +42,7 @@ const _uploadSignToS3 = async (
   const signOpts = {
     ...configs,
     contentDisposition: `attachment; filename="${signFileName}"`,
-    contentType: isСompress
+    contentType: isCompress
       ? 'application/zip'
       : 'application/pgp-signature'
   }
@@ -53,8 +56,8 @@ const _uploadSignToS3 = async (
 
 module.exports = (
   {
-    isСompress,
-    isAddedUniqueEndingToCsvName
+    isCompress,
+    isAddedUniqueEndingToReportFileName
   },
   deflateFac,
   hasGrcService,
@@ -75,14 +78,14 @@ module.exports = (
         subParamsArr.length > 1
       )
     )
-    const fileNameWithoutExt = getCompleteFileName(
+    const { fileName: fileNameWithoutExt } = getCompleteFileName(
       subParamsArr[0].name,
       subParamsArr[0],
       {
         userInfo: userInfo.username,
         ext: false,
         isMultiExport,
-        isAddedUniqueEndingToCsvName
+        isAddedUniqueEndingToReportFileName
       }
     )
     const isUppedPGPService = await hasGrcService.hasGPGService()
@@ -97,28 +100,35 @@ module.exports = (
             subParamsArr[i],
             {
               userInfo: userInfo.username,
-              isAddedUniqueEndingToCsvName
+              isAddedUniqueEndingToReportFileName
             }
-          )
+          ).fileName
         }
       }
     })
     const buffers = await Promise.all(deflateFac.createBuffZip(
       streams,
-      isСompress,
+      isCompress,
       {
         comment: fileNameWithoutExt.replace(/_/g, ' ')
       }
     ))
 
     const promises = buffers.map(async (buffer, i) => {
-      const fileName = isСompress && isMultiExport
+      const ext = isCompress ? 'zip' : ''
+      const singleFileName = isCompress
+        ? streams[i].data.name.slice(0, -3)
+        : streams[i].data.name
+      const fileName = isCompress && isMultiExport
         ? `${fileNameWithoutExt}.zip`
-        : `${streams[i].data.name.slice(0, -3)}${isСompress ? 'zip' : 'csv'}`
+        : `${singleFileName}${ext}`
       const opts = {
         ...configs,
         contentDisposition: `attachment; filename="${fileName}"`,
-        contentType: isСompress ? 'application/zip' : 'text/csv'
+        contentType: getReportContentType({
+          isCompress,
+          isPDFRequired: subParamsArr[i].isPDFRequired
+        })
       }
       const hexStrBuff = buffer.toString('hex')
 
@@ -137,7 +147,7 @@ module.exports = (
 
       if (isSignReq) {
         const signatureS3 = await _uploadSignToS3(
-          isСompress,
+          isCompress,
           deflateFac,
           grcBfxReq,
           configs,

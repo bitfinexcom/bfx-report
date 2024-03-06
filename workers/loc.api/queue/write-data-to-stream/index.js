@@ -49,7 +49,7 @@ module.exports = (
     const _res = await getDataFromApi({
       getData,
       args: currIterationArgs,
-      callerName: 'CSV_WRITER'
+      callerName: 'REPORT_FILE_WRITER'
     })
 
     const isGetWalletsMethod = method === 'getWallets'
@@ -84,6 +84,23 @@ module.exports = (
 
     serialRequestsCount = 0
 
+    if (
+      res &&
+      typeof res === 'object' &&
+      !Array.isArray(res) &&
+      Object.keys(res).length > 0
+    ) {
+      write(
+        res,
+        stream,
+        formatSettings,
+        { ..._args.params },
+        method
+      )
+      processorQueue.emit('progress', 100)
+
+      break
+    }
     if (
       !res ||
       !Array.isArray(res) ||

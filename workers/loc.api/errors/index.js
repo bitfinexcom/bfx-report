@@ -68,11 +68,11 @@ class FindMethodError extends BaseError {
   }
 }
 
-class FindMethodToGetCsvFileError extends BadRequestError {
-  constructor (message = 'ERR_METHOD_TO_GET_CSV_FILE_NOT_FOUND') {
+class FindMethodToGetReportFileError extends BadRequestError {
+  constructor (message = 'ERR_METHOD_TO_GET_REPORT_FILE_NOT_FOUND') {
     super(message)
 
-    this.statusMessage = 'Method to get csv file not found'
+    this.statusMessage = 'Method to get report file not found'
   }
 }
 
@@ -164,6 +164,12 @@ class GrcSlackAvailabilityError extends BaseError {
   }
 }
 
+class GrcPDFAvailabilityError extends BaseError {
+  constructor (message = 'ERR_GRC_PDF_IS_NOT_AVAILABLE') {
+    super(message)
+  }
+}
+
 class WeightedAveragesTimeframeError extends UnprocessableEntityError {
   constructor (message = 'ERR_TIME_FRAME_MORE_THAN_TWO_YEARS') {
     super(message)
@@ -180,7 +186,7 @@ module.exports = {
   UnprocessableEntityError,
 
   FindMethodError,
-  FindMethodToGetCsvFileError,
+  FindMethodToGetReportFileError,
   ArgsParamsError,
   GrenacheServiceConfigArgsError,
   EmailSendingError,
@@ -193,6 +199,7 @@ module.exports = {
   ArgsParamsFilterError,
   LedgerPaymentFilteringParamsError,
   GrcSlackAvailabilityError,
+  GrcPDFAvailabilityError,
   ImplementationError,
   WeightedAveragesTimeframeError
 }

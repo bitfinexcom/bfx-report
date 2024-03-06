@@ -8,9 +8,9 @@ const argv = require('yargs')
     type: 'number',
     default: 1
   })
-  .option('csvFolder', {
+  .option('reportFolder', {
     type: 'string',
-    default: 'csv'
+    default: 'report-files'
   })
   .option('tempFolder', {
     type: 'string',
@@ -31,7 +31,7 @@ const argv = require('yargs')
     type: 'boolean',
     default: false
   })
-  .option('remoteCsvUrn', {
+  .option('remoteReportUrn', {
     type: 'string',
     default: ''
   })
@@ -70,9 +70,18 @@ class WrkReportServiceApi extends WrkApi {
   loadDIConfig (cont = container) {
     const conf = this.conf[this.group]
 
+    /**
+     * @deprecated isAddedUniqueEndingToCsvName
+     * Keep for back compatibility
+     */
+    conf.isAddedUniqueEndingToReportFileName = (
+      conf.isAddedUniqueEndingToReportFileName ??
+      conf.isAddedUniqueEndingToCsvName
+    )
+
     this.container = cont
 
-    diConfig(conf)
+    diConfig(conf, this.ctx.root)
   }
 
   loadCoreDeps (...args) {
@@ -101,7 +110,7 @@ class WrkReportServiceApi extends WrkApi {
     names = [
       'isSpamRestrictionMode',
       'isLoggerDisabled',
-      'remoteCsvUrn'
+      'remoteReportUrn'
     ]
   ) {
     const conf = this.conf[this.group]

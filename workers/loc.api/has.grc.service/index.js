@@ -63,6 +63,14 @@ class HasGrcService {
 
     return !!countSlackService
   }
+
+  async hasPDFService () {
+    const countPDFServices = await this.lookUpFunction(
+      'rest:ext:pdf'
+    )
+
+    return !!countPDFServices
+  }
 }
 
 decorateInjectable(HasGrcService, depsTypes)

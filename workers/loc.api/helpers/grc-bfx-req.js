@@ -6,7 +6,7 @@ module.exports = (
   service,
   action,
   args = [],
-  timeout = 10000
+  timeout = 90000
 } = {}) => {
   return new Promise((resolve, reject) => {
     rService.ctx.grc_bfx.req(

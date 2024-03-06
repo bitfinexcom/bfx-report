@@ -5,7 +5,8 @@ const fs = require('fs')
 const pug = require('pug')
 const yaml = require('js-yaml')
 
-const LANGUAGES = require('./languages')
+const getTranslator = require('../../helpers/get-translator')
+const LANGUAGES = require('../../helpers/languages')
 
 const basePathToViews = path.join(__dirname, 'views')
 const pathToTrans = path.join(
@@ -15,57 +16,6 @@ const pathToTrans = path.join(
 const translations = yaml.load(
   fs.readFileSync(pathToTrans, 'utf8')
 )
-
-const _getTranslator = (
-  language = 'en',
-  trans = translations,
-  isNotDefaultTranslatorUsed = false
-) => {
-  const translatorByDefault = (
-    !isNotDefaultTranslatorUsed &&
-    _getTranslator('en', trans, true)
-  )
-
-  return (defVal = '', opts) => {
-    const prop = typeof opts === 'string'
-      ? opts
-      : ({ ...opts }).prop
-
-    if (
-      !trans ||
-      typeof trans !== 'object' ||
-      !trans[language] ||
-      typeof trans[language] !== 'object' ||
-      Object.keys(trans[language]) === 0 ||
-      typeof prop !== 'string' ||
-      !prop
-    ) {
-      return translatorByDefault
-        ? translatorByDefault(defVal, prop)
-        : defVal
-    }
-
-    const res = prop.split('.').reduce((accum, curr) => {
-      if (
-        typeof accum[curr] === 'object' ||
-        typeof accum[curr] === 'string' ||
-        Number.isFinite(accum[curr])
-      ) {
-        return accum[curr]
-      }
-
-      return accum
-    }, trans[language])
-
-    if (typeof res === 'object') {
-      return translatorByDefault
-        ? translatorByDefault(defVal, prop)
-        : defVal
-    }
-
-    return res
-  }
-}
 
 module.exports = (grcBfxReq) => {
   return async (
@@ -82,7 +32,10 @@ module.exports = (grcBfxReq) => {
         language = 'en'
       } = { ...data }
       const normLang = LANGUAGES?.[language] ?? 'en'
-      const translate = _getTranslator(normLang)
+      const translate = getTranslator({
+        language: normLang,
+        translations
+      })
       const subject = translate(
         configs.subject,
         'template.subject'
@@ -97,7 +50,7 @@ module.exports = (grcBfxReq) => {
       const button = {
         url,
         text: translate(
-          'Download CSV',
+          'Download Report',
           'template.btnText'
         )
       }

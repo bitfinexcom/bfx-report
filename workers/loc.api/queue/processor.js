@@ -18,12 +18,72 @@ const {
 
 const { isAuthError } = require('../helpers')
 
+const processReportFile = async (deps, args) => {
+  const {
+    data,
+    filePath
+  } = args
+
+  const write = data?.isUnauth
+    ? 'Your file could not be completed, please try again'
+    : data
+
+  const writable = fs.createWriteStream(filePath)
+  const writablePromise = writableToPromise(writable)
+
+  if (data?.args?.params?.isPDFRequired) {
+    const pdfStream = await deps.pdfWriter
+      .createPDFStream({
+        jobData: data,
+        pdfCustomTemplateName: data?.pdfCustomTemplateName,
+        language: data?.args?.params.language,
+        isError: data?.isUnauth
+      })
+
+    pipeline(pdfStream, writable, () => {})
+
+    await deps.writeDataToStream(
+      pdfStream,
+      write
+    )
+
+    pdfStream.end()
+
+    return writablePromise
+  }
+  if (typeof data?.csvCustomWriter === 'function') {
+    await data.csvCustomWriter(
+      writable,
+      write
+    )
+
+    return writablePromise
+  }
+
+  const stringifier = stringify({
+    header: true,
+    columns: data?.columnsCsv
+  })
+
+  pipeline(stringifier, writable, () => {})
+
+  await deps.writeDataToStream(
+    stringifier,
+    write
+  )
+
+  stringifier.end()
+
+  return writablePromise
+}
+
 module.exports = (
   conf,
   rootPath,
   processorQueue,
   aggregatorQueue,
-  writeDataToStream
+  writeDataToStream,
+  pdfWriter
 ) => {
   processorQueue.on('completed', (result) => {
     aggregatorQueue.addJob({
@@ -77,7 +137,8 @@ module.exports = (
         data.args.params = { ...data.args.params }
 
         const filePath = await createUniqueFileName(
-          rootPath
+          rootPath,
+          data.args.params
         )
         filePaths.push(filePath)
 
@@ -85,10 +146,8 @@ module.exports = (
           chunkCommonFolder,
           args: { params },
           name,
-          fileNamesMap,
-          columnsCsv,
-          csvCustomWriter
-        } = { ...data }
+          fileNamesMap
+        } = data ?? {}
         subParamsArr.push({
           ...omit(params, ['name', 'fileNamesMap']),
           name,
@@ -96,35 +155,16 @@ module.exports = (
         })
         chunkCommonFolders.push(chunkCommonFolder)
 
-        const write = isUnauth
-          ? 'Your file could not be completed, please try again'
-          : data
-
-        const writable = fs.createWriteStream(filePath)
-        const writablePromise = writableToPromise(writable)
-
-        if (typeof csvCustomWriter === 'function') {
-          await csvCustomWriter(
-            writable,
-            write
-          )
-        } else {
-          const stringifier = stringify({
-            header: true,
-            columns: columnsCsv
-          })
-
-          pipeline(stringifier, writable, () => {})
-
-          await writeDataToStream(
-            stringifier,
-            write
-          )
-
-          stringifier.end()
-        }
-
-        await writablePromise
+        await processReportFile(
+          {
+            writeDataToStream,
+            pdfWriter
+          },
+          {
+            data,
+            filePath
+          }
+        )
       }
 
       job.done()

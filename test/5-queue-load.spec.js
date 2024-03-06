@@ -65,7 +65,7 @@ describe('Queue load', () => {
   })
 
   after(async function () {
-    this.timeout(10000)
+    this.timeout(20000)
 
     await stopEnvironment()
     await rmDB(dbDirPath)
@@ -76,7 +76,7 @@ describe('Queue load', () => {
     } catch (err) { }
   })
 
-  it('it should be successfully performed by the getLedgersCsv method, with 100 users', async function () {
+  it('it should be successfully performed by the getLedgersFile method, with 100 users', async function () {
     this.timeout(10 * 60000)
 
     const count = 100
@@ -98,7 +98,7 @@ describe('Queue load', () => {
         .type('json')
         .send({
           auth,
-          method: 'getLedgersCsv',
+          method: 'getLedgersFile',
           params: {
             symbol: 'BTC',
             end,

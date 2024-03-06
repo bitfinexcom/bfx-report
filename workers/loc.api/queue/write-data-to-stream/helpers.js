@@ -83,28 +83,43 @@ const _formatters = {
   }
 }
 
-const _dataFormatter = (obj, formatSettings, params) => {
+const _dataFormatter = (data, formatSettings, params) => {
   if (
-    typeof obj !== 'object' ||
+    typeof data !== 'object' ||
     typeof formatSettings !== 'object'
   ) {
-    return obj
+    return data
   }
 
-  const res = cloneDeep(obj)
+  const isArray = Array.isArray(data)
+  const clonedData = cloneDeep(data)
+  const objArr = isArray ? clonedData : [clonedData]
 
-  Object.entries(formatSettings).forEach(([key, val]) => {
-    try {
-      if (
-        typeof obj[key] !== 'undefined' &&
-        typeof _formatters[val] === 'function'
-      ) {
-        res[key] = _formatters[val](obj[key], params)
-      }
-    } catch (err) {}
-  })
+  for (const obj of objArr) {
+    for (const [key, val] of Object.entries(formatSettings)) {
+      try {
+        if (
+          typeof obj[key] !== 'undefined' &&
+          val &&
+          typeof val === 'object'
+        ) {
+          obj[key] = _dataFormatter(obj[key], val, params)
 
-  return res
+          continue
+        }
+        if (
+          typeof obj[key] !== 'undefined' &&
+          typeof _formatters[val] === 'function'
+        ) {
+          obj[key] = _formatters[val](obj[key], params)
+
+          continue
+        }
+      } catch (err) {}
+    }
+  }
+
+  return isArray ? objArr : objArr[0]
 }
 
 const write = (
@@ -114,12 +129,16 @@ const write = (
   params,
   method
 ) => {
-  res.forEach((item) => {
+  const resArr = Array.isArray(res)
+    ? res
+    : [res]
+
+  for (const item of resArr) {
     const _item = dataNormalizer(item, method, params)
     const res = _dataFormatter(_item, formatSettings, params)
 
     stream.write(res)
-  })
+  }
 }
 
 const writeMessageToStream = (

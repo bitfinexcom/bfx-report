@@ -9,7 +9,7 @@ const {
 const checkParams = require('./check-params')
 const {
   getMethodLimit,
-  getCsvArgs,
+  getReportFileArgs,
   getLimitNotMoreThan
 } = require('./limit-param.helpers')
 const {
@@ -59,6 +59,8 @@ const FILTER_CONDITIONS = require('./filter.conditions')
 const getDataFromApi = require('./get-data-from-api')
 const splitSymbolPairs = require('./split-symbol-pairs')
 const FOREX_SYMBS = require('./forex.symbs')
+const getTranslator = require('./get-translator')
+const LANGUAGES = require('./languages')
 
 module.exports = {
   getREST,
@@ -92,7 +94,7 @@ module.exports = {
   prepareResponse,
   prepareApiResponse,
   prepareSymbolResponse,
-  getCsvArgs,
+  getReportFileArgs,
   getMethodLimit,
   checkJobAndGetUserData,
   grcBfxReq,
@@ -105,5 +107,7 @@ module.exports = {
   getDataFromApi,
   parsePositionsAuditId,
   splitSymbolPairs,
-  FOREX_SYMBS
+  FOREX_SYMBS,
+  getTranslator,
+  LANGUAGES
 }

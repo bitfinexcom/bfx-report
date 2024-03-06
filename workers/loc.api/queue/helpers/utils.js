@@ -14,9 +14,10 @@ const chmod = promisify(fs.chmod)
 const isElectronjsEnv = argv.isElectronjsEnv
 
 const getCompleteFileName = require('./get-complete-file-name')
-const getLocalCsvFolderPaths = require(
-  './get-local-csv-folder-paths'
+const getLocalReportFolderPaths = require(
+  './get-local-report-folder-paths'
 )
+const getReportFileExtName = require('./get-report-file-ext-name')
 
 const _checkAndCreateDir = async (dirPath) => {
   try {
@@ -82,20 +83,20 @@ const moveFileToLocalStorage = async (
   name,
   params,
   userInfo,
-  isAddedUniqueEndingToCsvName,
+  isAddedUniqueEndingToReportFileName,
   chunkCommonFolder
 ) => {
-  const { localCsvFolderPath } = getLocalCsvFolderPaths(rootPath)
-  const fullCsvDirPath = (
+  const { localReportFolderPath } = getLocalReportFolderPaths(rootPath)
+  const fullReportDirPath = (
     chunkCommonFolder &&
     typeof chunkCommonFolder === 'string'
   )
-    ? path.join(localCsvFolderPath, chunkCommonFolder)
-    : localCsvFolderPath
+    ? path.join(localReportFolderPath, chunkCommonFolder)
+    : localReportFolderPath
 
-  await _checkAndCreateDir(fullCsvDirPath)
+  await _checkAndCreateDir(fullReportDirPath)
 
-  let fileName = getCompleteFileName(
+  let { fileName } = getCompleteFileName(
     name,
     params,
     { userInfo }
@@ -109,7 +110,7 @@ const moveFileToLocalStorage = async (
     } else throw err
   }
 
-  const files = await readdir(fullCsvDirPath)
+  const files = await readdir(fullReportDirPath)
   let count = 0
 
   while (files.some(file => file === fileName)) {
@@ -120,13 +121,13 @@ const moveFileToLocalStorage = async (
       params,
       {
         userInfo,
-        isAddedUniqueEndingToCsvName,
+        isAddedUniqueEndingToReportFileName,
         uniqEnding: `(${count})`
       }
-    )
+    ).fileName
   }
 
-  const newFilePath = path.join(fullCsvDirPath, fileName)
+  const newFilePath = path.join(fullReportDirPath, fileName)
   await _moveFileAcrossDevice(filePath, newFilePath)
 
   if (isElectronjsEnv) {
@@ -136,26 +137,27 @@ const moveFileToLocalStorage = async (
   return { newFilePath }
 }
 
-const createUniqueFileName = async (rootPath, count = 0) => {
+const createUniqueFileName = async (rootPath, params, count = 0) => {
   count += 1
 
   if (count > 20) {
     throw new Error('ERR_CREATE_UNIQUE_FILE_NAME')
   }
 
-  const { tempCsvFolderPath } = getLocalCsvFolderPaths(rootPath)
+  const { tempReportFolderPath } = getLocalReportFolderPaths(rootPath)
 
-  await _checkAndCreateDir(tempCsvFolderPath)
+  await _checkAndCreateDir(tempReportFolderPath)
 
-  const uniqueFileName = `${uuidv4()}.csv`
+  const ext = getReportFileExtName(params)
+  const uniqueFileName = `${uuidv4()}.${ext}`
 
-  const files = await readdir(tempCsvFolderPath)
+  const files = await readdir(tempReportFolderPath)
 
   if (files.some(file => file === uniqueFileName)) {
-    return createUniqueFileName(rootPath, count)
+    return createUniqueFileName(rootPath, params, count)
   }
 
-  return path.join(tempCsvFolderPath, uniqueFileName)
+  return path.join(tempReportFolderPath, uniqueFileName)
 }
 
 const writableToPromise = stream => {
