@@ -46,6 +46,9 @@ const TYPES = require('./loc.api/di/types')
 const {
   setLoggerDeps
 } = require('./loc.api/logger/logger-deps')
+const {
+  PDFBufferUnderElectronCreationError
+} = require('./loc.api/errors')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -209,6 +212,11 @@ class WrkReportServiceApi extends WrkApi {
     aggregatorQueue.on('job', aggregator)
 
     processorQueue.on('error:base', (err) => {
+      // This error is intercepted and processed in the framework mode
+      if (err instanceof PDFBufferUnderElectronCreationError) {
+        return
+      }
+
       this.logger.error(`PROCESSOR:QUEUE: ${err.stack || err}`)
     })
     aggregatorQueue.on('error:base', (err) => {
