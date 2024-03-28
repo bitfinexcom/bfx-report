@@ -144,7 +144,7 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
   return err
 }
 
-const _getErrorMetadata = (args, err) => {
+const _getErrorMetadata = (args, err, name) => {
   const errWithMetadata = _getErrorWithMetadataForNonBaseError(args, err)
   _addStatusMessageToErrorMessage(errWithMetadata)
   const {
@@ -178,8 +178,10 @@ const _getErrorMetadata = (args, err) => {
       data: extendedData
     }
   )
+  const serializedError = _prepareErrorData(error, name)
+  Object.assign(error, { serializedError })
 
-  return { code, message, data, error }
+  return { code, message, data, error, serializedError }
 }
 
 const _logError = (loggerArgs, err) => {
@@ -195,8 +197,9 @@ const _logError = (loggerArgs, err) => {
   )
   const {
     code,
-    error
-  } = _getErrorMetadata(args, err)
+    error,
+    serializedError
+  } = _getErrorMetadata(args, err, name)
 
   _emitEventByWs(loggerArgs, error)
 
@@ -204,12 +207,12 @@ const _logError = (loggerArgs, err) => {
     code !== 500 ||
     shouldNotBeLoggedToStdErrorStream
   ) {
-    logger.debug(_prepareErrorData(error, name))
+    logger.debug(serializedError)
 
     return
   }
 
-  logger.error(_prepareErrorData(error, name))
+  logger.error(serializedError)
 }
 
 const _emitEventByWs = (emitterArgs, error) => {
