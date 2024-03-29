@@ -69,6 +69,7 @@ module.exports = (
   let countNetError = 0
   let countRateLimitError = 0
   let countNonceSmallError = 0
+  let countUnexpectedError = 0
   let res = null
 
   while (true) {
@@ -157,7 +158,17 @@ module.exports = (
         continue
       }
 
-      throw err
+      // Handle unexpected BFX API errors
+      countUnexpectedError += 1
+
+      if (countUnexpectedError > 3) {
+        throw err
+      }
+      if (_isInterrupted(_interrupter)) {
+        return { isInterrupted: true }
+      }
+
+      await _delay(10000, _interrupter)
     }
   }
 
