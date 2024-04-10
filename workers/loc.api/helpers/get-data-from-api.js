@@ -8,7 +8,8 @@ const {
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
-  isENetError
+  isENetError,
+  isAuthError
 } = require('./api-errors-testers')
 
 const _delay = (mc = 80000, interrupter) => {
@@ -161,7 +162,10 @@ module.exports = (
       // Handle unexpected BFX API errors
       countUnexpectedError += 1
 
-      if (countUnexpectedError > 3) {
+      if (
+        countUnexpectedError > 3 ||
+        isAuthError(err)
+      ) {
         throw err
       }
       if (_isInterrupted(_interrupter)) {
