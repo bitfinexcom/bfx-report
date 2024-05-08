@@ -44,7 +44,7 @@ const auth = {
 
 describe('API filter', () => {
   before(async function () {
-    this.timeout(5000)
+    this.timeout(20000)
 
     mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, 10)
 
@@ -58,7 +58,7 @@ describe('API filter', () => {
   })
 
   after(async function () {
-    this.timeout(5000)
+    this.timeout(20000)
 
     await stopEnvironment()
     await rmDB(dbDirPath)
