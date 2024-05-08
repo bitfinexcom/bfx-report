@@ -63,6 +63,10 @@ class Interrupter extends EventEmitter {
     this.off(this.INTERRUPT_EVENT, cb)
   }
 
+  onceInterrupted (cb) {
+    this.once(this.INTERRUPTED_EVENT, cb)
+  }
+
   emitInterrupted (error, progress) {
     if (error) {
       this.emit(this.INTERRUPTED_WITH_ERR_EVENT, error)
