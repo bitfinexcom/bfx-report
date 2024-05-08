@@ -1,6 +1,6 @@
 {
   "name": "bfx-report",
-  "version": "4.10.2",
+  "version": "4.10.3",
   "description": "Reporting tool",
   "main": "worker.js",
   "license": "Apache-2.0",
