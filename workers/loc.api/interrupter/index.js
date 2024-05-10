@@ -2,6 +2,8 @@
 
 const EventEmitter = require('events')
 
+const INTERRUPTER_NAMES = require('./interrupter.names')
+
 const { decorateInjectable } = require('../di/utils')
 
 class Interrupter extends EventEmitter {
@@ -14,6 +16,14 @@ class Interrupter extends EventEmitter {
 
     this._isInterrupted = false
     this._interruptPromise = Promise.resolve()
+
+    this.name = INTERRUPTER_NAMES.COMMON_INTERRUPTER
+  }
+
+  setName (name) {
+    this.name = name ?? INTERRUPTER_NAMES.COMMON_INTERRUPTER
+
+    return this
   }
 
   hasInterrupted () {
