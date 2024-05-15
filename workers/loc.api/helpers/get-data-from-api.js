@@ -88,6 +88,7 @@ module.exports = (
        * due to an internet connection issue
        */
       _args.shouldNotBeLoggedToStdErrorStream = true
+      _args.interrupter = _interrupter
 
       if (
         typeof getData === 'string' &&
