@@ -41,7 +41,8 @@ module.exports = (
   const { res } = await getDataFromApi({
     getData: rService[name].bind(rService),
     args,
-    callerName: 'CSV_WRITER'
+    callerName: 'CSV_WRITER',
+    shouldNotInterrupt: true
   })
 
   wStream.setMaxListeners(50)
