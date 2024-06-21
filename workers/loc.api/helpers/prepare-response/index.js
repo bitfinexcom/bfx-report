@@ -22,9 +22,10 @@ const _requestToApi = (
   getREST,
   apiMethodName,
   params,
-  auth
+  auth,
+  interrupter
 ) => {
-  const rest = getREST(auth)
+  const rest = getREST(auth, { interrupter })
   const bfxApiMethodName = getBfxApiMethodName(apiMethodName)
 
   const fn = rest[bfxApiMethodName].bind(rest)
@@ -55,7 +56,8 @@ const _getResAndParams = async (
     getREST,
     apiMethodName,
     queryParams,
-    args.auth
+    args.auth,
+    args?.interrupter
   )
 
   return {

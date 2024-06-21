@@ -41,18 +41,25 @@ const _bfxFactory = (conf) => {
   })
 }
 
-const _route = (bfxApiRouter, methodName, args) => {
+const _route = (bfxApiRouter, methodName, args, interrupter) => {
   if (!(bfxApiRouter instanceof BfxApiRouter)) {
     return Reflect.apply(...args)
   }
 
   return bfxApiRouter.route(
     methodName,
-    () => Reflect.apply(...args)
+    () => Reflect.apply(...args),
+    interrupter
   )
 }
 
-const _asyncApplyHook = async (bfxApiRouter, incomingRes, propKey, ...args) => {
+const _asyncApplyHook = async (
+  bfxApiRouter,
+  incomingRes,
+  propKey,
+  args,
+  interrupter
+) => {
   let attemptsCount = 0
   let caughtErr = null
 
@@ -70,7 +77,8 @@ const _asyncApplyHook = async (bfxApiRouter, incomingRes, propKey, ...args) => {
       const res = await _route(
         bfxApiRouter,
         propKey,
-        args
+        args,
+        interrupter
       )
 
       return res
@@ -99,7 +107,11 @@ const _isNotPromiseOrBluebird = (instance) => (
   )
 )
 
-const _getRestProxy = (rest, bfxApiRouter) => {
+const _getRestProxy = (rest, deps) => {
+  const {
+    bfxApiRouter,
+    interrupter
+  } = deps
   return new Proxy(rest, {
     get (target, propKey) {
       if (typeof target[propKey] !== 'function') {
@@ -121,14 +133,21 @@ const _getRestProxy = (rest, bfxApiRouter) => {
               const res = _route(
                 bfxApiRouter,
                 propKey,
-                args
+                args,
+                interrupter
               )
 
               if (_isNotPromiseOrBluebird(res)) {
                 return res
               }
 
-              return _asyncApplyHook(bfxApiRouter, res, propKey, ...args)
+              return _asyncApplyHook(
+                bfxApiRouter,
+                res,
+                propKey,
+                args,
+                interrupter
+              )
             } catch (err) {
               if (isNonceSmallError(err)) {
                 attemptsCount += 1
@@ -165,7 +184,8 @@ module.exports = (conf, bfxApiRouter) => {
       authToken: _authToken = ''
     } = auth
     const {
-      timeout = 90000
+      timeout = 90000,
+      interrupter
     } = opts ?? {}
 
     /*
@@ -185,7 +205,10 @@ module.exports = (conf, bfxApiRouter) => {
     }
 
     const rest = bfxInstance.rest(2, restOpts)
-    const proxy = _getRestProxy(rest, bfxApiRouter)
+    const proxy = _getRestProxy(rest, {
+      bfxApiRouter,
+      interrupter
+    })
 
     return proxy
   }
