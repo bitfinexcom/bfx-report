@@ -49,7 +49,8 @@ module.exports = (
     const _res = await getDataFromApi({
       getData,
       args: currIterationArgs,
-      callerName: 'REPORT_FILE_WRITER'
+      callerName: 'REPORT_FILE_WRITER',
+      shouldNotInterrupt: true
     })
 
     const isGetWalletsMethod = method === 'getWallets'

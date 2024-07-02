@@ -26,7 +26,9 @@ class ReportService extends Api {
   }
 
   _generateToken (args, opts) {
-    const rest = this._getREST(args?.auth)
+    const rest = this._getREST(args?.auth, {
+      interrupter: args?.interrupter
+    })
 
     return rest.generateToken({
       ttl: opts?.ttl ?? 3600,
@@ -38,26 +40,34 @@ class ReportService extends Api {
   }
 
   _invalidateAuthToken (args) {
-    const rest = this._getREST(args?.auth)
+    const rest = this._getREST(args?.auth, {
+      interrupter: args?.interrupter
+    })
     const { authToken } = args?.params ?? {}
 
     return rest.invalidateAuthToken({ authToken })
   }
 
   _getUserInfo (args) {
-    const rest = this._getREST(args.auth)
+    const rest = this._getREST(args.auth, {
+      interrupter: args?.interrupter
+    })
 
     return rest.userInfo()
   }
 
-  _getSymbols () {
-    const rest = this._getREST({})
+  _getSymbols (args) {
+    const rest = this._getREST({}, {
+      interrupter: args?.interrupter
+    })
 
     return rest.symbols()
   }
 
-  _getFutures () {
-    const rest = this._getREST({})
+  _getFutures (args) {
+    const rest = this._getREST({}, {
+      interrupter: args?.interrupter
+    })
 
     return rest.futures()
   }
@@ -68,41 +78,46 @@ class ReportService extends Api {
     return rest.currencies()
   }
 
-  _getInactiveSymbols () {
-    const rest = this._getREST({})
+  _getInactiveSymbols (args) {
+    const rest = this._getREST({}, {
+      interrupter: args?.interrupter
+    })
 
     return rest.inactiveSymbols()
   }
 
-  async _getConf (opts) {
-    const { keys: _keys } = opts ?? {}
+  async _getConf (args) {
+    const { keys: _keys, interrupter } = args ?? {}
     const keys = Array.isArray(_keys) ? _keys : [_keys]
-    const rest = this._getREST({})
+    const rest = this._getREST({}, { interrupter })
 
     const res = await rest.conf({ keys })
 
     return Array.isArray(res) ? res : []
   }
 
-  async _getMapSymbols () {
+  async _getMapSymbols (args) {
     const [res] = await this._getConf({
-      keys: 'pub:map:pair:sym'
+      keys: 'pub:map:pair:sym',
+      interrupter: args?.interrupter
     })
 
     return Array.isArray(res) ? res : []
   }
 
-  async _getInactiveCurrencies () {
+  async _getInactiveCurrencies (args) {
     const [res] = await this._getConf({
-      keys: 'pub:list:currency:inactive'
+      keys: 'pub:list:currency:inactive',
+      interrupter: args?.interrupter
     })
 
     return Array.isArray(res) ? res : []
   }
 
-  async _getMarginCurrencyList () {
+  async _getMarginCurrencyList (args) {
     const [res] = await this._getConf({
-      keys: 'pub:list:currency:margin'
+      keys: 'pub:list:currency:margin',
+      interrupter: args?.interrupter
     })
 
     return Array.isArray(res) ? res : []
@@ -111,7 +126,9 @@ class ReportService extends Api {
   _getWeightedAveragesReportFromApi (args) {
     const { auth, params } = args ?? {}
 
-    const rest = this._getREST(auth)
+    const rest = this._getREST(auth, {
+      interrupter: args?.interrupter
+    })
 
     return rest.getWeightedAverages(params)
   }
@@ -218,13 +235,13 @@ class ReportService extends Api {
         inactiveCurrencies,
         marginCurrencyList
       ] = await Promise.all([
-        this._getSymbols(),
-        this._getFutures(),
-        this._getCurrencies(),
-        this._getInactiveSymbols(),
-        this._getMapSymbols(),
-        this._getInactiveCurrencies(),
-        this._getMarginCurrencyList()
+        this._getSymbols(args),
+        this._getFutures(args),
+        this._getCurrencies(args),
+        this._getInactiveSymbols(args),
+        this._getMapSymbols(args),
+        this._getInactiveCurrencies(args),
+        this._getMarginCurrencyList(args)
       ])
 
       const res = prepareSymbolResponse({
@@ -248,7 +265,9 @@ class ReportService extends Api {
       const { auth, params } = args ?? {}
       const { keys = [] } = params ?? {}
 
-      const rest = this._getREST(auth)
+      const rest = this._getREST(auth, {
+        interrupter: args?.interrupter
+      })
 
       return rest.getSettings({ keys })
     }, 'getSettings', args, cb)
@@ -259,7 +278,9 @@ class ReportService extends Api {
       const { auth, params } = args ?? {}
       const { settings = {} } = params ?? {}
 
-      const rest = this._getREST(auth)
+      const rest = this._getREST(auth, {
+        interrupter: args?.interrupter
+      })
 
       return rest.updateSettings({ settings })
     }, 'updateSettings', args, cb)
@@ -311,7 +332,9 @@ class ReportService extends Api {
 
   getActivePositions (space, args, cb) {
     return this._responder(async () => {
-      const rest = this._getREST(args.auth)
+      const rest = this._getREST(args.auth, {
+        interrupter: args?.interrupter
+      })
       const positions = omitPrivateModelFields(
         await rest.positions()
       )
@@ -341,7 +364,9 @@ class ReportService extends Api {
     return this._responder(async () => {
       checkParams(args, 'paramsSchemaForWallets')
 
-      const rest = this._getREST(args.auth)
+      const rest = this._getREST(args.auth, {
+        interrupter: args?.interrupter
+      })
 
       return omitPrivateModelFields(await rest.wallets())
     }, 'getWallets', args, cb)
@@ -510,7 +535,9 @@ class ReportService extends Api {
 
   getActiveOrders (space, args, cb) {
     return this._responder(async () => {
-      const rest = this._getREST(args.auth)
+      const rest = this._getREST(args.auth, {
+        interrupter: args?.interrupter
+      })
 
       const _res = omitPrivateModelFields(
         await rest.activeOrders()
@@ -537,8 +564,8 @@ class ReportService extends Api {
     return this._responder(async () => {
       checkParams(args, 'paramsSchemaForMovementInfo', ['id'])
 
-      const { auth, params } = args ?? {}
-      const rest = this._getREST(auth)
+      const { auth, params, interrupter } = args ?? {}
+      const rest = this._getREST(auth, { interrupter })
 
       const res = omitPrivateModelFields(
         await rest.movementInfo({ id: params?.id })
@@ -604,7 +631,10 @@ class ReportService extends Api {
   getAccountSummary (space, args, cb) {
     return this._responder(async () => {
       const { auth } = { ...args }
-      const rest = this._getREST(auth, { timeout: 30000 })
+      const rest = this._getREST(auth, {
+        timeout: 30000,
+        interrupter: args?.interrupter
+      })
 
       const res = omitPrivateModelFields(
         await rest.accountSummary()

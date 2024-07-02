@@ -49,7 +49,7 @@ const _getEmptyArrRes = () => {
 }
 
 module.exports = (
-  interrupter,
+  commonInterrupter,
   wsEventEmitter
 ) => async ({
   getData,
@@ -59,11 +59,12 @@ module.exports = (
   callerName,
   eNetErrorAttemptsTimeframeMin = 10, // min
   eNetErrorAttemptsTimeoutMs = 10000, // ms
-  shouldNotInterrupt
+  shouldNotInterrupt,
+  interrupter
 }) => {
   const _interrupter = shouldNotInterrupt
     ? null
-    : interrupter
+    : interrupter ?? commonInterrupter
 
   const ms = 80000
 
@@ -87,6 +88,7 @@ module.exports = (
        * due to an internet connection issue
        */
       _args.shouldNotBeLoggedToStdErrorStream = true
+      _args.interrupter = _interrupter
 
       if (
         typeof getData === 'string' &&
