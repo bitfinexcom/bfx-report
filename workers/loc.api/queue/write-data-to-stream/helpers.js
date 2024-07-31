@@ -80,6 +80,22 @@ const _formatters = {
     }
 
     return msg
+  },
+  lowerCaseWithUpperFirst: (str) => {
+    if (
+      !str ||
+      typeof str !== 'string' ||
+      str.length < 2
+    ) {
+      return str
+    }
+
+    const lower = str.toLowerCase()
+    const normalized = lower.replace(/_/g, ' ')
+    const head = normalized[0].toUpperCase()
+    const tail = normalized.slice(1)
+
+    return `${head}${tail}`
   }
 }
 
