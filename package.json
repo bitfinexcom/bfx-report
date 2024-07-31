@@ -42,7 +42,7 @@
     "bfx-report-express": "git+https://github.com/bitfinexcom/bfx-report-express.git",
     "chai": "4.3.4",
     "grenache-grape": "git+https://github.com/bitfinexcom/grenache-grape.git",
-    "mocha": "10.1.0",
+    "mocha": "10.7.0",
     "nodemon": "2.0.20",
     "standard": "17.0.0",
     "supertest": "6.3.2"
