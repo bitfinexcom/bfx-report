@@ -23,7 +23,7 @@
     "bitfinex-api-node": "6.0.0",
     "colors": "1.4.0",
     "csv": "5.5.3",
-    "inversify": "6.0.1",
+    "inversify": "6.0.2",
     "js-yaml": "4.1.0",
     "lib-js-util-base": "git+https://github.com/bitfinexcom/lib-js-util-base.git",
     "lru": "3.1.0",
