@@ -41,13 +41,7 @@ const _getReportFileStoreStatus = async ({
     return {
       isSaveLocaly: true,
       localReportFolderPath,
-      remoteReportUrn,
-
-      /**
-       * @deprecated fields
-       */
-      localCsvFolderPath: localReportFolderPath,
-      remoteCsvUrn: remoteReportUrn
+      remoteReportUrn
     }
   }
 
