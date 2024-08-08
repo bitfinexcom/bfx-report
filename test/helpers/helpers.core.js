@@ -1,47 +1,55 @@
 'use strict'
 
-const { promisify } = require('util')
 const path = require('path')
-const fs = require('fs')
 
-const readdir = promisify(fs.readdir)
-const unlink = promisify(fs.unlink)
-const mkdir = promisify(fs.mkdir)
+const {
+  readdir,
+  mkdir,
+  rm
+} = require('node:fs/promises')
 
 const rmDB = async (
   dir,
-  exclude = ['.gitkeep'],
-  isThrownError
+  exclude = ['.gitkeep']
 ) => {
   try {
-    const files = await readdir(dir)
-    const promisesArr = files.map((file) => {
-      if (exclude.every(exFile => exFile !== file)) {
-        return unlink(path.join(dir, file))
+    const files = await readdir(
+      dir,
+      { withFileTypes: true }
+    )
+
+    for (const dirent of files) {
+      const { name } = dirent
+
+      if (
+        !dirent.isFile() ||
+        exclude.some((exFile) => exFile === name)
+      ) {
+        continue
       }
 
-      return null
-    })
-
-    const res = await Promise.all(promisesArr)
-
-    return res
-  } catch (err) {
-    if (!isThrownError) {
-      return
+      const filePath = path.join(dir, name)
+      await rm(
+        filePath,
+        {
+          force: true,
+          maxRetries: 5,
+          recursive: true,
+          retryDelay: 200
+        }
+      )
     }
-
-    throw err
+  } catch (err) {
+    console.log(err)
   }
 }
 
 const rmAllFiles = async (dir, exclude) => {
   try {
-    await rmDB(dir, exclude, true)
+    await rmDB(dir, exclude)
+    await mkdir(dir, { recursive: true })
   } catch (err) {
-    if (err.syscall === 'scandir') {
-      await mkdir(dir)
-    }
+    console.log(err)
   }
 }
 
