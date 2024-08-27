@@ -51,6 +51,10 @@ const isEConnRefusedError = (err) => {
   return /(ECONNREFUSED)|(ERR_CONNECTION_REFUSED)/i.test(_getErrorString(err))
 }
 
+const isEConnClosedError = (err) => {
+  return /ERR_CONNECTION_CLOSED/i.test(_getErrorString(err))
+}
+
 const isENotFoundError = (err) => {
   return /ENOTFOUND/i.test(_getErrorString(err))
 }
@@ -87,6 +91,7 @@ const isENetError = (err) => (
   isNodeFetchTimeoutError(err) ||
   isEAiAgainError(err) ||
   isEConnRefusedError(err) ||
+  isEConnClosedError(err) ||
   isENotFoundError(err) ||
   isESocketTimeoutError(err) ||
   isEHostUnreachError(err) ||
@@ -106,6 +111,7 @@ module.exports = {
   isNodeFetchTimeoutError,
   isEAiAgainError,
   isEConnRefusedError,
+  isEConnClosedError,
   isENotFoundError,
   isESocketTimeoutError,
   isEHostUnreachError,
