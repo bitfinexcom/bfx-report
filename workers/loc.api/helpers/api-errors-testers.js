@@ -75,6 +75,10 @@ const isTempUnavailableError = (err) => {
   return /temporarily_unavailable/i.test(_getErrorString(err))
 }
 
+const isBadGatewayError = (err) => {
+  return /Bad Gateway/i.test(_getErrorString(err))
+}
+
 const isForbiddenError = (err) => {
   return /forbidden/i.test(_getErrorString(err))
 }
@@ -96,7 +100,8 @@ const isENetError = (err) => (
   isESocketTimeoutError(err) ||
   isEHostUnreachError(err) ||
   isEProtoError(err) ||
-  isTempUnavailableError(err)
+  isTempUnavailableError(err) ||
+  isBadGatewayError(err)
 )
 
 module.exports = {
@@ -117,6 +122,7 @@ module.exports = {
   isEHostUnreachError,
   isEProtoError,
   isTempUnavailableError,
+  isBadGatewayError,
   isENetError,
   isForbiddenError,
   isMaintenanceError
