@@ -48,7 +48,7 @@ const isEAiAgainError = (err) => {
 }
 
 const isEConnRefusedError = (err) => {
-  return /ECONNREFUSED/i.test(_getErrorString(err))
+  return /(ECONNREFUSED)|(ERR_CONNECTION_REFUSED)/i.test(_getErrorString(err))
 }
 
 const isENotFoundError = (err) => {
