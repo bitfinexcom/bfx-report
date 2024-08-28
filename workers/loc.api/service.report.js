@@ -678,11 +678,6 @@ class ReportService extends Api {
     }, 'getWeightedAveragesReport', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getMultipleCsv (...args) { return this.getMultipleFile(...args) }
-
   getMultipleFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -691,11 +686,6 @@ class ReportService extends Api {
       )
     }, 'getMultipleFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getTradesCsv (...args) { return this.getTradesFile(...args) }
 
   getTradesFile (space, args, cb) {
     return this._responder(() => {
@@ -706,11 +696,6 @@ class ReportService extends Api {
     }, 'getTradesFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getFundingTradesCsv (...args) { return this.getFundingTradesFile(...args) }
-
   getFundingTradesFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -719,11 +704,6 @@ class ReportService extends Api {
       )
     }, 'getFundingTradesFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getTickersHistoryCsv (...args) { return this.getTickersHistoryFile(...args) }
 
   getTickersHistoryFile (space, args, cb) {
     return this._responder(() => {
@@ -734,11 +714,6 @@ class ReportService extends Api {
     }, 'getTickersHistoryFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getWalletsCsv (...args) { return this.getWalletsFile(...args) }
-
   getWalletsFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -747,11 +722,6 @@ class ReportService extends Api {
       )
     }, 'getWalletsFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getPositionsHistoryCsv (...args) { return this.getPositionsHistoryFile(...args) }
 
   getPositionsHistoryFile (space, args, cb) {
     return this._responder(() => {
@@ -762,11 +732,6 @@ class ReportService extends Api {
     }, 'getPositionsHistoryFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getActivePositionsCsv (...args) { return this.getActivePositionsFile(...args) }
-
   getActivePositionsFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -775,11 +740,6 @@ class ReportService extends Api {
       )
     }, 'getActivePositionsFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getPositionsAuditCsv (...args) { return this.getPositionsAuditFile(...args) }
 
   getPositionsAuditFile (space, args, cb) {
     return this._responder(() => {
@@ -790,11 +750,6 @@ class ReportService extends Api {
     }, 'getPositionsAuditFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getPublicTradesCsv (...args) { return this.getPublicTradesFile(...args) }
-
   getPublicTradesFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -803,11 +758,6 @@ class ReportService extends Api {
       )
     }, 'getPublicTradesFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getStatusMessagesCsv (...args) { return this.getStatusMessagesFile(...args) }
 
   getStatusMessagesFile (space, args, cb) {
     return this._responder(() => {
@@ -818,11 +768,6 @@ class ReportService extends Api {
     }, 'getStatusMessagesFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getCandlesCsv (...args) { return this.getCandlesFile(...args) }
-
   getCandlesFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -831,11 +776,6 @@ class ReportService extends Api {
       )
     }, 'getCandlesFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getLedgersCsv (...args) { return this.getLedgersFile(...args) }
 
   getLedgersFile (space, args, cb) {
     return this._responder(() => {
@@ -846,11 +786,6 @@ class ReportService extends Api {
     }, 'getLedgersFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getPayInvoiceListCsv (...args) { return this.getPayInvoiceListFile(...args) }
-
   getPayInvoiceListFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -859,11 +794,6 @@ class ReportService extends Api {
       )
     }, 'getPayInvoiceListFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getOrderTradesCsv (...args) { return this.getOrderTradesFile(...args) }
 
   getOrderTradesFile (space, args, cb) {
     return this._responder(() => {
@@ -874,11 +804,6 @@ class ReportService extends Api {
     }, 'getOrderTradesFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getOrdersCsv (...args) { return this.getOrdersFile(...args) }
-
   getOrdersFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -887,11 +812,6 @@ class ReportService extends Api {
       )
     }, 'getOrdersFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getActiveOrdersCsv (...args) { return this.getActiveOrdersFile(...args) }
 
   getActiveOrdersFile (space, args, cb) {
     return this._responder(() => {
@@ -902,11 +822,6 @@ class ReportService extends Api {
     }, 'getActiveOrdersFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getMovementsCsv (...args) { return this.getMovementsFile(...args) }
-
   getMovementsFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -915,11 +830,6 @@ class ReportService extends Api {
       )
     }, 'getMovementsFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getFundingOfferHistoryCsv (...args) { return this.getFundingOfferHistoryFile(...args) }
 
   getFundingOfferHistoryFile (space, args, cb) {
     return this._responder(() => {
@@ -930,11 +840,6 @@ class ReportService extends Api {
     }, 'getFundingOfferHistoryFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getFundingLoanHistoryCsv (...args) { return this.getFundingLoanHistoryFile(...args) }
-
   getFundingLoanHistoryFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -943,11 +848,6 @@ class ReportService extends Api {
       )
     }, 'getFundingLoanHistoryFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getFundingCreditHistoryCsv (...args) { return this.getFundingCreditHistoryFile(...args) }
 
   getFundingCreditHistoryFile (space, args, cb) {
     return this._responder(() => {
@@ -958,11 +858,6 @@ class ReportService extends Api {
     }, 'getFundingCreditHistoryFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getLoginsCsv (...args) { return this.getLoginsFile(...args) }
-
   getLoginsFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -972,11 +867,6 @@ class ReportService extends Api {
     }, 'getLoginsFile', args, cb)
   }
 
-  /**
-   * @deprecated
-   */
-  getChangeLogsCsv (...args) { return this.getChangeLogsFile(...args) }
-
   getChangeLogsFile (space, args, cb) {
     return this._responder(() => {
       return this._generateReportFile(
@@ -985,11 +875,6 @@ class ReportService extends Api {
       )
     }, 'getChangeLogsFile', args, cb)
   }
-
-  /**
-   * @deprecated
-   */
-  getWeightedAveragesReportCsv (...args) { return this.getWeightedAveragesReportFile(...args) }
 
   getWeightedAveragesReportFile (space, args, cb) {
     return this._responder(() => {

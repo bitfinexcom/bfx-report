@@ -48,7 +48,11 @@ const isEAiAgainError = (err) => {
 }
 
 const isEConnRefusedError = (err) => {
-  return /ECONNREFUSED/i.test(_getErrorString(err))
+  return /(ECONNREFUSED)|(ERR_CONNECTION_REFUSED)/i.test(_getErrorString(err))
+}
+
+const isEConnClosedError = (err) => {
+  return /ERR_CONNECTION_CLOSED/i.test(_getErrorString(err))
 }
 
 const isENotFoundError = (err) => {
@@ -71,6 +75,10 @@ const isTempUnavailableError = (err) => {
   return /temporarily_unavailable/i.test(_getErrorString(err))
 }
 
+const isBadGatewayError = (err) => {
+  return /Bad Gateway/i.test(_getErrorString(err))
+}
+
 const isForbiddenError = (err) => {
   return /forbidden/i.test(_getErrorString(err))
 }
@@ -87,11 +95,13 @@ const isENetError = (err) => (
   isNodeFetchTimeoutError(err) ||
   isEAiAgainError(err) ||
   isEConnRefusedError(err) ||
+  isEConnClosedError(err) ||
   isENotFoundError(err) ||
   isESocketTimeoutError(err) ||
   isEHostUnreachError(err) ||
   isEProtoError(err) ||
-  isTempUnavailableError(err)
+  isTempUnavailableError(err) ||
+  isBadGatewayError(err)
 )
 
 module.exports = {
@@ -106,11 +116,13 @@ module.exports = {
   isNodeFetchTimeoutError,
   isEAiAgainError,
   isEConnRefusedError,
+  isEConnClosedError,
   isENotFoundError,
   isESocketTimeoutError,
   isEHostUnreachError,
   isEProtoError,
   isTempUnavailableError,
+  isBadGatewayError,
   isENetError,
   isForbiddenError,
   isMaintenanceError
