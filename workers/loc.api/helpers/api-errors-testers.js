@@ -79,6 +79,10 @@ const isBadGatewayError = (err) => {
   return /Bad Gateway/i.test(_getErrorString(err))
 }
 
+const isDNSAvailabilityError = (err) => {
+  return /ERR_NAME_NOT_RESOLVED/i.test(_getErrorString(err))
+}
+
 const isForbiddenError = (err) => {
   return /forbidden/i.test(_getErrorString(err))
 }
@@ -101,7 +105,8 @@ const isENetError = (err) => (
   isEHostUnreachError(err) ||
   isEProtoError(err) ||
   isTempUnavailableError(err) ||
-  isBadGatewayError(err)
+  isBadGatewayError(err) ||
+  isDNSAvailabilityError(err)
 )
 
 module.exports = {
@@ -123,6 +128,7 @@ module.exports = {
   isEProtoError,
   isTempUnavailableError,
   isBadGatewayError,
+  isDNSAvailabilityError,
   isENetError,
   isForbiddenError,
   isMaintenanceError

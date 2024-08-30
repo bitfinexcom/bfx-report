@@ -41,6 +41,7 @@ const {
   isEProtoError,
   isTempUnavailableError,
   isBadGatewayError,
+  isDNSAvailabilityError,
   isENetError,
   isForbiddenError,
   isMaintenanceError
@@ -93,6 +94,7 @@ module.exports = {
   isEProtoError,
   isTempUnavailableError,
   isBadGatewayError,
+  isDNSAvailabilityError,
   isENetError,
   isForbiddenError,
   isMaintenanceError,
