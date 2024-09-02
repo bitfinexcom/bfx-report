@@ -43,6 +43,7 @@ const {
   isBadGatewayError,
   isDNSAvailabilityError,
   isSocketHangUpError,
+  isCommonNetError,
   isENetError,
   isForbiddenError,
   isMaintenanceError
@@ -97,6 +98,7 @@ module.exports = {
   isBadGatewayError,
   isDNSAvailabilityError,
   isSocketHangUpError,
+  isCommonNetError,
   isENetError,
   isForbiddenError,
   isMaintenanceError,
