@@ -42,6 +42,7 @@ const {
   isTempUnavailableError,
   isBadGatewayError,
   isDNSAvailabilityError,
+  isSocketHangUpError,
   isENetError,
   isForbiddenError,
   isMaintenanceError
@@ -95,6 +96,7 @@ module.exports = {
   isTempUnavailableError,
   isBadGatewayError,
   isDNSAvailabilityError,
+  isSocketHangUpError,
   isENetError,
   isForbiddenError,
   isMaintenanceError,

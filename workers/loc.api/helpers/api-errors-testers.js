@@ -83,6 +83,10 @@ const isDNSAvailabilityError = (err) => {
   return /ERR_NAME_NOT_RESOLVED/i.test(_getErrorString(err))
 }
 
+const isSocketHangUpError = (err) => {
+  return /socket hang up/i.test(_getErrorString(err))
+}
+
 const isForbiddenError = (err) => {
   return /forbidden/i.test(_getErrorString(err))
 }
@@ -106,7 +110,8 @@ const isENetError = (err) => (
   isEProtoError(err) ||
   isTempUnavailableError(err) ||
   isBadGatewayError(err) ||
-  isDNSAvailabilityError(err)
+  isDNSAvailabilityError(err) ||
+  isSocketHangUpError(err)
 )
 
 module.exports = {
@@ -129,6 +134,7 @@ module.exports = {
   isTempUnavailableError,
   isBadGatewayError,
   isDNSAvailabilityError,
+  isSocketHangUpError,
   isENetError,
   isForbiddenError,
   isMaintenanceError
