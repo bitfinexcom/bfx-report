@@ -40,7 +40,7 @@ const isETimedOutError = (err) => {
 }
 
 const isNodeFetchTimeoutError = (err) => {
-  return /network timeout/i.test(_getErrorString(err))
+  return /timeout/i.test(_getErrorString(err))
 }
 
 const isEAiAgainError = (err) => {
