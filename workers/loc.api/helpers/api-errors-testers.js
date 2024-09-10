@@ -40,7 +40,7 @@ const isETimedOutError = (err) => {
 }
 
 const isNodeFetchTimeoutError = (err) => {
-  return /network timeout/i.test(_getErrorString(err))
+  return /timeout/i.test(_getErrorString(err))
 }
 
 const isEAiAgainError = (err) => {
@@ -79,6 +79,18 @@ const isBadGatewayError = (err) => {
   return /Bad Gateway/i.test(_getErrorString(err))
 }
 
+const isDNSAvailabilityError = (err) => {
+  return /ERR_NAME_NOT_RESOLVED/i.test(_getErrorString(err))
+}
+
+const isSocketHangUpError = (err) => {
+  return /socket hang up/i.test(_getErrorString(err))
+}
+
+const isCommonNetError = (err) => {
+  return /net::ERR_/i.test(_getErrorString(err))
+}
+
 const isForbiddenError = (err) => {
   return /forbidden/i.test(_getErrorString(err))
 }
@@ -101,7 +113,10 @@ const isENetError = (err) => (
   isEHostUnreachError(err) ||
   isEProtoError(err) ||
   isTempUnavailableError(err) ||
-  isBadGatewayError(err)
+  isBadGatewayError(err) ||
+  isDNSAvailabilityError(err) ||
+  isSocketHangUpError(err) ||
+  isCommonNetError(err)
 )
 
 module.exports = {
@@ -123,6 +138,9 @@ module.exports = {
   isEProtoError,
   isTempUnavailableError,
   isBadGatewayError,
+  isDNSAvailabilityError,
+  isSocketHangUpError,
+  isCommonNetError,
   isENetError,
   isForbiddenError,
   isMaintenanceError

@@ -13,6 +13,10 @@ const {
 } = require('./api-errors-testers')
 
 const _delay = (mc = 80000, interrupter) => {
+  if (_isInterrupted(interrupter)) {
+    return Promise.resolve({ isInterrupted: true })
+  }
+
   return new Promise((resolve) => {
     const hasInterrupter = interrupter instanceof Interrupter
     const timeout = setTimeout(() => {
@@ -20,7 +24,7 @@ const _delay = (mc = 80000, interrupter) => {
         interrupter.offInterrupt(onceInterruptHandler)
       }
 
-      resolve()
+      resolve({ isInterrupted: false })
     }, mc)
     const onceInterruptHandler = () => {
       if (!timeout.hasRef()) {
@@ -28,7 +32,7 @@ const _delay = (mc = 80000, interrupter) => {
       }
 
       clearTimeout(timeout)
-      resolve()
+      resolve({ isInterrupted: true })
     }
 
     if (hasInterrupter) {
@@ -116,11 +120,12 @@ module.exports = (
         if (countRateLimitError > 100) {
           throw err
         }
-        if (_isInterrupted(_interrupter)) {
-          return { isInterrupted: true }
-        }
 
-        await _delay(ms, _interrupter)
+        const { isInterrupted } = await _delay(ms, _interrupter)
+
+        if (isInterrupted) {
+          return { isInterrupted }
+        }
 
         continue
       }
@@ -130,11 +135,12 @@ module.exports = (
         if (countNonceSmallError > 20) {
           throw err
         }
-        if (_isInterrupted(_interrupter)) {
-          return { isInterrupted: true }
-        }
 
-        await _delay(1000, _interrupter)
+        const { isInterrupted } = await _delay(1000, _interrupter)
+
+        if (isInterrupted) {
+          return { isInterrupted }
+        }
 
         continue
       }
@@ -156,7 +162,13 @@ module.exports = (
           await wsEventEmitter.emitENetError(callerName)
         }
 
-        await _delay(eNetErrorAttemptsTimeoutMs, _interrupter)
+        const {
+          isInterrupted
+        } = await _delay(eNetErrorAttemptsTimeoutMs, _interrupter)
+
+        if (isInterrupted) {
+          return { isInterrupted }
+        }
 
         continue
       }
@@ -170,11 +182,12 @@ module.exports = (
       ) {
         throw err
       }
-      if (_isInterrupted(_interrupter)) {
-        return { isInterrupted: true }
-      }
 
-      await _delay(10000, _interrupter)
+      const { isInterrupted } = await _delay(10000, _interrupter)
+
+      if (isInterrupted) {
+        return { isInterrupted }
+      }
     }
   }
 
