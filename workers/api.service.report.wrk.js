@@ -46,6 +46,7 @@ const TYPES = require('./loc.api/di/types')
 const {
   setLoggerDeps
 } = require('./loc.api/logger/logger-deps')
+const getI18next = require('./loc.api/i18next')
 const {
   PDFBufferUnderElectronCreationError
 } = require('./loc.api/errors')
@@ -60,6 +61,7 @@ class WrkReportServiceApi extends WrkApi {
 
     this.coreDeps = []
     this.appDeps = []
+    this.transPaths = []
 
     this.loadDIConfig()
     this.loadCoreDeps()
@@ -68,6 +70,11 @@ class WrkReportServiceApi extends WrkApi {
 
     this.init()
     this.start()
+  }
+
+  addTransLocation (transPath) {
+    const _transPath = transPath ?? path.join(__dirname, '../locales')
+    this.transPaths.push(_transPath)
   }
 
   loadDIConfig (cont = container) {
@@ -86,6 +93,15 @@ class WrkReportServiceApi extends WrkApi {
   loadAppDeps (...args) {
     this.appDeps.push(appDeps(...args))
     this.container.load(...this.appDeps)
+  }
+
+  async getI18next (i18nextConfigs) {
+    const i18next = await getI18next({
+      i18nextConfigs,
+      transPaths: this.transPaths
+    })
+
+    return i18next
   }
 
   getPluginCtx (type) {
@@ -124,6 +140,7 @@ class WrkReportServiceApi extends WrkApi {
 
   init () {
     super.init()
+    this.addTransLocation()
 
     const dbPathAbsolute = path.isAbsolute(argv.dbFolder)
       ? argv.dbFolder
@@ -178,6 +195,9 @@ class WrkReportServiceApi extends WrkApi {
     if (!rService.ctx) {
       rService.ctx = rService.caller.getCtx()
     }
+
+    // TODO: need to set into DI
+    const i18next = await this.getI18next()
 
     this.loadAppDeps({
       rService,
