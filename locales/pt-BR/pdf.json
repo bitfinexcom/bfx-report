@@ -1,0 +1,16 @@
+{
+  "template": {
+    "title": "Informes",
+    "statementDetails": "Detalhes da declaração",
+    "statementDate": "Data da declaração",
+    "snapshotAt": "Captura de",
+    "period": "Período",
+    "username": "Nome de Usuário",
+    "email": "e-mail",
+    "errorMessage": "Seu arquivo não pode ser completado, por favor tente novamente",
+    "reportGenAt": "Informe gerado em ",
+    "copyright": "Copyright © 2013-2024 iFinex Inc. Todos os direitos reservados.",
+    "page": "Página",
+    "from": "de"
+  }
+}
