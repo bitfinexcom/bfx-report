@@ -40,11 +40,13 @@ module.exports = ({
   aggregatorQueue,
   deflateFac,
   grcSlackFac,
-  link
+  link,
+  i18next
 }) => {
   return new ContainerModule((bind) => {
     bind(TYPES.RService).toConstantValue(rService)
     bind(TYPES.RootPath).toConstantValue(rService.ctx.rootPath)
+    bind(TYPES.I18next).toConstantValue(i18next)
     bind(TYPES.RServiceDepsSchema).toConstantValue([
       ['_responder', TYPES.Responder],
       ['_getREST', TYPES.GetREST],
@@ -52,7 +54,8 @@ module.exports = ({
       ['_prepareApiResponse', TYPES.PrepareApiResponse],
       ['_generateReportFile', TYPES.GenerateReportFile],
       ['_hasGrcService', TYPES.HasGrcService],
-      ['_weightedAveragesReport', TYPES.WeightedAveragesReport]
+      ['_weightedAveragesReport', TYPES.WeightedAveragesReport],
+      ['_i18next', TYPES.I18next]
     ])
     bind(TYPES.RServiceDepsSchemaAliase)
       .toDynamicValue((ctx) => {
