@@ -7,7 +7,13 @@ const fs = require('fs')
 
 const FsMultilocationBackend = require('./fs.multilocation.backend')
 
-module.exports = async (params) => {
+let i18nextInstance = null
+
+module.exports = (params) => {
+  if (i18nextInstance) {
+    return i18nextInstance
+  }
+
   const {
     i18nextConfigs,
     transPaths
@@ -43,9 +49,10 @@ module.exports = async (params) => {
     i18nextConfigs
   )
 
-  await i18next
+  const promise = i18next
     .use(FsMultilocationBackend)
     .init(configs)
+  i18nextInstance = i18next
 
-  return i18next
+  return promise.then(() => i18next)
 }
