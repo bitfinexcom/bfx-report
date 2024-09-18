@@ -196,7 +196,6 @@ class WrkReportServiceApi extends WrkApi {
       rService.ctx = rService.caller.getCtx()
     }
 
-    // TODO: need to set into DI
     const i18next = await this.getI18next()
 
     this.loadAppDeps({
@@ -206,6 +205,7 @@ class WrkReportServiceApi extends WrkApi {
       link: this.grc_bfx.link,
       deflateFac: this.deflate_gzip,
       grcSlackFac,
+      i18next,
       ...deps
     })
 
