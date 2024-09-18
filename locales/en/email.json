@@ -1,5 +1,15 @@
 {
   "template": {
-    "subject": "Your report is ready"
+    "subject": "Your report is ready",
+    "btnText": "Download Report",
+    "fileName": "File name",
+    "unauth": "Your file could not be completed, please try again",
+    "readyForDownload": "The report you request is ready for download",
+    "ifDidNotInitAction": "If you did not initiate this action and you suspect that your account may be compromised, please",
+    "freezeAccount": "freeze your account",
+    "contactSupport": "and contact support",
+    "youCan": "You can",
+    "download": "download",
+    "pgpSignature": "a PGP digital signature file"
   }
 }
