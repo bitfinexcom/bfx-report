@@ -167,7 +167,10 @@ module.exports = ({
     bind(TYPES.SendMail).toConstantValue(
       bindDepsToFn(
         sendMail,
-        [TYPES.GrcBfxReq]
+        [
+          TYPES.GrcBfxReq,
+          TYPES.I18next
+        ]
       )
     )
     bind(TYPES.Processor)
