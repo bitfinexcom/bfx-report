@@ -6,6 +6,7 @@ const path = require('path')
 const fs = require('fs')
 
 const FsMultilocationBackend = require('./fs.multilocation.backend')
+const TRANSLATION_NAMESPACES = require('./translation.namespaces')
 
 let i18nextInstance = null
 
@@ -22,7 +23,7 @@ module.exports = (params) => {
   const configs = merge(
     {
       fallbackLng: 'en',
-      ns: ['email', 'pdf'],
+      ns: Object.values(TRANSLATION_NAMESPACES),
       defaultNS: 'email',
       preload: [...transPaths.reduce((accum, transPath) => {
         const allFileNames = fs.readdirSync(transPath)
