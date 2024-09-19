@@ -26,7 +26,6 @@
     "i18next": "23.15.1",
     "i18next-fs-backend": "2.3.2",
     "inversify": "6.0.1",
-    "js-yaml": "4.1.0",
     "lib-js-util-base": "git+https://github.com/bitfinexcom/lib-js-util-base.git",
     "lru": "3.1.0",
     "moment": "2.29.4",
