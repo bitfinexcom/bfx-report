@@ -4,8 +4,6 @@ const { Transform } = require('stream')
 const path = require('path')
 const fs = require('fs')
 const pug = require('pug')
-const yaml = require('js-yaml')
-const { merge } = require('lib-js-util-base')
 
 const getCompleteFileName = require('../../queue/helpers/get-complete-file-name')
 const getTranslator = require('../../helpers/get-translator')
@@ -16,6 +14,9 @@ const {
   GrcPDFAvailabilityError
 } = require('../../errors')
 const TEMPLATE_FILE_NAMES = require('./template-file-names')
+const TRANSLATION_NAMESPACES = require(
+  '../../i18next/translation.namespaces'
+)
 
 const placeholderPattern = /\$\{[a-zA-Z0-9]+\}/g
 const pathToFonts = path.join(__dirname, 'templates/fonts')
@@ -31,27 +32,27 @@ const { decorateInjectable } = require('../../di/utils')
 const depsTypes = (TYPES) => [
   TYPES.ROOT_FOLDER_PATH,
   TYPES.HasGrcService,
-  TYPES.GrcBfxReq
+  TYPES.GrcBfxReq,
+  TYPES.I18next
 ]
 class PdfWriter {
   #fonts = this.#renderFontsTemplate(fontsTemplate, base64Fonts)
-  #translationsArr = []
-  #translations = {}
   #templatePaths = new Map()
   #templates = new Map()
 
   constructor (
     rootFolderPath,
     hasGrcService,
-    grcBfxReq
+    grcBfxReq,
+    i18next
   ) {
     this.rootFolderPath = rootFolderPath
     this.hasGrcService = hasGrcService
     this.grcBfxReq = grcBfxReq
+    this.i18next = i18next
 
     this.isElectronjsEnv = false
 
-    this.addTranslations()
     this.addTemplates()
     this.compileTemplate()
   }
@@ -192,29 +193,13 @@ class PdfWriter {
   }
 
   #getTranslator (language) {
-    return getTranslator({
-      language,
-      translations: this.#translations
-    })
-  }
-
-  addTranslations (trans = this.loadTranslations()) {
-    const translationsArr = Array.isArray(trans)
-      ? trans
-      : [trans]
-
-    this.#translationsArr.push(...translationsArr)
-    this.#translations = merge({}, ...this.#translationsArr)
-  }
-
-  loadTranslations (
-    pathToTrans = path.join(__dirname, 'translations.yml')
-  ) {
-    const translations = yaml.load(
-      fs.readFileSync(pathToTrans, 'utf8')
+    return getTranslator(
+      { i18next: this.i18next },
+      {
+        lng: language,
+        ns: TRANSLATION_NAMESPACES.PDF
+      }
     )
-
-    return translations
   }
 
   addTemplates (params) {
@@ -285,17 +270,36 @@ class PdfWriter {
   }
 
   #getAvailableLanguages () {
-    const languages = Object.keys(this.#translations)
-
-    if (languages.every((lang) => lang !== 'en')) {
-      languages.push('en')
-    }
-
-    return languages
+    return this.i18next.options.preload
   }
 
   #getTemplateKey (templateFileName, language) {
-    return `${templateFileName}:${language}`
+    const lng = this.#getTemplateLngKey(language)
+
+    return `${templateFileName}:${lng}`
+  }
+
+  #getTemplateLngKey (language) {
+    const lngs = this.#getAvailableLanguages()
+
+    if (lngs.some((lng) => lng === language)) {
+      return language
+    }
+
+    const lng = lngs.find((lng) => (
+      lng.startsWith(language) ||
+      language.startsWith(lng)
+    ))
+
+    if (lng) {
+      return lng
+    }
+
+    const normalizedLng = language.replace(/-\S*/, '')
+
+    return lngs.find(
+      (lng) => lng.startsWith(normalizedLng)
+    ) ?? language
   }
 
   #renderFontsTemplate (

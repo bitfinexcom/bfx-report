@@ -1,0 +1,16 @@
+{
+  "template": {
+    "title": "Reporte",
+    "statementDetails": "Detalles del Estado",
+    "statementDate": "Fecha del Estado",
+    "snapshotAt": "Captura al",
+    "period": "Periodo",
+    "username": "Nombre de Usuario",
+    "email": "Correo",
+    "errorMessage": "Tu archivo no pudo ser completado, por favor inténtalo de nuevo",
+    "reportGenAt": "Reporte generado al",
+    "copyright": "Copyright © 2013-2024 iFinex Inc. Todos los derechos reservados.",
+    "page": "Página",
+    "from": "de"
+  }
+}

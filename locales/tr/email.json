@@ -1,0 +1,15 @@
+{
+  "template": {
+    "subject": "Raporunuz hazır",
+    "btnText": "Raporu İndir",
+    "fileName": "Dosya adı",
+    "unauth": "Dosyanız tamamlanamadı, lütfen tekrar deneyin",
+    "readyForDownload": "İstediğiniz rapor indirilmeye hazır",
+    "ifDidNotInitAction": "Bu işlemi siz başlatmadıysanız ve hesabınızın güvenliğinin ihlal edilmiş olabileceğinden şüpheleniyorsanız, lütfen",
+    "freezeAccount": "hesabınızı dondurun",
+    "contactSupport": "ve destek ekibiyle iletişime geçin",
+    "youCan": "Yapabilirsiniz",
+    "download": "indir",
+    "pgpSignature": "bir PGP dijital imza dosyası"
+  }
+}
