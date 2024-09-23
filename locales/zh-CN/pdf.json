@@ -1,0 +1,16 @@
+{
+  "template": {
+    "title": "报告",
+    "statementDetails": "结算明细",
+    "statementDate": "结算日期",
+    "snapshotAt": "快照时间",
+    "period": "期间",
+    "username": "用户名",
+    "email": "电子邮箱",
+    "errorMessage": "无法建立档案，请重试",
+    "reportGenAt": "报告创建时间",
+    "copyright": "Copyright © 2013-2024 iFinex Inc. All rights reserved.",
+    "page": "页数",
+    "from": "从"
+  }
+}

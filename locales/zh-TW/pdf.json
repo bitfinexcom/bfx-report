@@ -1,0 +1,16 @@
+{
+  "template": {
+    "title": "報告",
+    "statementDetails": "結算明細",
+    "statementDate": "結算日期",
+    "snapshotAt": "快照時間：",
+    "period": "期間",
+    "username": "用戶名",
+    "email": "電子郵箱",
+    "errorMessage": "無法建立檔案，請重試",
+    "reportGenAt": "報告建立時間：",
+    "copyright": "Copyright © 2013-2024 iFinex Inc. All rights reserved.",
+    "page": "頁數",
+    "from": "從"
+  }
+}

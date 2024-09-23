@@ -1,0 +1,15 @@
+{
+  "template": {
+    "subject": "Tu reporte esta listo",
+    "btnText": "Descargar el Informe",
+    "fileName": "Nombre del archivo",
+    "unauth": "Tu archivo no se pudo completar, intente de nuevo por favor.",
+    "readyForDownload": "Tu reporte esta listo para ser descargado",
+    "ifDidNotInitAction": "Si no realizaste esta acción y sospechas que tu cuenta puede estar comprometida, por favor",
+    "freezeAccount": "congela tu cuenta",
+    "contactSupport": "y contacta soporte",
+    "youCan": "Puedes",
+    "download": "descargar",
+    "pgpSignature": "un archivo con firma digital PGP"
+  }
+}
