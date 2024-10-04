@@ -22,7 +22,12 @@ module.exports = (params) => {
 
   const configs = merge(
     {
-      fallbackLng: 'en',
+      fallbackLng: {
+        es: ['es-EM'],
+        pt: ['pt-BR'],
+        zh: ['zh-CN'],
+        default: ['en']
+      },
       ns: Object.values(TRANSLATION_NAMESPACES),
       defaultNS: 'email',
       preload: [...transPaths.reduce((accum, transPath) => {
