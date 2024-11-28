@@ -56,23 +56,7 @@ const dateFormat = {
     'YYYY-MM-DD'
   ]
 }
-const language = {
-  type: 'string',
-  enum: [
-    'en',
-    'en-US',
-    'ru',
-    'zh-CN',
-    'zh-TW',
-    'tr',
-    'tr-TR',
-    'es',
-    'es-EM',
-    'pt',
-    'pt-PT',
-    'pt-BR'
-  ]
-}
+const language = { type: 'string' }
 
 const paramsSchemaForPayInvoiceList = {
   ...paramsSchemaForApi,
