@@ -164,20 +164,22 @@ const _getErrorMetadata = (args, err, name) => {
   const message = bfxApiErrorMessage
     ? `${statusMessage}: BFX API Error${bfxApiStatusText}${bfxApiRawBodyResponse}`
     : statusMessage
-  const pubRequestParams = omit(
-    args?.params ?? null,
-    [
+  const pubRequestParams = (
+    args?.params &&
+    typeof args?.params === 'object'
+  )
+    ? omit(args.params, [
       'id',
       'subAccountApiKeys',
       'subAccountPassword',
       'addingSubUsers',
       'removingSubUsersByEmails'
-    ]
-  )
+    ])
+    : args?.params ?? null
   const extendedData = {
     pubRequestParams,
     bfxApiErrorMessage,
-    ...data
+    errorMetadata: data
   }
 
   const error = Object.assign(
