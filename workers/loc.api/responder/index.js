@@ -1,5 +1,7 @@
 'use strict'
 
+const { omit } = require('lib-js-util-base')
+
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
 
 const {
@@ -130,7 +132,6 @@ const _getErrorWithMetadataForNonBaseError = (args, err) => {
     err.message = err.message.replace(']', `,"${symbol}"]`)
     err.statusCode = 500
     err.statusMessage = `Invalid symbol error, '${symbol}' is not supported`
-    err.data = [{ symbol }]
 
     return err
   }
@@ -163,12 +164,23 @@ const _getErrorMetadata = (args, err, name) => {
   const message = bfxApiErrorMessage
     ? `${statusMessage}: BFX API Error${bfxApiStatusText}${bfxApiRawBodyResponse}`
     : statusMessage
-  const extendedData = bfxApiErrorMessage
-    ? {
-        bfxApiErrorMessage,
-        ...data
-      }
-    : data
+  const pubRequestParams = (
+    args?.params &&
+    typeof args?.params === 'object'
+  )
+    ? omit(args.params, [
+      'id',
+      'subAccountApiKeys',
+      'subAccountPassword',
+      'addingSubUsers',
+      'removingSubUsersByEmails'
+    ])
+    : args?.params ?? null
+  const extendedData = {
+    pubRequestParams,
+    bfxApiErrorMessage,
+    errorMetadata: data
+  }
 
   const error = Object.assign(
     errWithMetadata,
