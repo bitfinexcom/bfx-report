@@ -194,7 +194,7 @@ describe('API', () => {
     assert.isObject(res.body.error)
     assert.propertyVal(res.body.error, 'code', 401)
     assert.propertyVal(res.body.error, 'message', 'Unauthorized')
-    assert.propertyVal(res.body.error, 'data', null)
+    assert.isObject(res.body.error.data)
     assert.propertyVal(res.body, 'id', null)
     assert.isString(res.body.jsonrpc)
   })
@@ -1199,10 +1199,11 @@ describe('API', () => {
     assert.isObject(res.body)
     assert.isObject(res.body.error)
     assert.propertyVal(res.body.error, 'code', 400)
-    assert.isArray(res.body.error.data)
-    assert.isAbove(res.body.error.data.length, 0)
+    assert.isObject(res.body.error.data)
+    assert.isArray(res.body.error.data.errorMetadata)
+    assert.isAbove(res.body.error.data.errorMetadata.length, 0)
 
-    res.body.error.data.forEach((item) => {
+    res.body.error.data.errorMetadata.forEach((item) => {
       assert.isObject(item)
     })
 
