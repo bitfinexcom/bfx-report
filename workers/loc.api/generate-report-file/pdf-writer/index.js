@@ -52,6 +52,10 @@ class PdfWriter {
     this.i18next = i18next
 
     this.isElectronjsEnv = false
+    this.shouldZoomBeAdjusted = (
+      process.platform !== 'win32' &&
+      !this.isElectronjsEnv
+    )
 
     this.addTemplates()
     this.compileTemplate()
@@ -174,7 +178,7 @@ class PdfWriter {
     const reportColumns = jobData?.columnsPdf ?? jobData?.columnsCsv
 
     const html = template({
-      isElectronjsEnv: this.isElectronjsEnv,
+      shouldZoomBeAdjusted: this.shouldZoomBeAdjusted,
       apiData,
       jobData,
       reportColumns,
