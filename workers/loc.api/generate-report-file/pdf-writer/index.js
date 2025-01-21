@@ -101,7 +101,10 @@ class PdfWriter {
       apiData,
       opts
     )
-    const buffer = await this.createPDFBuffer({ template })
+    const buffer = await this.createPDFBuffer({
+      template,
+      language: opts?.language
+    })
 
     return buffer
   }
@@ -192,7 +195,7 @@ class PdfWriter {
     return html
   }
 
-  #getTranslator (language) {
+  getTranslator (language) {
     return getTranslator(
       { i18next: this.i18next },
       {
@@ -248,7 +251,7 @@ class PdfWriter {
     const languages = this.#getAvailableLanguages()
 
     for (const language of languages) {
-      const translate = this.#getTranslator(language)
+      const translate = this.getTranslator(language)
 
       for (const [templateFileName, templatePath] of this.#templatePaths) {
         const fn = pug.compileFile(templatePath, {
