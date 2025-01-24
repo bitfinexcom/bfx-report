@@ -13,7 +13,7 @@ html(lang=language)
     //- https://github.com/marcbachmann/node-html-pdf/issues/619
     //- https://github.com/marcbachmann/node-html-pdf/issues/525
     //- ratio for rendering: 72dpi (pdf) / 96dpi (browser), 72/96 = 0.75
-    if process.platform !== 'win32' && !isElectronjsEnv
+    if shouldZoomBeAdjusted
       style @media print { html { zoom: 0.75; } }
       style @media print { .header, .footer { zoom: 1; } }
     else
