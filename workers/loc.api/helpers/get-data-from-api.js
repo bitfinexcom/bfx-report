@@ -12,6 +12,40 @@ const {
   isAuthError
 } = require('./api-errors-testers')
 
+const _getRandomInt = (min, max) => {
+  const minCeiled = Math.ceil(min)
+  const maxFloored = Math.floor(max)
+
+  return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled)
+}
+
+/**
+ * Decorrelated Jitter implementation
+ * https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+ */
+const _calcBackOffAndJitteredDelay = (opts) => {
+  const {
+    startingDelayMs = 80 * 1_000,
+    maxDelayMs = 5 * 60 * 1_000,
+    timeMultiple = 1.3,
+    prevBackOffDelayMs = 0,
+    numOfDelayedAttempts = 1
+  } = opts ?? {}
+
+  const startingDelayShifterMs = 5_000 * numOfDelayedAttempts
+  const _startingDelayMs = startingDelayMs + startingDelayShifterMs
+  const calcedDelay = prevBackOffDelayMs * timeMultiple
+
+  if (calcedDelay < _startingDelayMs) {
+    return startingDelayMs
+  }
+
+  const jitteredDelay = _getRandomInt(_startingDelayMs, calcedDelay)
+  const limitedDelay = Math.min(maxDelayMs, jitteredDelay)
+
+  return limitedDelay
+}
+
 const _delay = (mc = 80000, interrupter) => {
   if (_isInterrupted(interrupter)) {
     return Promise.resolve({ isInterrupted: true })
@@ -62,16 +96,16 @@ module.exports = (
   middlewareParams,
   callerName,
   eNetErrorAttemptsTimeframeMin = 10, // min
-  eNetErrorAttemptsTimeoutMs = 10000, // ms
+  eNetErrorAttemptsTimeoutMs = 10_000, // ms
   shouldNotInterrupt,
-  interrupter
+  interrupter,
+  backOffOpts
 }) => {
   const _interrupter = shouldNotInterrupt
     ? null
     : interrupter ?? commonInterrupter
 
-  const ms = 80000
-
+  let prevBackOffDelayMs = 0
   let countNetError = 0
   let countRateLimitError = 0
   let countNonceSmallError = 0
@@ -121,7 +155,15 @@ module.exports = (
           throw err
         }
 
-        const { isInterrupted } = await _delay(ms, _interrupter)
+        const delay = _calcBackOffAndJitteredDelay({
+          startingDelayMs: 80_000,
+          maxDelayMs: 3 * 60 * 1_000,
+          ...backOffOpts,
+          prevBackOffDelayMs,
+          numOfDelayedAttempts: countRateLimitError
+        })
+        prevBackOffDelayMs = delay
+        const { isInterrupted } = await _delay(delay, _interrupter)
 
         if (isInterrupted) {
           return { isInterrupted }
