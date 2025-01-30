@@ -93,7 +93,7 @@ module.exports = (
           prevBackOffDelayMs,
           numOfDelayedAttempts: countRateLimitError
         })
-        prevBackOffDelayMs = delay
+        prevBackOffDelayMs = delayMs
         const { isInterrupted } = await delay(delayMs, _interrupter)
 
         if (isInterrupted) {
