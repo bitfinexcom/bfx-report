@@ -10,20 +10,17 @@ module.exports = (opts) => {
   const {
     startingDelayMs = 80 * 1_000,
     maxDelayMs = 5 * 60 * 1_000,
-    timeMultiple = 1.3,
-    prevBackOffDelayMs = 0,
-    numOfDelayedAttempts = 1
+    startingTimeMultiplier = 1.2,
+    endingTimeMultiplier = 1.5,
+    prevBackOffDelayMs = 0
   } = opts ?? {}
 
-  const startingDelayShifterMs = 5_000 * numOfDelayedAttempts
-  const _startingDelayMs = startingDelayMs + startingDelayShifterMs
-  const calcedDelay = prevBackOffDelayMs * timeMultiple
+  const prevDelayNotLessStarting = Math.max(startingDelayMs, prevBackOffDelayMs)
 
-  if (calcedDelay < _startingDelayMs) {
-    return startingDelayMs
-  }
+  const calcedStar = prevDelayNotLessStarting * startingTimeMultiplier
+  const calcedEnd = prevDelayNotLessStarting * endingTimeMultiplier
 
-  const jitteredDelay = getRandomInt(_startingDelayMs, calcedDelay)
+  const jitteredDelay = getRandomInt(calcedStar, calcedEnd)
   const limitedDelay = Math.min(maxDelayMs, jitteredDelay)
 
   return limitedDelay
