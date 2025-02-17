@@ -174,5 +174,6 @@ const writableToPromise = stream => {
 module.exports = {
   moveFileToLocalStorage,
   writableToPromise,
-  createUniqueFileName
+  createUniqueFileName,
+  isElectronjsEnv
 }

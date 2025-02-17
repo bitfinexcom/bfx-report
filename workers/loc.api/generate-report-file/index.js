@@ -12,6 +12,7 @@ const {
 const getLocalReportFolderPaths = require(
   '../queue/helpers/get-local-report-folder-paths'
 )
+const { isElectronjsEnv } = require('../queue/helpers/utils')
 
 const _getReportFileStoreStatus = async ({
   hasGrcService,
@@ -37,6 +38,12 @@ const _getReportFileStoreStatus = async ({
     )
       ? `${conf?.remoteReportUrn}?token=${token}`
       : null
+
+    if (!isElectronjsEnv) {
+      return {
+        isSaveLocaly: false
+      }
+    }
 
     return {
       isSaveLocaly: true,
