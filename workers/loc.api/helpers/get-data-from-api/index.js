@@ -2,55 +2,20 @@
 
 const { cloneDeep } = require('lib-js-util-base')
 
-const Interrupter = require('../interrupter')
-const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
+const AbstractWSEventEmitter = require('../../abstract.ws.event.emitter')
 const {
   isRateLimitError,
   isNonceSmallError,
   isUserIsNotMerchantError,
   isENetError,
   isAuthError
-} = require('./api-errors-testers')
-
-const _delay = (mc = 80000, interrupter) => {
-  if (_isInterrupted(interrupter)) {
-    return Promise.resolve({ isInterrupted: true })
-  }
-
-  return new Promise((resolve) => {
-    const hasInterrupter = interrupter instanceof Interrupter
-    const timeout = setTimeout(() => {
-      if (hasInterrupter) {
-        interrupter.offInterrupt(onceInterruptHandler)
-      }
-
-      resolve({ isInterrupted: false })
-    }, mc)
-    const onceInterruptHandler = () => {
-      if (!timeout.hasRef()) {
-        return
-      }
-
-      clearTimeout(timeout)
-      resolve({ isInterrupted: true })
-    }
-
-    if (hasInterrupter) {
-      interrupter.onceInterrupt(onceInterruptHandler)
-    }
-  })
-}
-
-const _isInterrupted = (interrupter) => {
-  return (
-    interrupter instanceof Interrupter &&
-    interrupter.hasInterrupted()
-  )
-}
-
-const _getEmptyArrRes = () => {
-  return { jsonrpc: '2.0', result: [], id: null }
-}
+} = require('../api-errors-testers')
+const {
+  calcBackOffAndJitteredDelay,
+  isInterrupted: _isInterrupted,
+  delay,
+  getEmptyArrRes
+} = require('./helpers')
 
 module.exports = (
   commonInterrupter,
@@ -62,16 +27,16 @@ module.exports = (
   middlewareParams,
   callerName,
   eNetErrorAttemptsTimeframeMin = 10, // min
-  eNetErrorAttemptsTimeoutMs = 10000, // ms
+  eNetErrorAttemptsTimeoutMs = 10_000, // ms
   shouldNotInterrupt,
-  interrupter
+  interrupter,
+  backOffOpts
 }) => {
   const _interrupter = shouldNotInterrupt
     ? null
     : interrupter ?? commonInterrupter
 
-  const ms = 80000
-
+  let prevBackOffDelayMs = 0
   let countNetError = 0
   let countRateLimitError = 0
   let countNonceSmallError = 0
@@ -112,7 +77,7 @@ module.exports = (
       break
     } catch (err) {
       if (isUserIsNotMerchantError(err)) {
-        return _getEmptyArrRes()
+        return getEmptyArrRes()
       }
       if (isRateLimitError(err)) {
         countRateLimitError += 1
@@ -121,7 +86,14 @@ module.exports = (
           throw err
         }
 
-        const { isInterrupted } = await _delay(ms, _interrupter)
+        const delayMs = calcBackOffAndJitteredDelay({
+          startingDelayMs: 80_000,
+          maxDelayMs: 5 * 60 * 1_000,
+          ...backOffOpts,
+          prevBackOffDelayMs
+        })
+        prevBackOffDelayMs = delayMs
+        const { isInterrupted } = await delay(delayMs, _interrupter)
 
         if (isInterrupted) {
           return { isInterrupted }
@@ -136,7 +108,7 @@ module.exports = (
           throw err
         }
 
-        const { isInterrupted } = await _delay(1000, _interrupter)
+        const { isInterrupted } = await delay(1000, _interrupter)
 
         if (isInterrupted) {
           return { isInterrupted }
@@ -164,7 +136,7 @@ module.exports = (
 
         const {
           isInterrupted
-        } = await _delay(eNetErrorAttemptsTimeoutMs, _interrupter)
+        } = await delay(eNetErrorAttemptsTimeoutMs, _interrupter)
 
         if (isInterrupted) {
           return { isInterrupted }
@@ -183,7 +155,7 @@ module.exports = (
         throw err
       }
 
-      const { isInterrupted } = await _delay(10000, _interrupter)
+      const { isInterrupted } = await delay(10000, _interrupter)
 
       if (isInterrupted) {
         return { isInterrupted }
