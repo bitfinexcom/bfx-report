@@ -27,6 +27,10 @@ const _getReportFileStoreStatus = async ({
     !email ||
     typeof email !== 'string'
   ) {
+    if (conf.isHosted) {
+      throw new EmailSendingError()
+    }
+
     const {
       localReportFolderPath
     } = getLocalReportFolderPaths(rootPath)
