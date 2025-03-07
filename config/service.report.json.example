@@ -16,5 +16,5 @@
   "isAddedUniqueEndingToReportFileName": false,
   "isCompress": true,
   "isLoggerDisabled": false,
-  "isHosted": false
+  "isHosted": true
 }

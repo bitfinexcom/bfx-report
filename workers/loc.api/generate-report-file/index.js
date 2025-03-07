@@ -43,12 +43,6 @@ const _getReportFileStoreStatus = async ({
       ? `${conf?.remoteReportUrn}?token=${token}`
       : null
 
-    if (!isElectronjsEnv) {
-      return {
-        isSaveLocaly: false
-      }
-    }
-
     return {
       isSaveLocaly: true,
       localReportFolderPath,
