@@ -12,7 +12,6 @@ const {
 const getLocalReportFolderPaths = require(
   '../queue/helpers/get-local-report-folder-paths'
 )
-const { isElectronjsEnv } = require('../queue/helpers/utils')
 
 const _getReportFileStoreStatus = async ({
   hasGrcService,
