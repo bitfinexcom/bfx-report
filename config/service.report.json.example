@@ -15,5 +15,6 @@
   "isSpamRestrictionMode": true,
   "isAddedUniqueEndingToReportFileName": false,
   "isCompress": true,
-  "isLoggerDisabled": false
+  "isLoggerDisabled": false,
+  "isHosted": true
 }
