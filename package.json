@@ -1,6 +1,6 @@
 {
   "name": "bfx-report",
-  "version": "4.12.0",
+  "version": "4.12.1",
   "description": "Reporting tool",
   "main": "worker.js",
   "license": "Apache-2.0",
@@ -20,7 +20,7 @@
     "bfx-facs-lokue": "git+https://github.com:bitfinexcom/bfx-facs-lokue.git",
     "bfx-svc-boot-js": "https://github.com/bitfinexcom/bfx-svc-boot-js.git",
     "bfx-wrk-api": "git+https://github.com/bitfinexcom/bfx-wrk-api.git",
-    "bitfinex-api-node": "6.0.0",
+    "bitfinex-api-node": "7.0.0",
     "colors": "1.4.0",
     "csv": "5.5.3",
     "i18next": "23.15.1",
@@ -43,10 +43,10 @@
     "bfx-report-express": "git+https://github.com/bitfinexcom/bfx-report-express.git",
     "chai": "4.3.4",
     "grenache-grape": "git+https://github.com/bitfinexcom/grenache-grape.git",
-    "mocha": "10.1.0",
-    "nodemon": "2.0.20",
+    "mocha": "11.1.0",
+    "nodemon": "3.1.9",
     "standard": "17.0.0",
-    "supertest": "6.3.2"
+    "supertest": "7.1.0"
   },
   "standard": {
     "globals": [
