@@ -273,6 +273,17 @@ h6 {
   flex-basis: auto;
 }
 
+.responsive-table.width-by-content {
+  width: 100%;
+}
+
+.responsive-table.width-by-table .col {
+  -moz-flex-basis: 100%;
+  -webkit-flex-basis: 100%;
+  flex-basis: 100%;
+  word-break: normal;
+}
+
 .no-margin-bottom,
 .responsive-table.no-margin-bottom,
 .responsive-table .no-margin-bottom {
@@ -358,4 +369,9 @@ h6 {
   border-right-width: 0;
   border-left-width: 0;
   box-sizing: border-box;
+}
+
+.responsive-table .table-row.warning {
+  color: #fbb13c;
+  background-color: #fff;
 }
