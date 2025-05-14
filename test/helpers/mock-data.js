@@ -67,7 +67,22 @@ module.exports = new Map([
       null,
       null,
       null,
-      'Kyiv'
+      'Kyiv',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0,
+      0
     ]
   ],
   [
