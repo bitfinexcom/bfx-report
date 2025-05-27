@@ -182,7 +182,8 @@ class ReportService extends Api {
         username,
         timezone,
         email,
-        id
+        id,
+        isUserMerchant
       } = await this._getUserInfo(args)
 
       if (!email) {
@@ -195,7 +196,8 @@ class ReportService extends Api {
         email,
         id,
         isSubAccount: false,
-        _id: null // to have the same data structure as in framework mode
+        _id: null, // to have the same data structure as in framework mode
+        isUserMerchant: !!isUserMerchant
       }
     }, 'verifyUser', args, cb)
   }
