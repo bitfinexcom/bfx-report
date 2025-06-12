@@ -1,5 +1,7 @@
 'use strict'
 
+const path = require('node:path')
+
 const SCHEMA_DOMAIN = require('../schema.domain')
 
 const getSchemaIds = (schemaNames, schemaDomain) => {
@@ -15,6 +17,20 @@ const getSchemaIds = (schemaNames, schemaDomain) => {
   return schemaIds
 }
 
+const requireSchemas = (schemaNames, baseSchemaPath) => {
+  const schemaPath = baseSchemaPath ?? path.join(__dirname, '../schemas')
+  const names = Object.values(schemaNames ?? {})
+
+  const schemas = {}
+
+  for (const name of names) {
+    schemas[name] = require(path.join(schemaPath, name))
+  }
+
+  return schemas
+}
+
 module.exports = {
-  getSchemaIds
+  getSchemaIds,
+  requireSchemas
 }
