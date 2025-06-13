@@ -15,6 +15,10 @@ module.exports = {
         'YY-MM-DD',
         'YYYY-MM-DD'
       ]
+    },
+    language: {
+      type: 'string',
+      minLength: 2
     }
   }
 }
