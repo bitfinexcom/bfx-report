@@ -37,6 +37,10 @@ module.exports = {
       minimum: 1
     },
     symbol: {
+      type: 'string',
+      minLength: 3
+    },
+    symbolWithMinItem: {
       type: ['string', 'array'],
       if: {
         type: 'array'
@@ -45,12 +49,44 @@ module.exports = {
         uniqueItems: true,
         minItems: 1,
         items: {
-          type: 'string',
-          minLength: 3
+          $ref: '#/definitions/symbol'
         }
       },
       else: {
-        minLength: 3
+        $ref: '#/definitions/symbol'
+      }
+    },
+    symbolWithMaxItem: {
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        uniqueItems: true,
+        maxItems: 1,
+        items: {
+          $ref: '#/definitions/symbol'
+        }
+      },
+      else: {
+        $ref: '#/definitions/symbol'
+      }
+    },
+    symbolWithMinMaxItem: {
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        uniqueItems: true,
+        minItems: 1,
+        maxItems: 1,
+        items: {
+          $ref: '#/definitions/symbol'
+        }
+      },
+      else: {
+        $ref: '#/definitions/symbol'
       }
     },
     sort: {
