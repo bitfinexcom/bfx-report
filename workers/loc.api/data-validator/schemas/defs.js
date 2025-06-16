@@ -52,6 +52,10 @@ module.exports = {
       else: {
         minLength: 3
       }
+    },
+    sort: {
+      type: 'integer',
+      enum: [1, -1]
     }
   }
 }
