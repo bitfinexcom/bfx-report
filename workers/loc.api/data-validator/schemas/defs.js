@@ -35,6 +35,23 @@ module.exports = {
     limit: {
       type: 'integer',
       minimum: 1
+    },
+    symbol: {
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        uniqueItems: true,
+        minItems: 1,
+        items: {
+          type: 'string',
+          minLength: 3
+        }
+      },
+      else: {
+        minLength: 3
+      }
     }
   }
 }
