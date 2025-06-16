@@ -55,7 +55,8 @@ module.exports = ({
       ['_generateReportFile', TYPES.GenerateReportFile],
       ['_hasGrcService', TYPES.HasGrcService],
       ['_weightedAveragesReport', TYPES.WeightedAveragesReport],
-      ['_i18next', TYPES.I18next]
+      ['_i18next', TYPES.I18next],
+      ['_dataValidator', TYPES.DataValidator]
     ])
     bind(TYPES.RServiceDepsSchemaAliase)
       .toDynamicValue((ctx) => {
