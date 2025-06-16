@@ -60,6 +60,22 @@ module.exports = {
     email: {
       type: 'string',
       format: 'email'
+    },
+    strId: {
+      type: 'string',
+      minLength: 1
+    },
+    intId: {
+      type: 'integer',
+      minimum: 0
+    },
+    arrId: {
+      type: 'array',
+      uniqueItems: true,
+      minItems: 1,
+      items: {
+        $ref: '#/definitions/intId'
+      }
     }
   }
 }
