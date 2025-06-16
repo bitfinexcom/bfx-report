@@ -22,6 +22,10 @@ module.exports = {
     },
     timezone: {
       type: ['number', 'string']
+    },
+    start: {
+      type: 'integer',
+      minimum: 0
     }
   }
 }
