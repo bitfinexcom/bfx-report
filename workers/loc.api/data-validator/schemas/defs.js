@@ -56,6 +56,10 @@ module.exports = {
     sort: {
       type: 'integer',
       enum: [1, -1]
+    },
+    email: {
+      type: 'string',
+      format: 'email'
     }
   }
 }
