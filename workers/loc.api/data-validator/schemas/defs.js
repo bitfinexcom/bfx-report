@@ -19,6 +19,9 @@ module.exports = {
     language: {
       type: 'string',
       minLength: 2
+    },
+    timezone: {
+      type: ['number', 'string']
     }
   }
 }
