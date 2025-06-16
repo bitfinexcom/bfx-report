@@ -26,6 +26,11 @@ module.exports = {
     start: {
       type: 'integer',
       minimum: 0
+    },
+    end: {
+      type: 'integer',
+      exclusiveMinimum: { $data: '1/start' },
+      minimum: Date.UTC(2013)
     }
   }
 }
