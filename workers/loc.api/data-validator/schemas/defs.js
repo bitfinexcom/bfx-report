@@ -127,6 +127,9 @@ module.exports = {
       items: {
         $ref: '#/definitions/intId'
       }
+    },
+    isPDFRequired: {
+      type: 'boolean'
     }
   }
 }
