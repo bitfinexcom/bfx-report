@@ -1,5 +1,6 @@
 'use strict'
 
 module.exports = {
-  DEFS: 'defs'
+  DEFS: 'defs',
+  COMMON_REQ: 'common-req'
 }
