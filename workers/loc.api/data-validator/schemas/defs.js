@@ -36,9 +36,24 @@ module.exports = {
       type: 'integer',
       minimum: 1
     },
-    symbol: {
+    strSymbol: {
       type: 'string',
       minLength: 3
+    },
+    symbol: {
+      type: ['string', 'array'],
+      if: {
+        type: 'array'
+      },
+      then: {
+        uniqueItems: true,
+        items: {
+          $ref: '#/definitions/strSymbol'
+        }
+      },
+      else: {
+        $ref: '#/definitions/strSymbol'
+      }
     },
     symbolWithMinItem: {
       type: ['string', 'array'],
@@ -49,11 +64,11 @@ module.exports = {
         uniqueItems: true,
         minItems: 1,
         items: {
-          $ref: '#/definitions/symbol'
+          $ref: '#/definitions/strSymbol'
         }
       },
       else: {
-        $ref: '#/definitions/symbol'
+        $ref: '#/definitions/strSymbol'
       }
     },
     symbolWithMaxItem: {
@@ -65,11 +80,11 @@ module.exports = {
         uniqueItems: true,
         maxItems: 1,
         items: {
-          $ref: '#/definitions/symbol'
+          $ref: '#/definitions/strSymbol'
         }
       },
       else: {
-        $ref: '#/definitions/symbol'
+        $ref: '#/definitions/strSymbol'
       }
     },
     symbolWithMinMaxItem: {
@@ -82,11 +97,11 @@ module.exports = {
         minItems: 1,
         maxItems: 1,
         items: {
-          $ref: '#/definitions/symbol'
+          $ref: '#/definitions/strSymbol'
         }
       },
       else: {
-        $ref: '#/definitions/symbol'
+        $ref: '#/definitions/strSymbol'
       }
     },
     sort: {
