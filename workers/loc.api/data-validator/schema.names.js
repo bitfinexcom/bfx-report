@@ -2,5 +2,5 @@
 
 module.exports = {
   DEFS: 'defs',
-  COMMON_REQ: 'common-req'
+  COMMON_REQ: 'commonReq'
 }
