@@ -18,6 +18,9 @@ module.exports = {
     },
     notThrowError: {
       $ref: 'defs#/definitions/notThrowError'
+    },
+    isSyncRequest: {
+      $ref: 'defs#/definitions/isSyncRequest'
     }
   }
 }

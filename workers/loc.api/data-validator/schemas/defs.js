@@ -134,6 +134,9 @@ module.exports = {
     notThrowError: {
       type: 'boolean'
     },
+    isSyncRequest: {
+      type: 'boolean'
+    },
     isPDFRequired: {
       type: 'boolean'
     }
