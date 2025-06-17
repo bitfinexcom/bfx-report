@@ -12,6 +12,9 @@ module.exports = {
     },
     type: {
       type: 'string'
+    },
+    notCheckNextPage: {
+      $ref: 'defs#/definitions/notCheckNextPage'
     }
   }
 }

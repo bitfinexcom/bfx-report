@@ -128,6 +128,9 @@ module.exports = {
         $ref: '#/definitions/intId'
       }
     },
+    notCheckNextPage: {
+      type: 'boolean'
+    },
     isPDFRequired: {
       type: 'boolean'
     }

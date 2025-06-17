@@ -16,6 +16,9 @@ module.exports = {
     },
     symbol: {
       $ref: 'defs#/definitions/symbolWithMaxItem'
+    },
+    notCheckNextPage: {
+      $ref: 'defs#/definitions/notCheckNextPage'
     }
   }
 }

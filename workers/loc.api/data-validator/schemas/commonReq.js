@@ -18,6 +18,9 @@ module.exports = {
     },
     symbol: {
       $ref: 'defs#/definitions/symbolWithMinItem'
+    },
+    notCheckNextPage: {
+      $ref: 'defs#/definitions/notCheckNextPage'
     }
   }
 }
