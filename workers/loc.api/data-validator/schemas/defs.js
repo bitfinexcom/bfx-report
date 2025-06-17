@@ -131,6 +131,9 @@ module.exports = {
     notCheckNextPage: {
       type: 'boolean'
     },
+    notThrowError: {
+      type: 'boolean'
+    },
     isPDFRequired: {
       type: 'boolean'
     }

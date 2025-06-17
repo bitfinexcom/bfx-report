@@ -21,6 +21,9 @@ module.exports = {
     },
     notCheckNextPage: {
       $ref: 'defs#/definitions/notCheckNextPage'
+    },
+    notThrowError: {
+      $ref: 'defs#/definitions/notThrowError'
     }
   }
 }
