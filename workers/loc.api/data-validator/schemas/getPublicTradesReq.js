@@ -3,7 +3,7 @@
 const SCHEMA_IDS = require('../schema.ids')
 
 module.exports = {
-  $id: SCHEMA_IDS.COMMON_REQ,
+  $id: SCHEMA_IDS.GET_PUBLIC_TRADES_REQ,
   type: 'object',
   additionalProperties: false,
   properties: {
