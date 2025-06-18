@@ -10,5 +10,6 @@ module.exports = {
   GET_POSITIONS_AUDIT_REQ: 'getPositionsAuditReq',
   GET_ORDER_TRADES_REQ: 'getOrderTradesReq',
   GET_CANDLES_REQ: 'getCandlesReq',
-  GET_LEDGERS_REQ: 'getLedgersReq'
+  GET_LEDGERS_REQ: 'getLedgersReq',
+  GET_TICKERS_HISTORY_REQ: 'getTickersHistoryReq'
 }
