@@ -23,6 +23,10 @@ module.exports = {
     id: {
       $ref: 'defs#/definitions/arrId'
     },
+    filter: {
+      $ref: 'defs#/definitions/filter'
+    },
+
     notCheckNextPage: {
       $ref: 'defs#/definitions/notCheckNextPage'
     },

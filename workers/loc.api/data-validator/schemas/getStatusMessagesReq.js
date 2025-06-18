@@ -13,6 +13,10 @@ module.exports = {
     type: {
       type: 'string'
     },
+    filter: {
+      $ref: 'defs#/definitions/filter'
+    },
+
     notCheckNextPage: {
       $ref: 'defs#/definitions/notCheckNextPage'
     },

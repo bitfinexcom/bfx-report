@@ -128,6 +128,9 @@ module.exports = {
         $ref: '#/definitions/intId'
       }
     },
+    filter: {
+      type: 'object'
+    },
     notCheckNextPage: {
       type: 'boolean'
     },
