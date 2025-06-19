@@ -169,8 +169,13 @@ const writeMessageToStream = (
   processorQueue.emit('progress', 100)
 }
 
-const setDefaultPrams = (args) => {
+const setDefaultPrams = (args, method) => {
   args.params.notThrowError = true
+
+  if (method === 'getStatusMessages') {
+    return
+  }
+
   args.params.end = args.params.end
     ? Math.min(args.params.end, Date.now())
     : Date.now()
