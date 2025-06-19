@@ -1,5 +1,7 @@
 'use strict'
 
+const { omit } = require('lib-js-util-base')
+
 const {
   write
 } = require('../../queue/write-data-to-stream/helpers')
@@ -40,7 +42,19 @@ module.exports = (
 
   const { res } = await getDataFromApi({
     getData: rService[name].bind(rService),
-    args,
+    args: {
+      ...args,
+      params: omit(params, [
+        'dateFormat',
+        'milliseconds',
+        'language',
+        'isPDFRequired',
+        'method',
+        'timezone',
+        'email',
+        'isSignatureRequired'
+      ])
+    },
     callerName: 'CSV_WRITER',
     shouldNotInterrupt: true
   })

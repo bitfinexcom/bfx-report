@@ -1,6 +1,6 @@
 'use strict'
 
-const { cloneDeep } = require('lib-js-util-base')
+const { cloneDeep, omit } = require('lib-js-util-base')
 
 const {
   writeMessageToStream,
@@ -33,9 +33,24 @@ module.exports = (
   const propName = jobData.propNameForPagination
   const formatSettings = jobData.formatSettings
 
-  const _args = cloneDeep(jobData.args)
+  const _args = {
+    auth: { ...jobData?.args?.auth },
+    params: omit(jobData?.args?.params ?? {}, [
+      'dateFormat',
+      'milliseconds',
+      'language',
+      'isPDFRequired',
+      'method',
+      'timezone',
+      'email',
+      'isSignatureRequired',
+      'isDeposits',
+      'isWithdrawals',
+      'isTradingPair'
+    ])
+  }
 
-  setDefaultPrams(_args)
+  setDefaultPrams(_args, method)
   const currIterationArgs = cloneDeep(_args)
 
   const getData = rService[method].bind(rService)
