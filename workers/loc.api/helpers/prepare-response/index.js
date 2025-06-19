@@ -3,14 +3,13 @@
 const { MinLimitParamError } = require('../../errors')
 
 const filterResponse = require('../filter-response')
-const checkParams = require('../check-params')
 const checkFilterParams = require('../check-filter-params')
 const normalizeFilterParams = require('../normalize-filter-params')
 
 const prepareSymbolResponse = require('./prepare-symbol-response')
 
 const {
-  getParamsSchemaName,
+  getValidationSchemaId,
   omitPrivateModelFields,
   getBfxApiMethodName,
   getSymbolsForFiltering,
@@ -128,7 +127,8 @@ const prepareResponse = (
 }
 
 const prepareApiResponse = (
-  getREST
+  getREST,
+  dataValidator
 ) => async (
   reqArgs,
   apiMethodName,
@@ -137,13 +137,12 @@ const prepareApiResponse = (
   const {
     datePropName,
     symbPropName,
-    requireFields,
     parseFieldsFn,
     isNotMoreThanInnerMax: _isNotMoreThanInnerMax
   } = params ?? {}
-  const schemaName = getParamsSchemaName(apiMethodName)
+  const schemaId = getValidationSchemaId(apiMethodName)
 
-  checkParams(reqArgs, schemaName, requireFields)
+  await dataValidator.validate(reqArgs, schemaId)
   const args = normalizeFilterParams(apiMethodName, reqArgs)
   checkFilterParams(apiMethodName, args)
 
