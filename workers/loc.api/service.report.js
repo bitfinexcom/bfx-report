@@ -312,7 +312,6 @@ class ReportService extends Api {
         'tickersHistory',
         {
           datePropName: 'mtsUpdate',
-          requireFields: ['symbol'],
           isNotMoreThanInnerMax
         }
       )
