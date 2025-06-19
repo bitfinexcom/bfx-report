@@ -1063,7 +1063,7 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args)
+    const reportFileArgs = getReportFileArgs(args, 'getWeightedAverages')
 
     const jobData = {
       userInfo,
