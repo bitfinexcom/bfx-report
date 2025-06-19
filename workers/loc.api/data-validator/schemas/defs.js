@@ -5,6 +5,9 @@ const SCHEMA_IDS = require('../schema.ids')
 module.exports = {
   $id: SCHEMA_IDS.DEFS,
   definitions: {
+    milliseconds: {
+      type: 'boolean'
+    },
     dateFormat: {
       type: 'string',
       enum: [
