@@ -11,5 +11,6 @@ module.exports = {
   GET_ORDER_TRADES_REQ: 'getOrderTradesReq',
   GET_CANDLES_REQ: 'getCandlesReq',
   GET_LEDGERS_REQ: 'getLedgersReq',
-  GET_TICKERS_HISTORY_REQ: 'getTickersHistoryReq'
+  GET_TICKERS_HISTORY_REQ: 'getTickersHistoryReq',
+  GET_MOVEMENT_INFO_REQ: 'getMovementInfoReq'
 }
