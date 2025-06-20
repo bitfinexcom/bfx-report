@@ -170,6 +170,14 @@ const writeMessageToStream = (
 }
 
 const setDefaultPrams = (args, method) => {
+  if (method === 'getWallets') {
+    args.params.end = args.params.end
+      ? Math.min(args.params.end, Date.now())
+      : Date.now()
+
+    return
+  }
+
   args.params.notThrowError = true
 
   if (method === 'getStatusMessages') {
