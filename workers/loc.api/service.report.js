@@ -563,7 +563,10 @@ class ReportService extends Api {
 
   getMovementInfo (space, args, cb) {
     return this._responder(async () => {
-      checkParams(args, 'paramsSchemaForMovementInfo', ['id'])
+      this._dataValidator.validate(
+        args,
+        this._dataValidator.SCHEMA_IDS.GET_MOVEMENT_INFO_REQ
+      )
 
       const { auth, params, interrupter } = args ?? {}
       const rest = this._getREST(auth, { interrupter })
