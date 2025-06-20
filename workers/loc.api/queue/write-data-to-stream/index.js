@@ -46,7 +46,8 @@ module.exports = (
       'isSignatureRequired',
       'isDeposits',
       'isWithdrawals',
-      'isTradingPair'
+      'isTradingPair',
+      'isBaseNameInName'
     ])
   }
 
