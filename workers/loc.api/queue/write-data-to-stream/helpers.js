@@ -169,7 +169,7 @@ const writeMessageToStream = (
   processorQueue.emit('progress', 100)
 }
 
-const setDefaultPrams = (args, method) => {
+const setDefaultParams = (args, method) => {
   if (method === 'getWallets') {
     args.params.end = args.params.end
       ? Math.min(args.params.end, Date.now())
@@ -226,7 +226,7 @@ const progress = (
 
 module.exports = {
   writeMessageToStream,
-  setDefaultPrams,
+  setDefaultParams,
   filterMovementsByAmount,
   write,
   progress

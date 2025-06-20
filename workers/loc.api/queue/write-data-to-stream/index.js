@@ -4,7 +4,7 @@ const { cloneDeep, omit } = require('lib-js-util-base')
 
 const {
   writeMessageToStream,
-  setDefaultPrams,
+  setDefaultParams,
   filterMovementsByAmount,
   write,
   progress
@@ -51,7 +51,7 @@ module.exports = (
     ])
   }
 
-  setDefaultPrams(_args, method)
+  setDefaultParams(_args, method)
   const currIterationArgs = cloneDeep(_args)
 
   const getData = rService[method].bind(rService)
