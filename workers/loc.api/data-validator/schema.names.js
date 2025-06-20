@@ -12,5 +12,6 @@ module.exports = {
   GET_CANDLES_REQ: 'getCandlesReq',
   GET_LEDGERS_REQ: 'getLedgersReq',
   GET_TICKERS_HISTORY_REQ: 'getTickersHistoryReq',
-  GET_MOVEMENT_INFO_REQ: 'getMovementInfoReq'
+  GET_MOVEMENT_INFO_REQ: 'getMovementInfoReq',
+  GET_WALLETS_REQ: 'getWalletsReq'
 }
