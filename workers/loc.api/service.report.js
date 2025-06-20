@@ -3,7 +3,6 @@
 const { Api } = require('bfx-wrk-api')
 
 const {
-  checkParams,
   parseFields,
   parseLoginsExtraDataFields,
   accountCache,
@@ -363,7 +362,10 @@ class ReportService extends Api {
 
   getWallets (space, args, cb) {
     return this._responder(async () => {
-      checkParams(args, 'paramsSchemaForWallets')
+      this._dataValidator.validate(
+        args,
+        this._dataValidator.SCHEMA_IDS.GET_WALLETS_REQ
+      )
 
       const rest = this._getREST(args.auth, {
         interrupter: args?.interrupter
