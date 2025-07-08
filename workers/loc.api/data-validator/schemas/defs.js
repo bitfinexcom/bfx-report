@@ -148,6 +148,9 @@ module.exports = {
     },
     isSignatureRequired: {
       type: 'boolean'
+    },
+    method: {
+      type: 'string'
     }
   }
 }
