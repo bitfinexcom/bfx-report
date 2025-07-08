@@ -2,6 +2,7 @@
 
 module.exports = {
   DEFS: 'defs',
+
   COMMON_REQ: 'commonReq',
   GET_WEIGHTED_AVERAGES_REPORT_REQ: 'getWeightedAveragesReportReq',
   GET_PAY_INVOICE_LIST_REQ: 'getPayInvoiceListReq',
@@ -13,5 +14,7 @@ module.exports = {
   GET_LEDGERS_REQ: 'getLedgersReq',
   GET_TICKERS_HISTORY_REQ: 'getTickersHistoryReq',
   GET_MOVEMENT_INFO_REQ: 'getMovementInfoReq',
-  GET_WALLETS_REQ: 'getWalletsReq'
+  GET_WALLETS_REQ: 'getWalletsReq',
+
+  COMMON_FILE_REQ: 'commonFileReq'
 }
