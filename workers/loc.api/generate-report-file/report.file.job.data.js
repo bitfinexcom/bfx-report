@@ -16,14 +16,17 @@ const {
 
 const depsTypes = (TYPES) => [
   TYPES.RService,
+  TYPES.DataValidator,
   TYPES.WeightedAveragesReportCsvWriter
 ]
 class ReportFileJobData {
   constructor (
     rService,
+    dataValidator,
     weightedAveragesReportCsvWriter
   ) {
     this.rService = rService
+    this.dataValidator = dataValidator
     this.weightedAveragesReportCsvWriter = weightedAveragesReportCsvWriter
   }
 
@@ -32,7 +35,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -76,7 +82,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -218,7 +227,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -546,7 +558,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -632,7 +647,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -681,7 +699,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -727,7 +748,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -770,7 +794,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -816,7 +843,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -864,7 +894,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -913,7 +946,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -950,7 +986,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
