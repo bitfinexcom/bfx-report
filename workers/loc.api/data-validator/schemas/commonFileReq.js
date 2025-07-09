@@ -7,9 +7,6 @@ module.exports = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    method: {
-      $ref: 'defs#/definitions/method'
-    },
     start: {
       $ref: 'defs#/definitions/start'
     },
