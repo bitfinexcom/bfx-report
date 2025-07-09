@@ -16,5 +16,6 @@ module.exports = {
   GET_MOVEMENT_INFO_REQ: 'getMovementInfoReq',
   GET_WALLETS_REQ: 'getWalletsReq',
 
-  COMMON_FILE_REQ: 'commonFileReq'
+  COMMON_FILE_REQ: 'commonFileReq',
+  GET_MULTIPLE_FILE_REQ: 'getMultipleFileReq'
 }
