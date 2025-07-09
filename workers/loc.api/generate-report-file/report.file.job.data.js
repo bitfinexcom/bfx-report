@@ -130,7 +130,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForFile', ['symbol'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_TICKERS_HISTORY_FILE_REQ
+    )
 
     const {
       userId,
