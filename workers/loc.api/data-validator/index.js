@@ -52,12 +52,18 @@ const addSchemas = (schemas = []) => {
   }
 }
 
-const validate = (args, schemaId) => {
+const validate = (args, schemaId, opts) => {
+  const {
+    shouldParamsFieldBeChecked
+  } = opts ?? {}
   const params = args?.params
 
   if (
-    typeof params === 'undefined' ||
-    params === null
+    !shouldParamsFieldBeChecked &&
+    (
+      typeof params === 'undefined' ||
+      params === null
+    )
   ) {
     return true
   }
