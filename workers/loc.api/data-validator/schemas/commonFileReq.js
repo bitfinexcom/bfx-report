@@ -23,6 +23,9 @@ module.exports = {
       $ref: 'defs#/definitions/filter'
     },
 
+    email: {
+      $ref: 'defs#/definitions/email'
+    },
     milliseconds: {
       $ref: 'defs#/definitions/milliseconds'
     },
