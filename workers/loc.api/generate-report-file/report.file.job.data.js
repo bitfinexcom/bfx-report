@@ -1,5 +1,7 @@
 'use strict'
 
+const { omit } = require('lib-js-util-base')
+
 const { decorateInjectable } = require('../di/utils')
 
 const {
@@ -1061,7 +1063,7 @@ class ReportFileJobData {
         {
           ...args,
           params: {
-            ...params,
+            ...omit(params, ['method']),
             ...(language && typeof language === 'string'
               ? { language }
               : {}),
