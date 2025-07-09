@@ -1029,7 +1029,11 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForMultipleFile', false, true)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_MULTIPLE_FILE_REQ,
+      { shouldParamsFieldBeChecked: true }
+    )
 
     const {
       userId,
