@@ -285,7 +285,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForActivePositionsFile')
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_ACTIVE_POSITIONS_FILE_REQ
+    )
 
     const {
       userId,
