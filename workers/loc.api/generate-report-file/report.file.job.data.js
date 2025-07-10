@@ -755,7 +755,7 @@ class ReportFileJobData {
   ) {
     this.dataValidator.validate(
       args,
-      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+      this.dataValidator.SCHEMA_IDS.GET_MOVEMENTS_FILE_REQ
     )
 
     const {
