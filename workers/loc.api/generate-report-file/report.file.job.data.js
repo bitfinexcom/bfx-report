@@ -194,7 +194,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWalletsFile')
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_WALLETS_FILE_REQ
+    )
 
     const {
       userId,
