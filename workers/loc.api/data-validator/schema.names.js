@@ -19,5 +19,6 @@ module.exports = {
   COMMON_FILE_REQ: 'commonFileReq',
   GET_MULTIPLE_FILE_REQ: 'getMultipleFileReq',
   GET_TICKERS_HISTORY_FILE_REQ: 'getTickersHistoryFileReq',
-  GET_MOVEMENTS_FILE_REQ: 'getMovementsFileReq'
+  GET_MOVEMENTS_FILE_REQ: 'getMovementsFileReq',
+  GET_LEDGERS_FILE_REQ: 'getLedgersFileReq'
 }
