@@ -518,7 +518,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_LEDGERS_FILE_REQ
+    )
 
     const {
       userId,
