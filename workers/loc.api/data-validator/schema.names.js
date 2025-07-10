@@ -21,5 +21,6 @@ module.exports = {
   GET_TICKERS_HISTORY_FILE_REQ: 'getTickersHistoryFileReq',
   GET_MOVEMENTS_FILE_REQ: 'getMovementsFileReq',
   GET_LEDGERS_FILE_REQ: 'getLedgersFileReq',
-  GET_WALLETS_FILE_REQ: 'getWalletsFileReq'
+  GET_WALLETS_FILE_REQ: 'getWalletsFileReq',
+  GET_ACTIVE_POSITIONS_FILE_REQ: 'getActivePositionsFileReq'
 }
