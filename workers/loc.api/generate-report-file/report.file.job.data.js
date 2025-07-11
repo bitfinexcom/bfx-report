@@ -339,7 +339,10 @@ class ReportFileJobData {
     uInfo
   ) {
     const _args = parsePositionsAuditId(args)
-    checkParams(_args, 'paramsSchemaForPositionsAuditFile', ['id'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_POSITIONS_AUDIT_FILE_REQ
+    )
 
     const {
       userId,
