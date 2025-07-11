@@ -449,7 +449,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForStatusMessagesFile')
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_STATUS_MESSAGES_FILE_REQ
+    )
 
     const {
       userId,
