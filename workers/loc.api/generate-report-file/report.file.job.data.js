@@ -391,7 +391,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForPublicTradesFile', ['symbol'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_PUBLIC_TRADES_FILE_REQ
+    )
     checkTimeLimit(args)
 
     const {
