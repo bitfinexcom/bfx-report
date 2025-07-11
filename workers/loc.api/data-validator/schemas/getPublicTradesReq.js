@@ -6,6 +6,7 @@ module.exports = {
   $id: SCHEMA_IDS.GET_PUBLIC_TRADES_REQ,
   type: 'object',
   additionalProperties: false,
+  required: ['symbol'],
   properties: {
     start: {
       $ref: 'defs#/definitions/start'
