@@ -492,7 +492,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForCandlesFile', ['symbol'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_CANDLES_FILE_REQ
+    )
     checkTimeLimit(args)
 
     const {
