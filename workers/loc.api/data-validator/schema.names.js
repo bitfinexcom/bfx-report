@@ -22,5 +22,6 @@ module.exports = {
   GET_MOVEMENTS_FILE_REQ: 'getMovementsFileReq',
   GET_LEDGERS_FILE_REQ: 'getLedgersFileReq',
   GET_WALLETS_FILE_REQ: 'getWalletsFileReq',
-  GET_ACTIVE_POSITIONS_FILE_REQ: 'getActivePositionsFileReq'
+  GET_ACTIVE_POSITIONS_FILE_REQ: 'getActivePositionsFileReq',
+  GET_POSITIONS_AUDIT_FILE_REQ: 'getPositionsAuditFileReq'
 }
