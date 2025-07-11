@@ -23,5 +23,6 @@ module.exports = {
   GET_LEDGERS_FILE_REQ: 'getLedgersFileReq',
   GET_WALLETS_FILE_REQ: 'getWalletsFileReq',
   GET_ACTIVE_POSITIONS_FILE_REQ: 'getActivePositionsFileReq',
-  GET_POSITIONS_AUDIT_FILE_REQ: 'getPositionsAuditFileReq'
+  GET_POSITIONS_AUDIT_FILE_REQ: 'getPositionsAuditFileReq',
+  GET_PUBLIC_TRADES_FILE_REQ: 'getPublicTradesFileReq'
 }
