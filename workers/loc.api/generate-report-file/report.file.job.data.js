@@ -630,7 +630,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForOrderTradesFile')
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_ORDER_TRADES_FILE_REQ
+    )
 
     const {
       userId,
