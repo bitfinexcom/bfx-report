@@ -5,7 +5,6 @@ const { omit } = require('lib-js-util-base')
 const { decorateInjectable } = require('../di/utils')
 
 const {
-  checkParams,
   getReportFileArgs,
   checkTimeLimit,
   checkJobAndGetUserData,
@@ -1124,7 +1123,11 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWeightedAveragesReportFile', ['symbol'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_WEIGHTED_AVERAGES_REPORT_FILE_REQ,
+      { shouldParamsFieldBeChecked: true }
+    )
 
     const {
       userId,
