@@ -27,5 +27,6 @@ module.exports = {
   GET_PUBLIC_TRADES_FILE_REQ: 'getPublicTradesFileReq',
   GET_STATUS_MESSAGES_FILE_REQ: 'getStatusMessagesFileReq',
   GET_CANDLES_FILE_REQ: 'getCandlesFileReq',
-  GET_ORDER_TRADES_FILE_REQ: 'getOrderTradesFileReq'
+  GET_ORDER_TRADES_FILE_REQ: 'getOrderTradesFileReq',
+  GET_WEIGHTED_AVERAGES_REPORT_FILE_REQ: 'getWeightedAveragesReportFileReq'
 }
