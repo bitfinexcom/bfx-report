@@ -1,11 +1,11 @@
 'use strict'
 
-const { omit } = require('lib-js-util-base')
-
 const {
   write
 } = require('../../queue/write-data-to-stream/helpers')
-
+const {
+  omitExtraParamFieldsForReportExport
+} = require('../helpers')
 const { streamWriter } = require('./helpers')
 
 module.exports = (
@@ -44,16 +44,7 @@ module.exports = (
     getData: rService[name].bind(rService),
     args: {
       ...args,
-      params: omit(params, [
-        'dateFormat',
-        'milliseconds',
-        'language',
-        'isPDFRequired',
-        'method',
-        'timezone',
-        'email',
-        'isSignatureRequired'
-      ])
+      params: omitExtraParamFieldsForReportExport(params)
     },
     callerName: 'CSV_WRITER',
     shouldNotInterrupt: true

@@ -1,7 +1,10 @@
 'use strict'
 
-const { cloneDeep, omit } = require('lib-js-util-base')
+const { cloneDeep } = require('lib-js-util-base')
 
+const {
+  omitExtraParamFieldsForReportExport
+} = require('../../generate-report-file/helpers')
 const {
   writeMessageToStream,
   setDefaultParams,
@@ -35,20 +38,7 @@ module.exports = (
 
   const _args = {
     auth: { ...jobData?.args?.auth },
-    params: omit(jobData?.args?.params ?? {}, [
-      'dateFormat',
-      'milliseconds',
-      'language',
-      'isPDFRequired',
-      'method',
-      'timezone',
-      'email',
-      'isSignatureRequired',
-      'isDeposits',
-      'isWithdrawals',
-      'isTradingPair',
-      'isBaseNameInName'
-    ])
+    params: omitExtraParamFieldsForReportExport(jobData?.args?.params)
   }
 
   setDefaultParams(_args, method)
