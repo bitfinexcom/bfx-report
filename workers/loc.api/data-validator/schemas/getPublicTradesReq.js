@@ -20,6 +20,9 @@ module.exports = {
     symbol: {
       $ref: 'defs#/definitions/symbolWithMaxItem'
     },
+    sort: {
+      $ref: 'defs#/definitions/sort'
+    },
     filter: {
       $ref: 'defs#/definitions/filter'
     },
