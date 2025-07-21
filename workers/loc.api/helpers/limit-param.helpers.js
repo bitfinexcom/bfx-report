@@ -73,7 +73,7 @@ const getReportFileArgs = (args, method, extraParams = {}) => {
     return reportFileArgs
   }
 
-  reportFileArgs.limit = getMethodLimit({ isMax: true }, method)
+  reportFileArgs.params.limit = getMethodLimit({ isMax: true }, method)
 
   return reportFileArgs
 }
