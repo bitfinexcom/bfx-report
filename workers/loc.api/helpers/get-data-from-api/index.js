@@ -11,6 +11,9 @@ const {
   isAuthError
 } = require('../api-errors-testers')
 const {
+  ArgsParamsError
+} = require('../../errors')
+const {
   calcBackOffAndJitteredDelay,
   isInterrupted: _isInterrupted,
   delay,
@@ -76,6 +79,10 @@ module.exports = (
 
       break
     } catch (err) {
+      if (err instanceof ArgsParamsError) {
+        throw err
+      }
+
       if (isUserIsNotMerchantError(err)) {
         return getEmptyArrRes()
       }
