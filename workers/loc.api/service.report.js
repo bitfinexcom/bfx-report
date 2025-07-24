@@ -7,10 +7,12 @@ const {
   parseLoginsExtraDataFields,
   accountCache,
   getTimezoneConf,
-  filterModels,
   parsePositionsAuditId,
   prepareSymbolResponse
 } = require('./helpers')
+const {
+  filterModels
+} = require('./data-validator/filter-schemas/helpers')
 const {
   omitPrivateModelFields
 } = require('./helpers/prepare-response/helpers')
