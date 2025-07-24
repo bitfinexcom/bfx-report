@@ -63,6 +63,7 @@ const filterModels = require('./filter-models')
 const checkFilterParams = require('./check-filter-params')
 const normalizeFilterParams = require('./normalize-filter-params')
 const FILTER_MODELS_NAMES = require('./filter.models.names')
+const FILTER_API_METHOD_NAMES = require('./filter.api.method.names')
 const FILTER_CONDITIONS = require('./filter.conditions')
 const getDataFromApi = require('./get-data-from-api')
 const splitSymbolPairs = require('./split-symbol-pairs')
@@ -118,6 +119,7 @@ module.exports = {
   checkFilterParams,
   normalizeFilterParams,
   FILTER_MODELS_NAMES,
+  FILTER_API_METHOD_NAMES,
   FILTER_CONDITIONS,
   getDataFromApi,
   parsePositionsAuditId,
