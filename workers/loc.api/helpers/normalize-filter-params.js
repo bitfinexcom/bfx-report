@@ -2,7 +2,7 @@
 
 const { cloneDeep } = require('lib-js-util-base')
 
-const FILTER_MODELS_NAMES = require('./filter.models.names')
+const FILTER_API_METHOD_NAMES = require('./filter.api.method.names')
 const FILTER_CONDITIONS = require('./filter.conditions')
 
 const _filterConditionsNames = Object
@@ -58,7 +58,7 @@ const _normalizeProp = (
 }
 
 const _normalizers = {
-  [FILTER_MODELS_NAMES.PUBLIC_TRADES] (filter) {
+  [FILTER_API_METHOD_NAMES.PUBLIC_TRADES] (filter) {
     return _normalizeProp(filter, 'rate', (val) => {
       return typeof val === 'string'
         ? Number.parseFloat(val)
