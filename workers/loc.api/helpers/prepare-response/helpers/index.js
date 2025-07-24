@@ -3,6 +3,7 @@
 const getParamsMap = require('./get-params-map')
 const getParamsSchemaName = require('./get-params-schema-name')
 const getValidationSchemaId = require('./get-validation-schema-id')
+const getFilterValidationSchemaId = require('./get-filter-validation-schema-id')
 const omitPrivateModelFields = require('./omit-private-model-fields')
 const getBfxApiMethodName = require('./get-bfx-api-method-name')
 const getSymbolsForFiltering = require('./get-symbols-for-filtering')
@@ -14,6 +15,7 @@ module.exports = {
   getParamsMap,
   getParamsSchemaName,
   getValidationSchemaId,
+  getFilterValidationSchemaId,
   omitPrivateModelFields,
   getBfxApiMethodName,
   getSymbolsForFiltering,
