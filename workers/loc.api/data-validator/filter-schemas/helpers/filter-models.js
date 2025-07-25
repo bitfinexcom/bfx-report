@@ -22,5 +22,21 @@ module.exports = new Map([
       mtsCreate: { type: 'integer' },
       mtsUpdate: { type: 'integer' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_TRADES_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      symbol: { type: 'string' },
+      mtsCreate: { type: 'integer' },
+      orderID: { type: 'integer' },
+      execAmount: { type: 'number' },
+      execPrice: { type: 'number' },
+      orderType: { type: 'string' },
+      orderPrice: { type: 'number' },
+      maker: { type: 'integer' },
+      fee: { type: 'number' },
+      feeCurrency: { type: 'string' }
+    }
   ]
 ])
