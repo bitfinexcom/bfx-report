@@ -38,5 +38,19 @@ module.exports = new Map([
       fee: { type: 'number' },
       feeCurrency: { type: 'string' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_LEDGERS_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      currency: { type: 'string' },
+      mts: { type: 'integer' },
+      amount: { type: 'number' },
+      amountUsd: { type: 'number' },
+      balance: { type: 'number' },
+      balanceUsd: { type: 'number' },
+      description: { type: 'string' },
+      wallet: { type: 'string' }
+    }
   ]
 ])
