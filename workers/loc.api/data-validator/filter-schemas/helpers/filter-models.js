@@ -62,5 +62,18 @@ module.exports = new Map([
       ask: { type: 'number' },
       mtsUpdate: { type: 'integer' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_FUNDING_TRADES_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      symbol: { type: 'string' },
+      mtsCreate: { type: 'integer' },
+      offerID: { type: 'integer' },
+      amount: { type: 'number' },
+      rate: { type: 'number' },
+      period: { type: 'integer' },
+      maker: { type: 'integer' }
+    }
   ]
 ])
