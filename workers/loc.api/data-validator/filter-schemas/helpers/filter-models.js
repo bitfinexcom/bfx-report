@@ -52,5 +52,15 @@ module.exports = new Map([
       description: { type: 'string' },
       wallet: { type: 'string' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_TICKERS_HISTORY_REQ_FILTER,
+    {
+      symbol: { type: 'string' },
+      bid: { type: 'number' },
+      bidPeriod: { type: 'integer' },
+      ask: { type: 'number' },
+      mtsUpdate: { type: 'integer' }
+    }
   ]
 ])
