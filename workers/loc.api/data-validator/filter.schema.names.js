@@ -3,5 +3,6 @@
 module.exports = {
   GET_POSITIONS_HISTORY_REQ_FILTER: 'getPositionsHistoryReqFilter',
   GET_TRADES_REQ_FILTER: 'getTradesReqFilter',
-  GET_LEDGERS_REQ_FILTER: 'getLedgersReqFilter'
+  GET_LEDGERS_REQ_FILTER: 'getLedgersReqFilter',
+  GET_TICKERS_HISTORY_REQ_FILTER: 'getTickersHistoryReqFilter'
 }
