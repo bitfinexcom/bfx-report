@@ -127,5 +127,26 @@ module.exports = new Map([
       transactionId: { type: 'string' },
       note: { type: 'string' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_FUNDING_OFFER_HISTORY_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      symbol: { type: 'string' },
+      mtsCreate: { type: 'integer' },
+      mtsUpdate: { type: 'integer' },
+      amount: { type: 'number' },
+      amountOrig: { type: 'number' },
+      type: { type: 'string' },
+      flags: { type: 'string' },
+      status: { type: 'string' },
+      rate: { type: 'string' },
+      period: { type: 'integer' },
+      notify: { type: 'integer' },
+      hidden: { type: 'integer' },
+      renew: { type: 'integer' },
+      rateReal: { type: 'integer' },
+      amountExecuted: { type: 'number' }
+    }
   ]
 ])
