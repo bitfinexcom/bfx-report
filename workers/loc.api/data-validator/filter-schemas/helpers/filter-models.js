@@ -110,5 +110,22 @@ module.exports = new Map([
       placedId: { type: 'integer' },
       amountExecuted: { type: 'number' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_MOVEMENTS_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      currency: { type: 'string' },
+      currencyName: { type: 'string' },
+      mtsStarted: { type: 'integer' },
+      mtsUpdated: { type: 'integer' },
+      status: { type: 'string' },
+      amount: { type: 'number' },
+      amountUsd: { type: 'number' },
+      fees: { type: 'number' },
+      destinationAddress: { type: 'string' },
+      transactionId: { type: 'string' },
+      note: { type: 'string' }
+    }
   ]
 ])
