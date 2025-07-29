@@ -8,6 +8,7 @@ module.exports = {
   Container: Symbol.for('Container'),
   LoggerFactory: Symbol.for('LoggerFactory'),
   Logger: Symbol.for('Logger'),
+  DataValidator: Symbol.for('DataValidator'),
   I18next: Symbol.for('I18next'),
   RService: Symbol.for('RService'),
   DeflateFac: Symbol.for('DeflateFac'),

@@ -3,8 +3,11 @@
 const { cloneDeep } = require('lib-js-util-base')
 
 const {
+  omitExtraParamFieldsForReportExport
+} = require('../../generate-report-file/helpers')
+const {
   writeMessageToStream,
-  setDefaultPrams,
+  setDefaultParams,
   filterMovementsByAmount,
   write,
   progress
@@ -33,9 +36,12 @@ module.exports = (
   const propName = jobData.propNameForPagination
   const formatSettings = jobData.formatSettings
 
-  const _args = cloneDeep(jobData.args)
+  const _args = {
+    auth: { ...jobData?.args?.auth },
+    params: omitExtraParamFieldsForReportExport(jobData?.args?.params)
+  }
 
-  setDefaultPrams(_args)
+  setDefaultParams(_args, method)
   const currIterationArgs = cloneDeep(_args)
 
   const getData = rService[method].bind(rService)

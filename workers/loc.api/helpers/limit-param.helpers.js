@@ -65,10 +65,15 @@ const getReportFileArgs = (args, method, extraParams = {}) => {
     ...args,
     params: {
       ...args.params,
-      ...extraParams,
-      limit: getMethodLimit({ isMax: true }, method)
+      ...extraParams
     }
   }
+
+  if (method === 'getWeightedAverages') {
+    return reportFileArgs
+  }
+
+  reportFileArgs.params.limit = getMethodLimit({ isMax: true }, method)
 
   return reportFileArgs
 }

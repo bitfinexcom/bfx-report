@@ -6,6 +6,7 @@ const TYPES = require('./types')
 const { bindDepsToFn } = require('./helpers')
 
 const loggerFactory = require('../logger')
+const dataValidator = require('../data-validator')
 
 module.exports = () => {
   return new ContainerModule((bind) => {
@@ -16,5 +17,6 @@ module.exports = () => {
         [TYPES.CONF]
       )
     }).inSingletonScope()
+    bind(TYPES.DataValidator).toConstantValue(dataValidator)
   })
 }

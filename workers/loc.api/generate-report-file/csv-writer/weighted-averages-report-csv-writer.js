@@ -3,7 +3,9 @@
 const {
   write
 } = require('../../queue/write-data-to-stream/helpers')
-
+const {
+  omitExtraParamFieldsForReportExport
+} = require('../helpers')
 const { streamWriter } = require('./helpers')
 
 module.exports = (
@@ -40,7 +42,10 @@ module.exports = (
 
   const { res } = await getDataFromApi({
     getData: rService[name].bind(rService),
-    args,
+    args: {
+      ...args,
+      params: omitExtraParamFieldsForReportExport(params)
+    },
     callerName: 'CSV_WRITER',
     shouldNotInterrupt: true
   })

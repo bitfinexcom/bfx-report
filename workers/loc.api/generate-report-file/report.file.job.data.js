@@ -1,9 +1,10 @@
 'use strict'
 
+const { omit } = require('lib-js-util-base')
+
 const { decorateInjectable } = require('../di/utils')
 
 const {
-  checkParams,
   getReportFileArgs,
   checkTimeLimit,
   checkJobAndGetUserData,
@@ -16,14 +17,17 @@ const {
 
 const depsTypes = (TYPES) => [
   TYPES.RService,
+  TYPES.DataValidator,
   TYPES.WeightedAveragesReportCsvWriter
 ]
 class ReportFileJobData {
   constructor (
     rService,
+    dataValidator,
     weightedAveragesReportCsvWriter
   ) {
     this.rService = rService
+    this.dataValidator = dataValidator
     this.weightedAveragesReportCsvWriter = weightedAveragesReportCsvWriter
   }
 
@@ -32,7 +36,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -76,7 +83,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -119,7 +129,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForFile', ['symbol'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_TICKERS_HISTORY_FILE_REQ
+    )
 
     const {
       userId,
@@ -180,7 +193,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWalletsFile')
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_WALLETS_FILE_REQ
+    )
 
     const {
       userId,
@@ -218,7 +234,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -265,7 +284,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForActivePositionsFile')
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_ACTIVE_POSITIONS_FILE_REQ
+    )
 
     const {
       userId,
@@ -316,7 +338,10 @@ class ReportFileJobData {
     uInfo
   ) {
     const _args = parsePositionsAuditId(args)
-    checkParams(_args, 'paramsSchemaForPositionsAuditFile', ['id'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_POSITIONS_AUDIT_FILE_REQ
+    )
 
     const {
       userId,
@@ -365,7 +390,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForPublicTradesFile', ['symbol'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_PUBLIC_TRADES_FILE_REQ
+    )
     checkTimeLimit(args)
 
     const {
@@ -420,7 +448,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForStatusMessagesFile')
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_STATUS_MESSAGES_FILE_REQ
+    )
 
     const {
       userId,
@@ -460,7 +491,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForCandlesFile', ['symbol'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_CANDLES_FILE_REQ
+    )
     checkTimeLimit(args)
 
     const {
@@ -501,7 +535,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_LEDGERS_FILE_REQ
+    )
 
     const {
       userId,
@@ -546,7 +583,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -589,7 +629,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForOrderTradesFile')
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_ORDER_TRADES_FILE_REQ
+    )
 
     const {
       userId,
@@ -632,7 +675,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -681,7 +727,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -727,7 +776,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_MOVEMENTS_FILE_REQ
+    )
 
     const {
       userId,
@@ -770,7 +822,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -816,7 +871,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -864,7 +922,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -913,7 +974,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -950,7 +1014,10 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
+    )
 
     const {
       userId,
@@ -988,7 +1055,11 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForMultipleFile', false, true)
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_MULTIPLE_FILE_REQ,
+      { shouldParamsFieldBeChecked: true }
+    )
 
     const {
       userId,
@@ -1022,7 +1093,7 @@ class ReportFileJobData {
         {
           ...args,
           params: {
-            ...params,
+            ...omit(params, ['method']),
             ...(language && typeof language === 'string'
               ? { language }
               : {}),
@@ -1052,7 +1123,11 @@ class ReportFileJobData {
     uId,
     uInfo
   ) {
-    checkParams(args, 'paramsSchemaForWeightedAveragesReportFile', ['symbol'])
+    this.dataValidator.validate(
+      args,
+      this.dataValidator.SCHEMA_IDS.GET_WEIGHTED_AVERAGES_REPORT_FILE_REQ,
+      { shouldParamsFieldBeChecked: true }
+    )
 
     const {
       userId,
@@ -1063,7 +1138,7 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args)
+    const reportFileArgs = getReportFileArgs(args, 'getWeightedAverages')
 
     const jobData = {
       userInfo,
