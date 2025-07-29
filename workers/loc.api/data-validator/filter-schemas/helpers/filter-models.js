@@ -86,5 +86,29 @@ module.exports = new Map([
       amount: { type: 'number' },
       price: { type: 'number' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_ORDERS_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      gid: { type: 'integer' },
+      cid: { type: 'integer' },
+      symbol: { type: 'string' },
+      mtsCreate: { type: 'integer' },
+      mtsUpdate: { type: 'integer' },
+      amount: { type: 'number' },
+      amountOrig: { type: 'number' },
+      type: { type: 'string' },
+      typePrev: { type: 'string' },
+      flags: { type: 'integer' },
+      status: { type: 'string' },
+      price: { type: 'number' },
+      priceAvg: { type: 'number' },
+      priceTrailing: { type: 'number' },
+      priceAuxLimit: { type: 'number' },
+      notify: { type: 'integer' },
+      placedId: { type: 'integer' },
+      amountExecuted: { type: 'number' }
+    }
   ]
 ])
