@@ -75,5 +75,16 @@ module.exports = new Map([
       period: { type: 'integer' },
       maker: { type: 'integer' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_PUBLIC_TRADES_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      mts: { type: 'integer' },
+      rate: { type: 'number' },
+      period: { type: 'integer' },
+      amount: { type: 'number' },
+      price: { type: 'number' }
+    }
   ]
 ])
