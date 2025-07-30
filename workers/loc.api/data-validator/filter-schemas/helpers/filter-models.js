@@ -148,5 +148,27 @@ module.exports = new Map([
       rateReal: { type: 'integer' },
       amountExecuted: { type: 'number' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_FUNDING_LOAN_HISTORY_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      symbol: { type: 'string' },
+      side: { type: 'integer' },
+      mtsCreate: { type: 'integer' },
+      mtsUpdate: { type: 'integer' },
+      amount: { type: 'number' },
+      flags: { type: 'string' },
+      status: { type: 'string' },
+      rate: { type: 'string' },
+      period: { type: 'integer' },
+      mtsOpening: { type: 'integer' },
+      mtsLastPayout: { type: 'integer' },
+      notify: { type: 'integer' },
+      hidden: { type: 'integer' },
+      renew: { type: 'integer' },
+      rateReal: { type: 'integer' },
+      noClose: { type: 'integer' }
+    }
   ]
 ])
