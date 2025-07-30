@@ -193,5 +193,19 @@ module.exports = new Map([
       noClose: { type: 'integer' },
       positionPair: { type: 'string' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_STATUS_MESSAGES_REQ_FILTER,
+    {
+      key: { type: 'string' },
+      timestamp: { type: 'integer' },
+      price: { type: 'number' },
+      priceSpot: { type: 'number' },
+      fundBal: { type: 'number' },
+      fundingAccrued: { type: 'number' },
+      fundingStep: { type: 'number' },
+      clampMin: { type: 'number' },
+      clampMax: { type: 'number' }
+    }
   ]
 ])
