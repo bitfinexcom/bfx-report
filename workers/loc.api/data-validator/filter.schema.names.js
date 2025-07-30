@@ -9,5 +9,6 @@ module.exports = {
   GET_PUBLIC_TRADES_REQ_FILTER: 'getPublicTradesReqFilter',
   GET_ORDERS_REQ_FILTER: 'getOrdersReqFilter',
   GET_MOVEMENTS_REQ_FILTER: 'getMovementsReqFilter',
-  GET_FUNDING_OFFER_HISTORY_REQ_FILTER: 'getFundingOfferHistoryReqFilter'
+  GET_FUNDING_OFFER_HISTORY_REQ_FILTER: 'getFundingOfferHistoryReqFilter',
+  GET_FUNDING_LOAN_HISTORY_REQ_FILTER: 'getFundingLoanHistoryReqFilter'
 }
