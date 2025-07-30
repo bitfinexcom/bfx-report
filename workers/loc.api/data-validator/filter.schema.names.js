@@ -10,5 +10,6 @@ module.exports = {
   GET_ORDERS_REQ_FILTER: 'getOrdersReqFilter',
   GET_MOVEMENTS_REQ_FILTER: 'getMovementsReqFilter',
   GET_FUNDING_OFFER_HISTORY_REQ_FILTER: 'getFundingOfferHistoryReqFilter',
-  GET_FUNDING_CREDIT_HISTORY_REQ_FILTER: 'getFundingCreditHistoryReqFilter'
+  GET_FUNDING_CREDIT_HISTORY_REQ_FILTER: 'getFundingCreditHistoryReqFilter',
+  GET_STATUS_MESSAGES_REQ_FILTER: 'getStatusMessagesReqFilter'
 }
