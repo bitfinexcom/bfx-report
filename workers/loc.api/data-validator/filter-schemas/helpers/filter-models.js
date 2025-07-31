@@ -207,5 +207,13 @@ module.exports = new Map([
       clampMin: { type: 'number' },
       clampMax: { type: 'number' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_LOGINS_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      time: { type: 'integer' },
+      ip: { type: 'string' }
+    }
   ]
 ])
