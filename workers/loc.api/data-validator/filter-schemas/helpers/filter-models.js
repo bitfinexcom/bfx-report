@@ -215,5 +215,14 @@ module.exports = new Map([
       time: { type: 'integer' },
       ip: { type: 'string' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_CHANGE_LOGS_REQ_FILTER,
+    {
+      mtsCreate: { type: 'integer' },
+      log: { type: 'string' },
+      ip: { type: 'string' },
+      userAgent: { type: 'string' }
+    }
   ]
 ])
