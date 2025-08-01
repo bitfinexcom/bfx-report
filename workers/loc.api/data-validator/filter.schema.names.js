@@ -13,5 +13,6 @@ module.exports = {
   GET_FUNDING_CREDIT_HISTORY_REQ_FILTER: 'getFundingCreditHistoryReqFilter',
   GET_STATUS_MESSAGES_REQ_FILTER: 'getStatusMessagesReqFilter',
   GET_LOGINS_REQ_FILTER: 'getLoginsReqFilter',
-  GET_CHANGE_LOGS_REQ_FILTER: 'getChangeLogsReqFilter'
+  GET_CHANGE_LOGS_REQ_FILTER: 'getChangeLogsReqFilter',
+  GET_CANDLES_REQ_FILTER: 'getCandlesReqFilter'
 }
