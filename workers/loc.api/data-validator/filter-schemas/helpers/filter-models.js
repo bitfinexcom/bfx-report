@@ -224,5 +224,16 @@ module.exports = new Map([
       ip: { type: 'string' },
       userAgent: { type: 'string' }
     }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_CANDLES_REQ_FILTER,
+    {
+      mts: { type: 'integer' },
+      open: { type: 'number' },
+      close: { type: 'number' },
+      high: { type: 'number' },
+      low: { type: 'number' },
+      volume: { type: 'number' }
+    }
   ]
 ])
