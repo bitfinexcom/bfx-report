@@ -14,5 +14,6 @@ module.exports = {
   GET_STATUS_MESSAGES_REQ_FILTER: 'getStatusMessagesReqFilter',
   GET_LOGINS_REQ_FILTER: 'getLoginsReqFilter',
   GET_CHANGE_LOGS_REQ_FILTER: 'getChangeLogsReqFilter',
-  GET_CANDLES_REQ_FILTER: 'getCandlesReqFilter'
+  GET_CANDLES_REQ_FILTER: 'getCandlesReqFilter',
+  GET_PAY_INVOICE_LIST_REQ_FILTER: 'getPayInvoiceListReqFilter'
 }
