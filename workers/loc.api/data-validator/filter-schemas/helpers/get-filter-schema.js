@@ -1,31 +1,32 @@
 'use strict'
 
-const Ajv = require('ajv')
-
 const {
-  FilterParamsValidSchemaFindingError,
-  ArgsParamsFilterError
-} = require('../errors')
+  FilterParamsValidSchemaFindingError
+} = require('../../../errors')
+const FILTER_CONDITIONS = require('../../../helpers/filter.conditions')
 const _filterModels = require('./filter-models')
-const FILTER_MODELS_NAMES = require('./filter.models.names')
-const FILTER_CONDITIONS = require('./filter.conditions')
 
-const _getModel = (
-  name,
+const getFilterModel = (
+  filterSchemaId,
   filterModels = _filterModels
 ) => {
   if (
-    !name ||
-    typeof name !== 'string' ||
-    !filterModels.has(name)
+    !filterSchemaId ||
+    typeof filterSchemaId !== 'string' ||
+    !filterModels.has(filterSchemaId)
   ) {
     throw new FilterParamsValidSchemaFindingError()
   }
 
-  return { ...filterModels.get(name) }
+  return filterModels.get(filterSchemaId)
 }
 
-const _getFilterSchema = (model = {}) => {
+module.exports = (
+  filterSchemaId,
+  filterModels = _filterModels
+) => {
+  const model = getFilterModel(filterSchemaId, filterModels)
+
   if (
     !model ||
     typeof model !== 'object' ||
@@ -78,6 +79,7 @@ const _getFilterSchema = (model = {}) => {
     [FILTER_CONDITIONS.IS_NOT_NULL]: fieldsArrSchema
   }
   const filterSchema = {
+    $id: filterSchemaId,
     oneOf: [
       {
         type: 'object',
@@ -99,46 +101,4 @@ const _getFilterSchema = (model = {}) => {
   }
 
   return filterSchema
-}
-
-const _getMethodApiName = (methodApi) => {
-  if (
-    methodApi === FILTER_MODELS_NAMES.POSITIONS_AUDIT ||
-    methodApi === FILTER_MODELS_NAMES.POSITIONS_SNAPSHOT
-  ) {
-    return FILTER_MODELS_NAMES.POSITIONS_HISTORY
-  }
-  if (methodApi === FILTER_MODELS_NAMES.ORDER_TRADES) {
-    return FILTER_MODELS_NAMES.TRADES
-  }
-
-  return methodApi
-}
-
-module.exports = (
-  methodApi,
-  args = {},
-  filterModels
-) => {
-  const { params } = { ...args }
-  const { filter } = { ...params }
-
-  if (
-    !filter ||
-    typeof filter !== 'object' ||
-    Object.keys(filter).length === 0
-  ) {
-    return
-  }
-
-  const ajv = new Ajv({ allowUnionTypes: true })
-  const methodName = _getMethodApiName(methodApi)
-  const model = _getModel(methodName, filterModels)
-  const filterSchema = _getFilterSchema(model)
-
-  if (ajv.validate(filterSchema, filter)) {
-    return
-  }
-
-  throw new ArgsParamsFilterError({ data: ajv.errors })
 }

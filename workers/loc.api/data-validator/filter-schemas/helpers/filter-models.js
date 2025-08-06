@@ -1,20 +1,10 @@
 'use strict'
 
-const FILTER_MODELS_NAMES = require('./filter.models.names')
+const FILTER_SCHEMA_IDS = require('../../filter.schema.ids')
 
 module.exports = new Map([
   [
-    FILTER_MODELS_NAMES.TICKERS_HISTORY,
-    {
-      symbol: { type: 'string' },
-      bid: { type: 'number' },
-      bidPeriod: { type: 'integer' },
-      ask: { type: 'number' },
-      mtsUpdate: { type: 'integer' }
-    }
-  ],
-  [
-    FILTER_MODELS_NAMES.POSITIONS_HISTORY,
+    FILTER_SCHEMA_IDS.GET_POSITIONS_HISTORY_REQ_FILTER,
     {
       id: { type: 'integer' },
       symbol: { type: 'string' },
@@ -34,21 +24,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.LEDGERS,
-    {
-      id: { type: 'integer' },
-      currency: { type: 'string' },
-      mts: { type: 'integer' },
-      amount: { type: 'number' },
-      amountUsd: { type: 'number' },
-      balance: { type: 'number' },
-      balanceUsd: { type: 'number' },
-      description: { type: 'string' },
-      wallet: { type: 'string' }
-    }
-  ],
-  [
-    FILTER_MODELS_NAMES.TRADES,
+    FILTER_SCHEMA_IDS.GET_TRADES_REQ_FILTER,
     {
       id: { type: 'integer' },
       symbol: { type: 'string' },
@@ -64,7 +40,31 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.FUNDING_TRADES,
+    FILTER_SCHEMA_IDS.GET_LEDGERS_REQ_FILTER,
+    {
+      id: { type: 'integer' },
+      currency: { type: 'string' },
+      mts: { type: 'integer' },
+      amount: { type: 'number' },
+      amountUsd: { type: 'number' },
+      balance: { type: 'number' },
+      balanceUsd: { type: 'number' },
+      description: { type: 'string' },
+      wallet: { type: 'string' }
+    }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_TICKERS_HISTORY_REQ_FILTER,
+    {
+      symbol: { type: 'string' },
+      bid: { type: 'number' },
+      bidPeriod: { type: 'integer' },
+      ask: { type: 'number' },
+      mtsUpdate: { type: 'integer' }
+    }
+  ],
+  [
+    FILTER_SCHEMA_IDS.GET_FUNDING_TRADES_REQ_FILTER,
     {
       id: { type: 'integer' },
       symbol: { type: 'string' },
@@ -77,7 +77,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.PUBLIC_TRADES,
+    FILTER_SCHEMA_IDS.GET_PUBLIC_TRADES_REQ_FILTER,
     {
       id: { type: 'integer' },
       mts: { type: 'integer' },
@@ -88,7 +88,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.ORDERS,
+    FILTER_SCHEMA_IDS.GET_ORDERS_REQ_FILTER,
     {
       id: { type: 'integer' },
       gid: { type: 'integer' },
@@ -112,7 +112,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.MOVEMENTS,
+    FILTER_SCHEMA_IDS.GET_MOVEMENTS_REQ_FILTER,
     {
       id: { type: 'integer' },
       currency: { type: 'string' },
@@ -129,7 +129,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.FUNDING_OFFER_HISTORY,
+    FILTER_SCHEMA_IDS.GET_FUNDING_OFFER_HISTORY_REQ_FILTER,
     {
       id: { type: 'integer' },
       symbol: { type: 'string' },
@@ -150,7 +150,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.FUNDING_LOAN_HISTORY,
+    FILTER_SCHEMA_IDS.GET_FUNDING_LOAN_HISTORY_REQ_FILTER,
     {
       id: { type: 'integer' },
       symbol: { type: 'string' },
@@ -172,7 +172,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.FUNDING_CREDIT_HISTORY,
+    FILTER_SCHEMA_IDS.GET_FUNDING_CREDIT_HISTORY_REQ_FILTER,
     {
       id: { type: 'integer' },
       symbol: { type: 'string' },
@@ -195,7 +195,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.STATUS_MESSAGES,
+    FILTER_SCHEMA_IDS.GET_STATUS_MESSAGES_REQ_FILTER,
     {
       key: { type: 'string' },
       timestamp: { type: 'integer' },
@@ -209,7 +209,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.LOGINS,
+    FILTER_SCHEMA_IDS.GET_LOGINS_REQ_FILTER,
     {
       id: { type: 'integer' },
       time: { type: 'integer' },
@@ -217,7 +217,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.CHANGE_LOGS,
+    FILTER_SCHEMA_IDS.GET_CHANGE_LOGS_REQ_FILTER,
     {
       mtsCreate: { type: 'integer' },
       log: { type: 'string' },
@@ -226,7 +226,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.CANDLES,
+    FILTER_SCHEMA_IDS.GET_CANDLES_REQ_FILTER,
     {
       mts: { type: 'integer' },
       open: { type: 'number' },
@@ -237,7 +237,7 @@ module.exports = new Map([
     }
   ],
   [
-    FILTER_MODELS_NAMES.PAY_INVOICE_LIST,
+    FILTER_SCHEMA_IDS.GET_PAY_INVOICE_LIST_REQ_FILTER,
     {
       id: { type: 'string' },
       t: { type: 'integer' },
