@@ -50,7 +50,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'trades')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'trades' }
+    )
 
     const jobData = {
       userInfo,
@@ -97,7 +100,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'fundingTrades')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'fundingTrades' }
+    )
 
     const jobData = {
       userInfo,
@@ -143,7 +149,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'tickersHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'tickersHistory' }
+    )
     const symb = Array.isArray(args.params.symbol)
       ? args.params.symbol
       : [args.params.symbol]
@@ -248,7 +257,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'positionsHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'positionsHistory' }
+    )
 
     const jobData = {
       userInfo,
@@ -352,7 +364,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(_args, 'positionsAudit')
+    const reportFileArgs = getReportFileArgs(
+      _args,
+      { method: 'positionsAudit' }
+    )
 
     const jobData = {
       userInfo,
@@ -409,7 +424,13 @@ class ReportFileJobData {
     const isTradingPair = Array.isArray(params.symbol)
       ? params.symbol[0].startsWith('t')
       : params.symbol.startsWith('t')
-    const reportFileArgs = getReportFileArgs(args, 'publicTrades', { isTradingPair })
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'publicTrades',
+        extraParams: { isTradingPair }
+      }
+    )
     const columnsCsv = (isTradingPair)
       ? {
           id: '#',
@@ -549,7 +570,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'ledgers')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'ledgers' }
+    )
 
     const jobData = {
       userInfo,
@@ -597,7 +621,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'payInvoiceList')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'payInvoiceList' }
+    )
 
     const jobData = {
       userInfo,
@@ -643,7 +670,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'orderTrades')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'orderTrades' }
+    )
 
     const jobData = {
       userInfo,
@@ -689,7 +719,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'orders')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'orders' }
+    )
 
     const jobData = {
       userInfo,
@@ -790,7 +823,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'movements')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'movements' }
+    )
 
     const jobData = {
       userInfo,
@@ -836,7 +872,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'fundingOfferHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'fundingOfferHistory' }
+    )
 
     const jobData = {
       userInfo,
@@ -885,7 +924,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'fundingLoanHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'fundingLoanHistory' }
+    )
 
     const jobData = {
       userInfo,
@@ -936,7 +978,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'fundingCreditHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'fundingCreditHistory' }
+    )
 
     const jobData = {
       userInfo,
@@ -988,7 +1033,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'logins')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'logins' }
+    )
 
     const jobData = {
       userInfo,
@@ -1028,7 +1076,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'changeLogs')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { method: 'changeLogs' }
+    )
 
     const jobData = {
       userInfo,
@@ -1138,7 +1189,10 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'getWeightedAverages')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      { isLimitUnused: true }
+    )
 
     const jobData = {
       userInfo,
