@@ -73,8 +73,10 @@ class ReportService extends Api {
     return rest.futures()
   }
 
-  _getCurrencies () {
-    const rest = this._getREST({})
+  _getCurrencies (args) {
+    const rest = this._getREST({}, {
+      interrupter: args?.interrupter
+    })
 
     return rest.currencies()
   }
