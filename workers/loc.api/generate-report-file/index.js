@@ -86,7 +86,7 @@ const _truncateFileNameEnding = (name) => {
   return `${cleanedName[0].toLowerCase()}${cleanedName.slice(1)}`
 }
 
-const _getfilterApiMethodNamesAndArgs = (
+const _getFilterApiMethodNamesAndArgs = (
   name,
   reqArgs
 ) => {
@@ -141,7 +141,7 @@ module.exports = (
     rootPath,
     conf
   })
-  const checkingDataArr = _getfilterApiMethodNamesAndArgs(
+  const checkingDataArr = _getFilterApiMethodNamesAndArgs(
     name,
     args
   )

@@ -52,7 +52,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'trades' }
+      {
+        method: 'trades',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -102,7 +105,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'fundingTrades' }
+      {
+        method: 'fundingTrades',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -151,7 +157,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'tickersHistory' }
+      {
+        method: 'tickersHistory',
+        extraParams: { notThrowError: true }
+      }
     )
     const symb = Array.isArray(args.params.symbol)
       ? args.params.symbol
@@ -259,7 +268,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'positionsHistory' }
+      {
+        method: 'positionsHistory',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -314,7 +326,13 @@ class ReportFileJobData {
       userInfo,
       userId,
       name: 'getActivePositions',
-      args,
+      args: {
+        ...args,
+        params: {
+          ...args?.params,
+          notThrowError: true
+        }
+      },
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         id: '#',
@@ -366,7 +384,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       _args,
-      { method: 'positionsAudit' }
+      {
+        method: 'positionsAudit',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -428,7 +449,7 @@ class ReportFileJobData {
       args,
       {
         method: 'publicTrades',
-        extraParams: { isTradingPair }
+        extraParams: { isTradingPair, notThrowError: true }
       }
     )
     const columnsCsv = (isTradingPair)
@@ -531,7 +552,13 @@ class ReportFileJobData {
       userInfo,
       userId,
       name: 'getCandles',
-      args,
+      args: {
+        ...args,
+        params: {
+          ...args?.params,
+          notThrowError: true
+        }
+      },
       propNameForPagination: 'mts',
       columnsCsv: {
         mts: 'TIME',
@@ -572,7 +599,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'ledgers' }
+      {
+        method: 'ledgers',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -623,7 +653,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'payInvoiceList' }
+      {
+        method: 'payInvoiceList',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -672,7 +705,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'orderTrades' }
+      {
+        method: 'orderTrades',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -721,7 +757,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'orders' }
+      {
+        method: 'orders',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -778,7 +817,13 @@ class ReportFileJobData {
       userInfo,
       userId,
       name: 'getActiveOrders',
-      args,
+      args: {
+        ...args,
+        params: {
+          ...args?.params,
+          notThrowError: true
+        }
+      },
       propNameForPagination: null,
       columnsCsv: {
         id: '#',
@@ -825,7 +870,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'movements' }
+      {
+        method: 'movements',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -874,7 +922,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'fundingOfferHistory' }
+      {
+        method: 'fundingOfferHistory',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -926,7 +977,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'fundingLoanHistory' }
+      {
+        method: 'fundingLoanHistory',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -980,7 +1034,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'fundingCreditHistory' }
+      {
+        method: 'fundingCreditHistory',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -1035,7 +1092,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'logins' }
+      {
+        method: 'logins',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -1078,7 +1138,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { method: 'changeLogs' }
+      {
+        method: 'changeLogs',
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
@@ -1191,7 +1254,10 @@ class ReportFileJobData {
 
     const reportFileArgs = getReportFileArgs(
       args,
-      { isLimitUnused: true }
+      {
+        isLimitUnused: true,
+        extraParams: { notThrowError: true }
+      }
     )
 
     const jobData = {
