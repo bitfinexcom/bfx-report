@@ -178,7 +178,10 @@ const setDefaultParams = (args, method) => {
     ? Math.min(args.params.end, Date.now())
     : Date.now()
 
-  if (method === 'getWallets') {
+  if (
+    method === 'getWallets' ||
+    method === 'getPositionsSnapshot'
+  ) {
     return
   }
 
