@@ -180,7 +180,8 @@ const setDefaultParams = (args, method) => {
 
   if (
     method === 'getWallets' ||
-    method === 'getPositionsSnapshot'
+    method === 'getPositionsSnapshot' ||
+    method === 'getFullSnapshotReport'
   ) {
     return
   }
