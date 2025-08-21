@@ -6,7 +6,6 @@ const {
   prepareApiResponse,
   prepareSymbolResponse
 } = require('./prepare-response')
-const checkParams = require('./check-params')
 const {
   getMethodLimit,
   getReportFileArgs,
@@ -73,7 +72,6 @@ module.exports = {
   MIN_START_MTS,
   getDateNotMoreNow,
   getDateNotLessMinStart,
-  checkParams,
   hasJobInQueueWithStatusBy,
   isAuthError,
   isRateLimitError,
