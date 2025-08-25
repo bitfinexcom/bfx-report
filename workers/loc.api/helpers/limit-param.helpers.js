@@ -60,20 +60,29 @@ const getMethodLimit = (sendLimit, method, methodsLimits = {}) => {
   return getLimitNotMoreThan(base, max)
 }
 
-const getReportFileArgs = (args, method, extraParams = {}) => {
+const getReportFileArgs = (args, opts) => {
+  const {
+    method,
+    extraParams = {},
+    isLimitUnused
+  } = opts ?? {}
+
   const reportFileArgs = {
     ...args,
     params: {
-      ...args.params,
+      ...args?.params,
       ...extraParams
     }
   }
 
-  if (method === 'getWeightedAverages') {
+  if (isLimitUnused) {
     return reportFileArgs
   }
 
-  reportFileArgs.params.limit = getMethodLimit({ isMax: true }, method)
+  reportFileArgs.params.limit = getMethodLimit(
+    { isMax: true },
+    method
+  )
 
   return reportFileArgs
 }

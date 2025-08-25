@@ -22,27 +22,33 @@ const FILTER_SCHEMA_IDS = require('./filter.schema.ids')
 const schemas = require('./schemas')
 const filterSchemas = require('./filter-schemas')
 
-const ajv = new Ajv({
-  // Compile schema on initialization
-  schemas: [
-    ...Object.values(schemas),
-    ...Object.values(filterSchemas)
-  ],
+let ajv
 
-  // Strict mode
-  strict: true,
-  strictRequired: true,
-  allowMatchingProperties: true,
-  allowUnionTypes: true,
+const init = () => {
+  ajv = new Ajv({
+    // Compile schema on initialization
+    schemas: [
+      ...Object.values(schemas),
+      ...Object.values(filterSchemas)
+    ],
 
-  $data: true,
-  ownProperties: true,
-  allErrors: true,
-  messages: true,
-  formats: { reserved: true },
-  verbose: isDevEnv
-})
-addFormats(ajv)
+    // Strict mode
+    strict: true,
+    strictRequired: true,
+    allowMatchingProperties: true,
+    allowUnionTypes: true,
+
+    $data: true,
+    ownProperties: true,
+    allErrors: true,
+    messages: true,
+    formats: { reserved: true },
+    verbose: isDevEnv
+  })
+  addFormats(ajv)
+
+  return module.exports
+}
 
 const addSchemas = (schemas = []) => {
   const _schemas = Array.isArray(schemas)
@@ -104,7 +110,7 @@ const reinit = (args) => {
     schemaIds,
     filterSchemaNames,
     filterSchemaIds,
-    schemas = []
+    schemas = {}
   } = args ?? {}
 
   Object.assign(SCHEMA_NAMES, schemaNames)
@@ -112,7 +118,9 @@ const reinit = (args) => {
   Object.assign(FILTER_SCHEMA_NAMES, filterSchemaNames)
   Object.assign(FILTER_SCHEMA_IDS, filterSchemaIds)
 
-  addSchemas(schemas)
+  addSchemas(Object.values(schemas))
+
+  return module.exports
 }
 
 module.exports = {
@@ -122,6 +130,10 @@ module.exports = {
   FILTER_SCHEMA_NAMES,
   FILTER_SCHEMA_IDS,
 
+  schemas,
+  filterSchemas,
+
+  init,
   reinit,
   addSchemas,
   validate

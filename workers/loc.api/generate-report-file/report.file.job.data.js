@@ -50,7 +50,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'trades')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'trades',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -97,7 +103,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'fundingTrades')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'fundingTrades',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -143,7 +155,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'tickersHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'tickersHistory',
+        extraParams: { notThrowError: true }
+      }
+    )
     const symb = Array.isArray(args.params.symbol)
       ? args.params.symbol
       : [args.params.symbol]
@@ -248,7 +266,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'positionsHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'positionsHistory',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -302,7 +326,13 @@ class ReportFileJobData {
       userInfo,
       userId,
       name: 'getActivePositions',
-      args,
+      args: {
+        ...args,
+        params: {
+          ...args?.params,
+          notThrowError: true
+        }
+      },
       propNameForPagination: 'mtsUpdate',
       columnsCsv: {
         id: '#',
@@ -352,7 +382,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(_args, 'positionsAudit')
+    const reportFileArgs = getReportFileArgs(
+      _args,
+      {
+        method: 'positionsAudit',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -409,7 +445,13 @@ class ReportFileJobData {
     const isTradingPair = Array.isArray(params.symbol)
       ? params.symbol[0].startsWith('t')
       : params.symbol.startsWith('t')
-    const reportFileArgs = getReportFileArgs(args, 'publicTrades', { isTradingPair })
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'publicTrades',
+        extraParams: { isTradingPair, notThrowError: true }
+      }
+    )
     const columnsCsv = (isTradingPair)
       ? {
           id: '#',
@@ -510,7 +552,13 @@ class ReportFileJobData {
       userInfo,
       userId,
       name: 'getCandles',
-      args,
+      args: {
+        ...args,
+        params: {
+          ...args?.params,
+          notThrowError: true
+        }
+      },
       propNameForPagination: 'mts',
       columnsCsv: {
         mts: 'TIME',
@@ -549,7 +597,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'ledgers')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'ledgers',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -597,7 +651,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'payInvoiceList')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'payInvoiceList',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -643,7 +703,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'orderTrades')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'orderTrades',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -689,7 +755,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'orders')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'orders',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -745,7 +817,13 @@ class ReportFileJobData {
       userInfo,
       userId,
       name: 'getActiveOrders',
-      args,
+      args: {
+        ...args,
+        params: {
+          ...args?.params,
+          notThrowError: true
+        }
+      },
       propNameForPagination: null,
       columnsCsv: {
         id: '#',
@@ -790,7 +868,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'movements')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'movements',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -836,7 +920,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'fundingOfferHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'fundingOfferHistory',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -885,7 +975,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'fundingLoanHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'fundingLoanHistory',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -936,7 +1032,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'fundingCreditHistory')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'fundingCreditHistory',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -988,7 +1090,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'logins')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'logins',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -1028,7 +1136,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'changeLogs')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        method: 'changeLogs',
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,
@@ -1138,7 +1252,13 @@ class ReportFileJobData {
       uInfo
     )
 
-    const reportFileArgs = getReportFileArgs(args, 'getWeightedAverages')
+    const reportFileArgs = getReportFileArgs(
+      args,
+      {
+        isLimitUnused: true,
+        extraParams: { notThrowError: true }
+      }
+    )
 
     const jobData = {
       userInfo,

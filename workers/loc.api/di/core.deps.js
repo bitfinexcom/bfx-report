@@ -17,6 +17,6 @@ module.exports = () => {
         [TYPES.CONF]
       )
     }).inSingletonScope()
-    bind(TYPES.DataValidator).toConstantValue(dataValidator)
+    bind(TYPES.DataValidator).toConstantValue(dataValidator.init())
   })
 }
