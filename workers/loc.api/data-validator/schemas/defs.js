@@ -151,6 +151,10 @@ module.exports = {
     },
     method: {
       type: 'string'
+    },
+    candleTimeframe: {
+      type: 'string',
+      minLength: 2
     }
   }
 }

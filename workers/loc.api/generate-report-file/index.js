@@ -1,10 +1,12 @@
 'use strict'
 
 const {
-  checkFilterParams,
-  FILTER_MODELS_NAMES,
+  FILTER_API_METHOD_NAMES,
   normalizeFilterParams
 } = require('../helpers')
+const {
+  getFilterValidationSchemaId
+} = require('../helpers/prepare-response/helpers')
 const {
   EmailSendingError,
   GrcPDFAvailabilityError
@@ -62,7 +64,7 @@ const _getReportFileStoreStatus = async ({
   return { isSendEmail: true }
 }
 
-const _filterModelNameMap = Object.values(FILTER_MODELS_NAMES)
+const _filterApiMethodNameMap = Object.values(FILTER_API_METHOD_NAMES)
   .reduce((map, name) => {
     const baseName = `${name[0].toUpperCase()}${name.slice(1)}`
     const key = `get${baseName}FileJobData`
@@ -84,17 +86,17 @@ const _truncateFileNameEnding = (name) => {
   return `${cleanedName[0].toLowerCase()}${cleanedName.slice(1)}`
 }
 
-const _getFilterModelNamesAndArgs = (
+const _getFilterApiMethodNamesAndArgs = (
   name,
   reqArgs
 ) => {
   if (name !== 'getMultipleFileJobData') {
-    const filterModelName = _filterModelNameMap.get(name)
+    const filterApiMethodName = _filterApiMethodNameMap.get(name)
     const truncatedName = _truncateFileNameEnding(name)
     const args = normalizeFilterParams(truncatedName, reqArgs)
 
     return [{
-      filterModelName,
+      filterApiMethodName,
       args
     }]
   }
@@ -110,10 +112,10 @@ const _getFilterModelNamesAndArgs = (
     const name = `${method}JobData`
     const truncatedName = _truncateFileNameEnding(method)
     const args = normalizeFilterParams(truncatedName, { params })
-    const filterModelName = _filterModelNameMap.get(name)
+    const filterApiMethodName = _filterApiMethodNameMap.get(name)
 
     return {
-      filterModelName,
+      filterApiMethodName,
       args
     }
   })
@@ -125,7 +127,8 @@ module.exports = (
   reportFileJobData,
   rService,
   rootPath,
-  conf
+  conf,
+  dataValidator
 ) => async (
   name,
   args
@@ -138,13 +141,17 @@ module.exports = (
     rootPath,
     conf
   })
-  const checkingDataArr = _getFilterModelNamesAndArgs(
+  const checkingDataArr = _getFilterApiMethodNamesAndArgs(
     name,
     args
   )
 
-  for (const { filterModelName, args } of checkingDataArr) {
-    checkFilterParams(filterModelName, args)
+  for (const { filterApiMethodName, args } of checkingDataArr) {
+    const filterSchemaId = getFilterValidationSchemaId(filterApiMethodName)
+    await dataValidator.validate(
+      { params: args?.params?.filter },
+      filterSchemaId
+    )
   }
 
   const getter = reportFileJobData[name].bind(reportFileJobData)

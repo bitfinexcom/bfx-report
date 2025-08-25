@@ -7,10 +7,12 @@ const {
   parseLoginsExtraDataFields,
   accountCache,
   getTimezoneConf,
-  filterModels,
   parsePositionsAuditId,
   prepareSymbolResponse
 } = require('./helpers')
+const {
+  filterModels
+} = require('./data-validator/filter-schemas/helpers')
 const {
   omitPrivateModelFields
 } = require('./helpers/prepare-response/helpers')
@@ -71,8 +73,10 @@ class ReportService extends Api {
     return rest.futures()
   }
 
-  _getCurrencies () {
-    const rest = this._getREST({})
+  _getCurrencies (args) {
+    const rest = this._getREST({}, {
+      interrupter: args?.interrupter
+    })
 
     return rest.currencies()
   }

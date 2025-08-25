@@ -170,16 +170,6 @@ const writeMessageToStream = (
 }
 
 const setDefaultParams = (args, method) => {
-  if (method === 'getWallets') {
-    args.params.end = args.params.end
-      ? Math.min(args.params.end, Date.now())
-      : Date.now()
-
-    return
-  }
-
-  args.params.notThrowError = true
-
   if (method === 'getStatusMessages') {
     return
   }
@@ -187,6 +177,15 @@ const setDefaultParams = (args, method) => {
   args.params.end = args.params.end
     ? Math.min(args.params.end, Date.now())
     : Date.now()
+
+  if (
+    method === 'getWallets' ||
+    method === 'getPositionsSnapshot' ||
+    method === 'getFullSnapshotReport'
+  ) {
+    return
+  }
+
   args.params.start = args.params.start
     ? args.params.start
     : 0

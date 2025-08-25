@@ -144,7 +144,8 @@ module.exports = ({
           TYPES.ReportFileJobData,
           TYPES.RService,
           TYPES.RootPath,
-          TYPES.CONF
+          TYPES.CONF,
+          TYPES.DataValidator
         ]
       ))
     bind(TYPES.WriteDataToStream).toConstantValue(
