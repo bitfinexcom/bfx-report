@@ -58,7 +58,6 @@ const checkJobAndGetUserData = require(
 )
 const grcBfxReq = require('./grc-bfx-req')
 const filterResponse = require('./filter-response')
-const normalizeFilterParams = require('./normalize-filter-params')
 const FILTER_API_METHOD_NAMES = require('./filter.api.method.names')
 const FILTER_CONDITIONS = require('./filter.conditions')
 const getDataFromApi = require('./get-data-from-api')
@@ -110,7 +109,6 @@ module.exports = {
   checkJobAndGetUserData,
   grcBfxReq,
   filterResponse,
-  normalizeFilterParams,
   FILTER_API_METHOD_NAMES,
   FILTER_CONDITIONS,
   getDataFromApi,
