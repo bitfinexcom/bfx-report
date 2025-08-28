@@ -45,6 +45,13 @@ module.exports = (
   const currIterationArgs = cloneDeep(_args)
 
   const getData = rService[method].bind(rService)
+  const getSymbols = rService.getSymbols.bind(rService)
+  const symbols = await getDataFromApi({
+    getSymbols,
+    args: {},
+    callerName: 'REPORT_FILE_WRITER',
+    shouldNotInterrupt: true
+  })
 
   let count = 0
   let serialRequestsCount = 0
@@ -101,7 +108,7 @@ module.exports = (
         res,
         stream,
         formatSettings,
-        { ..._args.params },
+        { ..._args.params, symbols },
         method
       )
       processorQueue.emit('progress', 100)
@@ -142,7 +149,7 @@ module.exports = (
       res,
       stream,
       formatSettings,
-      { ..._args.params },
+      { ..._args.params, symbols },
       method
     )
 
