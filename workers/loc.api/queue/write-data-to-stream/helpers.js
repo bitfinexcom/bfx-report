@@ -14,6 +14,31 @@ const _validTxtTimeZone = (val, timezone, format) => {
 }
 
 const _formatters = {
+  prepareCurrency: (ccy, params) => {
+    const currencies = params?.symbols?.currencies
+    const currencyName = params?.allDataFields?.currencyName
+
+    if (
+      !ccy ||
+      typeof ccy !== 'string' ||
+      !Array.isArray(currencies) ||
+      !currencyName ||
+      typeof currencyName !== 'string'
+    ) {
+      return ccy
+    }
+    if (
+      ccy !== 'USDt' &&
+      ccy !== 'UST'
+    ) {
+      return ccy
+    }
+
+    const ccyId = currencyName.replace('TETHER', '')
+    const name = currencies.find((item) => item?.name === ccyId)
+
+    return name ?? ccy
+  },
   date: (
     val,
     {
@@ -112,6 +137,11 @@ const _dataFormatter = (data, formatSettings, params) => {
   const objArr = isArray ? clonedData : [clonedData]
 
   for (const obj of objArr) {
+    const formatterParams = {
+      ...params,
+      allDataFields: obj
+    }
+
     for (const [key, val] of Object.entries(formatSettings)) {
       try {
         if (
@@ -119,7 +149,7 @@ const _dataFormatter = (data, formatSettings, params) => {
           val &&
           typeof val === 'object'
         ) {
-          obj[key] = _dataFormatter(obj[key], val, params)
+          obj[key] = _dataFormatter(obj[key], val, formatterParams)
 
           continue
         }
@@ -127,7 +157,7 @@ const _dataFormatter = (data, formatSettings, params) => {
           typeof obj[key] !== 'undefined' &&
           typeof _formatters[val] === 'function'
         ) {
-          obj[key] = _formatters[val](obj[key], params)
+          obj[key] = _formatters[val](obj[key], formatterParams)
 
           continue
         }
