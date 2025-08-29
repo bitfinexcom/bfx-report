@@ -46,12 +46,17 @@ module.exports = (
 
   const getData = rService[method].bind(rService)
   const getSymbols = rService.getSymbols.bind(rService)
-  const symbols = await getDataFromApi({
-    getSymbols,
+  const symbols = (await getDataFromApi({
+    getData: getSymbols,
     args: {},
     callerName: 'REPORT_FILE_WRITER',
     shouldNotInterrupt: true
-  })
+  })) ?? {}
+  symbols.currencyNameMap = symbols.currencies.reduce((accum, curr) => {
+    accum[curr?.id] = curr?.name
+
+    return accum
+  }, {})
 
   let count = 0
   let serialRequestsCount = 0
