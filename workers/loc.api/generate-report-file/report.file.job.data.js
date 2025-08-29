@@ -894,7 +894,8 @@ class ReportFileJobData {
         note: 'NOTE'
       },
       formatSettings: {
-        mtsUpdated: 'date'
+        mtsUpdated: 'date',
+        currency: 'prepareCurrency'
       }
     }
 
