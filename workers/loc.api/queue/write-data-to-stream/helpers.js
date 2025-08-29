@@ -15,15 +15,16 @@ const _validTxtTimeZone = (val, timezone, format) => {
 
 const _formatters = {
   prepareCurrency: (ccy, params) => {
-    const currencies = params?.symbols?.currencies
     const currencyName = params?.allDataFields?.currencyName
+    const currencyNameMap = params?.symbols?.currencyNameMap
 
     if (
       !ccy ||
       typeof ccy !== 'string' ||
-      !Array.isArray(currencies) ||
       !currencyName ||
-      typeof currencyName !== 'string'
+      typeof currencyName !== 'string' ||
+      !currencyNameMap ||
+      typeof currencyNameMap !== 'object'
     ) {
       return ccy
     }
@@ -35,7 +36,7 @@ const _formatters = {
     }
 
     const ccyId = currencyName.replace('TETHER', '')
-    const name = currencies.find((item) => item?.name === ccyId)
+    const name = currencyNameMap[ccyId]
 
     return name ?? ccy
   },
