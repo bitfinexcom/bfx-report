@@ -884,7 +884,8 @@ class ReportFileJobData {
       propNameForPagination: 'mtsUpdated',
       columnsCsv: {
         id: '#',
-        mtsUpdated: 'DATE',
+        mtsStarted: 'STARTED',
+        mtsUpdated: 'UPDATED',
         currency: 'CURRENCY',
         status: 'STATUS',
         amount: 'AMOUNT',
@@ -894,6 +895,7 @@ class ReportFileJobData {
         note: 'NOTE'
       },
       formatSettings: {
+        mtsStarted: 'date',
         mtsUpdated: 'date',
         currency: 'prepareCurrency'
       }
