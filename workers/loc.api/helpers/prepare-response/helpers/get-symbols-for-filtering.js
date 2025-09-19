@@ -18,8 +18,7 @@ module.exports = ({
 
   if (
     apiMethodName === 'positionsHistory' ||
-    apiMethodName === 'positionsAudit' ||
-    apiMethodName === 'payInvoiceList'
+    apiMethodName === 'positionsAudit'
   ) {
     return Array.isArray(symbol)
       ? [...symbol]

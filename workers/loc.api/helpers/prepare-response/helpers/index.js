@@ -1,7 +1,6 @@
 'use strict'
 
 const getParamsMap = require('./get-params-map')
-const getParamsSchemaName = require('./get-params-schema-name')
 const getValidationSchemaId = require('./get-validation-schema-id')
 const getFilterValidationSchemaId = require('./get-filter-validation-schema-id')
 const omitPrivateModelFields = require('./omit-private-model-fields')
@@ -13,7 +12,6 @@ const isNotContainedSameMts = require('./is-not-contained-same-mts')
 
 module.exports = {
   getParamsMap,
-  getParamsSchemaName,
   getValidationSchemaId,
   getFilterValidationSchemaId,
   omitPrivateModelFields,

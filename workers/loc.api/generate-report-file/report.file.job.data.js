@@ -632,58 +632,6 @@ class ReportFileJobData {
     return jobData
   }
 
-  async getPayInvoiceListFileJobData (
-    args,
-    uId,
-    uInfo
-  ) {
-    this.dataValidator.validate(
-      args,
-      this.dataValidator.SCHEMA_IDS.COMMON_FILE_REQ
-    )
-
-    const {
-      userId,
-      userInfo
-    } = await checkJobAndGetUserData(
-      this.rService,
-      uId,
-      uInfo
-    )
-
-    const reportFileArgs = getReportFileArgs(
-      args,
-      {
-        method: 'payInvoiceList',
-        extraParams: { notThrowError: true }
-      }
-    )
-
-    const jobData = {
-      userInfo,
-      userId,
-      name: 'getPayInvoiceList',
-      args: reportFileArgs,
-      propNameForPagination: 't',
-      columnsCsv: {
-        id: '#',
-        t: 'DATE',
-        duration: 'DURATION',
-        amount: 'AMOUNT',
-        currency: 'CURRENCY',
-        orderId: 'ORDER ID',
-        payCurrencies: 'PAY CURRENCIES',
-        status: 'STATUS',
-        merchantName: 'MERCHANT NAME'
-      },
-      formatSettings: {
-        t: 'date'
-      }
-    }
-
-    return jobData
-  }
-
   async getOrderTradesFileJobData (
     args,
     uId,

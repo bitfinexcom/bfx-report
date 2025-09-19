@@ -392,19 +392,6 @@ class ReportService extends Api {
     }, 'getLedgers', args, cb)
   }
 
-  getPayInvoiceList (space, args, cb) {
-    return this._responder(() => {
-      return this._prepareApiResponse(
-        args,
-        'payInvoiceList',
-        {
-          datePropName: 't',
-          symbPropName: 'currency'
-        }
-      )
-    }, 'getInvoiceList', args, cb)
-  }
-
   getTrades (space, args, cb) {
     return this._responder(() => {
       return this._prepareApiResponse(
@@ -797,15 +784,6 @@ class ReportService extends Api {
         args
       )
     }, 'getLedgersFile', args, cb)
-  }
-
-  getPayInvoiceListFile (space, args, cb) {
-    return this._responder(() => {
-      return this._generateReportFile(
-        'getPayInvoiceListFileJobData',
-        args
-      )
-    }, 'getPayInvoiceListFile', args, cb)
   }
 
   getOrderTradesFile (space, args, cb) {

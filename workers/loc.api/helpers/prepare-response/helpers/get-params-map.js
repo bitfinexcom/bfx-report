@@ -45,10 +45,6 @@ const PARAMS_MAP = {
     ...MAIN_PARAMS_MAP,
     symbol: 'symbols'
   },
-  payInvoiceList: {
-    ...MAIN_PARAMS_MAP,
-    id: 'id'
-  },
   trades: {
     ...DEFAULT_PARAMS_MAP,
     sort: 'sort'
