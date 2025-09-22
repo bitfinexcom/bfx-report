@@ -19,9 +19,6 @@ module.exports = ({
     category
   } = params ?? {}
 
-  if (apiMethodName === 'payInvoiceList') {
-    return { symbol: null }
-  }
   if (
     apiMethodName === 'candles' ||
     apiMethodName === 'publicTrades'

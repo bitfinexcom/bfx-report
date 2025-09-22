@@ -48,7 +48,7 @@ module.exports = (
   const getSymbols = rService.getSymbols.bind(rService)
   const symbols = (await getDataFromApi({
     getData: getSymbols,
-    args: {},
+    args: { auth: { ...jobData?.args?.auth } },
     callerName: 'REPORT_FILE_WRITER',
     shouldNotInterrupt: true
   })) ?? {}

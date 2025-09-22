@@ -5,7 +5,6 @@ const { SCHEMA_IDS } = require('../../../data-validator')
 const PARAMS_SCHEMAS_MAP = {
   default: SCHEMA_IDS.COMMON_REQ,
 
-  payInvoiceList: SCHEMA_IDS.GET_PAY_INVOICE_LIST_REQ,
   statusMessages: SCHEMA_IDS.GET_STATUS_MESSAGES_REQ,
   publicTrades: SCHEMA_IDS.GET_PUBLIC_TRADES_REQ,
   positionsAudit: SCHEMA_IDS.GET_POSITIONS_AUDIT_REQ,

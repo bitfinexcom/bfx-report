@@ -26,6 +26,5 @@ module.exports = {
   STATUS_MESSAGES: 'statusMessages',
   LOGINS: 'logins',
   CHANGE_LOGS: 'changeLogs',
-  CANDLES: 'candles',
-  PAY_INVOICE_LIST: 'payInvoiceList'
+  CANDLES: 'candles'
 }

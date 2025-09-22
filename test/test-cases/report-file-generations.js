@@ -350,34 +350,6 @@ module.exports = (
     await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
   })
 
-  it('it should be successfully performed by the getPayInvoiceListFile method', async function () {
-    this.timeout(60000)
-
-    const procPromise = queueToPromise(params.processorQueue)
-    const aggrPromise = queueToPromise(params.aggregatorQueue)
-
-    const res = await agent
-      .post(`${basePath}/json-rpc`)
-      .type('json')
-      .send({
-        auth,
-        method: 'getPayInvoiceListFile',
-        params: {
-          isPDFRequired,
-          end,
-          start,
-          limit: 100,
-          timezone: -3,
-          email
-        },
-        id: 5
-      })
-      .expect('Content-Type', /json/)
-      .expect(200)
-
-    await testMethodOfGettingReportFile(procPromise, aggrPromise, res)
-  })
-
   it('it should be successfully performed by the getTradesFile method', async function () {
     this.timeout(60000)
 
