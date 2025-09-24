@@ -47,7 +47,14 @@ describe('Queue load', () => {
 
     mockRESTv2Srv = createMockRESTv2SrvWithDate(start, end, null, {
       ledgers: { limit },
-      user_info: null
+      user_info: null,
+      symbols: null,
+      map_symbols: null,
+      inactive_currencies: null,
+      margin_currencies: null,
+      inactive_symbols: null,
+      futures: null,
+      currencies: null
     })
 
     await rmAllFiles(tempDirPath)

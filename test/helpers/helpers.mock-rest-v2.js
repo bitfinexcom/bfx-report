@@ -51,18 +51,12 @@ const setDataTo = (
   const {
     date = Date.now(),
     id = 12345,
-    fee = -0.0001,
-    strId = uuidv4()
+    fee = -0.0001
   } = { ...params }
 
   const _date = Math.round(date)
 
   switch (key) {
-    case 'invoice_list':
-      dataItem.id = strId
-      dataItem.t = _date
-      break
-
     case 'candles':
       dataItem[0] = _date
       break
@@ -207,7 +201,6 @@ const getMockDataOpts = () => ({
   logins_hist: { limit: 250 },
   change_log: { limit: 500 },
   candles: { limit: 500 },
-  invoice_list: { limit: 100 },
   user_info: null,
   symbols: null,
   map_symbols: null,

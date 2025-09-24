@@ -3,7 +3,6 @@
 const { MinLimitParamError } = require('../../errors')
 
 const filterResponse = require('../filter-response')
-const normalizeFilterParams = require('../normalize-filter-params')
 
 const prepareSymbolResponse = require('./prepare-symbol-response')
 
@@ -130,7 +129,7 @@ const prepareApiResponse = (
   getREST,
   dataValidator
 ) => async (
-  reqArgs,
+  args,
   apiMethodName,
   params = {}
 ) => {
@@ -143,8 +142,7 @@ const prepareApiResponse = (
   const schemaId = getValidationSchemaId(apiMethodName)
   const filterSchemaId = getFilterValidationSchemaId(apiMethodName)
 
-  await dataValidator.validate(reqArgs, schemaId)
-  const args = normalizeFilterParams(apiMethodName, reqArgs)
+  await dataValidator.validate(args, schemaId)
   await dataValidator.validate(
     { params: args?.params?.filter },
     filterSchemaId

@@ -1,8 +1,7 @@
 'use strict'
 
 const {
-  FILTER_API_METHOD_NAMES,
-  normalizeFilterParams
+  FILTER_API_METHOD_NAMES
 } = require('../helpers')
 const {
   getFilterValidationSchemaId
@@ -74,26 +73,12 @@ const _filterApiMethodNameMap = Object.values(FILTER_API_METHOD_NAMES)
     return map
   }, new Map())
 
-const _truncateFileNameEnding = (name) => {
-  if (!name) {
-    return name
-  }
-
-  const cleanedName = name
-    .replace(/^get/i, '')
-    .replace(/(file)|(csv)$/i, '')
-
-  return `${cleanedName[0].toLowerCase()}${cleanedName.slice(1)}`
-}
-
 const _getFilterApiMethodNamesAndArgs = (
   name,
-  reqArgs
+  args
 ) => {
   if (name !== 'getMultipleFileJobData') {
     const filterApiMethodName = _filterApiMethodNameMap.get(name)
-    const truncatedName = _truncateFileNameEnding(name)
-    const args = normalizeFilterParams(truncatedName, reqArgs)
 
     return [{
       filterApiMethodName,
@@ -101,22 +86,18 @@ const _getFilterApiMethodNamesAndArgs = (
     }]
   }
 
-  const { params } = { ...reqArgs }
-  const { multiExport } = { ...params }
+  const multiExport = args?.params?.multiExport ?? []
   const _multiExport = Array.isArray(multiExport)
     ? multiExport
     : []
 
   return _multiExport.map((params) => {
-    const { method } = { ...params }
-    const name = `${method}JobData`
-    const truncatedName = _truncateFileNameEnding(method)
-    const args = normalizeFilterParams(truncatedName, { params })
+    const name = `${params?.method}JobData`
     const filterApiMethodName = _filterApiMethodNameMap.get(name)
 
     return {
       filterApiMethodName,
-      args
+      args: { params }
     }
   })
 }
