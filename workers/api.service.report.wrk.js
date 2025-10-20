@@ -206,6 +206,8 @@ class WrkReportServiceApi extends WrkApi {
       link: this.grc_bfx.link,
       deflateFac: this.deflate_gzip,
       grcSlackFac,
+      redisSk0: this.redis_sk0,
+      conf: this.conf.report,
       i18next,
       ...deps
     })
