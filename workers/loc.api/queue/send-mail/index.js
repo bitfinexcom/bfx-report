@@ -1,15 +1,5 @@
 'use strict'
 
-const path = require('path')
-const pug = require('pug')
-
-const getTranslator = require('../../helpers/get-translator')
-const TRANSLATION_NAMESPACES = require(
-  '../../i18next/translation.namespaces'
-)
-
-const basePathToViews = path.join(__dirname, 'views')
-
 const SENDGRID_WORKER_SUPPORTED_LNGS = {
   en: 'en',
   'en-US': 'en',
@@ -27,59 +17,26 @@ const _getSendgridLng = (lng) => {
   return SENDGRID_WORKER_SUPPORTED_LNGS[lng] ?? lng
 }
 
-module.exports = (grcBfxReq, i18next) => {
+module.exports = (conf, redisSk0) => {
   return async (
     configs,
     to,
-    viewName,
     dataArr
   ) => {
-    const pathToView = path.join(basePathToViews, viewName)
-
     const promises = dataArr.map(data => {
       const {
         presigned_url: url,
         language = 'en'
       } = data ?? {}
-      const translate = getTranslator(
-        { i18next },
-        {
-          lng: language,
-          ns: TRANSLATION_NAMESPACES.EMAIL
-        }
-      )
-      const subject = translate(
-        configs.subject,
-        'template.subject'
-      )
-      const text = pug.renderFile(
-        pathToView,
-        {
-          ...data,
-          filters: { translate }
-        }
-      )
-      const button = {
-        url,
-        text: translate(
-          'Download Report',
-          'template.btnText'
-        )
-      }
-      const mailOptions = {
+
+      const payload = {
         ...configs,
+        reportUrl: url,
         to,
-        text,
-        subject,
-        button,
-        language: _getSendgridLng(language)
+        lang: _getSendgridLng(language)
       }
 
-      return grcBfxReq({
-        service: 'rest:ext:sendgrid',
-        action: 'sendEmail',
-        args: [mailOptions]
-      })
+      return redisSk0.cli_rw.lpush(conf.mailQueue, JSON.stringify({ type: 'report-download-ready', payload }))
     })
 
     return Promise.all(promises)

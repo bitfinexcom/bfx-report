@@ -16,5 +16,6 @@
   "isAddedUniqueEndingToReportFileName": false,
   "isCompress": true,
   "isLoggerDisabled": false,
-  "isHosted": true
+  "isHosted": true,
+  "mailQueue": "core.mail"
 }

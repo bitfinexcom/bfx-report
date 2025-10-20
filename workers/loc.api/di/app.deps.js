@@ -41,9 +41,13 @@ module.exports = ({
   deflateFac,
   grcSlackFac,
   link,
+  redisSk0,
+  conf,
   i18next
 }) => {
   return new ContainerModule((bind) => {
+    bind(TYPES.CONF).toConstantValue(conf)
+    bind(TYPES.RedisSk0).toConstantValue(redisSk0)
     bind(TYPES.RService).toConstantValue(rService)
     bind(TYPES.RootPath).toConstantValue(rService.ctx.rootPath)
     bind(TYPES.I18next).toConstantValue(i18next)
@@ -173,8 +177,8 @@ module.exports = ({
       bindDepsToFn(
         sendMail,
         [
-          TYPES.GrcBfxReq,
-          TYPES.I18next
+          TYPES.CONF,
+          TYPES.RedisSk0
         ]
       )
     )

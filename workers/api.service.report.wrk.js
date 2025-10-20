@@ -180,7 +180,8 @@ class WrkReportServiceApi extends WrkApi {
         's0',
         's0',
         {}
-      ]
+      ],
+      ['fac', 'bfx-facs-redis', 'sk0', 'sk0', {}]
     ]
 
     this.setInitFacs(facs)

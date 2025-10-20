@@ -14,13 +14,8 @@ npm install
 
 ### Configure service
 
-- As to configure the service copy the json.example files from config folder into new ones. Open a console on projects folder a copy the following codes :
-
-```console
-cp config/common.json.example config/common.json
-cp config/service.report.json.example config/service.report.json
-cp config/schedule.json.example config/schedule.json
-cp config/facs/grc.config.json.example config/facs/grc.config.json
+```bash
+bash setup-config.sh
 ```
 
 - To set grenache client for express, edit common.json. If running locally, leave actual values skipping this step.

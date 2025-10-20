@@ -38,5 +38,6 @@ module.exports = {
   WeightedAveragesReport: Symbol.for('WeightedAveragesReport'),
   WeightedAveragesReportCsvWriter: Symbol.for('WeightedAveragesReportCsvWriter'),
   BfxApiRouter: Symbol.for('BfxApiRouter'),
-  PdfWriter: Symbol.for('PdfWriter')
+  PdfWriter: Symbol.for('PdfWriter'),
+  RedisSk0: Symbol.for('RedisSk0')
 }
