@@ -57,7 +57,6 @@ module.exports = (
         await sendMail(
           emailConf,
           email,
-          'email.pug',
           s3Data.map((item, i) => ({
             ...item,
             isUnauth,
