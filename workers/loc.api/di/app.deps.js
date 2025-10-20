@@ -46,11 +46,10 @@ module.exports = ({
   i18next
 }) => {
   return new ContainerModule((bind) => {
-    bind(TYPES.CONF).toConstantValue(conf)
-    bind(TYPES.RedisSk0).toConstantValue(redisSk0)
     bind(TYPES.RService).toConstantValue(rService)
     bind(TYPES.RootPath).toConstantValue(rService.ctx.rootPath)
     bind(TYPES.I18next).toConstantValue(i18next)
+    bind(TYPES.RedisSk0).toConstantValue(redisSk0)
     bind(TYPES.RServiceDepsSchema).toConstantValue([
       ['_responder', TYPES.Responder],
       ['_getREST', TYPES.GetREST],
