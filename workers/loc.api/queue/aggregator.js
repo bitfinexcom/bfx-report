@@ -35,7 +35,7 @@ module.exports = (
 
       const isEnableToSendEmail = (
         typeof email === 'string' &&
-        await hasGrcService.hasS3AndSendgrid()
+        await hasGrcService.hasS3AndMailServices()
       )
 
       const newFilePaths = []
