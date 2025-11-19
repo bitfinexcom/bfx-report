@@ -1,37 +1,39 @@
 'use strict'
 
-const workerArgs = ['rest:ext:sendgrid']
+const workerArgs = ['rest:core:mail']
 
 function addFunctions (ExtApi) {
-  ExtApi.prototype.sendEmail = function (space, msg, cb) {
+  ExtApi.prototype.enqueueEmail = function (space, msg, cb) {
     const {
+      lang,
       to,
       from,
-      subject,
-      text
+      reportUrl,
+      fileName
     } = msg
 
+    if (!lang) return cb(new Error('ERR_API_NO_LANGUAGE'))
     if (!to) return cb(new Error('ERR_API_NO_TO'))
     if (!from) return cb(new Error('ERR_API_NO_FROM'))
-    if (!subject) return cb(new Error('ERR_API_NO_SUBJECT'))
-    if (!text) return cb(new Error('ERR_API_NO_TEXT'))
+    if (!reportUrl) return cb(new Error('ERR_API_NO_REPORT_URL'))
+    if (!fileName) return cb(new Error('ERR_API_NO_FILE_NAME'))
 
     try {
       const res = ['send']
       const grcBfx = this.ctx.grc_bfx
       const call = {
-        worker: 'ext.sendgrid',
-        on: 'sendEmail',
+        worker: 'core.mail',
+        on: 'enqueueEmail',
         params: { msg },
         res: res[0],
         timestamp: Date.now()
       }
       grcBfx.req('rest:ext:testcalls', 'addCall', [call], { timeout: 10000 }, (err, data) => {
-        if (err) cb(new Error('ext.sendgrid:sendEmail:testcalls'))
+        if (err) cb(new Error('core.mail:enqueueEmail:testcalls'))
         else return cb(null, res && res.length && res[0])
       })
     } catch (e) {
-      cb(new Error(`ERR_API_SENDGRID: ${e.toString()}`))
+      cb(new Error(`ERR_API_MAIL: ${e.toString()}`))
     }
   }
 }
