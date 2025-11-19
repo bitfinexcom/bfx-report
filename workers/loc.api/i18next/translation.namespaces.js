@@ -1,7 +1,6 @@
 'use strict'
 
 const TRANSLATION_NAMESPACES = {
-  EMAIL: 'email',
   PDF: 'pdf'
 }
 

@@ -29,7 +29,7 @@ module.exports = (params) => {
         default: ['en']
       },
       ns: Object.values(TRANSLATION_NAMESPACES),
-      defaultNS: 'email',
+      defaultNS: TRANSLATION_NAMESPACES.PDF,
       preload: [...transPaths.reduce((accum, transPath) => {
         const allFileNames = fs.readdirSync(transPath)
 
