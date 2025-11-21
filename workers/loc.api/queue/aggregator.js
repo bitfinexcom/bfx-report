@@ -29,7 +29,6 @@ module.exports = (
         email,
         isUnauth,
         s3Conf,
-        emailConf,
         language
       } = job.data
 
@@ -55,7 +54,6 @@ module.exports = (
         )
 
         await sendMail(
-          emailConf,
           email,
           s3Data.map((item, i) => ({
             ...item,

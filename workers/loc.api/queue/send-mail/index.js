@@ -2,7 +2,6 @@
 
 module.exports = (grcBfxReq) => {
   return async (
-    emailConf,
     to,
     dataArr
   ) => {
@@ -18,7 +17,6 @@ module.exports = (grcBfxReq) => {
       const mailOptions = {
         lang: language ?? 'en',
         to,
-        from: emailConf?.from,
         reportUrl,
         fileName,
         signatureS3,

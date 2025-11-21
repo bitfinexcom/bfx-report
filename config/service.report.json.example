@@ -3,9 +3,6 @@
     "rest:report:api"
   ],
   "restUrl": "https://api-pub.bitfinex.com",
-  "emailConf": {
-    "from": "Bitfinex <no-reply@bitfinex.com>"
-  },
   "s3Conf": {
     "bucket": "",
     "acl": "",

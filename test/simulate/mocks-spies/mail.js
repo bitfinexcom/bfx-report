@@ -7,14 +7,12 @@ function addFunctions (ExtApi) {
     const {
       lang,
       to,
-      from,
       reportUrl,
       fileName
     } = msg
 
     if (!lang) return cb(new Error('ERR_API_NO_LANGUAGE'))
     if (!to) return cb(new Error('ERR_API_NO_TO'))
-    if (!from) return cb(new Error('ERR_API_NO_FROM'))
     if (!reportUrl) return cb(new Error('ERR_API_NO_REPORT_URL'))
     if (!fileName) return cb(new Error('ERR_API_NO_FILE_NAME'))
 
