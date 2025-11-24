@@ -29,15 +29,15 @@ class HasGrcService {
     }
   }
 
-  async hasS3AndSendgrid () {
+  async hasS3AndMailServices () {
     const countS3Services = await this.lookUpFunction(
       'rest:ext:s3'
     )
-    const countSendgridServices = await this.lookUpFunction(
-      'rest:ext:sendgrid'
+    const countMailServices = await this.lookUpFunction(
+      'rest:core:mail'
     )
 
-    return !!(countS3Services && countSendgridServices)
+    return !!(countS3Services && countMailServices)
   }
 
   async hasGPGService () {

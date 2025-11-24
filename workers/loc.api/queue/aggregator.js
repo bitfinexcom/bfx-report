@@ -29,13 +29,12 @@ module.exports = (
         email,
         isUnauth,
         s3Conf,
-        emailConf,
         language
       } = job.data
 
       const isEnableToSendEmail = (
         typeof email === 'string' &&
-        await hasGrcService.hasS3AndSendgrid()
+        await hasGrcService.hasS3AndMailServices()
       )
 
       const newFilePaths = []
@@ -55,9 +54,7 @@ module.exports = (
         )
 
         await sendMail(
-          emailConf,
           email,
-          'email.pug',
           s3Data.map((item, i) => ({
             ...item,
             isUnauth,

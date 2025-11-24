@@ -4,17 +4,15 @@ const workerArgs = ['rest:ext:s3']
 
 function addFunctions (ExtApi) {
   ExtApi.prototype.uploadPresigned = function (space, data, opts, cb) {
-    const upload = {
-      public_url: 'https://fakeUrl.com',
-      key: 'fakeKey',
-      s3bucket: 'fakeBucket'
+    const mockedRes = {
+      presigned_url: 'https://fakePresignedUrl.com'
     }
     const grcBfx = this.ctx.grc_bfx
     const call = {
       worker: 'ext.s3',
       on: 'uploadPresigned',
-      params: { opts },
-      res: { upload },
+      params: { data, opts },
+      res: mockedRes,
       timestamp: Date.now()
     }
 
@@ -25,7 +23,7 @@ function addFunctions (ExtApi) {
       { timeout: 10000 },
       (err, data) => {
         if (err) cb(new Error('ext.s3:uploadPresigned:testcalls'))
-        else return cb(null, upload)
+        else return cb(null, mockedRes)
       }
     )
   }

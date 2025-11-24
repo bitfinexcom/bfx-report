@@ -88,7 +88,6 @@ module.exports = (
   processorQueue.on('completed', (result) => {
     aggregatorQueue.addJob({
       ...result,
-      emailConf: conf.emailConf,
       s3Conf: conf.s3Conf
     })
   })
