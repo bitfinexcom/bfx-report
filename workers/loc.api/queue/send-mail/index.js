@@ -14,7 +14,7 @@ module.exports = (grcBfxReq) => {
         signatureS3
       } = data ?? {}
 
-      const mailOptions = {
+      const payload = {
         lang: language ?? 'en',
         to,
         reportUrl,
@@ -26,7 +26,7 @@ module.exports = (grcBfxReq) => {
       return grcBfxReq({
         service: 'rest:core:mail',
         action: 'enqueueEmail',
-        args: [mailOptions]
+        args: [{ type: 'reportDownloadReady', payload }]
       })
     })
 
