@@ -9,8 +9,9 @@ function addFunctions (ExtApi) {
       to,
       reportUrl,
       fileName
-    } = msg
+    } = msg?.payload
 
+    if (!msg?.type) return cb(new Error('ERR_API_NO_TYPE'))
     if (!lang) return cb(new Error('ERR_API_NO_LANGUAGE'))
     if (!to) return cb(new Error('ERR_API_NO_TO'))
     if (!reportUrl) return cb(new Error('ERR_API_NO_REPORT_URL'))
