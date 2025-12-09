@@ -50,7 +50,7 @@ const _getReportFileStoreStatus = async ({
     }
   }
 
-  if (!await hasGrcService.hasS3AndSendgrid()) {
+  if (!await hasGrcService.hasS3AndMailServices()) {
     throw new EmailSendingError()
   }
   if (

@@ -173,8 +173,7 @@ module.exports = ({
       bindDepsToFn(
         sendMail,
         [
-          TYPES.GrcBfxReq,
-          TYPES.I18next
+          TYPES.GrcBfxReq
         ]
       )
     )

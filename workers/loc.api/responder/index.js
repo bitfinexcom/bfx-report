@@ -173,7 +173,9 @@ const _getErrorMetadata = (args, err, name) => {
       'subAccountApiKeys',
       'subAccountPassword',
       'addingSubUsers',
-      'removingSubUsersByEmails'
+      'removingSubUsersByEmails',
+      'login',
+      'password'
     ])
     : args?.params ?? null
   const extendedData = {
