@@ -113,7 +113,7 @@ module.exports = (
         res,
         stream,
         formatSettings,
-        { ..._args.params, symbols },
+        { ...jobData?.args?.params, symbols },
         method
       )
       processorQueue.emit('progress', 100)
@@ -154,7 +154,7 @@ module.exports = (
       res,
       stream,
       formatSettings,
-      { ..._args.params, symbols },
+      { ...jobData?.args?.params, symbols },
       method
     )
 
