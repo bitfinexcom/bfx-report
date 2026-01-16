@@ -164,6 +164,7 @@ class PdfWriter {
       isError
     } = opts ?? {}
 
+    const translate = this.getTranslator(language)
     const template = this.#getTemplate(
       pdfCustomTemplateName,
       language
@@ -176,6 +177,15 @@ class PdfWriter {
       jobData.args.params
     )
     const reportColumns = jobData?.columnsPdf ?? jobData?.columnsCsv
+    const _date = date instanceof Date
+      ? date
+      : new Date()
+    const currYear = _date.getUTCFullYear()
+    const defaultValue = `Copyright © 2013-${currYear} iFinex Inc. All rights reserved.`
+    const copyright = translate(defaultValue, {
+      prop: 'template.copyright',
+      currYear
+    })
 
     const html = template({
       shouldZoomBeAdjusted: this.shouldZoomBeAdjusted,
@@ -191,9 +201,8 @@ class PdfWriter {
       end: Number.isFinite(jobData?.args?.params?.end)
         ? new Date(jobData.args.params.end)
         : new Date(),
-      date: date instanceof Date
-        ? date
-        : new Date()
+      date: _date,
+      copyright
     })
 
     return html
