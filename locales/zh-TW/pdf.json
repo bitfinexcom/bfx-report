@@ -9,8 +9,7 @@
     "email": "電子郵箱",
     "errorMessage": "無法建立檔案，請重試",
     "reportGenAt": "報告建立時間：",
-    "copyrightStart": "Copyright © 2013-",
-    "copyrightEnd": "iFinex Inc. All rights reserved.",
+    "copyright": "Copyright © 2013-{{currYear}} iFinex Inc. All rights reserved.",
     "page": "頁數",
     "from": "從"
   }

@@ -9,8 +9,7 @@
     "email": "电子邮箱",
     "errorMessage": "无法建立档案，请重试",
     "reportGenAt": "报告创建时间",
-    "copyrightStart": "Copyright © 2013-",
-    "copyrightEnd": "iFinex Inc. All rights reserved.",
+    "copyright": "Copyright © 2013-{{currYear}} iFinex Inc. All rights reserved.",
     "page": "页数",
     "from": "从"
   }

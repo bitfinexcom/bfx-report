@@ -9,8 +9,7 @@
     "email": "e-mail",
     "errorMessage": "Seu arquivo não pode ser completado, por favor tente novamente",
     "reportGenAt": "Informe gerado em ",
-    "copyrightStart": "Copyright © 2013-",
-    "copyrightEnd": "iFinex Inc. Todos os direitos reservados.",
+    "copyright": "Copyright © 2013-{{currYear}} iFinex Inc. Todos os direitos reservados.",
     "page": "Página",
     "from": "de"
   }
