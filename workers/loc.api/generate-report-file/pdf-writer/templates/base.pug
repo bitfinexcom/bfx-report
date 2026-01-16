@@ -138,8 +138,11 @@ html(lang=language)
             | : #{date.toLocaleString(language, { timeZone: 'UTC' })}
 
           div.copyright
-            :translate(prop='template.copyright')
-              Copyright © 2013-2026 iFinex Inc. All rights reserved.
+            :translate(prop='template.copyrightStart')
+              Copyright © 2013-
+            | #{date.getUTCFullYear()}&nbsp;
+            :translate(prop='template.copyrightEnd')
+              iFinex Inc. All rights reserved.
 
           span.footer-page.none-if-no-phantomjs
             :translate(prop='template.page')
