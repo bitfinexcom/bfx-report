@@ -69,7 +69,8 @@ module.exports = (
     queueName,
     subParamsArr,
     isSignatureRequired,
-    userInfo
+    userInfo,
+    streamSet
   ) => {
     const isMultiExport = (
       queueName === 'getMultiple' ||
@@ -92,8 +93,11 @@ module.exports = (
     const isSignReq = isSignatureRequired && isUppedPGPService
 
     const streams = filePaths.map((filePath, i) => {
+      const stream = fs.createReadStream(filePath)
+      streamSet.add(stream)
+
       return {
-        stream: fs.createReadStream(filePath),
+        stream,
         data: {
           name: getCompleteFileName(
             subParamsArr[i].name,
