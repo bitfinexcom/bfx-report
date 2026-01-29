@@ -184,6 +184,10 @@ const write = (
     const _item = dataNormalizer(item, method, params)
     const res = _dataFormatter(_item, formatSettings, params)
 
+    if (!stream.writable) {
+      return
+    }
+
     stream.write(res)
   }
 }
