@@ -4,35 +4,18 @@ const {
   omit,
   cloneDeep
 } = require('lib-js-util-base')
-const { pipeline } = require('node:stream/promises')
 const { createWriteStream } = require('node:fs')
 const { unlink } = require('node:fs/promises')
 const { stringify } = require('csv')
 
 const {
+  pipelineStreams
+} = require('../helpers')
+const {
   createUniqueFileName
 } = require('./helpers')
 
 const { isAuthError } = require('../helpers')
-
-const pipelineStreams = async (stringifier, writable) => {
-  try {
-    await pipeline(stringifier, writable)
-  } catch (err) {
-    /*
-     * If an error occurs, eg when receiving data from the BFX API,
-     * a recording may occur after destruction in the stream
-     */
-    if (
-      err.code === 'ERR_STREAM_DESTROYED' ||
-      err.code === 'ERR_STREAM_PREMATURE_CLOSE'
-    ) {
-      return
-    }
-
-    throw err
-  }
-}
 
 const processReportFile = async (deps, args) => {
   const {
