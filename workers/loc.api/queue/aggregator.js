@@ -18,6 +18,8 @@ module.exports = (
   sendMail
 ) => {
   return async (job) => {
+    const streamSet = new Set()
+
     try {
       const {
         chunkCommonFolders,
@@ -50,7 +52,8 @@ module.exports = (
           {
             ...userInfo,
             email
-          }
+          },
+          streamSet
         )
 
         await sendMail(
@@ -128,6 +131,11 @@ module.exports = (
       }
 
       aggregatorQueue.emit('error:base', err, job)
+    } finally {
+      for (const stream of streamSet) {
+        stream.destroy()
+        streamSet.delete(stream)
+      }
     }
   }
 }

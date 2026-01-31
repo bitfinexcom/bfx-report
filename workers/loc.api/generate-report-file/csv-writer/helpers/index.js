@@ -1,7 +1,10 @@
 'use strict'
 
-const { pipeline } = require('stream/promises')
 const { stringify } = require('csv')
+
+const {
+  pipelineStreams
+} = require('../../../helpers')
 
 const streamWriterToOne = async (
   rStream,
@@ -10,7 +13,7 @@ const streamWriterToOne = async (
   opts
 ) => {
   const { end = true } = opts ?? {}
-  const promise = pipeline(rStream, wStream, { end })
+  const promise = pipelineStreams(rStream, wStream, { end })
 
   writeFn(rStream)
   rStream.end()

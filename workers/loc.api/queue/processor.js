@@ -4,16 +4,15 @@ const {
   omit,
   cloneDeep
 } = require('lib-js-util-base')
-const { promisify } = require('util')
-const { pipeline } = require('stream')
-const fs = require('fs')
+const { createWriteStream } = require('node:fs')
+const { unlink } = require('node:fs/promises')
 const { stringify } = require('csv')
 
-const unlink = promisify(fs.unlink)
-
 const {
-  createUniqueFileName,
-  writableToPromise
+  pipelineStreams
+} = require('../helpers')
+const {
+  createUniqueFileName
 } = require('./helpers')
 
 const { isAuthError } = require('../helpers')
@@ -21,15 +20,16 @@ const { isAuthError } = require('../helpers')
 const processReportFile = async (deps, args) => {
   const {
     data,
-    filePath
+    filePath,
+    streamSet
   } = args
 
   const write = data?.isUnauth
     ? 'Your file could not be completed, please try again'
     : data
 
-  const writable = fs.createWriteStream(filePath)
-  const writablePromise = writableToPromise(writable)
+  const writable = createWriteStream(filePath)
+  streamSet.add(writable)
 
   if (data?.args?.params?.isPDFRequired) {
     const pdfStream = await deps.pdfWriter
@@ -39,8 +39,9 @@ const processReportFile = async (deps, args) => {
         language: data?.args?.params.language,
         isError: data?.isUnauth
       })
+    streamSet.add(pdfStream)
 
-    pipeline(pdfStream, writable, () => {})
+    const pipelinePromise = pipelineStreams(pdfStream, writable)
 
     await deps.writeDataToStream(
       pdfStream,
@@ -49,7 +50,7 @@ const processReportFile = async (deps, args) => {
 
     pdfStream.end()
 
-    return writablePromise
+    return await pipelinePromise
   }
   if (typeof data?.csvCustomWriter === 'function') {
     await data.csvCustomWriter(
@@ -57,15 +58,16 @@ const processReportFile = async (deps, args) => {
       write
     )
 
-    return writablePromise
+    return
   }
 
   const stringifier = stringify({
     header: true,
     columns: data?.columnsCsv
   })
+  streamSet.add(stringifier)
 
-  pipeline(stringifier, writable, () => {})
+  const pipelinePromise = pipelineStreams(stringifier, writable)
 
   await deps.writeDataToStream(
     stringifier,
@@ -74,7 +76,7 @@ const processReportFile = async (deps, args) => {
 
   stringifier.end()
 
-  return writablePromise
+  return await pipelinePromise
 }
 
 module.exports = (
@@ -108,6 +110,7 @@ module.exports = (
   })
 
   return async (job) => {
+    const streamSet = new Set()
     const filePaths = []
     const chunkCommonFolders = []
     const subParamsArr = []
@@ -161,7 +164,8 @@ module.exports = (
           },
           {
             data,
-            filePath
+            filePath,
+            streamSet
           }
         )
       }
@@ -195,6 +199,11 @@ module.exports = (
       }
 
       processorQueue.emit('error:base', err, job)
+    } finally {
+      for (const stream of streamSet) {
+        stream.destroy()
+        streamSet.delete(stream)
+      }
     }
   }
 }
