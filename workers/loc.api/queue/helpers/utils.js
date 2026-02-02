@@ -160,19 +160,7 @@ const createUniqueFileName = async (rootPath, params, count = 0) => {
   return path.join(tempReportFolderPath, uniqueFileName)
 }
 
-const writableToPromise = stream => {
-  return new Promise((resolve, reject) => {
-    stream.once('finish', () => {
-      resolve('finish')
-    })
-    stream.once('error', err => {
-      reject(err)
-    })
-  })
-}
-
 module.exports = {
   moveFileToLocalStorage,
-  writableToPromise,
   createUniqueFileName
 }

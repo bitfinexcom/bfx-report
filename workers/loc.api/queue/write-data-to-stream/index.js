@@ -58,12 +58,12 @@ module.exports = (
     return accum
   }, {})
 
+  processorQueue.emit('progress', 0)
+
   let count = 0
   let serialRequestsCount = 0
 
   while (true) {
-    processorQueue.emit('progress', 0)
-
     const _res = await getDataFromApi({
       getData,
       args: currIterationArgs,
@@ -113,7 +113,7 @@ module.exports = (
         res,
         stream,
         formatSettings,
-        { ..._args.params, symbols },
+        { ...jobData?.args?.params, symbols },
         method
       )
       processorQueue.emit('progress', 100)
@@ -154,7 +154,7 @@ module.exports = (
       res,
       stream,
       formatSettings,
-      { ..._args.params, symbols },
+      { ...jobData?.args?.params, symbols },
       method
     )
 

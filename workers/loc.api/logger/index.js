@@ -129,7 +129,7 @@ class TransportIPC extends TransportStream {
   }
 }
 
-const _getTransports = () => {
+const _getTransports = (conf) => {
   if (!isProdEnv) {
     return {
       baseTransports: [
@@ -148,6 +148,29 @@ const _getTransports = () => {
         })
       ],
       exceptionHandlers: []
+    }
+  }
+
+  if (conf.isHosted) {
+    return {
+      baseTransports: [
+        new transports.Console({
+          level: 'error',
+          colorize: false
+        }),
+        new TransportSlack({
+          level: 'error',
+          colorize: false
+        })
+      ],
+      exceptionHandlers: [
+        new transports.Console({
+          colorize: false
+        }),
+        new TransportSlack({
+          colorize: false
+        })
+      ]
     }
   }
 
@@ -239,17 +262,17 @@ const _combineFormat = (colorize = !isProdEnv) => {
   )
 }
 
-module.exports = ({ isLoggerDisabled }) => {
+module.exports = (conf) => {
   const {
     baseTransports,
     exceptionHandlers
-  } = _getTransports()
+  } = _getTransports(conf)
 
   return createLogger({
     format: _combineFormat(),
     transports: baseTransports,
     exceptionHandlers,
-    silent: isLoggerDisabled || isTestEnv,
+    silent: conf.isLoggerDisabled || isTestEnv,
     exitOnError: true
   })
 }
