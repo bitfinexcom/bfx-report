@@ -11,6 +11,7 @@
   ],
   "dependencies": {
     "@bitfinex/bfx-facs-base": "git+https://github.com/bitfinexcom/bfx-facs-base.git",
+    "@bitfinex/bfx-wrk-api": "git+https://github.com/bitfinexcom/bfx-wrk-api.git",
     "ajv": "8.17.1",
     "ajv-formats": "3.0.1",
     "async": "3.2.4",
@@ -20,7 +21,6 @@
     "bfx-facs-interval": "git+https://github.com/bitfinexcom/bfx-facs-interval.git",
     "bfx-facs-lokue": "git+https://github.com:bitfinexcom/bfx-facs-lokue.git",
     "bfx-svc-boot-js": "https://github.com/bitfinexcom/bfx-svc-boot-js.git",
-    "bfx-wrk-api": "git+https://github.com/bitfinexcom/bfx-wrk-api.git",
     "bitfinex-api-node": "7.0.0",
     "colors": "1.4.0",
     "csv": "5.5.3",
