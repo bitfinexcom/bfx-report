@@ -1,6 +1,6 @@
 'use strict'
 
-const { WrkApi } = require('bfx-wrk-api')
+const { WrkApi } = require('@bitfinex/bfx-wrk-api')
 
 function createWorker (env, _init = null, _getPluginCtx = null) {
   class WrkCoreStub extends WrkApi {

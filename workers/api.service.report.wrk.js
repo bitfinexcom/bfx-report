@@ -1,6 +1,6 @@
 'use strict'
 
-const { WrkApi } = require('bfx-wrk-api')
+const { WrkApi } = require('@bitfinex/bfx-wrk-api')
 const async = require('async')
 const path = require('path')
 const argv = require('yargs')
