@@ -1,7 +1,7 @@
 'use strict'
 
 const Backend = require('i18next-fs-backend')
-const { merge, min } = require('lib-js-util-base')
+const { merge, min } = require('@bitfinex/lib-js-util-base')
 
 /**
  * Extend the main fs Backend to provide the ability
