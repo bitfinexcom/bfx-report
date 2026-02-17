@@ -20,7 +20,6 @@
     "async": "3.2.4",
     "better-npm-run": "0.1.1",
     "bfx-facs-deflate": "git+https://github.com:bitfinexcom/bfx-facs-deflate.git",
-    "bfx-facs-interval": "git+https://github.com/bitfinexcom/bfx-facs-interval.git",
     "bfx-facs-lokue": "git+https://github.com:bitfinexcom/bfx-facs-lokue.git",
     "bitfinex-api-node": "7.0.0",
     "colors": "1.4.0",
