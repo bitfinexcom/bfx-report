@@ -1,6 +1,6 @@
 'use strict'
 
-const { Grape } = require('@bitfinex/grenache-grape')
+const { Grape } = require('grenache-grape')
 
 const confGrape1 = {
   dht_port: 20002,
