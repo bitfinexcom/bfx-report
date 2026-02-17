@@ -176,7 +176,7 @@ class WrkReportServiceApi extends WrkApi {
       ],
       [
         'fac',
-        'bfx-facs-grc-slack',
+        '@bitfinex/bfx-facs-grc-slack',
         's0',
         's0',
         {}
