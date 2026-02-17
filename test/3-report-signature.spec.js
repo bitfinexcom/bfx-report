@@ -32,7 +32,7 @@ cvJxqAW4w9Crfobqk+wvb3cA/07ej6osCli0twWcNtDw6YkWiip+IT0+SMOH
 const fileHash = 'bdb9d457ab0e29806e7291bdb9d7fd17c90dad665cf437122b881cc57041899b'
 
 process.env.NODE_CONFIG_DIR = path.join(__dirname, 'config')
-const { app } = require('bfx-report-express')
+const { app } = require('@bitfinex/bfx-report-express')
 const agent = request.agent(app)
 
 let wrkReportServiceApi = null
