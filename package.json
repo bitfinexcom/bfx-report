@@ -3,6 +3,9 @@
   "version": "5.0.0",
   "description": "Reporting tool",
   "main": "worker.js",
+  "engines": {
+    "node": ">=20.18.1"
+  },
   "license": "Apache-2.0",
   "contributors": [
     "Vladimir Voronkov <vsvoronkov@gmail.com>",
