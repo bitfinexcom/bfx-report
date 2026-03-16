@@ -1,6 +1,6 @@
 {
   "name": "@bitfinex/bfx-report",
-  "version": "4.14.0",
+  "version": "5.0.0",
   "description": "Reporting tool",
   "main": "worker.js",
   "license": "Apache-2.0",
