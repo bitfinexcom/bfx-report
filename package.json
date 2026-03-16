@@ -20,7 +20,7 @@
     "@bitfinex/bfx-svc-boot-js": "git+https://github.com/bitfinexcom/bfx-svc-boot-js.git",
     "@bitfinex/bfx-wrk-api": "git+https://github.com/bitfinexcom/bfx-wrk-api.git",
     "@bitfinex/lib-js-util-base": "git+https://github.com/bitfinexcom/lib-js-util-base.git",
-    "ajv": "8.17.1",
+    "ajv": "8.18.0",
     "ajv-formats": "3.0.1",
     "async": "3.2.4",
     "bitfinex-api-node": "7.0.0",
