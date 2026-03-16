@@ -44,7 +44,7 @@
     "chai": "4.3.4",
     "grenache-grape": "git+https://github.com/bitfinexcom/grenache-grape.git",
     "mocha": "11.1.0",
-    "nodemon": "3.1.9",
+    "nodemon": "3.1.14",
     "standard": "17.0.0",
     "supertest": "7.1.0"
   },
@@ -74,7 +74,7 @@
   },
   "betterScripts": {
     "start:serv": {
-      "command": "nodemon ./node_modules/bfx-report-express",
+      "command": "nodemon ./node_modules/bfx-report-express/index.js",
       "env": {
         "NODE_ENV": "development",
         "NODE_CONFIG_DIR": "./test/config"
