@@ -19,7 +19,7 @@ const {
 } = require('./test-cases')
 
 process.env.NODE_CONFIG_DIR = path.join(__dirname, 'config')
-const { app } = require('bfx-report-express')
+const { app } = require('@bitfinex/bfx-report-express')
 const agent = request.agent(app)
 
 let wrkReportServiceApi = null

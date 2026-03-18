@@ -1,7 +1,7 @@
 'use strict'
 
 const i18next = require('i18next')
-const { merge } = require('lib-js-util-base')
+const { merge } = require('@bitfinex/lib-js-util-base')
 const path = require('path')
 const fs = require('fs')
 

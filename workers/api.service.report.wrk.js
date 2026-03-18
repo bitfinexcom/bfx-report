@@ -1,6 +1,6 @@
 'use strict'
 
-const { WrkApi } = require('bfx-wrk-api')
+const { WrkApi } = require('@bitfinex/bfx-wrk-api')
 const async = require('async')
 const path = require('path')
 const argv = require('yargs')
@@ -155,28 +155,28 @@ class WrkReportServiceApi extends WrkApi {
     const facs = [
       [
         'fac',
-        'bfx-facs-lokue',
+        '@bitfinex/bfx-facs-lokue',
         'processor',
         'processor',
         { ...opts }
       ],
       [
         'fac',
-        'bfx-facs-lokue',
+        '@bitfinex/bfx-facs-lokue',
         'aggregator',
         'aggregator',
         { ...opts }
       ],
       [
         'fac',
-        'bfx-facs-deflate',
+        '@bitfinex/bfx-facs-deflate',
         'gzip',
         'gzip',
         { level: 9 }
       ],
       [
         'fac',
-        'bfx-facs-grc-slack',
+        '@bitfinex/bfx-facs-grc-slack',
         's0',
         's0',
         {}
