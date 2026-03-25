@@ -1,7 +1,7 @@
 'use strict'
 
 const { v4: uuidv4 } = require('uuid')
-const { capitalize } = require('lib-js-util-base')
+const { capitalize } = require('@bitfinex/lib-js-util-base')
 
 const getReportFileExtName = require('./get-report-file-ext-name')
 

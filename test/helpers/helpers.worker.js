@@ -2,7 +2,7 @@
 
 const { fork } = require('child_process')
 const path = require('path')
-const worker = require('bfx-svc-boot-js/lib/worker')
+const worker = require('@bitfinex/bfx-svc-boot-js/lib/worker')
 
 const _serviceRoot = path.join(__dirname, '../..')
 

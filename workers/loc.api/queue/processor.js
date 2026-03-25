@@ -3,7 +3,7 @@
 const {
   omit,
   cloneDeep
-} = require('lib-js-util-base')
+} = require('@bitfinex/lib-js-util-base')
 const { createWriteStream } = require('node:fs')
 const { unlink } = require('node:fs/promises')
 const { stringify } = require('csv')
