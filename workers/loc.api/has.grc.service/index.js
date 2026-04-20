@@ -40,14 +40,6 @@ class HasGrcService {
     return !!(countS3Services && countMailServices)
   }
 
-  async hasGPGService () {
-    const countPGPServices = await this.lookUpFunction(
-      'rest:ext:gpg'
-    )
-
-    return !!countPGPServices
-  }
-
   async hasSlackService () {
     const workerName = (
       this.grcSlackFac.conf &&
