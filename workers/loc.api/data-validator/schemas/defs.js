@@ -146,9 +146,6 @@ module.exports = {
     isPDFRequired: {
       type: 'boolean'
     },
-    isSignatureRequired: {
-      type: 'boolean'
-    },
     method: {
       type: 'string'
     },
