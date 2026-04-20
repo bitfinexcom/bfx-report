@@ -93,7 +93,6 @@ describe('Signature', () => {
         method: 'getMultipleFile',
         params: {
           email,
-          isSignatureRequired: true,
           multiExport: [
             {
               method: 'getTradesFile',
@@ -138,8 +137,7 @@ describe('Signature', () => {
           start,
           limit: 1000,
           timezone: -3,
-          email,
-          isSignatureRequired: true
+          email
         },
         id: 5
       })
