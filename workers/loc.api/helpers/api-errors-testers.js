@@ -39,8 +39,13 @@ const isETimedOutError = (err) => {
   return /ETIMEDOUT/i.test(_getErrorString(err))
 }
 
+/**
+ * https://github.com/node-fetch/node-fetch/blob/v2.6.9/src/index.js#L81
+ * https://github.com/node-fetch/node-fetch/blob/v3.3.2/src/index.js#L70
+ * https://github.com/node-fetch/node-fetch/blob/v2.6.9/src/body.js#L228
+ */
 const isNodeFetchTimeoutError = (err) => {
-  return /timeout/i.test(_getErrorString(err))
+  return /(Response timeout while trying to fetch)|(The user aborted a request)|(The operation was aborted)/i.test(_getErrorString(err))
 }
 
 const isEAiAgainError = (err) => {
