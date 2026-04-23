@@ -27,7 +27,6 @@ module.exports = (
         name,
         filePaths,
         subParamsArr,
-        isSignatureRequired,
         email,
         isUnauth,
         s3Conf,
@@ -48,7 +47,6 @@ module.exports = (
           filePaths,
           name,
           subParamsArr,
-          isSignatureRequired,
           {
             ...userInfo,
             email

@@ -164,7 +164,6 @@ module.exports = ({
         [
           TYPES.CONF,
           TYPES.DeflateFac,
-          TYPES.HasGrcService,
           TYPES.GrcBfxReq
         ]
       )

@@ -163,16 +163,6 @@ class ReportService extends Api {
     }, 'getFilterModels', args, cb)
   }
 
-  verifyDigitalSignature (space, args, cb) {
-    return this._responder(() => {
-      return this._grcBfxReq({
-        service: 'rest:ext:gpg',
-        action: 'verifyDigitalSignature',
-        args: [null, args]
-      })
-    }, 'verifyDigitalSignature', args, cb)
-  }
-
   isSyncModeConfig (space, args, cb) {
     return this._responder(() => {
       return this.container.get(TYPES.CONF).syncMode

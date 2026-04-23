@@ -129,7 +129,6 @@ module.exports = (
         args: {
           params: {
             email,
-            isSignatureRequired,
             language
           }
         }
@@ -179,7 +178,6 @@ module.exports = (
         filePaths,
         subParamsArr,
         email,
-        isSignatureRequired,
         language,
         isUnauth
       })

@@ -11,7 +11,6 @@ module.exports = (params) => {
     'method',
     'timezone',
     'email',
-    'isSignatureRequired',
     'isDeposits',
     'isWithdrawals',
     'isTradingPair',
