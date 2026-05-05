@@ -228,10 +228,10 @@ class WrkReportServiceApi extends WrkApi {
         return
       }
 
-      this.logger.error(`PROCESSOR:QUEUE: ${err.stack || err}`)
+      this.logger.error('PROCESSOR:QUEUE:', err)
     })
     aggregatorQueue.on('error:base', (err) => {
-      this.logger.error(`AGGREGATOR:QUEUE: ${err.stack || err}`)
+      this.logger.error('AGGREGATOR:QUEUE:', err)
     })
   }
 
