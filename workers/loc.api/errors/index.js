@@ -189,6 +189,17 @@ class PDFBufferUnderElectronCreationError extends BaseError {
   }
 }
 
+class PDFBufferUnderFrameworkCreationError extends BaseError {
+  constructor (puppeteerErr) {
+    const _args = getErrorArgs(
+      { data: { puppeteerErr } },
+      'ERR_PDF_BUFFER_UNDER_FRAMEWORK_HAS_NOT_BEEN_CREATED'
+    )
+
+    super(_args)
+  }
+}
+
 module.exports = {
   BaseError,
   BadRequestError,
@@ -213,5 +224,6 @@ module.exports = {
   GrcPDFAvailabilityError,
   ImplementationError,
   WeightedAveragesTimeframeError,
-  PDFBufferUnderElectronCreationError
+  PDFBufferUnderElectronCreationError,
+  PDFBufferUnderFrameworkCreationError
 }
