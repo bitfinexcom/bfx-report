@@ -21,10 +21,11 @@ const processReportFile = async (deps, args) => {
   const {
     data,
     filePath,
-    streamSet
+    streamSet,
+    isUnauth
   } = args
 
-  const write = data?.isUnauth
+  const write = isUnauth
     ? 'Your file could not be completed, please try again'
     : data
 
@@ -37,7 +38,7 @@ const processReportFile = async (deps, args) => {
         jobData: data,
         pdfCustomTemplateName: data?.pdfCustomTemplateName,
         language: data?.args?.params.language,
-        isError: data?.isUnauth
+        isError: isUnauth
       })
     streamSet.add(pdfStream)
 
@@ -164,7 +165,8 @@ module.exports = (
           {
             data,
             filePath,
-            streamSet
+            streamSet,
+            isUnauth
           }
         )
       }
@@ -190,12 +192,14 @@ module.exports = (
         processorQueue.emit('error:unlink', job)
       }
 
-      job.done(err)
-
       if (isAuthError(err)) {
+        job.done()
         processorQueue.emit('error:auth', job)
+
+        return
       }
 
+      job.done(err)
       processorQueue.emit('error:base', err, job)
     } finally {
       for (const stream of streamSet) {
