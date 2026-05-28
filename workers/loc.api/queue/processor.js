@@ -15,7 +15,13 @@ const {
   createUniqueFileName
 } = require('./helpers')
 
-const { isAuthError } = require('../helpers')
+const {
+  isAuthError,
+  getTranslator
+} = require('../helpers')
+const TRANSLATION_NAMESPACES = require(
+  '../i18next/translation.namespaces'
+)
 
 const processReportFile = async (deps, args) => {
   const {
@@ -25,8 +31,20 @@ const processReportFile = async (deps, args) => {
     isUnauth
   } = args
 
+  const language = data?.args?.params?.language
+  const translate = getTranslator(
+    { i18next: deps.i18next },
+    {
+      lng: language,
+      ns: TRANSLATION_NAMESPACES.PDF
+    }
+  )
+  const defaultUnauthMsg = 'Your file could not be completed, please try again'
+  const unauthMsg = translate(defaultUnauthMsg, {
+    prop: 'template.errorMessage'
+  })
   const write = isUnauth
-    ? 'Your file could not be completed, please try again'
+    ? unauthMsg
     : data
 
   const writable = createWriteStream(filePath)
@@ -37,7 +55,7 @@ const processReportFile = async (deps, args) => {
       .createPDFStream({
         jobData: data,
         pdfCustomTemplateName: data?.pdfCustomTemplateName,
-        language: data?.args?.params.language,
+        language,
         isError: isUnauth
       })
     streamSet.add(pdfStream)
@@ -86,7 +104,8 @@ module.exports = (
   processorQueue,
   aggregatorQueue,
   writeDataToStream,
-  pdfWriter
+  pdfWriter,
+  i18next
 ) => {
   processorQueue.on('completed', (result) => {
     aggregatorQueue.addJob({
@@ -160,7 +179,8 @@ module.exports = (
         await processReportFile(
           {
             writeDataToStream,
-            pdfWriter
+            pdfWriter,
+            i18next
           },
           {
             data,
