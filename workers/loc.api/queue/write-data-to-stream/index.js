@@ -13,7 +13,8 @@ const {
   progress
 } = require('./helpers')
 const {
-  regenerateAuthToken
+  regenerateAuthToken,
+  invalidateAuthToken
 } = require('./auth-token-manager')
 
 module.exports = (
@@ -186,4 +187,12 @@ module.exports = (
       currIterationArgs.params.end = lastItem[propName] - 1
     }
   }
+
+  await invalidateAuthToken(
+    auth,
+    {
+      rService,
+      getDataFromApi
+    }
+  )
 }
