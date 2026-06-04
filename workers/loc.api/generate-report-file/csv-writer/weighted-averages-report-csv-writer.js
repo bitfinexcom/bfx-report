@@ -3,6 +3,7 @@
 const {
   write
 } = require('../../queue/write-data-to-stream/helpers')
+const QUEUE_EVENT_NAMES = require('../../queue/queue.event.names')
 const {
   omitExtraParamFieldsForReportExport
 } = require('../helpers')
@@ -24,7 +25,7 @@ module.exports = (
   } = jobData ?? {}
   const { params } = args ?? {}
 
-  queue.emit('progress', 0)
+  queue.emit(QUEUE_EVENT_NAMES.PROGRESS, 0)
 
   if (typeof jobData === 'string') {
     await streamWriter(
@@ -35,7 +36,7 @@ module.exports = (
       }]
     )
 
-    queue.emit('progress', 100)
+    queue.emit(QUEUE_EVENT_NAMES.PROGRESS, 100)
 
     return
   }
@@ -79,5 +80,5 @@ module.exports = (
     ]
   )
 
-  queue.emit('progress', 100)
+  queue.emit(QUEUE_EVENT_NAMES.PROGRESS, 100)
 }
