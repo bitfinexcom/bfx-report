@@ -22,6 +22,7 @@ const {
 const TRANSLATION_NAMESPACES = require(
   '../i18next/translation.namespaces'
 )
+const QUEUE_EVENT_NAMES = require('./queue.event.names')
 
 const processReportFile = async (deps, args) => {
   const {
@@ -107,13 +108,13 @@ module.exports = (
   pdfWriter,
   i18next
 ) => {
-  processorQueue.on('completed', (result) => {
+  processorQueue.on(QUEUE_EVENT_NAMES.COMPLETED, (result) => {
     aggregatorQueue.addJob({
       ...result,
       s3Conf: conf.s3Conf
     })
   })
-  processorQueue.on('error:auth', (job) => {
+  processorQueue.on(QUEUE_EVENT_NAMES.ERROR_AUTH, (job) => {
     const data = cloneDeep(job.data)
     delete data.columnsCsv
 
@@ -192,7 +193,7 @@ module.exports = (
       }
 
       job.done()
-      processorQueue.emit('completed', {
+      processorQueue.emit(QUEUE_EVENT_NAMES.COMPLETED, {
         chunkCommonFolders,
         userInfo,
         userId,
@@ -209,18 +210,18 @@ module.exports = (
           await unlink(filePath)
         }
       } catch (err) {
-        processorQueue.emit('error:unlink', job)
+        processorQueue.emit(QUEUE_EVENT_NAMES.ERROR_UNLINK, job)
       }
 
       if (isAuthError(err)) {
         job.done()
-        processorQueue.emit('error:auth', job)
+        processorQueue.emit(QUEUE_EVENT_NAMES.ERROR_AUTH, job)
 
         return
       }
 
       job.done(err)
-      processorQueue.emit('error:base', err, job)
+      processorQueue.emit(QUEUE_EVENT_NAMES.ERROR_BASE, err, job)
     } finally {
       for (const stream of streamSet) {
         stream.destroy()
