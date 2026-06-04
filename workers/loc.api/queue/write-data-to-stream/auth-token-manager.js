@@ -19,7 +19,7 @@ const regenerateAuthToken = async (auth, deps) => {
 
   try {
     const opts = {
-      ttl: 24 * 60 * 60,
+      ttl: 60 * 60,
       writePermission: false
     }
 
