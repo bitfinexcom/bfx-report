@@ -2,7 +2,7 @@
 
 const { WrkApi } = require('@bitfinex/bfx-wrk-api')
 const async = require('async')
-const path = require('path')
+const path = require('node:path')
 const argv = require('yargs')
   .option('dbId', {
     type: 'number',
@@ -50,6 +50,7 @@ const getI18next = require('./loc.api/i18next')
 const {
   PDFBufferUnderElectronCreationError
 } = require('./loc.api/errors')
+const QUEUE_EVENT_NAMES = require('./loc.api/queue/queue.event.names')
 
 class WrkReportServiceApi extends WrkApi {
   constructor (conf, ctx) {
@@ -219,10 +220,10 @@ class WrkReportServiceApi extends WrkApi {
     const processor = this.container.get(TYPES.Processor)
     const aggregator = this.container.get(TYPES.Aggregator)
 
-    processorQueue.on('job', processor)
-    aggregatorQueue.on('job', aggregator)
+    processorQueue.on(QUEUE_EVENT_NAMES.JOB, processor)
+    aggregatorQueue.on(QUEUE_EVENT_NAMES.JOB, aggregator)
 
-    processorQueue.on('error:base', (err) => {
+    processorQueue.on(QUEUE_EVENT_NAMES.ERROR_BASE, (err) => {
       // This error is intercepted and processed in the framework mode
       if (err instanceof PDFBufferUnderElectronCreationError) {
         return
@@ -230,7 +231,7 @@ class WrkReportServiceApi extends WrkApi {
 
       this.logger.error('PROCESSOR:QUEUE:', err)
     })
-    aggregatorQueue.on('error:base', (err) => {
+    aggregatorQueue.on(QUEUE_EVENT_NAMES.ERROR_BASE, (err) => {
       this.logger.error('AGGREGATOR:QUEUE:', err)
     })
   }
