@@ -12,6 +12,10 @@ const {
   write,
   progress
 } = require('./helpers')
+const {
+  regenerateAuthToken,
+  invalidateAuthToken
+} = require('./auth-token-manager')
 
 module.exports = (
   rService,
@@ -36,8 +40,15 @@ module.exports = (
   const propName = jobData.propNameForPagination
   const formatSettings = jobData.formatSettings
 
+  const auth = await regenerateAuthToken(
+    jobData?.args?.auth,
+    {
+      rService,
+      getDataFromApi
+    }
+  )
   const _args = {
-    auth: { ...jobData?.args?.auth },
+    auth,
     params: omitExtraParamFieldsForReportExport(jobData?.args?.params)
   }
 
@@ -48,7 +59,7 @@ module.exports = (
   const getSymbols = rService.getSymbols.bind(rService)
   const symbols = (await getDataFromApi({
     getData: getSymbols,
-    args: { auth: { ...jobData?.args?.auth } },
+    args: { auth },
     callerName: 'REPORT_FILE_WRITER',
     shouldNotInterrupt: true
   })) ?? {}
@@ -176,4 +187,12 @@ module.exports = (
       currIterationArgs.params.end = lastItem[propName] - 1
     }
   }
+
+  await invalidateAuthToken(
+    auth,
+    {
+      rService,
+      getDataFromApi
+    }
+  )
 }
