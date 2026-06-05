@@ -185,7 +185,8 @@ module.exports = ({
           TYPES.ProcessorQueue,
           TYPES.AggregatorQueue,
           TYPES.WriteDataToStream,
-          TYPES.PdfWriter
+          TYPES.PdfWriter,
+          TYPES.I18next
         ]
       ))
     bind(TYPES.Aggregator).toConstantValue(
