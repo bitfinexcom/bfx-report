@@ -5,6 +5,7 @@ const { cloneDeep } = require('@bitfinex/lib-js-util-base')
 const {
   omitExtraParamFieldsForReportExport
 } = require('../../generate-report-file/helpers')
+const QUEUE_EVENT_NAMES = require('../queue.event.names')
 const {
   writeMessageToStream,
   setDefaultParams,
@@ -69,7 +70,7 @@ module.exports = (
     return accum
   }, {})
 
-  processorQueue.emit('progress', 0)
+  processorQueue.emit(QUEUE_EVENT_NAMES.PROGRESS, 0)
 
   let count = 0
   let serialRequestsCount = 0
@@ -127,7 +128,7 @@ module.exports = (
         { ...jobData?.args?.params, symbols },
         method
       )
-      processorQueue.emit('progress', 100)
+      processorQueue.emit(QUEUE_EVENT_NAMES.PROGRESS, 100)
 
       break
     }
@@ -136,7 +137,9 @@ module.exports = (
       !Array.isArray(res) ||
       res.length === 0
     ) {
-      if (count > 0) processorQueue.emit('progress', 100)
+      if (count > 0) {
+        processorQueue.emit(QUEUE_EVENT_NAMES.PROGRESS, 100)
+      }
 
       break
     }
@@ -176,7 +179,7 @@ module.exports = (
       !Number.isInteger(currTime) ||
       !Number.isInteger(nextPage)
     ) {
-      processorQueue.emit('progress', 100)
+      processorQueue.emit(QUEUE_EVENT_NAMES.PROGRESS, 100)
 
       break
     }

@@ -6,6 +6,10 @@ require('events')
 
 const argv = require('yargs').argv
 
+const QUEUE_EVENT_NAMES = require(
+  '../../workers/loc.api/queue/queue.event.names'
+)
+
 const {
   startEnvironment,
   stopEnvironment
@@ -49,18 +53,18 @@ process.on('SIGTERM', _stop)
     const processorQueue = wrkReportServiceApi.lokue_processor.q
     const aggregatorQueue = wrkReportServiceApi.lokue_aggregator.q
 
-    processorQueue.once('error:base', (err) => {
+    processorQueue.once(QUEUE_EVENT_NAMES.ERROR_BASE, (err) => {
       _emitError('processor', err)
       _stop()
     })
-    processorQueue.on('completed', (res) => {
+    processorQueue.on(QUEUE_EVENT_NAMES.COMPLETED, (res) => {
       _emitRes('processor', res)
     })
-    aggregatorQueue.once('error:base', (err) => {
+    aggregatorQueue.once(QUEUE_EVENT_NAMES.ERROR_BASE, (err) => {
       _emitError('aggregator', err)
       _stop()
     })
-    aggregatorQueue.on('completed', (res) => {
+    aggregatorQueue.on(QUEUE_EVENT_NAMES.COMPLETED, (res) => {
       _emitRes('aggregator', res)
     })
   } catch (err) {

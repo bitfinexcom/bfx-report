@@ -1,13 +1,11 @@
 'use strict'
 
-const { promisify } = require('util')
-const fs = require('fs')
-
-const unlink = promisify(fs.unlink)
+const { unlink } = require('node:fs/promises')
 
 const {
   moveFileToLocalStorage
 } = require('./helpers')
+const QUEUE_EVENT_NAMES = require('./queue.event.names')
 
 module.exports = (
   { isAddedUniqueEndingToReportFileName },
@@ -75,7 +73,7 @@ module.exports = (
         }
 
         job.done()
-        aggregatorQueue.emit('completed', {
+        aggregatorQueue.emit(QUEUE_EVENT_NAMES.COMPLETED, {
           newFilePaths,
           reportFilesMetadata,
           userInfo
@@ -107,14 +105,14 @@ module.exports = (
       }
 
       job.done()
-      aggregatorQueue.emit('completed', {
+      aggregatorQueue.emit(QUEUE_EVENT_NAMES.COMPLETED, {
         newFilePaths,
         reportFilesMetadata,
         userInfo
       })
     } catch (err) {
       if (err.syscall === 'unlink') {
-        aggregatorQueue.emit('error:unlink', job)
+        aggregatorQueue.emit(QUEUE_EVENT_NAMES.ERROR_UNLINK, job)
         job.done()
       } else {
         try {
@@ -122,13 +120,13 @@ module.exports = (
             await unlink(filePath)
           }
         } catch (e) {
-          aggregatorQueue.emit('error:unlink', job)
+          aggregatorQueue.emit(QUEUE_EVENT_NAMES.ERROR_UNLINK, job)
         }
 
         job.done(err)
       }
 
-      aggregatorQueue.emit('error:base', err, job)
+      aggregatorQueue.emit(QUEUE_EVENT_NAMES.ERROR_BASE, err, job)
     } finally {
       for (const stream of streamSet) {
         stream.destroy()
