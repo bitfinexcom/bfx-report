@@ -241,7 +241,10 @@ const createMockRESTv2SrvWithDate = (
         typeof mockData[0] !== 'object'
       )
     ) {
-      srv.setResponse(key, [...mockData])
+      const _mockData = Array.isArray(mockData)
+        ? [...mockData]
+        : mockData
+      srv.setResponse(key, _mockData)
 
       return
     }
