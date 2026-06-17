@@ -3,6 +3,7 @@
 const { cloneDeep } = require('@bitfinex/lib-js-util-base')
 const moment = require('moment-timezone')
 
+const QUEUE_EVENT_NAMES = require('../queue.event.names')
 const dataNormalizer = require('./data-normalizer')
 
 const _validTxtTimeZone = (val, timezone, format) => {
@@ -197,11 +198,11 @@ const writeMessageToStream = (
   stream,
   message
 ) => {
-  processorQueue.emit('progress', 0)
+  processorQueue.emit(QUEUE_EVENT_NAMES.PROGRESS, 0)
 
   write([{ message }], stream)
 
-  processorQueue.emit('progress', 100)
+  processorQueue.emit(QUEUE_EVENT_NAMES.PROGRESS, 100)
 }
 
 const setDefaultParams = (args, method) => {
@@ -255,7 +256,7 @@ const progress = (
     ((currTime - start) / (end - start)) * 100
   )
 
-  queue.emit('progress', percent)
+  queue.emit(QUEUE_EVENT_NAMES.PROGRESS, percent)
 }
 
 module.exports = {

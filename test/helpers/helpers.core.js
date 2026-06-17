@@ -1,12 +1,15 @@
 'use strict'
 
-const path = require('path')
-
+const path = require('node:path')
 const {
   readdir,
   mkdir,
   rm
 } = require('node:fs/promises')
+
+const QUEUE_EVENT_NAMES = require(
+  '../../workers/loc.api/queue/queue.event.names'
+)
 
 const rmDB = async (
   dir,
@@ -55,9 +58,9 @@ const rmAllFiles = async (dir, exclude) => {
 
 const queueToPromise = (queue) => {
   return new Promise((resolve, reject) => {
-    queue.once('error:base', reject)
-    queue.once('completed', res => {
-      queue.removeListener('error:base', reject)
+    queue.once(QUEUE_EVENT_NAMES.ERROR_BASE, reject)
+    queue.once(QUEUE_EVENT_NAMES.COMPLETED, res => {
+      queue.removeListener(QUEUE_EVENT_NAMES.ERROR_BASE, reject)
       resolve(res)
     })
   })
@@ -77,14 +80,14 @@ const queueToPromiseMulti = (queue, count, cb = () => { }) => {
       }
 
       if (currCount >= count) {
-        queue.removeListener('completed', onCompleted)
-        queue.removeListener('error:base', reject)
+        queue.removeListener(QUEUE_EVENT_NAMES.COMPLETED, onCompleted)
+        queue.removeListener(QUEUE_EVENT_NAMES.ERROR_BASE, reject)
         resolve()
       }
     }
 
-    queue.once('error:base', reject)
-    queue.on('completed', onCompleted)
+    queue.once(QUEUE_EVENT_NAMES.ERROR_BASE, reject)
+    queue.on(QUEUE_EVENT_NAMES.COMPLETED, onCompleted)
   })
 }
 
@@ -103,8 +106,8 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
 
       if (currCount >= count) {
         queues.forEach(queue => {
-          queue.removeListener('completed', onCompleted)
-          queue.removeListener('error:base', reject)
+          queue.removeListener(QUEUE_EVENT_NAMES.COMPLETED, onCompleted)
+          queue.removeListener(QUEUE_EVENT_NAMES.ERROR_BASE, reject)
         })
 
         resolve()
@@ -112,8 +115,8 @@ const queuesToPromiseMulti = (queues, count, cb = () => { }) => {
     }
 
     queues.forEach(queue => {
-      queue.once('error:base', reject)
-      queue.on('completed', onCompleted)
+      queue.once(QUEUE_EVENT_NAMES.ERROR_BASE, reject)
+      queue.on(QUEUE_EVENT_NAMES.COMPLETED, onCompleted)
     })
   })
 }
