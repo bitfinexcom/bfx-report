@@ -1,7 +1,7 @@
 extends base.pug
 
 block commonHeader
-  - const data = Array.isArray(apiData?.res) ? apiData.res : [{}]
+  - const data = Array.isArray(apiData) ? apiData : [{}]
   - const columns = reportColumns ?? Object.keys(data?.[0] ?? {})
 
   .content
@@ -11,7 +11,7 @@ block commonHeader
           .col #{columnVal}
 
 block content
-  - const data = Array.isArray(apiData?.res) ? apiData.res : [{}]
+  - const data = Array.isArray(apiData) ? apiData : [{}]
   - const columns = reportColumns ?? Object.keys(data?.[0] ?? {})
 
   ul.responsive-table
