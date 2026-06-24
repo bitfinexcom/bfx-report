@@ -14,6 +14,7 @@ const {
   FindMethodToGetReportFileError,
   SymbolsTypeError
 } = require('../errors')
+const TEMPLATE_FILE_NAMES = require('./pdf-writer/template-file-names')
 
 const depsTypes = (TYPES) => [
   TYPES.RService,
@@ -1234,7 +1235,8 @@ class ReportFileJobData {
         firstTradeMts: 'date',
         lastTradeMts: 'date'
       },
-      csvCustomWriter: this.weightedAveragesReportCsvWriter
+      csvCustomWriter: this.weightedAveragesReportCsvWriter,
+      pdfCustomTemplateName: TEMPLATE_FILE_NAMES.WEIGHTED_AVERAGES_REPORT
     }
 
     return jobData
