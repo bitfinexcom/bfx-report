@@ -3,9 +3,17 @@ extends base.pug
 block commonHeader
   - const data = Array.isArray(apiData) ? apiData : [{}]
   - const columns = reportColumns ?? Object.keys(data?.[0] ?? {})
+  - const columnArr = Array.isArray(columns) ? [...columns] : Object.keys(columns)
+  - const topColumns = columnArr.fill('')
+  - topColumns[1] = 'Buy'
+  - topColumns[4] = 'Sell'
+  - topColumns[7] = 'Cumulative'
 
   .content
     ul.responsive-table
+      li.table-header
+        each columnVal, columnKey in topColumns
+          .col #{columnVal}
       li.table-header
         each columnVal, columnKey in columns
           .col #{columnVal}
