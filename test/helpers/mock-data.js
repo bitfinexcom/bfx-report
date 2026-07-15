@@ -209,7 +209,7 @@ module.exports = new Map([
     [[
       12345,
       'BTC',
-      null,
+      'exchange',
       _ms,
       null,
       -0.00001,
