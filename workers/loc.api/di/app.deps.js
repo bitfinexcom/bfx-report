@@ -43,7 +43,7 @@ module.exports = ({
   link,
   i18next
 }) => {
-  return new ContainerModule((bind) => {
+  return new ContainerModule(({ bind }) => {
     bind(TYPES.RService).toConstantValue(rService)
     bind(TYPES.RootPath).toConstantValue(rService.ctx.rootPath)
     bind(TYPES.I18next).toConstantValue(i18next)
@@ -60,13 +60,13 @@ module.exports = ({
     ])
     bind(TYPES.RServiceDepsSchemaAliase)
       .toDynamicValue((ctx) => {
-        return ctx.container.get(TYPES.RServiceDepsSchema)
+        return ctx.get(TYPES.RServiceDepsSchema)
       })
     bind(TYPES.InjectDepsToRService)
       .toDynamicValue((ctx) => {
         return bindDepsToInstance(
-          ctx.container.get(TYPES.RService),
-          ctx.container.get(TYPES.RServiceDepsSchemaAliase)
+          ctx.get(TYPES.RService),
+          ctx.get(TYPES.RServiceDepsSchemaAliase)
         )
       })
       .inSingletonScope()
