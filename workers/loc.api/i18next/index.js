@@ -24,7 +24,6 @@ module.exports = (params) => {
     {
       fallbackLng: {
         es: ['es-EM', 'en'],
-        pt: ['pt-BR', 'en'],
         zh: ['zh-CN', 'en'],
         default: ['en']
       },
