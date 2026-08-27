@@ -152,6 +152,10 @@ module.exports = {
     candleTimeframe: {
       type: 'string',
       minLength: 2
+    },
+    wallet: {
+      type: 'string',
+      minLength: 1
     }
   }
 }

@@ -27,7 +27,8 @@ const PARAMS_MAP = {
   ledgers: {
     ...MAIN_PARAMS_MAP,
     symbol: 'filters.ccy',
-    category: 'filters.category'
+    category: 'filters.category',
+    wallet: 'filters.wallet'
   },
   statusMessages: {
     type: 'type',

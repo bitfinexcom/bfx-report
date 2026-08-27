@@ -88,12 +88,12 @@ class WrkReportServiceApi extends WrkApi {
 
   loadCoreDeps (...args) {
     this.coreDeps.push(coreDeps(...args))
-    this.container.load(...this.coreDeps)
+    this.container.loadSync(...this.coreDeps)
   }
 
   loadAppDeps (...args) {
     this.appDeps.push(appDeps(...args))
-    this.container.load(...this.appDeps)
+    this.container.loadSync(...this.appDeps)
   }
 
   async getI18next (i18nextConfigs) {
@@ -267,9 +267,9 @@ class WrkReportServiceApi extends WrkApi {
         next => { this.stopService().then(next).catch(next) },
         next => { super._stop(next) },
         next => {
-          this.container.unbindAll()
-          this.container.unload(...this.coreDeps)
-          this.container.unload(...this.appDeps)
+          this.container.unbindAllSync()
+          this.container.unloadSync(...this.coreDeps)
+          this.container.unloadSync(...this.appDeps)
 
           next()
         }

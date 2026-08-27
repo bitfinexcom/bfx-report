@@ -9,11 +9,11 @@ const loggerFactory = require('../logger')
 const dataValidator = require('../data-validator')
 
 module.exports = () => {
-  return new ContainerModule((bind) => {
-    bind(TYPES.LoggerFactory).toFunction(loggerFactory)
+  return new ContainerModule(({ bind }) => {
+    bind(TYPES.LoggerFactory).toConstantValue(loggerFactory)
     bind(TYPES.Logger).toDynamicValue((ctx) => {
       return bindDepsToFn(
-        ctx.container.get(TYPES.LoggerFactory),
+        ctx.get(TYPES.LoggerFactory),
         [TYPES.CONF]
       )
     }).inSingletonScope()

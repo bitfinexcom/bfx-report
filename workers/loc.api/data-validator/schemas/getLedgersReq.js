@@ -19,6 +19,9 @@ module.exports = {
     symbol: {
       $ref: 'defs#/definitions/symbolWithMinItem'
     },
+    wallet: {
+      $ref: 'defs#/definitions/wallet'
+    },
     category: {
       type: ['string', 'integer'],
       if: {
