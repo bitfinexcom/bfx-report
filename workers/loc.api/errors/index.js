@@ -200,6 +200,12 @@ class PDFBufferUnderFrameworkCreationError extends BaseError {
   }
 }
 
+class InterrupterNameSettingError extends BaseError {
+  constructor (message = 'ERR_INTERRUPTER_NAME_INCOMPATIBLE_FOR_USE') {
+    super(message)
+  }
+}
+
 module.exports = {
   BaseError,
   BadRequestError,
@@ -225,5 +231,6 @@ module.exports = {
   ImplementationError,
   WeightedAveragesTimeframeError,
   PDFBufferUnderElectronCreationError,
-  PDFBufferUnderFrameworkCreationError
+  PDFBufferUnderFrameworkCreationError,
+  InterrupterNameSettingError
 }
