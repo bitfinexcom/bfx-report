@@ -3,6 +3,7 @@
 const { omit } = require('@bitfinex/lib-js-util-base')
 
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
+const Interrupter = require('../interrupter')
 
 const {
   isAuthError,
@@ -305,7 +306,6 @@ const _makeJsonRpcResponse = (args, result) => {
  * to be able to use with the internal logic
  */
 module.exports = (
-  container,
   logger,
   wsEventEmitterFactory
 ) => (
@@ -325,9 +325,17 @@ module.exports = (
     name,
     isInternalRequest
   }
+  const context = { interrupter: null }
+  const finalizeInterruption = () => {
+    if (!(context.interrupter instanceof Interrupter)) {
+      return
+    }
+
+    context.interrupter.emitInterrupted()
+  }
 
   try {
-    const resFn = handler(container, args)
+    const resFn = handler(context, args)
 
     if (resFn instanceof Promise) {
       if (isInternalRequest) {
@@ -337,6 +345,7 @@ module.exports = (
 
             return Promise.reject(err)
           })
+          .finally(finalizeInterruption)
       }
 
       resFn
@@ -346,14 +355,18 @@ module.exports = (
 
           cb(null, _makeJsonRpcResponse(args, err))
         })
+        .finally(finalizeInterruption)
 
       return
     }
+
+    finalizeInterruption()
 
     if (isInternalRequest) return resFn
     cb(null, _makeJsonRpcResponse(args, resFn))
   } catch (err) {
     _logError(loggerArgs, err)
+    finalizeInterruption()
 
     if (isInternalRequest) throw err
     cb(null, _makeJsonRpcResponse(args, err))
