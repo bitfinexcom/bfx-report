@@ -3,7 +3,7 @@
 const { omit } = require('@bitfinex/lib-js-util-base')
 
 const AbstractWSEventEmitter = require('../abstract.ws.event.emitter')
-const Interrupter = require('../interrupter')
+const Context = require('./context')
 
 const {
   isAuthError,
@@ -325,13 +325,13 @@ module.exports = (
     name,
     isInternalRequest
   }
-  const context = { interrupter: null }
+  const context = new Context()
   const finalizeInterruption = () => {
-    if (!(context.interrupter instanceof Interrupter)) {
+    if (!context.hasInterrupter()) {
       return
     }
 
-    context.interrupter.emitInterrupted()
+    context.getInterrupter().emitInterrupted()
   }
 
   try {
