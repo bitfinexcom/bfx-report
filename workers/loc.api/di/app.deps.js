@@ -33,6 +33,7 @@ const {
 } = require('../generate-report-file/csv-writer')
 const WeightedAveragesReport = require('../weighted.averages.report')
 const BfxApiRouter = require('../bfx.api.router')
+const INTERRUPTER_NAMES = require('../interrupter/interrupter.names')
 
 module.exports = ({
   rService,
@@ -56,7 +57,8 @@ module.exports = ({
       ['_hasGrcService', TYPES.HasGrcService],
       ['_weightedAveragesReport', TYPES.WeightedAveragesReport],
       ['_i18next', TYPES.I18next],
-      ['_dataValidator', TYPES.DataValidator]
+      ['_dataValidator', TYPES.DataValidator],
+      ['_INTERRUPTER_NAMES', TYPES.INTERRUPTER_NAMES]
     ])
     bind(TYPES.RServiceDepsSchemaAliase)
       .toDynamicValue((ctx) => {
@@ -73,11 +75,11 @@ module.exports = ({
     bind(TYPES.GetDataFromApi).toConstantValue(
       bindDepsToFn(getDataFromApi)
     )
+    bind(TYPES.INTERRUPTER_NAMES).toConstantValue(INTERRUPTER_NAMES)
     bind(TYPES.Responder).toConstantValue(
       bindDepsToFn(
         responder,
         [
-          TYPES.Container,
           TYPES.Logger
         ]
       )

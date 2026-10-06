@@ -55,7 +55,6 @@ describe('Responder service', () => {
   let mockedResponder = null
 
   before(function () {
-    const mockedContainer = {}
     const mockedLogger = {
       debug (message) {
         assert.isString(message)
@@ -72,7 +71,6 @@ describe('Responder service', () => {
     })()
 
     mockedResponder = responder(
-      mockedContainer,
       mockedLogger,
       mockedWsEventEmitterFactory
     )

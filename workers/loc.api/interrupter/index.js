@@ -18,6 +18,7 @@ class Interrupter extends EventEmitter {
     this.INTERRUPTED_WITH_ERR_EVENT = 'ERR_INTERRUPTED_WITH_ERR_EVENT'
 
     this._isInterrupted = false
+    this._hasInterrupterEventBeenEmitted = false
     this._interruptPromise = Promise.resolve()
 
     this.name = INTERRUPTER_NAMES.COMMON_INTERRUPTER
@@ -95,6 +96,12 @@ class Interrupter extends EventEmitter {
   }
 
   emitInterrupted (error, progress) {
+    if (this._hasInterrupterEventBeenEmitted) {
+      return
+    }
+
+    this._hasInterrupterEventBeenEmitted = true
+
     if (error) {
       this.emit(this.INTERRUPTED_WITH_ERR_EVENT, error)
 
