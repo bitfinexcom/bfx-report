@@ -3,6 +3,9 @@
 const EventEmitter = require('events')
 
 const INTERRUPTER_NAMES = require('./interrupter.names')
+const {
+  InterrupterNameSettingError
+} = require('../errors')
 
 const { decorateInjectable } = require('../di/utils')
 
@@ -18,10 +21,24 @@ class Interrupter extends EventEmitter {
     this._interruptPromise = Promise.resolve()
 
     this.name = INTERRUPTER_NAMES.COMMON_INTERRUPTER
+
+    this.interrupterNames = Object.values(INTERRUPTER_NAMES)
+  }
+
+  #validateIntName () {
+    const hasRegisteredName = this.interrupterNames
+      .some((name) => (name === this.name))
+
+    if (hasRegisteredName) {
+      return
+    }
+
+    throw new InterrupterNameSettingError()
   }
 
   setName (name) {
     this.name = name ?? INTERRUPTER_NAMES.COMMON_INTERRUPTER
+    this.#validateIntName()
 
     return this
   }
