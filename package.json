@@ -89,7 +89,7 @@
     "test": "npm run lint && npm run unit && cross-env NODE_ENV=test mocha './test/**/*.spec.js' --config .mocharc.json",
     "testDev": "cross-env NODE_ENV=test mocha './workers/**/__test__/*-dev.spec.js' './test/**/*-dev.spec.js' --config .mocharc.json",
     "unit": "cross-env NODE_ENV=test mocha './workers/**/__test__/*.spec.js' --config .mocharc.json",
-    "lint": "bfx-lint-js",
-    "lint:fix": "bfx-lint-js --fix"
+    "lint": "bfx-lint-js --mocha",
+    "lint:fix": "bfx-lint-js --mocha --fix"
   }
 }

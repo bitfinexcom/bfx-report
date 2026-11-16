@@ -1,6 +1,5 @@
 .idea/
-.vscode/*
-!.vscode/settings.json
+.vscode/
 node_modules/
 .DS_Store
 npm-debug.log
