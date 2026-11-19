@@ -22,7 +22,7 @@
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "async": "^3.2.6",
-    "bitfinex-api-node": "^10.0.0",
+    "bitfinex-api-node": "^10.0.1",
     "colors": "1.4.0",
     "csv-stringify": "6.9.0",
     "i18next": "27.1.1",
