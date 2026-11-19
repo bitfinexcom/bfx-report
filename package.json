@@ -39,7 +39,7 @@
     "yargs": "17.7.3"
   },
   "devDependencies": {
-    "@bitfinex/bfx-report-express": "git+https://github.com/bitfinexcom/bfx-report-express.git",
+    "@bitfinex/bfx-report-express": "git+https://github.com/bitfinexcom/bfx-report-express.git#82826affc41bd5c1b29e76c790b148b5c589b105",
     "@bitfinex/lint-js": "^1.1.0",
     "bfx-api-mock-srv": "^4.0.1",
     "chai": "6.3.0",
