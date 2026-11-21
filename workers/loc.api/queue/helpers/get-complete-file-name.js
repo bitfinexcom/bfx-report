@@ -1,6 +1,6 @@
 'use strict'
 
-const { v4: uuidv4 } = require('uuid')
+const { randomUUID } = require('node:crypto')
 const { capitalize } = require('@bitfinex/lib-js-util-base')
 
 const getReportFileExtName = require('./get-report-file-ext-name')
@@ -87,7 +87,7 @@ const _getDateString = mc => {
 const _getUniqEnding = (uniqEnding = '') => {
   return uniqEnding && typeof uniqEnding === 'string'
     ? `-${uniqEnding}`
-    : `-${uuidv4()}`
+    : `-${randomUUID()}`
 }
 
 module.exports = (

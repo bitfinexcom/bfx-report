@@ -3,7 +3,7 @@
 const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
-const { v4: uuidv4 } = require('uuid')
+const { randomUUID } = require('node:crypto')
 const argv = require('yargs').argv
 
 const mkdir = promisify(fs.mkdir)
@@ -149,7 +149,7 @@ const createUniqueFileName = async (rootPath, params, count = 0) => {
   await _checkAndCreateDir(tempReportFolderPath)
 
   const ext = getReportFileExtName(params)
-  const uniqueFileName = `${uuidv4()}.${ext}`
+  const uniqueFileName = `${randomUUID()}.${ext}`
 
   const files = await readdir(tempReportFolderPath)
 

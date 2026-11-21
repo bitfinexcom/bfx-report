@@ -6,7 +6,7 @@ const {
 } = require('@bitfinex/lib-js-util-base')
 const { createWriteStream } = require('node:fs')
 const { unlink } = require('node:fs/promises')
-const { stringify } = require('csv')
+const { stringify } = require('csv-stringify')
 
 const {
   pipelineStreams
