@@ -1,6 +1,6 @@
 'use strict'
 
-const { stringify } = require('csv')
+const { stringify } = require('csv-stringify')
 
 const {
   pipelineStreams

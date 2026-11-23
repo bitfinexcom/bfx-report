@@ -1,6 +1,6 @@
 'use strict'
 
-const { v4: uuidv4 } = require('uuid')
+const { randomUUID } = require('node:crypto')
 const { MockRESTv2Server } = require('bfx-api-mock-srv')
 
 const _mockData = require('./mock-data')
@@ -254,7 +254,7 @@ const createMockRESTv2SrvWithDate = (
     let date = start
     let id = 12345
     let fee = 0.1
-    let strId = uuidv4()
+    let strId = randomUUID()
 
     const data = Array(_limit).fill(null).map((item, i) => {
       if (_limit === (i + mockData.length)) {
@@ -268,7 +268,7 @@ const createMockRESTv2SrvWithDate = (
       if (i > 0) {
         id += 1
         fee -= 0.0001
-        strId = uuidv4()
+        strId = randomUUID()
       }
 
       const mockDataItem = mockData[i % mockData.length]
